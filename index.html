@@ -6,9 +6,20 @@
 <title>Poppe’s Diesel Co. — Shop Manager (v0.9.3)</title>
 <style>
 :root{
-  --bg:#0b0c10; --card:#13151c; --text:#eaf2ff; --muted:#9fb3d1; --border:#242837;
+  /* ===== Poppe’s Diesel Co. palette (logo-matched) ===== */
+  --bg:#0f1114;          /* near-black */
+  --card:#16181d;        /* dark card */
+  --text:#f2eadb;        /* parchment/cream text */
+  --muted:#cdbfa6;       /* softer cream */
+  --border:#2a2d33;      /* dark border */
+
+  /* Accents mapped to your brand */
+  --info:#b43a33;        /* primary/CTA red from logo */
+  --ok:#158a4e;          /* success green */
+  --warn:#e0c38c;        /* parchment-gold for warnings */
+  --danger:#c34852;      /* tempered danger */
+
   --ink:#0e111a; --ink2:#161a24; --shadow:0 10px 20px rgba(0,0,0,.35);
-  --info:#83b2ff; --ok:#2fffd0; --warn:#ffd54d; --danger:#ff7a8a;
   --font: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 *{box-sizing:border-box} html,body{height:100%} body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
@@ -17,7 +28,7 @@ h1{margin:0;font-size:20px;display:flex;gap:8px;align-items:center}
 .tag{background:var(--ink2);color:var(--muted);padding:2px 6px;border-radius:6px;font-size:12px;white-space:nowrap}
 nav.top{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 button,select,input,textarea{background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:12px;font-size:17px;touch-action:manipulation}
-button{cursor:pointer} .tab-btn{background:var(--ink2)} .primary{background:var(--info);color:#001a2d;border-color:transparent} .success{background:var(--ok);color:#002b1f;border-color:transparent}
+button{cursor:pointer} .tab-btn{background:var(--ink2)} .primary{background:var(--info);color:#1a0807;border-color:transparent} .success{background:var(--ok);color:#00180e;border-color:transparent}
 main{padding:16px 16px 100px}
 .tab{display:none} .tab.active{display:block}
 .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:14px;background:var(--card)}
@@ -28,12 +39,13 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
 .actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:stretch;margin-top:8px}
 .actions>*{height:48px}
 .print-area{background:#fff;color:#000;border-radius:14px;padding:16px;position:relative;overflow:hidden}
-.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:.08;z-index:0}
+.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0}
 .invoice-header{position:relative;z-index:1;display:flex;justify-content:space-between;gap:16px;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:8px}
-.lines thead th{background:#1a1e2b;color:#cfe1ff;border-bottom-color:#2b2f40}
+/* table header – darker to fit brand, high contrast when printed */
+.lines thead th{background:#111;color:#f2eadb;border-bottom-color:#2a2d33}
 .totals{display:grid;gap:6px;justify-items:end;margin-top:8px;position:relative;z-index:1}
 .badge{padding:.25rem .5rem;border-radius:999px;border:1px solid #000;font-size:.9em}
-.badge.estimate{background:#fff7d6} .badge.invoice{background:#e6fff4}
+.badge.estimate{background:#fff7d6;color:#111} .badge.invoice{background:#e6fff4;color:#111}
 .small{font-size:.85em;color:var(--muted)}
 .calc-hint{font-size:.8em;line-height:1.2;margin-top:6px;opacity:.9}
 .calc-hint.ok{color:#0a7f63} .calc-hint.warn{color:#b48802}
@@ -50,7 +62,7 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
 .modal .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;max-width:900px;width:96%;padding:16px;box-shadow:var(--shadow)}
 .modal header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .hint{color:var(--muted);font-size:.9em}
-.suggestions{margin-top:8px;padding:10px;border:1px dashed #2b2f40;border-radius:12px;background:#10131d}
+.suggestions{margin-top:8px;padding:10px;border:1px dashed #2a2d33;border-radius:12px;background:#10131d}
 .suggestions .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .suggestions .tag{background:#1b2134;border:1px solid #2b3552;color:#cfe1ff}
 .settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
@@ -59,7 +71,7 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
 <body>
 <div id="error">JavaScript error detected. Tap to reload.</div>
 <header>
-  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v0.9.3</span><span id="selftest" class="tag selftest">Self‑test: …</span></h1>
+  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v0.9.3</span><span id="selftest" class="tag selftest">Self-test: …</span></h1>
   <nav class="top">
     <button class="tab-btn" data-tab="dashboard">Dashboard</button>
     <button class="tab-btn" data-tab="customers">Customers</button>
@@ -164,13 +176,9 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
 
     <div class="print-area" id="preview" style="margin-top:12px">
       <div class="watermark">
-        <svg viewBox="0 0 800 200" width="90%" height="90%" style="filter:grayscale(100%)">
-          <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
-                font-size="72" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif"
-                fill="#000" opacity="0.6">
-            Poppe’s Diesel Co.
-          </text>
-        </svg>
+        <!-- Use your actual logo here (persisted to localStorage). -->
+        <img id="wmImg" alt="Poppe’s Diesel Co. watermark"
+             style="max-width:90%;max-height:90%;filter:grayscale(100%);opacity:.15" />
       </div>
       <div class="invoice-header">
         <div class="shop">
@@ -271,7 +279,7 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
   var logEl = document.getElementById('debugLog');
   var metaEl = document.getElementById('debugMeta');
   var buf = [];
-  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\\n'); } }
+  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\n'); } }
   window.AppLog = {
     info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
     warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
@@ -291,8 +299,8 @@ function guard(name, fn){
 // ---------- SELF-TEST ----------
 (function(){
   var badge = document.getElementById('selftest');
-  function ok(){ badge.textContent='Self‑test: OK'; badge.className='tag selftest ok'; }
-  function warn(msg){ badge.textContent='Self‑test: Check'; badge.title=msg||''; badge.className='tag selftest warn'; }
+  function ok(){ badge.textContent='Self-test: OK'; badge.className='tag selftest ok'; }
+  function warn(msg){ badge.textContent='Self-test: Check'; badge.title=msg||''; badge.className='tag selftest warn'; }
   try {
     if(!window.localStorage || !window.Blob || !window.fetch || !document.querySelector){ warn('Missing core API'); return; }
     var k='__st__'+Math.random(); localStorage.setItem(k,'1'); var v=localStorage.getItem(k); localStorage.removeItem(k);
@@ -607,7 +615,13 @@ window.addEventListener('load', function(){
         location.href='mailto:'+to+'?subject='+subj+'&body='+body;
       });
       document.getElementById('pdf').addEventListener('click', function(){
-        var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>PDF</title><style>body{font-family:'+CSS.escape(getComputedStyle(document.body).fontFamily)+';margin:0;padding:16px;color:#000}table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #000;padding:8px;text-align:left}.totals{display:grid;gap:6px;justify-items:end;margin-top:10px}.grand{font-weight:700}.print-area{position:relative}.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.08}</style></head><body>'+document.getElementById('preview').outerHTML+'</body></html>';
+        // Use the current preview HTML; make sure watermark opacity is on the IMG, not the container
+        var css = 'body{font-family:'+CSS.escape(getComputedStyle(document.body).fontFamily)+';margin:0;padding:16px;color:#000}'
+                + 'table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #000;padding:8px;text-align:left}'
+                + '.totals{display:grid;gap:6px;justify-items:end;margin-top:10px}.grand{font-weight:700}'
+                + '.print-area{position:relative}.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}'
+                + '.watermark img{max-width:90%;max-height:90%;filter:grayscale(100%);opacity:.15}';
+        var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>PDF</title><style>'+css+'</style></head><body>'+document.getElementById('preview').outerHTML+'</body></html>';
         var blob = new Blob([html], {type:'text/html'});
         var url = URL.createObjectURL(blob);
         var w = window.open(url, '_blank'); if(!w) alert('Allow popups to print.');
@@ -673,6 +687,34 @@ window.addEventListener('load', function(){
     document.getElementById('shopReply').addEventListener('input', function(){ DB.settings.shopReply = this.value; saveDB(); });
     document.getElementById('shopSubj').addEventListener('input', function(){ DB.settings.shopSubj = this.value; saveDB(); });
     document.getElementById('shopFooter').addEventListener('input', function(){ DB.settings.shopFooter = this.value; saveDB(); });
+
+    // --- Watermark loader (persisted logo) ---
+    (function(){
+      try{
+        var key = 'pdc_logo';
+        var img = document.getElementById('wmImg');
+        var saved = localStorage.getItem(key);
+        if(saved){
+          img.src = saved;
+        }else{
+          setTimeout(function(){
+            if(!img.src){
+              var pick = confirm('Add your logo as the invoice watermark now?');
+              if(!pick) return;
+              var input = document.createElement('input');
+              input.type = 'file'; input.accept = 'image/*';
+              input.onchange = function(e){
+                var f = e.target.files && e.target.files[0]; if(!f) return;
+                var r = new FileReader();
+                r.onload = function(){ localStorage.setItem(key, r.result); img.src = r.result; };
+                r.readAsDataURL(f);
+              };
+              input.click();
+            }
+          }, 400);
+        }
+      }catch(e){ /* ignore */ }
+    })();
 
     // Backup/Restore/Reset
     document.getElementById('backupBtn').addEventListener('click', function(){
