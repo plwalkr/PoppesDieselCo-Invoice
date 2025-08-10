@@ -1,40 +1,711 @@
-/* Brand shell */
-body{ background:var(--bg); color:#1b1b1b; }
-header, nav.bottom{ background:var(--ink); }
-h1, h2, h3{ color:var(--cream); }
-
-.card, .table-wrap, .modal .panel{
-  background:var(--card); border-color:var(--border); color:var(--text);
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Poppe’s Diesel Co. — Shop Manager (v0.9.3)</title>
+<style>
+:root{
+  --bg:#0b0c10; --card:#13151c; --text:#eaf2ff; --muted:#9fb3d1; --border:#242837;
+  --ink:#0e111a; --ink2:#161a24; --shadow:0 10px 20px rgba(0,0,0,.35);
+  --info:#83b2ff; --ok:#2fffd0; --warn:#ffd54d; --danger:#ff7a8a;
+  --font: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
-.lines thead th{
-  background:#1e1e1e; color:var(--cream); border-bottom-color:#2f2b25;
+*{box-sizing:border-box} html,body{height:100%} body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
+header{position:sticky;top:0;z-index:10;background:var(--ink);border-bottom:1px solid var(--border);padding:12px 16px;box-shadow:var(--shadow)}
+h1{margin:0;font-size:20px;display:flex;gap:8px;align-items:center}
+.tag{background:var(--ink2);color:var(--muted);padding:2px 6px;border-radius:6px;font-size:12px;white-space:nowrap}
+nav.top{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+button,select,input,textarea{background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:12px;font-size:17px;touch-action:manipulation}
+button{cursor:pointer} .tab-btn{background:var(--ink2)} .primary{background:var(--info);color:#001a2d;border-color:transparent} .success{background:var(--ok);color:#002b1f;border-color:transparent}
+main{padding:16px 16px 100px}
+.tab{display:none} .tab.active{display:block}
+.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:14px;background:var(--card)}
+table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0}
+.actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:stretch;margin-top:8px}
+.actions>*{height:48px}
+.print-area{background:#fff;color:#000;border-radius:14px;padding:16px;position:relative;overflow:hidden}
+.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:.08;z-index:0}
+.invoice-header{position:relative;z-index:1;display:flex;justify-content:space-between;gap:16px;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:8px}
+.lines thead th{background:#1a1e2b;color:#cfe1ff;border-bottom-color:#2b2f40}
+.totals{display:grid;gap:6px;justify-items:end;margin-top:8px;position:relative;z-index:1}
+.badge{padding:.25rem .5rem;border-radius:999px;border:1px solid #000;font-size:.9em}
+.badge.estimate{background:#fff7d6} .badge.invoice{background:#e6fff4}
+.small{font-size:.85em;color:var(--muted)}
+.calc-hint{font-size:.8em;line-height:1.2;margin-top:6px;opacity:.9}
+.calc-hint.ok{color:#0a7f63} .calc-hint.warn{color:#b48802}
+#debugToggle{position:fixed;right:12px;bottom:72px;z-index:60;background:#1e2030;border:1px solid #3a3f58;border-radius:999px;padding:10px 12px}
+#debug{position:fixed;right:12px;bottom:12px;left:12px;max-height:50vh;overflow:auto;background:#0f111a;border:1px solid #30364a;border-radius:12px;padding:10px 12px;z-index:60;display:none;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;font-size:12px;color:#d7e1ff}
+#debug pre{white-space:pre-wrap;margin:0}
+#debug .meta{font-size:12px;color:#9fb3d1;margin-bottom:6px}
+#error{display:none;position:sticky;top:0;z-index:20;background:#ff5566;color:#18040a;padding:10px 14px;border-bottom:2px solid #8a1b27}
+.selftest{display:none;margin-left:8px}
+.selftest.ok{display:inline-block;background:#10331f;border:1px solid #1f6440;color:#a5ffd8}
+.selftest.warn{display:inline-block;background:#3a2f00;border:1px solid #7a5f00;color:#ffeaa3}
+@media print{ body{background:#fff;color:#000} header,nav.bottom,nav.top,.actions,.modal,#debug,#debugToggle{display:none!important} .tab{display:block!important} #invoice{display:block!important} .print-area{box-shadow:none;margin:0;padding:0} }
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50}
+.modal .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;max-width:900px;width:96%;padding:16px;box-shadow:var(--shadow)}
+.modal header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.hint{color:var(--muted);font-size:.9em}
+.suggestions{margin-top:8px;padding:10px;border:1px dashed #2b2f40;border-radius:12px;background:#10131d}
+.suggestions .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.suggestions .tag{background:#1b2134;border:1px solid #2b3552;color:#cfe1ff}
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+</style>
+</head>
+<body>
+<div id="error">JavaScript error detected. Tap to reload.</div>
+<header>
+  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v0.9.3</span><span id="selftest" class="tag selftest">Self‑test: …</span></h1>
+  <nav class="top">
+    <button class="tab-btn" data-tab="dashboard">Dashboard</button>
+    <button class="tab-btn" data-tab="customers">Customers</button>
+    <button class="tab-btn" data-tab="jobs">Jobs</button>
+    <button class="tab-btn" data-tab="invoice">Estimate / Invoice</button>
+    <button class="tab-btn" data-tab="settings">Settings</button>
+  </nav>
+</header>
+
+<main>
+  <section id="dashboard" class="tab active">
+    <h2>Dashboard</h2>
+    <div class="cards">
+      <div class="card"><h3>Open Jobs</h3><div id="openJobs">0</div></div>
+      <div class="card"><h3>Unpaid Invoices</h3><div id="unpaid">0</div></div>
+      <div class="card"><h3>Revenue (This Month)</h3><div id="revMonth">$0</div></div>
+      <div class="card"><h3>Profit (This Month)</h3><div id="profitMonth">$0</div></div>
+    </div>
+  </section>
+
+  <section id="customers" class="tab">
+    <h2>Customers</h2>
+    <form id="custForm" class="grid">
+      <input id="custName" placeholder="Full name (e.g., Jane Smith)" required/>
+      <input id="custPhone" placeholder="Phone (e.g., 555-123-4567)" inputmode="tel"/>
+      <input id="custEmail" placeholder="Email (e.g., name@shop.com)" inputmode="email"/>
+      <input id="custVehicle" placeholder="Vehicle (e.g., 2018 F-350 6.7L)"/>
+      <button class="primary" type="submit">Add Customer</button>
+    </form>
+    <div class="table-wrap">
+      <table id="custTable"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Vehicle</th><th></th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <section id="jobs" class="tab">
+    <h2>Jobs</h2>
+    <form id="jobForm" class="grid">
+      <select id="jobCustomer" required></select>
+      <input id="jobTitle" placeholder="Job title (e.g., Front brakes + rotors)" required/>
+      <input id="jobVIN" placeholder="VIN (17 chars)"/>
+      <button type="button" class="tab-btn" id="decodeVIN">Decode VIN</button>
+      <div id="vinResult" style="display:none" class="card hint"></div>
+      <div id="vinSuggest" style="display:none" class="suggestions">
+        <div><strong>Suggested parts & labor</strong> (based on decoded platform)</div>
+        <div class="tags" id="vinTags"></div>
+        <div style="margin-top:8px"><button class="tab-btn primary" id="addAllSuggest" type="button">Add All</button></div>
+      </div>
+      <textarea id="jobNotes" placeholder="Notes (symptoms, codes, etc.)"></textarea>
+      <select id="jobStatus"><option>Open</option><option>In Progress</option><option>Done</option></select>
+      <button class="primary" type="submit">Create Job</button>
+    </form>
+    <div class="table-wrap">
+      <table id="jobsTable"><thead><tr><th>#</th><th>Customer</th><th>Title</th><th>Status</th><th>Total</th><th>Profit</th><th></th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <section id="invoice" class="tab">
+    <h2>Estimate / Invoice<br><small>Poppe’s Diesel Co. — Built in the Garage, Backed by Freedom</small></h2>
+    <form id="invForm" class="grid">
+      <select id="invJob" required></select>
+      <input id="invNo" placeholder="Document # (e.g., 2025-001)"/>
+      <label>Type
+        <select id="docType"><option>Estimate</option><option>Invoice</option></select>
+      </label>
+      <label>Labor Rate ($/hr) <input id="laborRate" type="number" step="0.01" value="80" placeholder="$/hr (e.g., 95.00)"/></label>
+      <label>Sales Tax (%) <input id="salesTax" type="number" step="0.01" value="7" placeholder="% (e.g., 7.00)"/></label>
+      <label>Payment Link <input id="payLink" placeholder="https://pay.yourprovider.com/invoice/123"/></label>
+      <label>Email To <input id="emailTo" placeholder="customer@example.com"/></label>
+    </form>
+
+    <div class="actions">
+      <button type="button" class="tab-btn" id="addLabor">+ Labor Line</button>
+      <button type="button" class="tab-btn" id="addPart">+ Part Line</button>
+      <button type="button" class="tab-btn" id="openTemplates">Maintenance Templates</button>
+      <button type="button" class="tab-btn" id="applyMarkup">Apply Default Markup</button>
+      <button type="button" class="tab-btn" id="recalc">Recalculate</button>
+      <button type="button" class="tab-btn success" id="markPaid">Mark Paid</button>
+      <button type="button" class="tab-btn" id="approve">Approve Estimate</button>
+      <button type="button" class="tab-btn" id="convert">Convert to Invoice</button>
+      <button type="button" class="tab-btn" id="email">Email</button>
+      <button type="button" class="tab-btn primary" id="pdf">Generate PDF</button>
+    </div>
+
+    <div class="table-wrap" style="margin-top:10px">
+      <table class="lines" id="lines">
+        <thead>
+          <tr>
+            <th>Type</th><th>Description</th><th>Qty/Hrs</th><th>Cost $</th><th>Unit $</th><th>Line $</th><th>Profit $</th><th></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="totals">
+      <div>Subtotal: <span id="sub">$0.00</span></div>
+      <div>Tax: <span id="tax">$0.00</span></div>
+      <div class="grand">Total: <span id="grand">$0.00</span></div>
+      <div><strong>Total Profit:</strong> <span id="profit">$0.00</span></div>
+      <div>Margin: <span id="margin" class="badge estimate">0%</span></div>
+    </div>
+
+    <div class="print-area" id="preview" style="margin-top:12px">
+      <div class="watermark">
+        <svg viewBox="0 0 800 200" width="90%" height="90%" style="filter:grayscale(100%)">
+          <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
+                font-size="72" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif"
+                fill="#000" opacity="0.6">
+            Poppe’s Diesel Co.
+          </text>
+        </svg>
+      </div>
+      <div class="invoice-header">
+        <div class="shop">
+          <h3>Poppe’s Diesel Co.</h3>
+          <p>Columbus, IN · poppedieselco@gmail.com · (208) 243-7934</p>
+        </div>
+        <div class="meta">
+          <div><strong>Doc #</strong> <span id="pInvNo">—</span></div>
+          <div><strong>Date</strong> <span id="pDate">—</span></div>
+          <div><strong>Type</strong> <span id="pType" class="badge estimate">Estimate</span></div>
+          <div><strong>Status</strong> <span id="pStatus">Unpaid</span></div>
+        </div>
+      </div>
+      <div><strong>Bill To:</strong> <span id="pCust">—</span><div id="pVeh"></div></div>
+      <table class="lines"><thead><tr><th>Description</th><th>Qty/Hrs</th><th>Unit</th><th>Line $</th></tr></thead><tbody id="pLines"></tbody></table>
+      <div class="totals">
+        <div>Subtotal: <span id="pSub">$0.00</span></div>
+        <div>Tax: <span id="pTax">$0.00</span></div>
+        <div class="grand">Grand Total: <span id="pGrand">$0.00</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="settings" class="tab">
+    <h2>Settings</h2>
+    <div class="card">
+      <h3>Default Parts Markup</h3>
+      <div class="grid">
+        <label>Default Markup % <input id="defaultMarkup" type="number" step="1" value="40" placeholder="e.g., 40"/></label>
+        <div class="hint">Used by “Apply Default Markup” on invoice and as fallback for new part lines.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Email Presets</h3>
+      <div class="settings-grid">
+        <label>From (Shop Name) <input id="shopFrom" placeholder="Poppe’s Diesel Co."/></label>
+        <label>Reply-To Email <input id="shopReply" placeholder="poppedieselco@gmail.com" inputmode="email"/></label>
+        <label>Subject Prefix <input id="shopSubj" placeholder="[Poppe’s Diesel Co.] "/></label>
+        <label>Footer (shown in email body) <input id="shopFooter" placeholder="Thank you for supporting local." /></label>
+      </div>
+      <div class="hint">When you tap Email, these are used to build the mailto draft.</div>
+    </div>
+
+    <div class="card">
+      <h3>Backup & Restore</h3>
+      <div class="settings-grid">
+        <button id="backupBtn" class="tab-btn" type="button">Download Backup (.json)</button>
+        <label>Restore from Backup <input id="restoreFile" type="file" accept=".json"/></label>
+        <button id="resetBtn" class="tab-btn" type="button">Factory Reset (keeps this page)</button>
+      </div>
+      <div class="hint">Backups include customers, jobs, lines, settings, and templates.</div>
+    </div>
+
+    <div class="card">
+      <h3>Templates (editable)</h3>
+      <p class="hint">Platform match uses VIN decode (Make/Model/Engine). You can apply any template manually via the button.</p>
+      <div class="table-wrap">
+        <table id="tplTable"><thead><tr><th>Platform</th><th>Item</th><th>Type</th><th>Qty/Hrs</th><th>Cost</th><th>Markup%</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="bottom" style="position:fixed;bottom:0;left:0;right:0;background:#0e111a;border-top:1px solid var(--border);display:flex;justify-content:space-between;padding:10px 10px;align-items:center">
+  <div>
+    <button class="tab-btn" data-tab="dashboard">🏠</button>
+    <button class="tab-btn" data-tab="customers">👤</button>
+    <button class="tab-btn" data-tab="jobs">🧰</button>
+    <button class="tab-btn" data-tab="invoice">🧾</button>
+    <button class="tab-btn" data-tab="settings">⚙️</button>
+  </div>
+  <button id="debugToggle" title="Debug">🪲</button>
+</nav>
+
+<div id="debug">
+  <div class="meta" id="debugMeta"></div>
+  <pre id="debugLog"></pre>
+</div>
+
+<div class="modal" id="tplModal">
+  <div class="panel">
+    <header><h3>Maintenance Templates</h3><button id="tplClose" class="tab-btn">Close</button></header>
+    <div id="tplList"></div>
+  </div>
+</div>
+
+<script>
+// ---------- POLYFILLS & SAFE HELPERS ----------
+(function(){
+  if(!window.crypto) window.crypto = {};
+  if(!crypto.randomUUID){
+    crypto.randomUUID = function(){ return 'id-' + Math.random().toString(16).slice(2) + '-' + Date.now(); }
+  }
+})();
+
+(function(){
+  var logEl = document.getElementById('debugLog');
+  var metaEl = document.getElementById('debugMeta');
+  var buf = [];
+  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\\n'); } }
+  window.AppLog = {
+    info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
+    warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
+    error: function(msg, err){ try{ console.error('[ERROR]', msg, err); }catch(e){} print('[ERROR] ' + msg + (err?(' :: '+ (err.message||err)):'')); }
+  };
+  metaEl.textContent = 'UA=' + navigator.userAgent + ' | Lang=' + navigator.language + ' | ' + (new Date()).toLocaleString();
+  document.getElementById('debugToggle').addEventListener('click', function(){
+    var box = document.getElementById('debug'); box.style.display = (box.style.display==='block'?'none':'block');
+  });
+})();
+
+function guard(name, fn){
+  try { fn(); AppLog.info(name + ' ✅'); }
+  catch(e){ AppLog.error(name + ' ❌', e); var el = document.getElementById('error'); if(el){ el.style.display='block'; el.onclick=function(){ location.reload(); }; } }
 }
 
-/* Controls */
-button,select,input,textarea{
-  background:#151515; border:1px solid var(--char); color:var(--cream);
-  border-radius:12px; transition:transform .06s ease, filter .15s ease;
-}
-button{ cursor:pointer }
-.tab-btn{ background:#1b1b1b; }
-.primary{ background:var(--info); color:#fff; border-color:transparent; }
-.primary:hover{ filter:brightness(.95); }
-.primary:active{ background:var(--red-deep); transform:translateY(1px); }
-.success{ background:var(--ok); color:#072016; border-color:transparent; }
+// ---------- SELF-TEST ----------
+(function(){
+  var badge = document.getElementById('selftest');
+  function ok(){ badge.textContent='Self‑test: OK'; badge.className='tag selftest ok'; }
+  function warn(msg){ badge.textContent='Self‑test: Check'; badge.title=msg||''; badge.className='tag selftest warn'; }
+  try {
+    if(!window.localStorage || !window.Blob || !window.fetch || !document.querySelector){ warn('Missing core API'); return; }
+    var k='__st__'+Math.random(); localStorage.setItem(k,'1'); var v=localStorage.getItem(k); localStorage.removeItem(k);
+    if(v!=='1'){ warn('localStorage blocked'); return; }
+    ok();
+  } catch(e){ warn(e && e.message || 'unknown'); }
+})();
 
-/* Badges (Margin %, Type) — high contrast */
-.badge{ padding:.28rem .65rem; border-radius:999px; border:1px solid rgba(0,0,0,.7);
-        font-weight:700; letter-spacing:.2px; }
-.badge.invoice{  background:#f2e6d1; color:#231b12; border-color:#c9b392; }
-.badge.estimate{ background:#ffe6c2; color:#3b2a12; border-color:#d9b887; }
-.badge.lowcontrast{ background:#ffd9d6; color:#5e1613; border-color:#d7a5a3; }
+// ---------- APP CODE (GUARDED) ----------
+window.addEventListener('load', function(){
+  guard('init', function(){
 
-/* Totals pop a little on light */
-.totals{ color:#1c1c1c; }
-.totals .grand{ background:#fff3e0; padding:.25rem .5rem; border-radius:.5rem; }
+    var STORAGE_KEY = 'poppe_shop_db_v092';
+    var DB = loadDB() || { customers: [], jobs: [], templates: seedTemplates(), settings: { defaultMarkup: 40, shopFrom:'Poppe’s Diesel Co.', shopReply:'poppedieselco@gmail.com', shopSubj:'[Poppe’s Diesel Co.] ', shopFooter:'Thank you for supporting local.' } };
 
-/* Keep the invoice paper white for clean PDFs */
-.print-area{ background:#ffffff; color:#000; }
+    function saveDB(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(e){ AppLog.error('localStorage save failed', e); } }
+    function loadDB(){ try { var s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; } catch(e){ AppLog.error('localStorage load failed', e); return null; } }
+    function resetDB(){
+      DB = { customers: [], jobs: [], templates: seedTemplates(), settings: { defaultMarkup: 40, shopFrom:'Poppe’s Diesel Co.', shopReply:'poppedieselco@gmail.com', shopSubj:'[Poppe’s Diesel Co.] ', shopFooter:'Thank you for supporting local.' } };
+      saveDB(); renderAll();
+    }
 
-/* Tab buttons in the top nav */
-nav.top .tab-btn{ color:#e8e0d5; }
+    function seedTemplates(){
+      return [
+        { platform: "Cummins 6.7L (Ram)", items: [
+          {type:"Labor", desc:"Oil & Filters Service", qty:1.0, unit:null},
+          {type:"Part", desc:"Fuel Filter (Primary)", vendor:"Fleetguard", part:"FS53000", cost:38.00, markup:40},
+          {type:"Part", desc:"Fuel Filter (Secondary)", vendor:"Fleetguard", part:"FF63009", cost:32.00, markup:40},
+          {type:"Part", desc:"Oil Filter", vendor:"Fleetguard", part:"LF16035", cost:9.50, markup:60},
+          {type:"Part", desc:"Crankcase Filter", vendor:"Cummins", part:"CV50628", cost:78.00, markup:35}
+        ]},
+        { platform: "Powerstroke 6.7L (Ford)", items: [
+          {type:"Labor", desc:"Fuel Filters & Oil", qty:1.2, unit:null},
+          {type:"Part", desc:"Fuel Filter (Frame)", vendor:"Motorcraft", part:"FD-4625", cost:34.00, markup:40},
+          {type:"Part", desc:"Fuel Filter (Engine Bay)", vendor:"Motorcraft", part:"FD-4624", cost:28.00, markup:40},
+          {type:"Part", desc:"Oil Filter", vendor:"Motorcraft", part:"FL-2051S", cost:12.50, markup:60}
+        ]},
+        { platform: "Duramax L5P (GM)", items: [
+          {type:"Labor", desc:"Fuel Filter & Air", qty:1.0, unit:null},
+          {type:"Part", desc:"Fuel Filter", vendor:"ACDelco", part:"TP1015", cost:36.00, markup:40},
+          {type:"Part", desc:"Air Filter", vendor:"ACDelco", part:"A3218C", cost:22.00, markup:55},
+          {type:"Part", desc:"Trans Service Kit", vendor:"ACDelco", part:"24296954", cost:89.00, markup:35}
+        ]}
+      ];
+    }
+
+    var $ = function(sel, root){ return (root||document).querySelector(sel); };
+    var $$ = function(sel, root){ return Array.from((root||document).querySelectorAll(sel)); };
+    function fmt(n){ return "$"+Number(n||0).toFixed(2); }
+
+    function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); saveDB(); }
+
+    // Tabs
+    guard('tabs', function(){
+      $$('.tab-btn[data-tab]').forEach(function(b){
+        b.addEventListener('click', function(){
+          var id = b.getAttribute('data-tab');
+          $$('.tab').forEach(function(t){ t.classList.remove('active'); });
+          $('#'+id).classList.add('active');
+          window.scrollTo({top:0, behavior:'smooth'});
+        });
+      });
+    });
+
+    // Customers
+    guard('customers-form', function(){
+      $('#custForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        var c = {id: crypto.randomUUID(), name: $('#custName').value.trim(), phone: $('#custPhone').value.trim(), email: $('#custEmail').value.trim(), vehicle: $('#custVehicle').value.trim()};
+        if(!c.name) return;
+        DB.customers.push(c); renderCustomers(); renderJobCustomer(); $('#custForm').reset(); saveDB();
+      });
+    });
+
+    function renderCustomers(){
+      var tb = $('#custTable tbody'); tb.innerHTML='';
+      DB.customers.forEach(function(c){
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>'+c.name+'</td><td>'+(c.phone||'')+'</td><td>'+(c.email||'')+'</td><td>'+(c.vehicle||'')+'</td><td><button class="tab-btn" data-delc="'+c.id+'">Delete</button></td>';
+        tb.appendChild(tr);
+      });
+      $$('button[data-delc]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var id = btn.getAttribute('data-delc');
+          if(!confirm('Delete this customer and all their jobs?')) return;
+          DB.jobs = DB.jobs.filter(function(j){ return j.customerId !== id; });
+          DB.customers = DB.customers.filter(function(c){ return c.id !== id; });
+          renderCustomers(); renderJobs(); renderJobCustomer(); saveDB();
+        });
+      });
+    }
+
+    function renderJobCustomer(){
+      var sel = $('#jobCustomer');
+      sel.innerHTML = '<option value="">Select...</option>' + DB.customers.map(function(c){ return '<option value="'+c.id+'">'+c.name+'</option>'; }).join('');
+      var invSel = $('#invJob');
+      invSel.innerHTML = '<option value="">Select job…</option>' + DB.jobs.map(function(j){
+        var c = DB.customers.find(function(x){ return x.id===j.customerId; });
+        return '<option value="'+j.id+'">'+(c?c.name:'—')+' — '+j.title+'</option>';
+      }).join('');
+    }
+
+    // Jobs
+    guard('jobs-form', function(){
+      $('#jobForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        var j = {
+          id: crypto.randomUUID(), customerId: $('#jobCustomer').value, title: $('#jobTitle').value.trim(),
+          vin: $('#jobVIN').value.trim(), notes: $('#jobNotes').value.trim(), status: $('#jobStatus').value,
+          lines: [], paid:false, paidAt:null, docType:'Estimate', approved:false, approvedAt:null, signature:null, paymentLink:'', vinData:null
+        };
+        if(!j.customerId || !j.title) return;
+        DB.jobs.push(j); renderJobs(); renderJobCustomer(); $('#jobForm').reset(); $('#vinResult').style.display='none'; $('#vinSuggest').style.display='none'; saveDB();
+        if(DB.jobs.length===1) { $('#invJob').value = j.id; loadInvoice(j.id); }
+      });
+
+      $('#decodeVIN').addEventListener('click', function(){
+        var vin = $('#jobVIN').value.trim();
+        var box = $('#vinResult'); var sug = $('#vinSuggest'); var tags = $('#vinTags');
+        box.style.display='block'; box.textContent = 'Decoding…'; sug.style.display='none'; tags.innerHTML='';
+        if(!vin || vin.length<11) { box.textContent='Enter a valid VIN (17 preferred).'; return; }
+        fetch('https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/'+encodeURIComponent(vin)+'?format=json')
+        .then(function(res){ return res.json(); })
+        .then(function(data){
+          var map = {}; (data.Results||[]).forEach(function(r){ if(r.Variable&&r.Value) map[r.Variable]=r.Value; });
+          var summary = (map['Model Year']||'-')+' '+(map['Make']||'-')+' '+(map['Model']||'-');
+          box.innerHTML = '<strong>'+summary+'</strong>';
+          var platformText = (summary + ' ' + (map['Engine Model']||'') + ' ' + (map['Engine Manufacturer']||'')).toLowerCase();
+          var matched = DB.templates.filter(function(t){
+            return (t.platform.toLowerCase().indexOf('cummins')>-1 && platformText.indexOf('ram')>-1) ||
+                   (t.platform.toLowerCase().indexOf('powerstroke')>-1 && platformText.indexOf('ford')>-1) ||
+                   (t.platform.toLowerCase().indexOf('duramax')>-1 && (platformText.indexOf('chevrolet')>-1||platformText.indexOf('gmc')>-1||platformText.indexOf('gm')>-1));
+          });
+          if(matched.length===0){ matched = DB.templates; }
+          tags.innerHTML = '';
+          matched.forEach(function(tpl){
+            var b = document.createElement('button'); b.className='tag'; b.type='button'; b.textContent = tpl.platform;
+            b.addEventListener('click', function(){ applyTemplate(tpl); });
+            tags.appendChild(b);
+          });
+          document.getElementById('addAllSuggest').onclick = function(){ matched.forEach(function(t){ applyTemplate(t); }); };
+          sug.style.display='block';
+          saveDB();
+        })
+        .catch(function(){ box.textContent = 'VIN decode failed.'; });
+      });
+    });
+
+    function renderJobs(){
+      var tb = $('#jobsTable tbody'); tb.innerHTML='';
+      DB.jobs.forEach(function(j){
+        var c = DB.customers.find(function(x){ return x.id===j.customerId; });
+        var subtotal = j.lines.reduce(function(s,l){ return s + (Number(l.qty)||0)*(Number(l.unit)||0); }, 0);
+        var profit = j.lines.reduce(function(s,l){ return s + (Number(l.profit)||0); }, 0);
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>'+j.id.slice(0,8)+'</td><td>'+(c?c.name:'—')+'</td><td>'+j.title+'</td>' +
+          '<td><select data-id="'+j.id+'" class="jobStatus">'+['Open','In Progress','Done'].map(function(s){ return '<option '+(j.status===s?'selected':'')+'>'+s+'</option>'; }).join('')+'</select></td>' +
+          '<td>'+fmt(subtotal)+'</td><td>'+fmt(profit)+'</td>' +
+          '<td><button class="tab-btn" data-open="'+j.id+'">Open</button></td>';
+        tb.appendChild(tr);
+      });
+      $$('.jobStatus').forEach(function(sel){
+        sel.addEventListener('change', function(){
+          var id = sel.getAttribute('data-id'); var j = DB.jobs.find(function(x){ return x.id===id; }); j.status = sel.value; renderDashboard(); saveDB();
+        });
+      });
+      $$('button[data-open]').forEach(function(b){
+        b.addEventListener('click', function(){
+          var id = b.getAttribute('data-open');
+          $('[data-tab="invoice"]').click();
+          $('#invJob').value = id; loadInvoice(id);
+        });
+      });
+      renderDashboard();
+    }
+
+    // Invoice helpers
+    function ensureJobSelected(){
+      var j = currentJob();
+      if(!j && DB.jobs.length===1){ $('#invJob').value = DB.jobs[0].id; j = DB.jobs[0]; }
+      if(!j) alert('Pick a job in the "Select job…" dropdown first.');
+      return j;
+    }
+    function currentJob(){ var id = $('#invJob').value; return DB.jobs.find(function(j){ return j.id===id; }); }
+
+    function loadInvoice(id){
+      var j = DB.jobs.find(function(x){ return x.id===id; }); if(!j) return;
+      $('#lines tbody').innerHTML='';
+      (j.lines||[]).forEach(function(l){ addLine(l.type,l.desc,l.qty,l.unit,l.cost); });
+      $('#invNo').value = j.invNo||''; $('#docType').value = j.docType||'Estimate'; $('#payLink').value = j.paymentLink||'';
+      var c = DB.customers.find(function(x){ return x.id===j.customerId; }); $('#emailTo').value = (c && c.email) ? c.email : '';
+      updatePreview(); recalcTotals();
+    }
+
+    function addLine(type, desc, qty, unit, cost){
+      var tr = document.createElement('tr');
+      var descPH = type==='Labor' ? "e.g., Diagnostics / R&R" : "e.g., Fuel Filter (FF63009) — Fleetguard";
+      var qtyPH  = type==='Labor' ? "hrs (e.g., 1.5)" : "qty (e.g., 1)";
+      var costPH = type==='Labor' ? "shop cost (optional)" : "shop cost (e.g., 32.00)";
+      var unitPH = type==='Labor' ? "$/hr (auto or manual)" : "sell price (e.g., 44.80)";
+      tr.innerHTML = '<td><select class="lType"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Part'?'selected':'')+'>Part</option></select></td>' +
+        '<td><input class="lDesc" value="'+(desc||'')+'" placeholder="'+descPH+'"/></td>' +
+        '<td><input class="lQty" type="number" step="0.01" value="'+(qty||1)+'" placeholder="'+qtyPH+'"/></td>' +
+        '<td><input class="lCost" type="number" step="0.01" value="'+(((cost!=null)?cost:0))+'" placeholder="'+costPH+'"/></td>' +
+        '<td><input class="lUnit" type="number" step="0.01" value="'+(unit||0)+'" placeholder="'+unitPH+'"/><div class="calc-hint">—</div></td>' +
+        '<td class="lLine">$0.00</td><td class="lProfit">$0.00</td><td><button class="tab-btn lDel">X</button></td>';
+      $('#lines tbody').appendChild(tr);
+      tr.querySelector('.lDel').addEventListener('click', function(){ tr.remove(); persistLines(); });
+      ['change','input'].forEach(function(evt){
+        ['.lType','.lDesc','.lQty','.lCost','.lUnit'].forEach(function(sel){ tr.querySelector(sel).addEventListener(evt, persistLines); });
+      });
+      persistLines();
+    }
+
+    function rowsToLines(){
+      return $$('#lines tbody tr').map(function(tr){
+        return { 
+          type: tr.querySelector('.lType').value,
+          desc: tr.querySelector('.lDesc').value,
+          qty: Number(tr.querySelector('.lQty').value||0),
+          cost: Number(tr.querySelector('.lCost').value||0),
+          unit: Number(tr.querySelector('.lUnit').value||0)
+        };
+      });
+    }
+
+    function persistLines(){
+      var j = currentJob(); if(!j) return;
+      j.lines = rowsToLines();
+      j.invNo = $('#invNo').value.trim();
+      j.docType = $('#docType').value;
+      j.paymentLink = $('#payLink').value.trim();
+      j.emailTo = $('#emailTo').value.trim();
+      recalcTotals(); updatePreview(); renderJobs(); saveDB();
+    }
+
+    function applyDefaultMarkup(){
+      var mu = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
+      $$('#lines tbody tr').forEach(function(tr){
+        var type = tr.querySelector('.lType').value;
+        if(type==='Part'){
+          var cost = Number(tr.querySelector('.lCost').value||0);
+          var newUnit = cost * (1+mu);
+          if(newUnit>0) tr.querySelector('.lUnit').value = newUnit.toFixed(2);
+        }
+      });
+      persistLines();
+    }
+
+    function recalcTotals(){
+      var rows = rowsToLines(); var subtotal=0, profit=0;
+      var laborRate = Number($('#laborRate').value||80);
+      var muDefault = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
+      var trs = $$('#lines tbody tr');
+      rows.forEach(function(r,i){
+        if(r.type==='Labor' && (!r.unit || r.unit===0)) r.unit = laborRate;
+        var line = r.qty*r.unit; subtotal+=line;
+        var lineProfit = r.qty*(r.unit - (r.cost||0));
+        r.profit = lineProfit; profit += lineProfit;
+
+        var tr = trs[i]; if(!tr) return;
+        tr.querySelector('.lLine').textContent = fmt(line);
+        tr.querySelector('.lProfit').textContent = fmt(lineProfit);
+
+        var hint = tr.querySelector('.calc-hint');
+        if(hint){
+          var up = (r.unit - (r.cost||0));
+          var per = (r.cost>0) ? Math.round((up / r.cost)*100) : 100;
+          var cls = (r.cost>0 && (up / r.cost) >= muDefault) ? 'ok' : (r.cost>0 ? 'warn' : 'ok');
+          hint.className = 'calc-hint ' + cls;
+          var dollars = fmt(up * (r.qty||1));
+          var perTxt = r.cost>0 ? '(+'+per+'%)' : '(no cost set)';
+          hint.textContent = dollars + ' ' + perTxt;
+        }
+      });
+      var taxPct = Number($('#salesTax').value||0); var tax = subtotal*(taxPct/100); var grand = subtotal+tax;
+      document.getElementById('sub').textContent = fmt(subtotal);
+      document.getElementById('tax').textContent = fmt(tax);
+      document.getElementById('grand').textContent = fmt(grand);
+      document.getElementById('profit').textContent = fmt(profit);
+      var margin = grand>0 ? Math.round((profit/grand)*100) : 0; var badge = document.getElementById('margin'); badge.textContent = margin + '%'; badge.className='badge '+(margin>=25?'invoice': (margin>=15?'':'estimate'));
+      document.getElementById('pSub').textContent = fmt(subtotal); document.getElementById('pTax').textContent = fmt(tax); document.getElementById('pGrand').textContent = fmt(grand);
+    }
+
+    function updatePreview(){
+      var j = currentJob();
+      document.getElementById('pInvNo').textContent = document.getElementById('invNo').value.trim() || 'DRAFT';
+      document.getElementById('pDate').textContent = new Date().toLocaleDateString();
+      var t = document.getElementById('docType').value; var badge = document.getElementById('pType'); badge.textContent=t; badge.className='badge ' + (t==='Invoice'?'invoice':'estimate');
+      document.getElementById('pStatus').textContent = j && j.paid ? 'Paid' : (t==='Estimate' ? (j && j.approved ? 'Approved':'Pending Approval') : 'Unpaid');
+      var c = j ? DB.customers.find(function(x){ return x.id===j.customerId; }) : null;
+      document.getElementById('pCust').textContent = c?c.name:'—'; document.getElementById('pVeh').textContent = c?(c.vehicle||''):'';
+      var tbody = document.getElementById('pLines'); tbody.innerHTML=''; (j?j.lines:[]).forEach(function(l){
+        var tr=document.createElement('tr'); var line=(l.qty||0)*(l.unit||0); tr.innerHTML='<td>'+l.type+': '+l.desc+'</td><td>'+l.qty+'</td><td>'+fmt(l.unit)+'</td><td>'+fmt(line)+'</td>'; tbody.appendChild(tr);
+      });
+    }
+
+    // Buttons
+    guard('buttons', function(){
+      document.getElementById('addLabor').addEventListener('click', function(){ if(!ensureJobSelected()) return; addLine('Labor','',1, Number(document.getElementById('laborRate').value||80), 0); });
+      document.getElementById('addPart').addEventListener('click', function(){ if(!ensureJobSelected()) return; addLine('Part','',1, 0, 0); });
+      document.getElementById('applyMarkup').addEventListener('click', applyDefaultMarkup);
+      document.getElementById('recalc').addEventListener('click', recalcTotals);
+      document.getElementById('markPaid').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; j.paid=!j.paid; j.paidAt=j.paid?new Date().toISOString():null; updatePreview(); renderJobs(); saveDB(); alert(j.paid?'Marked Paid':'Marked Unpaid'); });
+      document.getElementById('approve').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; if(document.getElementById('docType').value!=='Estimate'){ alert('Approvals apply to Estimates.'); return; } j.approved=true; j.approvedAt=new Date().toISOString(); updatePreview(); saveDB(); alert('Estimate approved.'); });
+      document.getElementById('convert').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; j.docType='Invoice'; document.getElementById('docType').value='Invoice'; updatePreview(); saveDB(); alert('Converted to Invoice.'); });
+      document.getElementById('email').addEventListener('click', function(){
+        var j=ensureJobSelected(); if(!j) return;
+        var to=encodeURIComponent(document.getElementById('emailTo').value.trim()||'');
+        var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim());
+        var body=encodeURIComponent('Hello,\n\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+'.\nPayment link: '+(j.paymentLink||'')+'\n\n'+(DB.settings.shopFooter||'')+'\n\n— '+(DB.settings.shopFrom||''));
+        location.href='mailto:'+to+'?subject='+subj+'&body='+body;
+      });
+      document.getElementById('pdf').addEventListener('click', function(){
+        var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>PDF</title><style>body{font-family:'+CSS.escape(getComputedStyle(document.body).fontFamily)+';margin:0;padding:16px;color:#000}table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #000;padding:8px;text-align:left}.totals{display:grid;gap:6px;justify-items:end;margin-top:10px}.grand{font-weight:700}.print-area{position:relative}.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.08}</style></head><body>'+document.getElementById('preview').outerHTML+'</body></html>';
+        var blob = new Blob([html], {type:'text/html'});
+        var url = URL.createObjectURL(blob);
+        var w = window.open(url, '_blank'); if(!w) alert('Allow popups to print.');
+      });
+    });
+
+    // Templates + VIN suggestions
+    function openTemplates(matchText){
+      var list = document.getElementById('tplList'); list.innerHTML='';
+      DB.templates.forEach(function(tpl){
+        if(matchText && tpl.platform.toLowerCase().indexOf(matchText)===-1) { /* filtered by VIN */ }
+        var box = document.createElement('div'); box.className='card'; 
+        var btn = document.createElement('button'); btn.className='primary'; btn.textContent='Apply Bundle';
+        btn.addEventListener('click', function(){ applyTemplate(tpl); });
+        box.innerHTML = '<h4>'+tpl.platform+'</h4><ul>'+tpl.items.map(function(it){ return '<li>'+it.type+' — '+it.desc+' '+(it.type==='Part' ? '('+(it.vendor||'')+' '+(it.part||'')+')' : '')+'</li>'; }).join('')+'</ul>';
+        box.appendChild(btn); list.appendChild(box);
+      });
+      document.getElementById('tplModal').style.display='flex';
+    }
+    function applyTemplate(tpl){
+      var defMu = Number(document.getElementById('defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
+      tpl.items.forEach(function(it){
+        if(it.type==='Labor'){
+          addLine('Labor', it.desc, it.qty||1, it.unit||Number(document.getElementById('laborRate').value||80), 0);
+        } else {
+          var cost = Number(it.cost||0); var mu = (it.markup!=null ? Number(it.markup)/100 : defMu);
+          var unit = cost * (1+mu);
+          addLine('Part', it.desc + (it.part?(' ('+it.part+')'):'') + ' — ' + (it.vendor||''), 1, unit, cost);
+        }
+      });
+      document.getElementById('tplModal').style.display='none'; saveDB();
+    }
+    guard('templates', function(){
+      document.getElementById('tplClose').addEventListener('click', function(){ document.getElementById('tplModal').style.display='none'; });
+      document.getElementById('openTemplates').addEventListener('click', function(){ openTemplates(''); });
+    });
+
+    // Dashboard
+    function renderDashboard(){
+      var open = DB.jobs.filter(function(j){ return j.status!=='Done'; }).length;
+      var unpaid = DB.jobs.filter(function(j){ return j.docType==='Invoice' && !j.paid && j.lines.length>0; }).length;
+      var rev=0, prof=0;
+      var now = new Date(); var mkey = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+      function monthKey(d){ var dd = new Date(d); return dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0'); }
+      DB.jobs.forEach(function(j){
+        var subtotal = j.lines.reduce(function(s,l){ return s + (Number(l.qty)||0)*(Number(l.unit)||0); }, 0);
+        var profit = j.lines.reduce(function(s,l){ return s + (l.type==='Part' ? (Number(l.qty||0)*(Number(l.unit||0)-Number(l.cost||0))) : (Number(l.qty||0)*Number(l.unit||0))); }, 0);
+        if(j.paid && j.paidAt && monthKey(j.paidAt)===mkey){ var tax = subtotal*(Number(document.getElementById('salesTax').value||0)/100); rev+=subtotal+tax; prof+=profit; }
+      });
+      document.getElementById('openJobs').textContent = open; document.getElementById('unpaid').textContent = unpaid; document.getElementById('revMonth').textContent = fmt(rev); document.getElementById('profitMonth').textContent = fmt(prof);
+    }
+
+    // Settings
+    function renderSettings(){
+      document.getElementById('defaultMarkup').value = DB.settings.defaultMarkup||40;
+      document.getElementById('shopFrom').value = DB.settings.shopFrom||'';
+      document.getElementById('shopReply').value = DB.settings.shopReply||'';
+      document.getElementById('shopSubj').value = DB.settings.shopSubj||'';
+      document.getElementById('shopFooter').value = DB.settings.shopFooter||'';
+    }
+    document.getElementById('defaultMarkup').addEventListener('change', function(){ DB.settings.defaultMarkup = Number(this.value||40); saveDB(); recalcTotals(); });
+    document.getElementById('shopFrom').addEventListener('input', function(){ DB.settings.shopFrom = this.value; saveDB(); });
+    document.getElementById('shopReply').addEventListener('input', function(){ DB.settings.shopReply = this.value; saveDB(); });
+    document.getElementById('shopSubj').addEventListener('input', function(){ DB.settings.shopSubj = this.value; saveDB(); });
+    document.getElementById('shopFooter').addEventListener('input', function(){ DB.settings.shopFooter = this.value; saveDB(); });
+
+    // Backup/Restore/Reset
+    document.getElementById('backupBtn').addEventListener('click', function(){
+      try{
+        var data = JSON.stringify(DB, null, 2);
+        var blob = new Blob([data], {type:'application/json'});
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a'); a.href = url; a.download = 'poppe_shop_backup.json'; a.click();
+        URL.revokeObjectURL(url);
+      }catch(e){ AppLog.error('backup failed', e); alert('Backup failed.'); }
+    });
+    document.getElementById('restoreFile').addEventListener('change', function(evt){
+      var f = evt.target.files && evt.target.files[0]; if(!f) return;
+      var reader = new FileReader();
+      reader.onload = function(){ try{ DB = JSON.parse(reader.result); saveDB(); renderAll(); alert('Restore complete.'); } catch(e){ AppLog.error('restore failed', e); alert('Restore failed — bad file?'); } };
+      reader.readAsText(f);
+    });
+    document.getElementById('resetBtn').addEventListener('click', function(){
+      if(confirm('This will wipe customers, jobs, lines, and settings. Continue?')){ localStorage.removeItem(STORAGE_KEY); resetDB(); alert('Reset complete.'); }
+    });
+
+    // Initial render or seed defaults
+    if(!loadDB()){
+      var cid = crypto.randomUUID(); DB.customers.push({id:cid, name:"Shane Diesel", email:"shane@example.com", vehicle:"2018 Ford Escape 2.0T"});
+      DB.jobs.push({id:crypto.randomUUID(), customerId:cid, title:"Alternator + PCM diagnostics", status:"In Progress", lines:[
+        {type:"Labor",desc:"Diagnostics",qty:1.5,unit:80,cost:0,profit:120},
+        {type:"Part",desc:"Alternator",qty:1,unit:324,cost:250,profit:74}
+      ], paid:false, docType:"Estimate", paymentLink:""});
+    }
+    renderAll();
+
+  }); // guard init
+}); // onload
+</script>
+</body>
+</html>
