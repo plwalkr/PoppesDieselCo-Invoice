@@ -6,20 +6,24 @@
 <title>Poppe’s Diesel Co. — Shop Manager (v0.9.3)</title>
 <style>
 :root{
-  /* ===== Poppe’s Diesel Co. palette (logo-matched) ===== */
-  --bg:#0f1114;          /* near-black */
-  --card:#16181d;        /* dark card */
-  --text:#f2eadb;        /* parchment/cream text */
-  --muted:#cdbfa6;       /* softer cream */
-  --border:#2a2d33;      /* dark border */
+  /* Poppe’s palette */
+  --bg:#e6cfae;        /* light tan from logo */
+  --card:#13151c;      /* keep cards dark for contrast */
+  --text:#0e111a;      /* dark text on tan areas */
+  --muted:#3e463e;     /* muted on tan */
+  --border:#2e3226;    /* subtle greenish border */
 
-  /* Accents mapped to your brand */
-  --info:#b43a33;        /* primary/CTA red from logo */
-  --ok:#158a4e;          /* success green */
-  --warn:#e0c38c;        /* parchment-gold for warnings */
-  --danger:#c34852;      /* tempered danger */
+  /* app chrome (unchanged) */
+  --ink:#0e111a; 
+  --ink2:#161a24;
+  --shadow:0 10px 20px rgba(0,0,0,.30);
 
-  --ink:#0e111a; --ink2:#161a24; --shadow:0 10px 20px rgba(0,0,0,.35);
+  /* Brand action colors */
+  --info:#0a3d2e;      /* diesel green (primary) */
+  --ok:#1f6b55;        /* supportive green */
+  --warn:#f5c518;      /* highlight yellow */
+  --danger:#962b2b;    /* logo red */
+
   --font: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 *{box-sizing:border-box} html,body{height:100%} body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
@@ -28,7 +32,7 @@ h1{margin:0;font-size:20px;display:flex;gap:8px;align-items:center}
 .tag{background:var(--ink2);color:var(--muted);padding:2px 6px;border-radius:6px;font-size:12px;white-space:nowrap}
 nav.top{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 button,select,input,textarea{background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:12px;font-size:17px;touch-action:manipulation}
-button{cursor:pointer} .tab-btn{background:var(--ink2)} .primary{background:var(--info);color:#1a0807;border-color:transparent} .success{background:var(--ok);color:#00180e;border-color:transparent}
+button{cursor:pointer} .tab-btn{background:var(--ink2)} .primary{background:var(--info);color:#001a2d;border-color:transparent} .success{background:var(--ok);color:#002b1f;border-color:transparent}
 main{padding:16px 16px 100px}
 .tab{display:none} .tab.active{display:block}
 .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:14px;background:var(--card)}
@@ -39,13 +43,12 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
 .actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:stretch;margin-top:8px}
 .actions>*{height:48px}
 .print-area{background:#fff;color:#000;border-radius:14px;padding:16px;position:relative;overflow:hidden}
-.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0}
+.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:.08;z-index:0}
 .invoice-header{position:relative;z-index:1;display:flex;justify-content:space-between;gap:16px;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:8px}
-/* table header – darker to fit brand, high contrast when printed */
-.lines thead th{background:#111;color:#f2eadb;border-bottom-color:#2a2d33}
+.lines thead th{background:#1a1e2b;color:#cfe1ff;border-bottom-color:#2b2f40}
 .totals{display:grid;gap:6px;justify-items:end;margin-top:8px;position:relative;z-index:1}
 .badge{padding:.25rem .5rem;border-radius:999px;border:1px solid #000;font-size:.9em}
-.badge.estimate{background:#fff7d6;color:#111} .badge.invoice{background:#e6fff4;color:#111}
+.badge.estimate{background:#fff7d6} .badge.invoice{background:#e6fff4}
 .small{font-size:.85em;color:var(--muted)}
 .calc-hint{font-size:.8em;line-height:1.2;margin-top:6px;opacity:.9}
 .calc-hint.ok{color:#0a7f63} .calc-hint.warn{color:#b48802}
@@ -62,16 +65,142 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
 .modal .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;max-width:900px;width:96%;padding:16px;box-shadow:var(--shadow)}
 .modal header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .hint{color:var(--muted);font-size:.9em}
-.suggestions{margin-top:8px;padding:10px;border:1px dashed #2a2d33;border-radius:12px;background:#10131d}
+.suggestions{margin-top:8px;padding:10px;border:1px dashed #2b2f40;border-radius:12px;background:#10131d}
 .suggestions .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .suggestions .tag{background:#1b2134;border:1px solid #2b3552;color:#cfe1ff}
 .settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
 </style>
+<style id="contrast-fixes">
+/* === Contrast fixes (brand-safe) === */
+header{ color:#ffffff; }
+header h1{ color:#ffffff; }
+header .tag{ background:#0f241c; color:#d9efe7; border:1px solid #1e3a2f; }
+
+/* High-contrast buttons */
+.tab-btn{ background:#1d312a !important; color:#ffffff !important; border:1px solid #0e241c !important; }
+.tab-btn:hover{ filter:brightness(1.05); }
+
+.primary{ background:#0a3d2e !important; color:#ffffff !important; border-color:#0a3d2e !important; }
+.success{ background:#1f6b55 !important; color:#ffffff !important; border-color:#1f6b55 !important; }
+
+/* Action row buttons and bottom nav */
+.actions .tab-btn{ background:#0f241c !important; border-color:#0a1a14 !important; }
+nav.bottom{ background:#16241e !important; border-top-color:#233329 !important; }
+nav.bottom .tab-btn{ background:#1d312a !important; color:#ffffff !important; border-color:#0e241c !important; }
+
+/* Inputs on tan background */
+button,select,input,textarea{
+  background:#ffffff;
+  color:#0e111a;
+  border:1px solid #b6b09f;
+}
+/* Keep special classes above */
+.tab-btn, .primary, .success{ color:#ffffff !important; }
+
+/* Totals badge readability */
+.badge{ border-color:#0e111a; }
+.badge.estimate{ background:#fdf1c4; color:#2b2100; }
+.badge.invoice{ background:#d9efe7; color:#0a3d2e; }
+
+/* Table wrap contrast on tan */
+.table-wrap{ background:#ffffff; border-color:#b6b09f; }
+.lines thead th{ background:#203229; color:#eaf5f0; border-bottom-color:#2f463a; }
+
+/* Print preview area should stay white */
+.print-area{ background:#ffffff; color:#000000; }
+
+
+/* Dashboard cards match tab-btn background */
+.cards .card{
+  background:#1d312a !important;
+  color:#ffffff !important;
+  border:1px solid #0e241c !important;
+}
+.cards .card h3{ color:#ffffff !important; }
+
+
+/* Fix card text spacing so headings/content don't overflow edges */
+.card{
+  padding:20px !important;
+  box-sizing:border-box;
+}
+.card h3{
+  margin-top:0;
+  margin-bottom:8px;
+  line-height:1.3;
+  word-break:break-word;
+}
+
+</style>
+<style id="actions-size-line">
+/* === Actions row in a line, bigger buttons === */
+.actions{
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  max-width: 100% !important;
+  margin: 12px 0 0 !important;
+}
+.actions .tab-btn{
+  flex: 0 0 auto !important;
+  min-width: 180px !important;
+  height: 54px !important;
+  font-size: 15px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px 12px !important;
+  border-radius: 12px !important;
+  text-align: center !important;
+  line-height: 1.2 !important;
+  white-space: normal !important;
+  word-break: keep-all !important;
+}
+
+</style>
+<style id="pdf-button-move">
+/* Move Generate PDF button bottom-right */
+#pdf{
+  position: fixed !important;
+  bottom: 80px !important; /* above bottom nav */
+  right: 20px !important;
+  z-index: 1000 !important;
+  min-width: 160px !important;
+  height: 50px !important;
+  background: var(--info) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+#pdf:hover{
+  filter: brightness(1.05);
+}
+/* Remove from normal actions layout spacing */
+.actions #pdf{
+  position: static !important;
+  min-width: auto !important;
+  height: auto !important;
+  box-shadow: none !important;
+}
+
+</style>
+<style id="drag-style">
+/* ===== Drag & Drop rows ===== */
+.drag-col{ width:28px; text-align:center; }
+.handle{ min-width: 32px !important; height: 36px !important; padding: 4px 6px !important; cursor: grab !important; }
+.handle:active{ cursor: grabbing !important; }
+.draggable-row.dragging{ opacity: 0.5; }
+.drop-target{ outline: 2px dashed var(--info); outline-offset: -2px; }
+
+.handle{ cursor: grab !important; }
+.handle:active{ cursor: grabbing !important; }</style>
 </head>
 <body>
 <div id="error">JavaScript error detected. Tap to reload.</div>
 <header>
-  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v0.9.3</span><span id="selftest" class="tag selftest">Self-test: …</span></h1>
+  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v0.9.3</span><span id="selftest" class="tag selftest">Self‑test: …</span></h1>
   <nav class="top">
     <button class="tab-btn" data-tab="dashboard">Dashboard</button>
     <button class="tab-btn" data-tab="customers">Customers</button>
@@ -158,8 +287,7 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
     <div class="table-wrap" style="margin-top:10px">
       <table class="lines" id="lines">
         <thead>
-          <tr>
-            <th>Type</th><th>Description</th><th>Qty/Hrs</th><th>Cost $</th><th>Unit $</th><th>Line $</th><th>Profit $</th><th></th>
+          <tr><th style="width:28px">↕</th><th>Type</th><th>Description</th><th>Qty/Hrs</th><th>Cost $</th><th>Unit $</th><th>Line $</th><th>Profit $</th><th></th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -176,9 +304,14 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
 
     <div class="print-area" id="preview" style="margin-top:12px">
       <div class="watermark">
-        <!-- Use your actual logo here (persisted to localStorage). -->
-        <img id="wmImg" alt="Poppe’s Diesel Co. watermark"
-             style="max-width:90%;max-height:90%;filter:grayscale(100%);opacity:.15" />
+        <img id="wmImg" alt="Poppe’s Diesel Co. watermark" style="display:none;max-width:90%;max-height:90%;opacity:.15;mix-blend-mode:multiply" />
+        <!-- Fallback text if image isn't available -->
+        <svg id="wmFallback" viewBox="0 0 800 200" width="90%" height="90%" style="filter:grayscale(100%);opacity:.12">
+          <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
+                font-size="72" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" fill="#000">
+            Poppe’s Diesel Co.
+          </text>
+        </svg>
       </div>
       <div class="invoice-header">
         <div class="shop">
@@ -267,6 +400,46 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
 </div>
 
 <script>
+
+/* ---- Watermark loader: embed as data URL so PDF includes it ---- */
+(function(){
+  const KEY = 'pdc_wm_dataurl';
+  const imgEl = document.getElementById('wmImg');
+  const fallback = document.getElementById('wmFallback');
+
+  async function toDataURL(url){
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('fetch failed');
+    const blob = await res.blob();
+    return await new Promise((resolve,reject)=>{
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.onerror = reject;
+      r.readAsDataURL(blob);
+    });
+  }
+
+  async function loadWM(){
+    try{
+      const cached = localStorage.getItem(KEY);
+      if(cached){
+        imgEl.src = cached;
+        imgEl.style.display = 'block';
+        if(fallback) fallback.style.display = 'none';
+        return;
+      }
+      const dataUrl = await toDataURL('Poppe_1776_Transparent.png');
+      imgEl.src = dataUrl;
+      imgEl.style.display = 'block';
+      if(fallback) fallback.style.display = 'none';
+      localStorage.setItem(KEY, dataUrl);
+    }catch(e){
+      console.warn('Watermark image not found; using text fallback.');
+    }
+  }
+  if(imgEl) loadWM();
+})();
+
 // ---------- POLYFILLS & SAFE HELPERS ----------
 (function(){
   if(!window.crypto) window.crypto = {};
@@ -279,7 +452,7 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
   var logEl = document.getElementById('debugLog');
   var metaEl = document.getElementById('debugMeta');
   var buf = [];
-  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\n'); } }
+  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\\n'); } }
   window.AppLog = {
     info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
     warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
@@ -299,8 +472,8 @@ function guard(name, fn){
 // ---------- SELF-TEST ----------
 (function(){
   var badge = document.getElementById('selftest');
-  function ok(){ badge.textContent='Self-test: OK'; badge.className='tag selftest ok'; }
-  function warn(msg){ badge.textContent='Self-test: Check'; badge.title=msg||''; badge.className='tag selftest warn'; }
+  function ok(){ badge.textContent='Self‑test: OK'; badge.className='tag selftest ok'; }
+  function warn(msg){ badge.textContent='Self‑test: Check'; badge.title=msg||''; badge.className='tag selftest warn'; }
   try {
     if(!window.localStorage || !window.Blob || !window.fetch || !document.querySelector){ warn('Missing core API'); return; }
     var k='__st__'+Math.random(); localStorage.setItem(k,'1'); var v=localStorage.getItem(k); localStorage.removeItem(k);
@@ -501,7 +674,9 @@ window.addEventListener('load', function(){
       var qtyPH  = type==='Labor' ? "hrs (e.g., 1.5)" : "qty (e.g., 1)";
       var costPH = type==='Labor' ? "shop cost (optional)" : "shop cost (e.g., 32.00)";
       var unitPH = type==='Labor' ? "$/hr (auto or manual)" : "sell price (e.g., 44.80)";
-      tr.innerHTML = '<td><select class="lType"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Part'?'selected':'')+'>Part</option></select></td>' +
+      tr.setAttribute('draggable','true');
+    tr.classList.add('draggable-row');
+    tr.innerHTML = '<td class=\"drag-col\"><button class=\"tab-btn handle\" title=\"Drag to reorder\">↕</button></td><td><select class="lType"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Part'?'selected':'')+'>Part</option></select></td>' +
         '<td><input class="lDesc" value="'+(desc||'')+'" placeholder="'+descPH+'"/></td>' +
         '<td><input class="lQty" type="number" step="0.01" value="'+(qty||1)+'" placeholder="'+qtyPH+'"/></td>' +
         '<td><input class="lCost" type="number" step="0.01" value="'+(((cost!=null)?cost:0))+'" placeholder="'+costPH+'"/></td>' +
@@ -615,13 +790,7 @@ window.addEventListener('load', function(){
         location.href='mailto:'+to+'?subject='+subj+'&body='+body;
       });
       document.getElementById('pdf').addEventListener('click', function(){
-        // Use the current preview HTML; make sure watermark opacity is on the IMG, not the container
-        var css = 'body{font-family:'+CSS.escape(getComputedStyle(document.body).fontFamily)+';margin:0;padding:16px;color:#000}'
-                + 'table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #000;padding:8px;text-align:left}'
-                + '.totals{display:grid;gap:6px;justify-items:end;margin-top:10px}.grand{font-weight:700}'
-                + '.print-area{position:relative}.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}'
-                + '.watermark img{max-width:90%;max-height:90%;filter:grayscale(100%);opacity:.15}';
-        var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>PDF</title><style>'+css+'</style></head><body>'+document.getElementById('preview').outerHTML+'</body></html>';
+        var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>PDF</title><style>body{font-family:'+CSS.escape(getComputedStyle(document.body).fontFamily)+';margin:0;padding:16px;color:#000}table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #000;padding:8px;text-align:left}.totals{display:grid;gap:6px;justify-items:end;margin-top:10px}.grand{font-weight:700}.print-area{position:relative}.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.08}</style></head><body>'+document.getElementById('preview').outerHTML+'</body></html>';
         var blob = new Blob([html], {type:'text/html'});
         var url = URL.createObjectURL(blob);
         var w = window.open(url, '_blank'); if(!w) alert('Allow popups to print.');
@@ -688,34 +857,6 @@ window.addEventListener('load', function(){
     document.getElementById('shopSubj').addEventListener('input', function(){ DB.settings.shopSubj = this.value; saveDB(); });
     document.getElementById('shopFooter').addEventListener('input', function(){ DB.settings.shopFooter = this.value; saveDB(); });
 
-    // --- Watermark loader (persisted logo) ---
-    (function(){
-      try{
-        var key = 'pdc_logo';
-        var img = document.getElementById('wmImg');
-        var saved = localStorage.getItem(key);
-        if(saved){
-          img.src = saved;
-        }else{
-          setTimeout(function(){
-            if(!img.src){
-              var pick = confirm('Add your logo as the invoice watermark now?');
-              if(!pick) return;
-              var input = document.createElement('input');
-              input.type = 'file'; input.accept = 'image/*';
-              input.onchange = function(e){
-                var f = e.target.files && e.target.files[0]; if(!f) return;
-                var r = new FileReader();
-                r.onload = function(){ localStorage.setItem(key, r.result); img.src = r.result; };
-                r.readAsDataURL(f);
-              };
-              input.click();
-            }
-          }, 400);
-        }
-      }catch(e){ /* ignore */ }
-    })();
-
     // Backup/Restore/Reset
     document.getElementById('backupBtn').addEventListener('click', function(){
       try{
@@ -748,6 +889,127 @@ window.addEventListener('load', function(){
 
   }); // guard init
 }); // onload
+
+
+/* ===== Drag & Drop logic for invoice rows (press-handle-to-drag) ===== */
+(function(){
+  const tbody = document.querySelector('#lines tbody');
+  if(!tbody) return;
+
+  let dragSrc = null;
+
+  function rowFrom(el){
+    while(el && el.tagName !== 'TR') el = el.parentElement;
+    return el;
+  }
+
+  // Mark row draggable only after pressing the handle
+  tbody.addEventListener('mousedown', (e)=>{
+    const h = e.target.closest && e.target.closest('.handle');
+    if(!h) return;
+    const tr = rowFrom(h);
+    if(tr){
+      tr.setAttribute('draggable','true');
+      tr.dataset.dragOk = '1';
+    }
+  }, true);
+
+  // Safety: clear flags on mouseup anywhere
+  document.addEventListener('mouseup', ()=>{
+    document.querySelectorAll('#lines tbody tr[draggable="true"]').forEach(tr=>{
+      tr.removeAttribute('draggable');
+      delete tr.dataset.dragOk;
+    });
+  });
+
+  // Also allow keyboard users to start drag via Enter/Space on handle
+  tbody.addEventListener('keydown', (e)=>{
+    if(!e.target.closest) return;
+    const h = e.target.closest('.handle');
+    if(!h) return;
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      const tr = rowFrom(h);
+      if(tr){
+        tr.setAttribute('draggable','true');
+        tr.dataset.dragOk = '1';
+      }
+    }
+  });
+
+  tbody.addEventListener('dragstart', (e)=>{
+    const tr = rowFrom(e.target);
+    if(!tr || tr.dataset.dragOk !== '1'){
+      e.preventDefault();
+      return false;
+    }
+    dragSrc = tr;
+    tr.classList.add('dragging');
+    try{ e.dataTransfer.setData('text/plain','reorder'); }catch(_){}
+    e.dataTransfer.effectAllowed = 'move';
+  });
+
+  tbody.addEventListener('dragend', (e)=>{
+    const tr = rowFrom(e.target) || dragSrc;
+    if(tr){
+      tr.classList.remove('dragging');
+      tr.removeAttribute('draggable');
+      delete tr.dataset.dragOk;
+    }
+    dragSrc = null;
+    document.querySelectorAll('.drop-target').forEach(el=>el.classList.remove('drop-target'));
+  });
+
+  function getRowYMid(tr){
+    const r = tr.getBoundingClientRect();
+    return r.top + r.height/2;
+  }
+
+  tbody.addEventListener('dragover', (e)=>{
+    if(!dragSrc) return;
+    e.preventDefault();
+    const target = rowFrom(e.target);
+    if(!target || target===dragSrc) return;
+    const mid = getRowYMid(target);
+    if(e.clientY < mid){
+      tbody.insertBefore(dragSrc, target);
+    }else{
+      tbody.insertBefore(dragSrc, target.nextSibling);
+    }
+    target.classList.add('drop-target');
+    setTimeout(()=>target.classList.remove('drop-target'), 80);
+  });
+
+  tbody.addEventListener('drop', (e)=>{
+    if(!dragSrc) return;
+    e.preventDefault();
+    dragSrc = null;
+    try{ persistLines(); }catch(err){ console.warn('persistLines after reorder failed', err); }
+  });
+
+  // Ensure existing rows have a handle button; if not, inject a basic one at the start
+  Array.from(tbody.querySelectorAll('tr')).forEach(tr=>{
+    if(!tr.querySelector('.drag-col')){
+      const td = document.createElement('td');
+      td.className = 'drag-col';
+      td.innerHTML = '<button type="button" class="tab-btn handle" title="Drag to reorder">↕</button>';
+      tr.insertBefore(td, tr.firstChild);
+    }
+  });
+
+  // Patch addLine so newly added rows also include handle
+  const _addLine = addLine;
+  window.addLine = function(){
+    _addLine.apply(this, arguments);
+    const last = tbody.querySelector('tr:last-child');
+    if(last && !last.querySelector('.drag-col')){
+      const td = document.createElement('td');
+      td.className = 'drag-col';
+      td.innerHTML = '<button type="button" class="tab-btn handle" title="Drag to reorder">↕</button>';
+      last.insertBefore(td, last.firstChild);
+    }
+  };
+})();
 </script>
 </body>
 </html>
