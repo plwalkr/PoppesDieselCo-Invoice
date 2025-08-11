@@ -196,6 +196,25 @@ button,select,input,textarea{
 
 .handle{ cursor: grab !important; }
 .handle:active{ cursor: grabbing !important; }</style>
+
+<style id="settings-contrast-fix">
+  /* Make Settings cards readable on the tan theme */
+  #settings .card{
+    background:#ffffff !important;
+    color:#0e111a !important;
+    border:1px solid #b6b09f !important;
+  }
+  #settings .card h3{ color:#0e111a !important; }
+  #settings .hint{ color:#3e463e !important; }
+  #settings label{ color:#0e111a !important; }
+  #settings input, #settings select, #settings button.tab-btn{
+    background:#ffffff !important;
+    color:#0e111a !important;
+    border-color:#b6b09f !important;
+  }
+</style>
+<style id="click-safety">.watermark{pointer-events:none!important}</style>
+
 </head>
 <body>
 <div id="error">JavaScript error detected. Tap to reload.</div>
@@ -316,7 +335,9 @@ button,select,input,textarea{
       <div class="invoice-header">
         <div class="shop">
           <h3>Poppe’s Diesel Co.</h3>
-          <p>Columbus, IN · poppedieselco@gmail.com · (208) 243-7934</p>
+          <p>Columbus, IN 
+            · poppedieselco@gmail.com 
+            · (208) 243-7934</p>
         </div>
         <div class="meta">
           <div><strong>Doc #</strong> <span id="pInvNo">—</span></div>
@@ -452,7 +473,7 @@ button,select,input,textarea{
   var logEl = document.getElementById('debugLog');
   var metaEl = document.getElementById('debugMeta');
   var buf = [];
-  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\\n'); } }
+  function print(line){ buf.push(line); if(logEl){ log_el_text = buf.join('\\n'); logEl.textContent = log_el_text; } }
   window.AppLog = {
     info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
     warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
@@ -786,14 +807,22 @@ window.addEventListener('load', function(){
         var j=ensureJobSelected(); if(!j) return;
         var to=encodeURIComponent(document.getElementById('emailTo').value.trim()||'');
         var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim());
-        var body=encodeURIComponent('Hello,\n\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+'.\nPayment link: '+(j.paymentLink||'')+'\n\n'+(DB.settings.shopFooter||'')+'\n\n— '+(DB.settings.shopFrom||''));
+        var body=encodeURIComponent('Hello,\\n\\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+'.\\nPayment link: '+(j.paymentLink||'')+'\\n\\n'+(DB.settings.shopFooter||'')+'\\n\\n— '+(DB.settings.shopFrom||''));
         location.href='mailto:'+to+'?subject='+subj+'&body='+body;
       });
+      // Replace Generate PDF with auto-print flow (Option A)
       document.getElementById('pdf').addEventListener('click', function(){
-        var html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>PDF</title><style>body{font-family:'+CSS.escape(getComputedStyle(document.body).fontFamily)+';margin:0;padding:16px;color:#000}table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #000;padding:8px;text-align:left}.totals{display:grid;gap:6px;justify-items:end;margin-top:10px}.grand{font-weight:700}.print-area{position:relative}.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.08}</style></head><body>'+document.getElementById('preview').outerHTML+'</body></html>';
-        var blob = new Blob([html], {type:'text/html'});
-        var url = URL.createObjectURL(blob);
-        var w = window.open(url, '_blank'); if(!w) alert('Allow popups to print.');
+        var css = 'body{font-family:'+CSS.escape(getComputedStyle(document.body).fontFamily)+';margin:0;padding:16px;color:#000}'
+                + 'table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #000;padding:8px;text-align:left}'
+                + '.totals{display:grid;gap:6px;justify-items:end;margin-top:10px}.grand{font-weight:700}'
+                + '.print-area{position:relative}';
+        var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>'
+                    + document.getElementById('preview').outerHTML
+                    + '</body></html>';
+        var w = window.open('', '_blank');
+        if(!w){ alert('Please allow pop-ups to print.'); return; }
+        w.document.open(); w.document.write(htmlDoc); w.document.close();
+        setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 250);
       });
     });
 
