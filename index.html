@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-<title>Poppe’s Diesel Co. — Shop Manager (v0.9.3)</title>
+<title>Poppe’s Diesel Co. — Shop Manager (v0.9.4)</title>
 <style>
 :root{
   /* Poppe’s palette */
@@ -170,9 +170,7 @@ button,select,input,textarea{
   border-radius: 12px !important;
   box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
-#pdf:hover{
-  filter: brightness(1.05);
-}
+#pdf:hover{ filter: brightness(1.05); }
 /* Remove from normal actions layout spacing */
 .actions #pdf{
   position: static !important;
@@ -213,6 +211,24 @@ button,select,input,textarea{
 }
 </style>
 
+<!-- === Signature block styling (screen + print) === -->
+<style id="signature-style">
+.signatures{ margin-top:16px; display:grid; gap:10px; }
+.sig-row{ display:grid; grid-template-columns:2fr 1fr; gap:16px; align-items:end; }
+.sig{
+  display:flex; flex-direction:column; justify-content:flex-end;
+}
+.sig-line{
+  border-bottom:1px solid #000; height:32px;
+}
+.sig-label{
+  font-size:.9em; color:#333; margin-top:4px;
+}
+@media print{
+  .sig-line{ height:28px; }
+}
+</style>
+
 <style id="settings-contrast-fix">
   /* Make Settings cards readable on the tan theme */
   #settings .card{
@@ -235,7 +251,7 @@ button,select,input,textarea{
 <body>
 <div id="error">JavaScript error detected. Tap to reload.</div>
 <header>
-  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v0.9.3</span><span id="selftest" class="tag selftest">Self-test: …</span></h1>
+  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v0.9.4</span><span id="selftest" class="tag selftest">Self-test: …</span></h1>
   <nav class="top">
     <button class="tab-btn" data-tab="dashboard">Dashboard</button>
     <button class="tab-btn" data-tab="customers">Customers</button>
@@ -294,6 +310,18 @@ button,select,input,textarea{
 
   <section id="invoice" class="tab">
     <h2>Estimate / Invoice<br><small>Poppe’s Diesel Co. — Built in the Garage, Backed by Freedom</small></h2>
+
+    <!-- Invoice filtering + quick picks -->
+    <div class="grid" id="invFilters">
+      <label>Filter by Customer
+        <select id="invCustFilter"><option value="">All customers</option></select>
+      </label>
+      <div>
+        <div class="hint">Recent jobs</div>
+        <div id="recentJobs" class="tags"></div>
+      </div>
+    </div>
+
     <form id="invForm" class="grid">
       <select id="invJob" required></select>
       <input id="invNo" placeholder="Document # (e.g., 2025-001)"/>
@@ -346,7 +374,6 @@ button,select,input,textarea{
     <div class="print-area" id="preview" style="margin-top:12px">
       <div class="watermark">
         <img id="wmImg" alt="Poppe’s Diesel Co. watermark" style="display:none;max-width:90%;max-height:90%;opacity:.15;mix-blend-mode:multiply" />
-        <!-- Fallback text if image isn't available -->
         <svg id="wmFallback" viewBox="0 0 800 200" width="90%" height="90%" style="filter:grayscale(100%);opacity:.12">
           <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
                 font-size="72" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" fill="#000">
@@ -358,8 +385,8 @@ button,select,input,textarea{
         <div class="shop">
           <h3>Poppe’s Diesel Co.</h3>
           <p>Columbus, IN </P> 
-            <p>poppedieselco@gmail.com</p>
-           <p>(208) 243-7934</p>
+          <p>poppedieselco@gmail.com</p>
+          <p>(208) 243-7934</p>
         </div>
         <div class="meta">
           <div><strong>Doc #</strong> <span id="pInvNo">—</span></div>
@@ -375,7 +402,20 @@ button,select,input,textarea{
         <div>Tax: <span id="pTax">$0.00</span></div>
         <div class="grand">Grand Total: <span id="pGrand">$0.00</span></div>
       </div>
-      <!-- Overall notes will be mirrored here dynamically as #pOverallNotes -->
+
+      <!-- Overall notes get mirrored here by JS as #pOverallNotes -->
+
+      <!-- Signature block prints on PDF -->
+      <div id="signatures" class="signatures">
+        <div class="sig-row">
+          <div class="sig"><div class="sig-line"></div><div class="sig-label">Customer Signature</div></div>
+          <div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div>
+        </div>
+        <div class="sig-row">
+          <div class="sig"><div class="sig-line"></div><div class="sig-label">Service Manager Signature</div></div>
+          <div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -444,7 +484,6 @@ button,select,input,textarea{
 </div>
 
 <script>
-
 /* ---- Watermark loader: embed as data URL so PDF includes it ---- */
 (function(){
   const KEY = 'pdc_wm_dataurl';
@@ -496,7 +535,7 @@ button,select,input,textarea{
   var logEl = document.getElementById('debugLog');
   var metaEl = document.getElementById('debugMeta');
   var buf = [];
-  function print(line){ buf.push(line); if(logEl){ log_el_text = buf.join('\n'); logEl.textContent = log_el_text; } }
+  function print(line){ buf.push(line); if(logEl){ log_el_text = buf.join('\\n'); logEl.textContent = log_el_text; } }
   window.AppLog = {
     info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
     warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
@@ -570,6 +609,16 @@ window.addEventListener('load', function(){
 
     function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); saveDB(); }
 
+    // --- Data upgrades for older saves ---
+    function upgradeDB(){
+      (DB.jobs||[]).forEach(function(j){
+        if(!j.createdAt) j.createdAt = new Date().toISOString();
+        if(typeof j.overallNotes === 'undefined') j.overallNotes = '';
+        (j.lines||[]).forEach(function(l){ if(typeof l.note === 'undefined') l.note=''; });
+      });
+      saveDB();
+    }
+
     // Tabs
     guard('tabs', function(){
       $$('.tab-btn[data-tab]').forEach(function(b){
@@ -610,14 +659,47 @@ window.addEventListener('load', function(){
       });
     }
 
-    function renderJobCustomer(){
-      var sel = $('#jobCustomer');
-      sel.innerHTML = '<option value="">Select...</option>' + DB.customers.map(function(c){ return '<option value="'+c.id+'">'+c.name+'</option>'; }).join('');
-      var invSel = $('#invJob');
-      invSel.innerHTML = '<option value="">Select job…</option>' + DB.jobs.map(function(j){
+    // ---- Invoice filters + pickers ----
+    function renderInvFilters(){
+      var sel = $('#invCustFilter'); if(!sel) return;
+      sel.innerHTML = '<option value="">All customers</option>' +
+        DB.customers.map(function(c){ return '<option value="'+c.id+'">'+c.name+'</option>'; }).join('');
+    }
+    function renderInvJobOptions(){
+      var invSel = $('#invJob'); if(!invSel) return;
+      var cid = ($('#invCustFilter') && $('#invCustFilter').value) || '';
+      var jobs = DB.jobs.filter(function(j){ return !cid || j.customerId===cid; });
+      invSel.innerHTML = '<option value="">Select job…</option>' + jobs.map(function(j){
         var c = DB.customers.find(function(x){ return x.id===j.customerId; });
         return '<option value="'+j.id+'">'+(c?c.name:'—')+' — '+j.title+'</option>';
       }).join('');
+    }
+    function renderRecentJobs(){
+      var box = $('#recentJobs'); if(!box) return;
+      var items = DB.jobs.slice().sort(function(a,b){
+        return new Date(b.createdAt||0) - new Date(a.createdAt||0);
+      }).slice(0,6);
+      box.innerHTML = '';
+      items.forEach(function(j){
+        var c = DB.customers.find(function(x){ return x.id===j.customerId; });
+        var b = document.createElement('button');
+        b.type='button'; b.className='tag';
+        b.textContent = (c?c.name:'—')+': '+j.title;
+        b.title='Open this job';
+        b.addEventListener('click', function(){ $('#invJob').value=j.id; loadInvoice(j.id); });
+        box.appendChild(b);
+      });
+    }
+
+    function renderJobCustomer(){
+      // Jobs tab customer picker
+      var sel = $('#jobCustomer');
+      sel.innerHTML = '<option value="">Select...</option>' + DB.customers.map(function(c){ return '<option value="'+c.id+'">'+c.name+'</option>'; }).join('');
+
+      // Invoice tab job picker + filters
+      renderInvFilters();
+      renderInvJobOptions();
+      renderRecentJobs();
     }
 
     // Jobs
@@ -628,7 +710,7 @@ window.addEventListener('load', function(){
           id: crypto.randomUUID(), customerId: $('#jobCustomer').value, title: $('#jobTitle').value.trim(),
           vin: $('#jobVIN').value.trim(), notes: $('#jobNotes').value.trim(), status: $('#jobStatus').value,
           lines: [], paid:false, paidAt:null, docType:'Estimate', approved:false, approvedAt:null, signature:null, paymentLink:'', vinData:null,
-          overallNotes:''
+          overallNotes:'', createdAt: new Date().toISOString()
         };
         if(!j.customerId || !j.title) return;
         DB.jobs.push(j); renderJobs(); renderJobCustomer(); $('#jobForm').reset(); $('#vinResult').style.display='none'; $('#vinSuggest').style.display='none'; saveDB();
@@ -710,13 +792,11 @@ window.addEventListener('load', function(){
       (j.lines||[]).forEach(function(l){ addLine(l.type,l.desc,l.qty,l.unit,l.cost,l.note); });
       $('#invNo').value = j.invNo||''; $('#docType').value = j.docType||'Estimate'; $('#payLink').value = j.paymentLink||'';
       var c = DB.customers.find(function(x){ return x.id===j.customerId; }); $('#emailTo').value = (c && c.email) ? c.email : '';
-      // Load overall notes
-      var overall = document.getElementById('overallNotes');
-      if(overall) overall.value = j.overallNotes || '';
+      var overall = document.getElementById('overallNotes'); if(overall) overall.value = j.overallNotes || '';
       updatePreview(); recalcTotals();
     }
 
-    /* === Updated addLine with per-line notes === */
+    /* === addLine with per-line notes === */
     function addLine(type, desc, qty, unit, cost, note){
       var tr = document.createElement('tr');
       var descPH = type==='Labor' ? "e.g., Diagnostics / R&R" : "e.g., Fuel Filter (FF63009) — Fleetguard";
@@ -748,7 +828,6 @@ window.addEventListener('load', function(){
       persistLines();
     }
 
-    /* === Updated to capture per-line note === */
     function rowsToLines(){
       return $$('#lines tbody tr').map(function(tr){
         return { 
@@ -769,7 +848,6 @@ window.addEventListener('load', function(){
       j.docType = $('#docType').value;
       j.paymentLink = $('#payLink').value.trim();
       j.emailTo = $('#emailTo').value.trim();
-      // Save overall notes
       var overall = document.getElementById('overallNotes');
       j.overallNotes = overall ? (overall.value || '') : '';
       recalcTotals(); updatePreview(); renderJobs(); saveDB();
@@ -823,7 +901,6 @@ window.addEventListener('load', function(){
       document.getElementById('pSub').textContent = fmt(subtotal); document.getElementById('pTax').textContent = fmt(tax); document.getElementById('pGrand').textContent = fmt(grand);
     }
 
-    /* === Updated preview: prints per-line notes + overall notes === */
     function updatePreview(){
       var j = currentJob();
       document.getElementById('pInvNo').textContent = document.getElementById('invNo').value.trim() || 'DRAFT';
@@ -853,7 +930,7 @@ window.addEventListener('load', function(){
         blk.style.marginTop = '10px';
         blk.innerHTML = '<h4 style="margin:8px 0 4px 0;">Technician Overall Notes</h4>' +
                         '<div style="white-space:pre-wrap; line-height:1.35;">'+escapeHtml(j.overallNotes.trim())+'</div>';
-        prev.appendChild(blk);
+        prev.insertBefore(blk, document.getElementById('signatures'));
       }
 
       function escapeHtml(s){
@@ -876,15 +953,30 @@ window.addEventListener('load', function(){
         var j=ensureJobSelected(); if(!j) return;
         var to=encodeURIComponent(document.getElementById('emailTo').value.trim()||'');
         var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim());
-        var body=encodeURIComponent('Hello,\n\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+'.\nPayment link: '+(j.paymentLink||'')+'\n\n'+(DB.settings.shopFooter||'')+'\n\n— '+(DB.settings.shopFrom||''));
+        var body=encodeURIComponent('Hello,\\n\\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+'.\\nPayment link: '+(j.paymentLink||'')+'\\n\\n'+(DB.settings.shopFooter||'')+'\\n\\n— '+(DB.settings.shopFrom||''));
         location.href='mailto:'+to+'?subject='+subj+'&body='+body;
       });
-      // Generate PDF / print
+
+      // Generate PDF / print with tighter pro layout + signature block
       document.getElementById('pdf').addEventListener('click', function(){
-        var css = 'body{font-family:'+CSS.escape(getComputedStyle(document.body).fontFamily)+';margin:0;padding:16px;color:#000}'
-                + 'table{width:100%;border-collapse:collapse}th,td{border-bottom:1px solid #000;padding:8px;text-align:left}'
-                + '.totals{display:grid;gap:6px;justify-items:end;margin-top:10px}.grand{font-weight:700}'
-                + '.print-area{position:relative}';
+        var css =
+          'html,body{margin:0;padding:0}' +
+          'body{font-family:'+CSS.escape(getComputedStyle(document.body).fontFamily)+';font-size:11pt;line-height:1.35;color:#000}' +
+          '.print-area{padding:8px 12px 12px;border-radius:0}' +
+          '.invoice-header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:6px}' +
+          '.invoice-header h3{margin:0;font-size:16pt}' +
+          'table{width:100%;border-collapse:collapse;margin-top:6px}' +
+          'th,td{border-bottom:1px solid #000;padding:6px;text-align:left;vertical-align:top;font-size:10.5pt}' +
+          '.totals{display:grid;gap:4px;justify-items:end;margin-top:8px}.grand{font-weight:700}' +
+          '.badge{border:1px solid #000;border-radius:9999px;padding:2px 6px;font-size:9pt}' +
+          '.signatures{margin-top:16px;display:grid;gap:10px}' +
+          '.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}' +
+          '.sig-line{border-bottom:1px solid #000;height:28px}' +
+          '.sig-label{font-size:9pt;color:#333;margin-top:4px}' +
+          '.watermark{position:absolute;inset:0;z-index:0;opacity:.08}' +
+          '#wmImg{max-width:90%;max-height:90%;opacity:.12}' +
+          '#wmFallback{opacity:.12}';
+
         var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>'
                     + document.getElementById('preview').outerHTML
                     + '</body></html>';
@@ -894,27 +986,23 @@ window.addEventListener('load', function(){
         setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 250);
       });
 
-      // NEW: Switching jobs reloads lines + notes
-      document.getElementById('invJob').addEventListener('change', function(e){
-        loadInvoice(e.target.value);
+      // Switching jobs reloads lines + notes
+      document.getElementById('invJob').addEventListener('change', function(e){ loadInvoice(e.target.value); });
+      // Customer filter changes job list
+      document.getElementById('invCustFilter').addEventListener('change', function(){
+        var current = $('#invJob').value;
+        renderInvJobOptions();
+        // If the current job no longer matches the filter, clear selection
+        if(!$('#invJob').querySelector('option[value="'+current+'"]')){ $('#invJob').value=''; $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals(); }
       });
 
-      // NEW: Header fields autosave & recalc
+      // Header fields autosave & recalc
       document.getElementById('invNo').addEventListener('input', persistLines);
-      document.getElementById('docType').addEventListener('change', function(){
-        persistLines();
-        updatePreview();
-      });
+      document.getElementById('docType').addEventListener('change', function(){ persistLines(); updatePreview(); });
       document.getElementById('payLink').addEventListener('input', persistLines);
       document.getElementById('emailTo').addEventListener('input', persistLines);
-      document.getElementById('laborRate').addEventListener('input', function(){
-        persistLines();
-        recalcTotals();
-      });
-      document.getElementById('salesTax').addEventListener('input', function(){
-        persistLines();
-        recalcTotals();
-      });
+      document.getElementById('laborRate').addEventListener('input', function(){ persistLines(); recalcTotals(); });
+      document.getElementById('salesTax').addEventListener('input', function(){ persistLines(); recalcTotals(); });
 
       // Save overall notes live
       var overall = document.getElementById('overallNotes');
@@ -1001,7 +1089,7 @@ window.addEventListener('load', function(){
     document.getElementById('restoreFile').addEventListener('change', function(evt){
       var f = evt.target.files && evt.target.files[0]; if(!f) return;
       var reader = new FileReader();
-      reader.onload = function(){ try{ DB = JSON.parse(reader.result); saveDB(); renderAll(); alert('Restore complete.'); } catch(e){ AppLog.error('restore failed', e); alert('Restore failed — bad file?'); } };
+      reader.onload = function(){ try{ DB = JSON.parse(reader.result); upgradeDB(); saveDB(); renderAll(); alert('Restore complete.'); } catch(e){ AppLog.error('restore failed', e); alert('Restore failed — bad file?'); } };
       reader.readAsText(f);
     });
     document.getElementById('resetBtn').addEventListener('click', function(){
@@ -1014,7 +1102,9 @@ window.addEventListener('load', function(){
       DB.jobs.push({id:crypto.randomUUID(), customerId:cid, title:"Alternator + PCM diagnostics", status:"In Progress", lines:[
         {type:"Labor",desc:"Diagnostics",qty:1.5,unit:80,cost:0,profit:120,note:"Verified concern under load."},
         {type:"Part",desc:"Alternator",qty:1,unit:324,cost:250,profit:74,note:"OEM preferred; core required."}
-      ], paid:false, docType:"Estimate", paymentLink:"", overallNotes:"Initial assessment complete."});
+      ], paid:false, docType:"Estimate", paymentLink:"", overallNotes:"Initial assessment complete.", createdAt:new Date().toISOString()});
+    } else {
+      upgradeDB();
     }
     renderAll();
 
