@@ -193,7 +193,7 @@ button,select,input,textarea{
 .handle:active{ cursor: grabbing !important; }
 </style>
 
-<!-- === New: Notes UI styling === -->
+<!-- === Notes UI styling === -->
 <style id="notes-ui">
 .desc-wrap{ display:flex; flex-direction:column; gap:6px; }
 .lNote{
@@ -337,7 +337,7 @@ button,select,input,textarea{
       <div>Margin: <span id="margin" class="badge estimate">0%</span></div>
     </div>
 
-    <!-- New: Overall technician notes editor (saves/prints) -->
+    <!-- Overall technician notes editor -->
     <div id="overallNotesWrap" class="card">
       <h3>Technician Overall Notes</h3>
       <textarea id="overallNotes" placeholder="Explain diagnostics, verified checks, advisories (e.g., CVT fluid verified correct; AT Temp/ABS lights present; drivability unaffected)."></textarea>
@@ -863,7 +863,7 @@ window.addEventListener('load', function(){
       }
     }
 
-    // Buttons
+    // Buttons & listeners
     guard('buttons', function(){
       document.getElementById('addLabor').addEventListener('click', function(){ if(!ensureJobSelected()) return; addLine('Labor','',1, Number(document.getElementById('laborRate').value||80), 0, ''); });
       document.getElementById('addPart').addEventListener('click', function(){ if(!ensureJobSelected()) return; addLine('Part','',1, 0, 0, ''); });
@@ -892,6 +892,28 @@ window.addEventListener('load', function(){
         if(!w){ alert('Please allow pop-ups to print.'); return; }
         w.document.open(); w.document.write(htmlDoc); w.document.close();
         setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 250);
+      });
+
+      // NEW: Switching jobs reloads lines + notes
+      document.getElementById('invJob').addEventListener('change', function(e){
+        loadInvoice(e.target.value);
+      });
+
+      // NEW: Header fields autosave & recalc
+      document.getElementById('invNo').addEventListener('input', persistLines);
+      document.getElementById('docType').addEventListener('change', function(){
+        persistLines();
+        updatePreview();
+      });
+      document.getElementById('payLink').addEventListener('input', persistLines);
+      document.getElementById('emailTo').addEventListener('input', persistLines);
+      document.getElementById('laborRate').addEventListener('input', function(){
+        persistLines();
+        recalcTotals();
+      });
+      document.getElementById('salesTax').addEventListener('input', function(){
+        persistLines();
+        recalcTotals();
       });
 
       // Save overall notes live
@@ -946,7 +968,7 @@ window.addEventListener('load', function(){
       function monthKey(d){ var dd = new Date(d); return dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0'); }
       DB.jobs.forEach(function(j){
         var subtotal = j.lines.reduce(function(s,l){ return s + (Number(l.qty)||0)*(Number(l.unit)||0); }, 0);
-        var profit = j.lines.reduce(function(s,l){ return s + (l.type==='Part' ? (Number(l.qty||0)*(Number(l.unit||0)-Number(l.cost||0))) : (Number(l.qty||0)*Number(l.unit||0))); }, 0);
+        var profit = j.lines.reduce(function(s,l){ return s + (l.type==='Part' ? (Number(l.qty||0)*(Number(l.unit)||0)-Number(l.cost||0)) : (Number(l.qty||0)*Number(l.unit)||0)); }, 0);
         if(j.paid && j.paidAt && monthKey(j.paidAt)===mkey){ var tax = subtotal*(Number(document.getElementById('salesTax').value||0)/100); rev+=subtotal+tax; prof+=profit; }
       });
       document.getElementById('openJobs').textContent = open; document.getElementById('unpaid').textContent = unpaid; document.getElementById('revMonth').textContent = fmt(rev); document.getElementById('profitMonth').textContent = fmt(prof);
