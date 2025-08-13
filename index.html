@@ -3,27 +3,14 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-<title>Poppe’s Diesel Co. — Shop Manager (v0.9.4)</title>
+<title>Poppe’s Diesel Co. — Shop Manager (v1.1.0)</title>
+
+<!-- ===== THEME & BASE ===== -->
 <style>
 :root{
-  /* Poppe’s palette */
-  --bg:#e6cfae;        /* light tan from logo */
-  --card:#13151c;      /* keep cards dark for contrast */
-  --text:#0e111a;      /* dark text on tan areas */
-  --muted:#3e463e;     /* muted on tan */
-  --border:#2e3226;    /* subtle greenish border */
-
-  /* app chrome (unchanged) */
-  --ink:#0e111a; 
-  --ink2:#161a24;
-  --shadow:0 10px 20px rgba(0,0,0,.30);
-
-  /* Brand action colors */
-  --info:#0a3d2e;      /* diesel green (primary) */
-  --ok:#1f6b55;        /* supportive green */
-  --warn:#f5c518;      /* highlight yellow */
-  --danger:#962b2b;    /* logo red */
-
+  --bg:#e6cfae; --card:#13151c; --text:#0e111a; --muted:#3e463e; --border:#2e3226;
+  --ink:#0e111a; --ink2:#161a24; --shadow:0 10px 20px rgba(0,0,0,.30);
+  --info:#0a3d2e; --ok:#1f6b55; --warn:#f5c518; --danger:#962b2b;
   --font: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 *{box-sizing:border-box} html,body{height:100%} body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
@@ -31,28 +18,32 @@ header{position:sticky;top:0;z-index:10;background:var(--ink);border-bottom:1px 
 h1{margin:0;font-size:20px;display:flex;gap:8px;align-items:center}
 .tag{background:var(--ink2);color:var(--muted);padding:2px 6px;border-radius:6px;font-size:12px;white-space:nowrap}
 nav.top{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-button,select,input,textarea{background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:12px;font-size:17px;touch-action:manipulation}
-button{cursor:pointer} .tab-btn{background:var(--ink2)} .primary{background:var(--info);color:#001a2d;border-color:transparent} .success{background:var(--ok);color:#002b1f;border-color:transparent}
-main{padding:16px 16px 100px}
+button,select,input,textarea{background:#ffffff;border:1px solid #b6b09f;color:#0e111a;padding:12px 14px;border-radius:12px;font-size:17px;touch-action:manipulation}
+button{cursor:pointer} .tab-btn{background:#1d312a;color:#fff;border:1px solid #0e241c}
+.tab-btn:hover{filter:brightness(1.05)}
+.primary{background:#0a3d2e;color:#fff;border-color:#0a3d2e} .success{background:#1f6b55;color:#fff;border-color:#1f6b55}
+main{padding:16px 16px 110px}
 .tab{display:none} .tab.active{display:block}
-.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:14px;background:var(--card)}
-table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+.table-wrap{overflow:auto;border:1px solid #b6b09f;border-radius:14px;background:#ffffff}
+table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px solid #b6b09f;text-align:left;vertical-align:top}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+.card{background:#1d312a;color:#fff;border:1px solid #0e241c;border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 8px 0}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0}
-.actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:stretch;margin-top:8px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
 .actions>*{height:48px}
 .print-area{background:#fff;color:#000;border-radius:14px;padding:16px;position:relative;overflow:hidden}
 .watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:.08;z-index:0}
 .invoice-header{position:relative;z-index:1;display:flex;justify-content:space-between;gap:16px;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:8px}
-.lines thead th{background:#1a1e2b;color:#cfe1ff;border-bottom-color:#2b2f40}
+.lines thead th{background:#203229;color:#eaf5f0;border-bottom-color:#2f463a}
 .totals{display:grid;gap:6px;justify-items:end;margin-top:8px;position:relative;z-index:1}
 .badge{padding:.25rem .5rem;border-radius:999px;border:1px solid #000;font-size:.9em}
-.badge.estimate{background:#fff7d6} .badge.invoice{background:#e6fff4}
+.badge.estimate{background:#fdf1c4;color:#2b2100} .badge.invoice{background:#d9efe7;color:#0a3d2e}
 .small{font-size:.85em;color:var(--muted)}
 .calc-hint{font-size:.8em;line-height:1.2;margin-top:6px;opacity:.9}
 .calc-hint.ok{color:#0a7f63} .calc-hint.warn{color:#b48802}
-#debugToggle{position:fixed;right:12px;bottom:72px;z-index:60;background:#1e2030;border:1px solid #3a3f58;border-radius:999px;padding:10px 12px}
+
+#debugToggle{position:fixed;right:12px;bottom:72px;z-index:60;background:#1e2030;border:1px solid #3a3f58;border-radius:999px;padding:10px 12px;color:#fff}
 #debug{position:fixed;right:12px;bottom:12px;left:12px;max-height:50vh;overflow:auto;background:#0f111a;border:1px solid #30364a;border-radius:12px;padding:10px 12px;z-index:60;display:none;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;font-size:12px;color:#d7e1ff}
 #debug pre{white-space:pre-wrap;margin:0}
 #debug .meta{font-size:12px;color:#9fb3d1;margin-bottom:6px}
@@ -60,198 +51,63 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
 .selftest{display:none;margin-left:8px}
 .selftest.ok{display:inline-block;background:#10331f;border:1px solid #1f6440;color:#a5ffd8}
 .selftest.warn{display:inline-block;background:#3a2f00;border:1px solid #7a5f00;color:#ffeaa3}
-@media print{ body{background:#fff;color:#000} header,nav.bottom,nav.top,.actions,.modal,#debug,#debugToggle{display:none!important} .tab{display:block!important} #invoice{display:block!important} .print-area{box-shadow:none;margin:0;padding:0} }
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50}
-.modal .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;max-width:900px;width:96%;padding:16px;box-shadow:var(--shadow)}
-.modal header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.hint{color:var(--muted);font-size:.9em}
-.suggestions{margin-top:8px;padding:10px;border:1px dashed #2b2f40;border-radius:12px;background:#10131d}
-.suggestions .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-.suggestions .tag{background:#1b2134;border:1px solid #2b3552;color:#cfe1ff}
-.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
-</style>
-<style id="contrast-fixes">
-/* === Contrast fixes (brand-safe) === */
-header{ color:#ffffff; }
-header h1{ color:#ffffff; }
-header .tag{ background:#0f241c; color:#d9efe7; border:1px solid #1e3a2f; }
 
-/* High-contrast buttons */
-.tab-btn{ background:#1d312a !important; color:#ffffff !important; border:1px solid #0e241c !important; }
-.tab-btn:hover{ filter:brightness(1.05); }
-
-.primary{ background:#0a3d2e !important; color:#ffffff !important; border-color:#0a3d2e !important; }
-.success{ background:#1f6b55 !important; color:#ffffff !important; border-color:#1f6b55 !important; }
-
-/* Action row buttons and bottom nav */
-.actions .tab-btn{ background:#0f241c !important; border-color:#0a1a14 !important; }
-nav.bottom{ background:#16241e !important; border-top-color:#233329 !important; }
-nav.bottom .tab-btn{ background:#1d312a !important; color:#ffffff !important; border-color:#0e241c !important; }
-
-/* Inputs on tan background */
-button,select,input,textarea{
-  background:#ffffff;
-  color:#0e111a;
-  border:1px solid #b6b09f;
+@media print{
+  body{background:#fff;color:#000}
+  header,nav.bottom,nav.top,.actions,.modal,#debug,#debugToggle,#invFilters,#internalNotesWrap,#photosWrap{display:none!important}
+  .tab{display:block!important} #invoice{display:block!important} .print-area{box-shadow:none;margin:0;padding:0}
 }
-/* Keep special classes above */
-.tab-btn, .primary, .success{ color:#ffffff !important; }
 
-/* Totals badge readability */
-.badge{ border-color:#0e111a; }
-.badge.estimate{ background:#fdf1c4; color:#2b2100; }
-.badge.invoice{ background:#d9efe7; color:#0a3d2e; }
-
-/* Table wrap contrast on tan */
-.table-wrap{ background:#ffffff; border-color:#b6b09f; }
-.lines thead th{ background:#203229; color:#eaf5f0; border-bottom-color:#2f463a; }
-
-/* Print preview area should stay white */
-.print-area{ background:#ffffff; color:#000000; }
-
-/* Dashboard cards match tab-btn background */
-.cards .card{
-  background:#1d312a !important;
-  color:#ffffff !important;
-  border:1px solid #0e241c !important;
-}
-.cards .card h3{ color:#ffffff !important; }
-
-/* Fix card text spacing so headings/content don't overflow edges */
-.card{
-  padding:20px !important;
-  box-sizing:border-box;
-}
-.card h3{
-  margin-top:0;
-  margin-bottom:8px;
-  line-height:1.3;
-  word-break:break-word;
-}
-</style>
-<style id="actions-size-line">
-/* === Actions row in a line, bigger buttons === */
-.actions{
-  display: flex !important;
-  flex-wrap: wrap !important;
-  justify-content: flex-start !important;
-  gap: 10px !important;
-  max-width: 100% !important;
-  margin: 12px 0 0 !important;
-}
-.actions .tab-btn{
-  flex: 0 0 auto !important;
-  min-width: 180px !important;
-  height: 54px !important;
-  font-size: 15px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 8px 12px !important;
-  border-radius: 12px !important;
-  text-align: center !important;
-  line-height: 1.2 !important;
-  white-space: normal !important;
-  word-break: keep-all !important;
-}
-</style>
-<style id="pdf-button-move">
-/* Move Generate PDF button bottom-right */
+/* Actions row & Generate PDF floating */
 #pdf{
-  position: fixed !important;
-  bottom: 80px !important; /* above bottom nav */
-  right: 20px !important;
-  z-index: 1000 !important;
-  min-width: 160px !important;
-  height: 50px !important;
-  background: var(--info) !important;
-  color: #fff !important;
-  border: none !important;
-  border-radius: 12px !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  position: fixed; bottom: 80px; right: 20px; z-index: 1000;
+  min-width: 160px; height: 50px; background: var(--info); color: #fff; border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 #pdf:hover{ filter: brightness(1.05); }
-/* Remove from normal actions layout spacing */
-.actions #pdf{
-  position: static !important;
-  min-width: auto !important;
-  height: auto !important;
-  box-shadow: none !important;
-}
-</style>
-<style id="drag-style">
-/* ===== Drag & Drop rows ===== */
+
+/* Drag & drop rows */
 .drag-col{ width:28px; text-align:center; }
-.handle{ min-width: 32px !important; height: 36px !important; padding: 4px 6px !important; cursor: grab !important; }
-.handle:active{ cursor: grabbing !important; }
+.handle{ min-width: 32px; height: 36px; padding: 4px 6px; cursor: grab; }
+.handle:active{ cursor: grabbing; }
 .draggable-row.dragging{ opacity: 0.5; }
 .drop-target{ outline: 2px dashed var(--info); outline-offset: -2px; }
 
-.handle{ cursor: grab !important; }
-.handle:active{ cursor: grabbing !important; }
-</style>
-
-<!-- === Notes UI styling === -->
-<style id="notes-ui">
+/* Notes UI */
 .desc-wrap{ display:flex; flex-direction:column; gap:6px; }
 .lNote{
   width:100%; min-height:64px; resize:vertical;
   background:#ffffff; color:#0e111a; border:1px solid #b6b09f; border-radius:10px;
   padding:8px 10px; font-size:.95rem;
 }
-.lNote::placeholder{ color:#737a73; }
 #overallNotesWrap{ margin-top:12px; }
-#overallNotes{
-  width:100%; min-height:110px; resize:vertical;
-  background:#ffffff; color:#0e111a; border:1px solid #b6b09f; border-radius:12px;
-  padding:12px 14px; font-size:1rem;
-}
-@media print{
-  .lNote, #overallNotes{ border:none; padding:0; resize:none; background:transparent; }
-}
-</style>
+#overallNotes{ width:100%; min-height:110px; resize:vertical; }
 
-<!-- === Signature block styling (screen + print) === -->
-<style id="signature-style">
+/* Signature block */
 .signatures{ margin-top:16px; display:grid; gap:10px; }
 .sig-row{ display:grid; grid-template-columns:2fr 1fr; gap:16px; align-items:end; }
-.sig{
-  display:flex; flex-direction:column; justify-content:flex-end;
-}
-.sig-line{
-  border-bottom:1px solid #000; height:32px;
-}
-.sig-label{
-  font-size:.9em; color:#333; margin-top:4px;
-}
-@media print{
-  .sig-line{ height:28px; }
-}
-</style>
+.sig{ display:flex; flex-direction:column; justify-content:flex-end; }
+.sig-line{ border-bottom:1px solid #000; height:32px; display:flex; align-items:flex-end; }
+.sig-label{ font-size:.9em; color:#333; margin-top:4px; }
+.sig-img{ max-height:60px; max-width:100%; object-fit:contain; }
 
-<style id="settings-contrast-fix">
-  /* Make Settings cards readable on the tan theme */
-  #settings .card{
-    background:#ffffff !important;
-    color:#0e111a !important;
-    border:1px solid #b6b09f !important;
-  }
-  #settings .card h3{ color:#0e111a !important; }
-  #settings .hint{ color:#3e463e !important; }
-  #settings label{ color:#0e111a !important; }
-  #settings input, #settings select, #settings button.tab-btn{
-    background:#ffffff !important;
-    color:#0e111a !important;
-    border-color:#b6b09f !important;
-  }
-</style>
-<style id="click-safety">.watermark{pointer-events:none!important}</style>
+/* Photos */
+.photo-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; }
+.photo-item{ position:relative; background:#fff; border:1px solid #b6b09f; border-radius:8px; padding:6px; }
+.photo-item img{ width:100%; height:90px; object-fit:cover; border-radius:6px; }
+.photo-item .del{ position:absolute; top:4px; right:4px; background:#962b2b; color:#fff; border:none; border-radius:8px; padding:2px 6px; font-size:12px; cursor:pointer; }
+.photo-item label{ display:flex; align-items:center; gap:6px; margin-top:6px; font-size:12px; }
 
+/* Jobs table status colors */
+.badge-open{background:#fff;border-color:#b6b09f}
+.badge-ip{background:#fff7d6;border-color:#caa52a}
+.badge-done{background:#d9efe7;border-color:#1f6b55;color:#0a3d2e}
+</style>
 </head>
+
 <body>
 <div id="error">JavaScript error detected. Tap to reload.</div>
 <header>
-  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v0.9.4</span><span id="selftest" class="tag selftest">Self-test: …</span></h1>
+  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.1.0</span><span id="selftest" class="tag selftest">Self-test: …</span></h1>
   <nav class="top">
     <button class="tab-btn" data-tab="dashboard">Dashboard</button>
     <button class="tab-btn" data-tab="customers">Customers</button>
@@ -262,6 +118,7 @@ button,select,input,textarea{
 </header>
 
 <main>
+  <!-- ===== DASHBOARD ===== -->
   <section id="dashboard" class="tab active">
     <h2>Dashboard</h2>
     <div class="cards">
@@ -272,6 +129,7 @@ button,select,input,textarea{
     </div>
   </section>
 
+  <!-- ===== CUSTOMERS ===== -->
   <section id="customers" class="tab">
     <h2>Customers</h2>
     <form id="custForm" class="grid">
@@ -286,6 +144,7 @@ button,select,input,textarea{
     </div>
   </section>
 
+  <!-- ===== JOBS ===== -->
   <section id="jobs" class="tab">
     <h2>Jobs</h2>
     <form id="jobForm" class="grid">
@@ -293,32 +152,46 @@ button,select,input,textarea{
       <input id="jobTitle" placeholder="Job title (e.g., Front brakes + rotors)" required/>
       <input id="jobVIN" placeholder="VIN (17 chars)"/>
       <button type="button" class="tab-btn" id="decodeVIN">Decode VIN</button>
-      <div id="vinResult" style="display:none" class="card hint"></div>
-      <div id="vinSuggest" style="display:none" class="suggestions">
-        <div><strong>Suggested parts & labor</strong> (based on decoded platform)</div>
-        <div class="tags" id="vinTags"></div>
-        <div style="margin-top:8px"><button class="tab-btn primary" id="addAllSuggest" type="button">Add All</button></div>
+      <div id="vinResult" style="display:none" class="card" aria-live="polite"></div>
+      <div id="vinSuggest" style="display:none" class="card" aria-live="polite">
+        <div><strong>Suggested parts & labor</strong> (platform match)</div>
+        <div class="actions" id="vinTags"></div>
+        <button class="tab-btn primary" id="addAllSuggest" type="button">Add All</button>
       </div>
       <textarea id="jobNotes" placeholder="Notes (symptoms, codes, etc.)"></textarea>
       <select id="jobStatus"><option>Open</option><option>In Progress</option><option>Done</option></select>
       <button class="primary" type="submit">Create Job</button>
     </form>
+
+    <!-- Internal, non-printing staff notes -->
+    <div id="internalNotesWrap" class="card">
+      <h3>Internal Staff Notes (won’t print)</h3>
+      <textarea id="internalNotes" placeholder="For in-house eyes only — diagnostic rabbit holes, supplier rants, etc."></textarea>
+    </div>
+
     <div class="table-wrap">
-      <table id="jobsTable"><thead><tr><th>#</th><th>Customer</th><th>Title</th><th>Status</th><th>Total</th><th>Profit</th><th></th></tr></thead><tbody></tbody></table>
+      <table id="jobsTable">
+        <thead><tr><th>#</th><th>Customer</th><th>Title</th><th>Status</th><th>Total</th><th>Profit</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
     </div>
   </section>
 
+  <!-- ===== INVOICE ===== -->
   <section id="invoice" class="tab">
     <h2>Estimate / Invoice<br><small>Poppe’s Diesel Co. — Built in the Garage, Backed by Freedom</small></h2>
 
-    <!-- Invoice filtering + quick picks -->
-    <div class="grid" id="invFilters">
+    <!-- Filters + Quick picks + Search -->
+    <div id="invFilters" class="grid">
       <label>Filter by Customer
         <select id="invCustFilter"><option value="">All customers</option></select>
       </label>
+      <label>Search Jobs
+        <input id="invJobSearch" placeholder="Type to filter jobs by customer/title…">
+      </label>
       <div>
-        <div class="hint">Recent jobs</div>
-        <div id="recentJobs" class="tags"></div>
+        <div class="small">Recent jobs</div>
+        <div id="recentJobs" class="actions"></div>
       </div>
     </div>
 
@@ -328,8 +201,8 @@ button,select,input,textarea{
       <label>Type
         <select id="docType"><option>Estimate</option><option>Invoice</option></select>
       </label>
-      <label>Labor Rate ($/hr) <input id="laborRate" type="number" step="0.01" value="80" placeholder="$/hr (e.g., 95.00)"/></label>
-      <label>Sales Tax (%) <input id="salesTax" type="number" step="0.01" value="7" placeholder="% (e.g., 7.00)"/></label>
+      <label>Labor Rate ($/hr) <input id="laborRate" type="number" step="0.01" value="80"/></label>
+      <label>Sales Tax (%) <input id="salesTax" type="number" step="0.01" value="7"/></label>
       <label>Payment Link <input id="payLink" placeholder="https://pay.yourprovider.com/invoice/123"/></label>
       <label>Email To <input id="emailTo" placeholder="customer@example.com"/></label>
     </form>
@@ -339,24 +212,27 @@ button,select,input,textarea{
       <button type="button" class="tab-btn" id="addPart">+ Part Line</button>
       <button type="button" class="tab-btn" id="openTemplates">Maintenance Templates</button>
       <button type="button" class="tab-btn" id="applyMarkup">Apply Default Markup</button>
+      <button type="button" class="tab-btn" id="quickEstimate">Quick Estimate</button>
       <button type="button" class="tab-btn" id="recalc">Recalculate</button>
       <button type="button" class="tab-btn success" id="markPaid">Mark Paid</button>
       <button type="button" class="tab-btn" id="approve">Approve Estimate</button>
       <button type="button" class="tab-btn" id="convert">Convert to Invoice</button>
+      <button type="button" class="tab-btn" id="sign">Collect Signatures</button>
       <button type="button" class="tab-btn" id="email">Email</button>
       <button type="button" class="tab-btn primary" id="pdf">Generate PDF</button>
     </div>
 
+    <!-- Lines table -->
     <div class="table-wrap" style="margin-top:10px">
       <table class="lines" id="lines">
         <thead>
-          <tr><th style="width:28px">↕</th><th>Type</th><th>Description</th><th>Qty/Hrs</th><th>Cost $</th><th>Unit $</th><th>Line $</th><th>Profit $</th><th></th>
-          </tr>
+          <tr><th style="width:28px">↕</th><th>Type</th><th>Description</th><th>Qty/Hrs</th><th>Cost $</th><th>Unit $</th><th>Line $</th><th>Profit $</th><th></th></tr>
         </thead>
         <tbody></tbody>
       </table>
     </div>
 
+    <!-- Totals -->
     <div class="totals">
       <div>Subtotal: <span id="sub">$0.00</span></div>
       <div>Tax: <span id="tax">$0.00</span></div>
@@ -365,12 +241,28 @@ button,select,input,textarea{
       <div>Margin: <span id="margin" class="badge estimate">0%</span></div>
     </div>
 
-    <!-- Overall technician notes editor -->
-    <div id="overallNotesWrap" class="card">
-      <h3>Technician Overall Notes</h3>
-      <textarea id="overallNotes" placeholder="Explain diagnostics, verified checks, advisories (e.g., CVT fluid verified correct; AT Temp/ABS lights present; drivability unaffected)."></textarea>
+    <!-- Tech overall notes (customer-visible) -->
+    <div id="overallNotesWrap" class="card" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Technician Overall Notes</h3>
+      <textarea id="overallNotes" placeholder="Explain diagnostics, verified checks, advisories."></textarea>
     </div>
 
+    <!-- Photos -->
+    <div id="photosWrap" class="card" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Work Photos</h3>
+      <div class="actions">
+        <label style="display:inline-flex;align-items:center;gap:8px">
+          <input type="file" id="photoInput" accept="image/*" multiple/>
+          Add photos
+        </label>
+        <label style="display:inline-flex;align-items:center;gap:8px">
+          <input type="checkbox" id="photosOnPdf" checked/> Include photos on PDF
+        </label>
+      </div>
+      <div id="photoGrid" class="photo-grid" aria-live="polite"></div>
+    </div>
+
+    <!-- Printable preview -->
     <div class="print-area" id="preview" style="margin-top:12px">
       <div class="watermark">
         <img id="wmImg" alt="Poppe’s Diesel Co. watermark" style="display:none;max-width:90%;max-height:90%;opacity:.15;mix-blend-mode:multiply" />
@@ -384,7 +276,7 @@ button,select,input,textarea{
       <div class="invoice-header">
         <div class="shop">
           <h3>Poppe’s Diesel Co.</h3>
-          <p>Columbus, IN </P> 
+          <p>Columbus, IN</p>
           <p>poppedieselco@gmail.com</p>
           <p>(208) 243-7934</p>
         </div>
@@ -396,63 +288,85 @@ button,select,input,textarea{
         </div>
       </div>
       <div><strong>Bill To:</strong> <span id="pCust">—</span><div id="pVeh"></div></div>
+
       <table class="lines"><thead><tr><th>Description</th><th>Qty/Hrs</th><th>Unit</th><th>Line $</th></tr></thead><tbody id="pLines"></tbody></table>
+
+      <div id="pOverallBlock"></div>
+
       <div class="totals">
         <div>Subtotal: <span id="pSub">$0.00</span></div>
         <div>Tax: <span id="pTax">$0.00</span></div>
         <div class="grand">Grand Total: <span id="pGrand">$0.00</span></div>
       </div>
 
-      <!-- Overall notes get mirrored here by JS as #pOverallNotes -->
-
-      <!-- Signature block prints on PDF -->
+      <!-- Signature block -->
       <div id="signatures" class="signatures">
         <div class="sig-row">
-          <div class="sig"><div class="sig-line"></div><div class="sig-label">Customer Signature</div></div>
-          <div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div>
+          <div class="sig">
+            <div class="sig-line">
+              <img id="pSigCustomer" class="sig-img" alt="" style="display:none"/>
+            </div>
+            <div class="sig-label">Customer Signature <span id="pSigCustomerName"></span> <span id="pSigCustomerDate" class="small"></span></div>
+          </div>
+          <div class="sig">
+            <div class="sig-line"></div>
+            <div class="sig-label">Date</div>
+          </div>
         </div>
         <div class="sig-row">
-          <div class="sig"><div class="sig-line"></div><div class="sig-label">Service Manager Signature</div></div>
-          <div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div>
+          <div class="sig">
+            <div class="sig-line">
+              <img id="pSigManager" class="sig-img" alt="" style="display:none"/>
+            </div>
+            <div class="sig-label">Service Manager Signature <span id="pSigManagerName"></span> <span id="pSigManagerDate" class="small"></span></div>
+          </div>
+          <div class="sig">
+            <div class="sig-line"></div>
+            <div class="sig-label">Date</div>
+          </div>
         </div>
       </div>
+
+      <!-- Photos mirrored (conditional) -->
+      <div id="pPhotosBlock" style="margin-top:10px"></div>
     </div>
   </section>
 
+  <!-- ===== SETTINGS ===== -->
   <section id="settings" class="tab">
     <h2>Settings</h2>
-    <div class="card">
-      <h3>Default Parts Markup</h3>
+    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Default Parts Markup</h3>
       <div class="grid">
-        <label>Default Markup % <input id="defaultMarkup" type="number" step="1" value="40" placeholder="e.g., 40"/></label>
-        <div class="hint">Used by “Apply Default Markup” on invoice and as fallback for new part lines.</div>
+        <label>Default Markup % <input id="defaultMarkup" type="number" step="1" value="40"/></label>
+        <div class="small">Used by “Apply Default Markup”.</div>
       </div>
     </div>
 
-    <div class="card">
-      <h3>Email Presets</h3>
-      <div class="settings-grid">
+    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Email Presets</h3>
+      <div class="grid">
         <label>From (Shop Name) <input id="shopFrom" placeholder="Poppe’s Diesel Co."/></label>
         <label>Reply-To Email <input id="shopReply" placeholder="poppedieselco@gmail.com" inputmode="email"/></label>
         <label>Subject Prefix <input id="shopSubj" placeholder="[Poppe’s Diesel Co.] "/></label>
-        <label>Footer (shown in email body) <input id="shopFooter" placeholder="Thank you for supporting local." /></label>
+        <label>Footer (email body) <input id="shopFooter" placeholder="Thank you for supporting local." /></label>
       </div>
-      <div class="hint">When you tap Email, these are used to build the mailto draft.</div>
+      <div class="small">Tap Email to use these in a mailto draft.</div>
     </div>
 
-    <div class="card">
-      <h3>Backup & Restore</h3>
-      <div class="settings-grid">
+    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Backup & Restore</h3>
+      <div class="grid">
         <button id="backupBtn" class="tab-btn" type="button">Download Backup (.json)</button>
         <label>Restore from Backup <input id="restoreFile" type="file" accept=".json"/></label>
         <button id="resetBtn" class="tab-btn" type="button">Factory Reset (keeps this page)</button>
       </div>
-      <div class="hint">Backups include customers, jobs, lines, settings, and templates.</div>
+      <div class="small">Backups include customers, jobs, lines, settings, templates, photos, and signatures.</div>
     </div>
 
-    <div class="card">
-      <h3>Templates (editable)</h3>
-      <p class="hint">Platform match uses VIN decode (Make/Model/Engine). You can apply any template manually via the button.</p>
+    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Templates (editable)</h3>
+      <p class="small">VIN platform match helps suggest bundles.</p>
       <div class="table-wrap">
         <table id="tplTable"><thead><tr><th>Platform</th><th>Item</th><th>Type</th><th>Qty/Hrs</th><th>Cost</th><th>Markup%</th></tr></thead><tbody></tbody></table>
       </div>
@@ -460,6 +374,7 @@ button,select,input,textarea{
   </section>
 </main>
 
+<!-- ===== BOTTOM NAV ===== -->
 <nav class="bottom" style="position:fixed;bottom:0;left:0;right:0;background:#0e111a;border-top:1px solid var(--border);display:flex;justify-content:space-between;padding:10px 10px;align-items:center">
   <div>
     <button class="tab-btn" data-tab="dashboard">🏠</button>
@@ -471,71 +386,78 @@ button,select,input,textarea{
   <button id="debugToggle" title="Debug">🪲</button>
 </nav>
 
+<!-- ===== DEBUG ===== -->
 <div id="debug">
   <div class="meta" id="debugMeta"></div>
   <pre id="debugLog"></pre>
 </div>
 
-<div class="modal" id="tplModal">
-  <div class="panel">
-    <header><h3>Maintenance Templates</h3><button id="tplClose" class="tab-btn">Close</button></header>
+<!-- ===== MODALS ===== -->
+<div class="modal" id="tplModal" style="display:none">
+  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h3 style="color:#0e111a;margin:0">Maintenance Templates</h3>
+      <button id="tplClose" class="tab-btn">Close</button>
+    </header>
     <div id="tplList"></div>
   </div>
 </div>
 
+<!-- Signature modal -->
+<div class="modal" id="sigModal" style="display:none">
+  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h3 id="sigTitle" style="color:#0e111a;margin:0">Collect Signature</h3>
+      <button id="sigClose" class="tab-btn">Close</button>
+    </header>
+    <div class="grid">
+      <label>Signer Name <input id="sigName" placeholder="Printed name"></label>
+      <label>Date <input id="sigDate" type="date"></label>
+      <label>Role
+        <select id="sigRole">
+          <option value="customer">Customer</option>
+          <option value="manager">Service Manager</option>
+        </select>
+      </label>
+    </div>
+    <div style="margin-top:8px">
+      <canvas id="sigPad" width="640" height="220" style="width:100%;background:#fff;border:1px dashed #b6b09f;border-radius:8px"></canvas>
+    </div>
+    <div class="actions" style="margin-top:8px">
+      <button id="sigClear" class="tab-btn">Clear</button>
+      <button id="sigSave" class="tab-btn primary">Save Signature</button>
+    </div>
+  </div>
+</div>
+
+<!-- Quick estimate modal -->
+<div class="modal" id="qeModal" style="display:none">
+  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h3 style="color:#0e111a;margin:0">Quick Estimate Builder</h3>
+      <button id="qeClose" class="tab-btn">Close</button>
+    </header>
+    <div class="grid">
+      <label>Title/Concern <input id="qeTitle" placeholder="e.g., Front brakes: pads+rotors"/></label>
+      <label>Parts Cost ($) <input id="qePartsCost" type="number" step="0.01" value="0"/></label>
+      <label>Markup % <input id="qeMarkup" type="number" step="1" value="40"/></label>
+      <label>Labor Hours <input id="qeHours" type="number" step="0.1" value="1.5"/></label>
+      <div class="small">Uses current labor rate & tax.</div>
+    </div>
+    <div class="actions">
+      <button id="qeApplyAppend" class="tab-btn">Append Lines</button>
+      <button id="qeApplyReplace" class="tab-btn danger" style="background:#962b2b">Replace Lines</button>
+    </div>
+  </div>
+</div>
+
 <script>
-/* ---- Watermark loader: embed as data URL so PDF includes it ---- */
-(function(){
-  const KEY = 'pdc_wm_dataurl';
-  const imgEl = document.getElementById('wmImg');
-  const fallback = document.getElementById('wmFallback');
-
-  async function toDataURL(url){
-    const res = await fetch(url);
-    if(!res.ok) throw new Error('fetch failed');
-    const blob = await res.blob();
-    return await new Promise((resolve,reject)=>{
-      const r = new FileReader();
-      r.onload = () => resolve(r.result);
-      r.onerror = reject;
-      r.readAsDataURL(blob);
-    });
-  }
-
-  async function loadWM(){
-    try{
-      const cached = localStorage.getItem(KEY);
-      if(cached){
-        imgEl.src = cached;
-        imgEl.style.display = 'block';
-        if(fallback) fallback.style.display = 'none';
-        return;
-      }
-      const dataUrl = await toDataURL('Poppe_1776_Transparent.png');
-      imgEl.src = dataUrl;
-      imgEl.style.display = 'block';
-      if(fallback) fallback.style.display = 'none';
-      localStorage.setItem(KEY, dataUrl);
-    }catch(e){
-      console.warn('Watermark image not found; using text fallback.');
-    }
-  }
-  if(imgEl) loadWM();
-})();
-
-// ---------- POLYFILLS & SAFE HELPERS ----------
-(function(){
-  if(!window.crypto) window.crypto = {};
-  if(!crypto.randomUUID){
-    crypto.randomUUID = function(){ return 'id-' + Math.random().toString(16).slice(2) + '-' + Date.now(); }
-  }
-})();
-
+/* ===== Utilities & debug ===== */
 (function(){
   var logEl = document.getElementById('debugLog');
   var metaEl = document.getElementById('debugMeta');
   var buf = [];
-  function print(line){ buf.push(line); if(logEl){ log_el_text = buf.join('\\n'); logEl.textContent = log_el_text; } }
+  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\\n'); } }
   window.AppLog = {
     info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
     warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
@@ -551,34 +473,45 @@ function guard(name, fn){
   try { fn(); AppLog.info(name + ' ✅'); }
   catch(e){ AppLog.error(name + ' ❌', e); var el = document.getElementById('error'); if(el){ el.style.display='block'; el.onclick=function(){ location.reload(); }; } }
 }
+if(!window.crypto) window.crypto = {};
+if(!crypto.randomUUID){ crypto.randomUUID = function(){ return 'id-' + Math.random().toString(16).slice(2) + '-' + Date.now(); } }
 
-// ---------- SELF-TEST ----------
+/* ===== Watermark into dataURL (helps PDF include it) ===== */
 (function(){
-  var badge = document.getElementById('selftest');
-  function ok(){ badge.textContent='Self-test: OK'; badge.className='tag selftest ok'; }
-  function warn(msg){ badge.textContent='Self-test: Check'; badge.title=msg||''; badge.className='tag selftest warn'; }
-  try {
-    if(!window.localStorage || !window.Blob || !window.fetch || !document.querySelector){ warn('Missing core API'); return; }
-    var k='__st__'+Math.random(); localStorage.setItem(k,'1'); var v=localStorage.getItem(k); localStorage.removeItem(k);
-    if(v!=='1'){ warn('localStorage blocked'); return; }
-    ok();
-  } catch(e){ warn(e && e.message || 'unknown'); }
+  const KEY = 'pdc_wm_dataurl';
+  const imgEl = document.getElementById('wmImg');
+  const fallback = document.getElementById('wmFallback');
+  async function toDataURL(url){
+    const res = await fetch(url); if(!res.ok) throw new Error('fetch failed');
+    const blob = await res.blob();
+    return await new Promise((resolve,reject)=>{ const r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(blob); });
+  }
+  async function loadWM(){
+    try{
+      const cached = localStorage.getItem(KEY);
+      if(cached){ imgEl.src=cached; imgEl.style.display='block'; if(fallback) fallback.style.display='none'; return; }
+      const dataUrl = await toDataURL('Poppe_1776_Transparent.png');
+      imgEl.src=dataUrl; imgEl.style.display='block'; if(fallback) fallback.style.display='none';
+      localStorage.setItem(KEY,dataUrl);
+    }catch(e){ console.warn('Watermark not found; using text fallback.'); }
+  }
+  if(imgEl) loadWM();
 })();
 
-// ---------- APP CODE (GUARDED) ----------
+/* ===== App ===== */
 window.addEventListener('load', function(){
   guard('init', function(){
+    var STORAGE_KEY = 'poppe_shop_db_v110';
+    var DB = loadDB() || defaultDB();
 
-    var STORAGE_KEY = 'poppe_shop_db_v092';
-    var DB = loadDB() || { customers: [], jobs: [], templates: seedTemplates(), settings: { defaultMarkup: 40, shopFrom:'Poppe’s Diesel Co.', shopReply:'poppedieselco@gmail.com', shopSubj:'[Poppe’s Diesel Co.] ', shopFooter:'Thank you for supporting local.' } };
-
-    function saveDB(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(e){ AppLog.error('localStorage save failed', e); } }
-    function loadDB(){ try { var s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; } catch(e){ AppLog.error('localStorage load failed', e); return null; } }
-    function resetDB(){
-      DB = { customers: [], jobs: [], templates: seedTemplates(), settings: { defaultMarkup: 40, shopFrom:'Poppe’s Diesel Co.', shopReply:'poppedieselco@gmail.com', shopSubj:'[Poppe’s Diesel Co.] ', shopFooter:'Thank you for supporting local.' } };
-      saveDB(); renderAll();
+    function defaultDB(){
+      return {
+        customers: [],
+        jobs: [],
+        templates: seedTemplates(),
+        settings: { defaultMarkup: 40, shopFrom:'Poppe’s Diesel Co.', shopReply:'poppedieselco@gmail.com', shopSubj:'[Poppe’s Diesel Co.] ', shopFooter:'Thank you for supporting local.' }
+      };
     }
-
     function seedTemplates(){
       return [
         { platform: "Cummins 6.7L (Ram)", items: [
@@ -602,45 +535,47 @@ window.addEventListener('load', function(){
         ]}
       ];
     }
+    function saveDB(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(e){ AppLog.error('localStorage save failed', e); } }
+    function loadDB(){ try { var s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; } catch(e){ AppLog.error('localStorage load failed', e); return null; } }
+    function resetDB(){ DB = defaultDB(); saveDB(); renderAll(); }
 
-    var $ = function(sel, root){ return (root||document).querySelector(sel); };
-    var $$ = function(sel, root){ return Array.from((root||document).querySelectorAll(sel)); };
-    function fmt(n){ return "$"+Number(n||0).toFixed(2); }
-
-    function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); saveDB(); }
-
-    // --- Data upgrades for older saves ---
+    // Upgrade older records to new fields
     function upgradeDB(){
       (DB.jobs||[]).forEach(function(j){
         if(!j.createdAt) j.createdAt = new Date().toISOString();
-        if(typeof j.overallNotes === 'undefined') j.overallNotes = '';
-        (j.lines||[]).forEach(function(l){ if(typeof l.note === 'undefined') l.note=''; });
+        if(typeof j.overallNotes==='undefined') j.overallNotes='';
+        if(typeof j.internalNotes==='undefined') j.internalNotes='';
+        if(!j.photos) j.photos=[];
+        if(!j.signatures) j.signatures = { customer:null, manager:null };
+        (j.lines||[]).forEach(function(l){ if(typeof l.note==='undefined') l.note=''; });
       });
       saveDB();
     }
 
+    /* ===== DOM helpers ===== */
+    var $ = (sel, root)=> (root||document).querySelector(sel);
+    var $$ = (sel, root)=> Array.from((root||document).querySelectorAll(sel));
+    var fmt = (n)=> "$"+Number(n||0).toFixed(2);
+
+    function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); renderTemplates(); saveDB(); }
+
     // Tabs
-    guard('tabs', function(){
-      $$('.tab-btn[data-tab]').forEach(function(b){
-        b.addEventListener('click', function(){
-          var id = b.getAttribute('data-tab');
-          $$('.tab').forEach(function(t){ t.classList.remove('active'); });
-          $('#'+id).classList.add('active');
-          window.scrollTo({top:0, behavior:'smooth'});
-        });
+    $$('.tab-btn[data-tab]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var id = b.getAttribute('data-tab');
+        $$('.tab').forEach(t=>t.classList.remove('active'));
+        $('#'+id).classList.add('active');
+        window.scrollTo({top:0, behavior:'smooth'});
       });
     });
 
-    // Customers
-    guard('customers-form', function(){
-      $('#custForm').addEventListener('submit', function(e){
-        e.preventDefault();
-        var c = {id: crypto.randomUUID(), name: $('#custName').value.trim(), phone: $('#custPhone').value.trim(), email: $('#custEmail').value.trim(), vehicle: $('#custVehicle').value.trim()};
-        if(!c.name) return;
-        DB.customers.push(c); renderCustomers(); renderJobCustomer(); $('#custForm').reset(); saveDB();
-      });
+    /* ===== Customers Tab ===== */
+    $('#custForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var c = {id: crypto.randomUUID(), name: $('#custName').value.trim(), phone: $('#custPhone').value.trim(), email: $('#custEmail').value.trim(), vehicle: $('#custVehicle').value.trim()};
+      if(!c.name) return;
+      DB.customers.push(c); renderCustomers(); renderJobCustomer(); this.reset(); saveDB();
     });
-
     function renderCustomers(){
       var tb = $('#custTable tbody'); tb.innerHTML='';
       DB.customers.forEach(function(c){
@@ -648,189 +583,191 @@ window.addEventListener('load', function(){
         tr.innerHTML = '<td>'+c.name+'</td><td>'+(c.phone||'')+'</td><td>'+(c.email||'')+'</td><td>'+(c.vehicle||'')+'</td><td><button class="tab-btn" data-delc="'+c.id+'">Delete</button></td>';
         tb.appendChild(tr);
       });
-      $$('button[data-delc]').forEach(function(btn){
+      $$('button[data-delc]').forEach(btn=>{
         btn.addEventListener('click', function(){
           var id = btn.getAttribute('data-delc');
           if(!confirm('Delete this customer and all their jobs?')) return;
-          DB.jobs = DB.jobs.filter(function(j){ return j.customerId !== id; });
-          DB.customers = DB.customers.filter(function(c){ return c.id !== id; });
+          DB.jobs = DB.jobs.filter(j=> j.customerId !== id);
+          DB.customers = DB.customers.filter(c=> c.id !== id);
           renderCustomers(); renderJobs(); renderJobCustomer(); saveDB();
         });
       });
     }
 
-    // ---- Invoice filters + pickers ----
-    function renderInvFilters(){
-      var sel = $('#invCustFilter'); if(!sel) return;
-      sel.innerHTML = '<option value="">All customers</option>' +
-        DB.customers.map(function(c){ return '<option value="'+c.id+'">'+c.name+'</option>'; }).join('');
-    }
-    function renderInvJobOptions(){
-      var invSel = $('#invJob'); if(!invSel) return;
-      var cid = ($('#invCustFilter') && $('#invCustFilter').value) || '';
-      var jobs = DB.jobs.filter(function(j){ return !cid || j.customerId===cid; });
-      invSel.innerHTML = '<option value="">Select job…</option>' + jobs.map(function(j){
-        var c = DB.customers.find(function(x){ return x.id===j.customerId; });
-        return '<option value="'+j.id+'">'+(c?c.name:'—')+' — '+j.title+'</option>';
-      }).join('');
-    }
-    function renderRecentJobs(){
-      var box = $('#recentJobs'); if(!box) return;
-      var items = DB.jobs.slice().sort(function(a,b){
-        return new Date(b.createdAt||0) - new Date(a.createdAt||0);
-      }).slice(0,6);
-      box.innerHTML = '';
-      items.forEach(function(j){
-        var c = DB.customers.find(function(x){ return x.id===j.customerId; });
-        var b = document.createElement('button');
-        b.type='button'; b.className='tag';
-        b.textContent = (c?c.name:'—')+': '+j.title;
-        b.title='Open this job';
-        b.addEventListener('click', function(){ $('#invJob').value=j.id; loadInvoice(j.id); });
-        box.appendChild(b);
-      });
-    }
-
+    /* ===== Jobs Tab ===== */
     function renderJobCustomer(){
       // Jobs tab customer picker
       var sel = $('#jobCustomer');
-      sel.innerHTML = '<option value="">Select...</option>' + DB.customers.map(function(c){ return '<option value="'+c.id+'">'+c.name+'</option>'; }).join('');
+      sel.innerHTML = '<option value="">Select...</option>' + DB.customers.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join('');
 
-      // Invoice tab job picker + filters
+      // Invoice tab filters & lists
       renderInvFilters();
       renderInvJobOptions();
       renderRecentJobs();
     }
 
-    // Jobs
-    guard('jobs-form', function(){
-      $('#jobForm').addEventListener('submit', function(e){
-        e.preventDefault();
-        var j = {
-          id: crypto.randomUUID(), customerId: $('#jobCustomer').value, title: $('#jobTitle').value.trim(),
-          vin: $('#jobVIN').value.trim(), notes: $('#jobNotes').value.trim(), status: $('#jobStatus').value,
-          lines: [], paid:false, paidAt:null, docType:'Estimate', approved:false, approvedAt:null, signature:null, paymentLink:'', vinData:null,
-          overallNotes:'', createdAt: new Date().toISOString()
-        };
-        if(!j.customerId || !j.title) return;
-        DB.jobs.push(j); renderJobs(); renderJobCustomer(); $('#jobForm').reset(); $('#vinResult').style.display='none'; $('#vinSuggest').style.display='none'; saveDB();
-        if(DB.jobs.length===1) { $('#invJob').value = j.id; loadInvoice(j.id); }
-      });
+    $('#jobForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var j = {
+        id: crypto.randomUUID(), customerId: $('#jobCustomer').value, title: $('#jobTitle').value.trim(),
+        vin: $('#jobVIN').value.trim(), notes: $('#jobNotes').value.trim(), status: $('#jobStatus').value,
+        lines: [], paid:false, paidAt:null, docType:'Estimate', approved:false, approvedAt:null, paymentLink:'', vinData:null,
+        overallNotes:'', internalNotes:'', photos:[], signatures:{customer:null, manager:null}, createdAt:new Date().toISOString()
+      };
+      if(!j.customerId || !j.title) return;
+      DB.jobs.push(j); renderJobs(); renderJobCustomer();
+      $('#jobForm').reset(); $('#vinResult').style.display='none'; $('#vinSuggest').style.display='none'; saveDB();
+      if(DB.jobs.length===1){ $('#invJob').value = j.id; loadInvoice(j.id); }
+    });
 
-      $('#decodeVIN').addEventListener('click', function(){
-        var vin = $('#jobVIN').value.trim();
-        var box = $('#vinResult'); var sug = $('#vinSuggest'); var tags = $('#vinTags');
-        box.style.display='block'; box.textContent = 'Decoding…'; sug.style.display='none'; tags.innerHTML='';
-        if(!vin || vin.length<11) { box.textContent='Enter a valid VIN (17 preferred).'; return; }
-        fetch('https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/'+encodeURIComponent(vin)+'?format=json')
-        .then(function(res){ return res.json(); })
-        .then(function(data){
-          var map = {}; (data.Results||[]).forEach(function(r){ if(r.Variable&&r.Value) map[r.Variable]=r.Value; });
+    $('#decodeVIN').addEventListener('click', function(){
+      var vin = $('#jobVIN').value.trim();
+      var box = $('#vinResult'); var sug = $('#vinSuggest'); var tags = $('#vinTags');
+      box.style.display='block'; box.textContent = 'Decoding…'; sug.style.display='none'; tags.innerHTML='';
+      if(!vin || vin.length<11){ box.textContent='Enter a valid VIN (17 preferred).'; return; }
+      fetch('https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/'+encodeURIComponent(vin)+'?format=json')
+        .then(res=>res.json()).then(function(data){
+          var map={}; (data.Results||[]).forEach(r=>{ if(r.Variable&&r.Value) map[r.Variable]=r.Value; });
           var summary = (map['Model Year']||'-')+' '+(map['Make']||'-')+' '+(map['Model']||'-');
           box.innerHTML = '<strong>'+summary+'</strong>';
-          var platformText = (summary + ' ' + (map['Engine Model']||'') + ' ' + (map['Engine Manufacturer']||'')).toLowerCase();
-          var matched = DB.templates.filter(function(t){
-            return (t.platform.toLowerCase().indexOf('cummins')>-1 && platformText.indexOf('ram')>-1) ||
-                   (t.platform.toLowerCase().indexOf('powerstroke')>-1 && platformText.indexOf('ford')>-1) ||
-                   (t.platform.toLowerCase().indexOf('duramax')>-1 && (platformText.indexOf('chevrolet')>-1||platformText.indexOf('gmc')>-1||platformText.indexOf('gm')>-1));
+          var platformText = (summary+' '+(map['Engine Model']||'')+' '+(map['Engine Manufacturer']||'')).toLowerCase();
+          var matched = DB.templates.filter(t=>{
+            return (t.platform.toLowerCase().includes('cummins') && platformText.includes('ram')) ||
+                   (t.platform.toLowerCase().includes('powerstroke') && platformText.includes('ford')) ||
+                   (t.platform.toLowerCase().includes('duramax') && (platformText.includes('chevrolet')||platformText.includes('gmc')||platformText.includes('gm')));
           });
-          if(matched.length===0){ matched = DB.templates; }
-          tags.innerHTML = '';
+          if(matched.length===0) matched = DB.templates;
           matched.forEach(function(tpl){
-            var b = document.createElement('button'); b.className='tag'; b.type='button'; b.textContent = tpl.platform;
-            b.addEventListener('click', function(){ applyTemplate(tpl); });
+            var b=document.createElement('button'); b.className='tab-btn'; b.type='button'; b.textContent=tpl.platform;
+            b.addEventListener('click', ()=>applyTemplate(tpl));
             tags.appendChild(b);
           });
-          document.getElementById('addAllSuggest').onclick = function(){ matched.forEach(function(t){ applyTemplate(t); }); };
-          sug.style.display='block';
-          saveDB();
-        })
-        .catch(function(){ box.textContent = 'VIN decode failed.'; });
-      });
+          $('#addAllSuggest').onclick = ()=> matched.forEach(t=>applyTemplate(t));
+          sug.style.display='block'; saveDB();
+        }).catch(()=> box.textContent='VIN decode failed.');
     });
 
     function renderJobs(){
       var tb = $('#jobsTable tbody'); tb.innerHTML='';
       DB.jobs.forEach(function(j){
-        var c = DB.customers.find(function(x){ return x.id===j.customerId; });
-        var subtotal = j.lines.reduce(function(s,l){ return s + (Number(l.qty)||0)*(Number(l.unit)||0); }, 0);
-        var profit = j.lines.reduce(function(s,l){ return s + (Number(l.profit)||0); }, 0);
+        var c = DB.customers.find(x=> x.id===j.customerId);
+        var subtotal = j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*(Number(l.unit)||0), 0);
+        var profit = j.lines.reduce((s,l)=> s + (Number(l.profit)||0), 0);
+        var badge = j.status==='Open' ? 'badge-open' : (j.status==='In Progress'?'badge-ip':'badge-done');
         var tr = document.createElement('tr');
-        tr.innerHTML = '<td>'+j.id.slice(0,8)+'</td><td>'+(c?c.name:'—')+'</td><td>'+j.title+'</td>' +
-          '<td><select data-id="'+j.id+'" class="jobStatus">'+['Open','In Progress','Done'].map(function(s){ return '<option '+(j.status===s?'selected':'')+'>'+s+'</option>'; }).join('')+'</select></td>' +
+        tr.innerHTML =
+          '<td>'+j.id.slice(0,8)+'</td><td>'+(c?c.name:'—')+'</td><td>'+j.title+'</td>' +
+          '<td><span class="badge '+badge+'">'+j.status+'</span></td>' +
           '<td>'+fmt(subtotal)+'</td><td>'+fmt(profit)+'</td>' +
           '<td><button class="tab-btn" data-open="'+j.id+'">Open</button></td>';
         tb.appendChild(tr);
       });
-      $$('.jobStatus').forEach(function(sel){
-        sel.addEventListener('change', function(){
-          var id = sel.getAttribute('data-id'); var j = DB.jobs.find(function(x){ return x.id===id; }); j.status = sel.value; renderDashboard(); saveDB();
-        });
-      });
-      $$('button[data-open]').forEach(function(b){
+      $$('button[data-open]').forEach(b=>{
         b.addEventListener('click', function(){
           var id = b.getAttribute('data-open');
           $('[data-tab="invoice"]').click();
           $('#invJob').value = id; loadInvoice(id);
         });
       });
-      renderDashboard();
     }
 
-    // Invoice helpers
+    // Internal notes save (non-print)
+    $('#internalNotes').addEventListener('input', function(){
+      var j = currentJob(); if(!j) return;
+      j.internalNotes = this.value; saveDB();
+    });
+
+    /* ===== Invoice Filters & pickers ===== */
+    function renderInvFilters(){
+      var sel = $('#invCustFilter');
+      sel.innerHTML = '<option value="">All customers</option>' + DB.customers.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join('');
+    }
+    function renderInvJobOptions(){
+      var invSel = $('#invJob');
+      var cid = $('#invCustFilter').value || '';
+      var q = ($('#invJobSearch').value || '').toLowerCase();
+      var jobs = DB.jobs.filter(function(j){
+        if(cid && j.customerId!==cid) return false;
+        if(!q) return true;
+        var cust = DB.customers.find(x=>x.id===j.customerId);
+        var txt = ((cust?cust.name:'')+' '+j.title).toLowerCase();
+        return txt.includes(q);
+      });
+      invSel.innerHTML = '<option value="">Select job…</option>' + jobs.map(function(j){
+        var c = DB.customers.find(x=> x.id===j.customerId);
+        return '<option value="'+j.id+'">'+(c?c.name:'—')+' — '+j.title+'</option>';
+      }).join('');
+    }
+    function renderRecentJobs(){
+      var box = $('#recentJobs'); box.innerHTML='';
+      DB.jobs.slice().sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt)).slice(0,6).forEach(function(j){
+        var c = DB.customers.find(x=> x.id===j.customerId);
+        var b = document.createElement('button'); b.type='button'; b.className='tab-btn';
+        b.textContent = (c?c.name:'—')+': '+j.title;
+        b.addEventListener('click', ()=>{ $('#invJob').value=j.id; loadInvoice(j.id); });
+        box.appendChild(b);
+      });
+    }
+    $('#invCustFilter').addEventListener('change', function(){
+      var cur = $('#invJob').value;
+      renderInvJobOptions();
+      if(!$('#invJob').querySelector('option[value="'+cur+'"]')){ $('#invJob').value=''; $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals(); }
+    });
+    $('#invJobSearch').addEventListener('input', renderInvJobOptions);
+
+    /* ===== Invoice core ===== */
     function ensureJobSelected(){
       var j = currentJob();
       if(!j && DB.jobs.length===1){ $('#invJob').value = DB.jobs[0].id; j = DB.jobs[0]; }
       if(!j) alert('Pick a job in the "Select job…" dropdown first.');
       return j;
     }
-    function currentJob(){ var id = $('#invJob').value; return DB.jobs.find(function(j){ return j.id===id; }); }
+    function currentJob(){ var id = $('#invJob').value; return DB.jobs.find(j=> j.id===id); }
 
     function loadInvoice(id){
-      var j = DB.jobs.find(function(x){ return x.id===id; }); if(!j) return;
+      var j = DB.jobs.find(x=> x.id===id); if(!j) return;
+      // lines
       $('#lines tbody').innerHTML='';
-      (j.lines||[]).forEach(function(l){ addLine(l.type,l.desc,l.qty,l.unit,l.cost,l.note); });
+      (j.lines||[]).forEach(l=> addLine(l.type,l.desc,l.qty,l.unit,l.cost,l.note));
+      // headers
       $('#invNo').value = j.invNo||''; $('#docType').value = j.docType||'Estimate'; $('#payLink').value = j.paymentLink||'';
-      var c = DB.customers.find(function(x){ return x.id===j.customerId; }); $('#emailTo').value = (c && c.email) ? c.email : '';
-      var overall = document.getElementById('overallNotes'); if(overall) overall.value = j.overallNotes || '';
+      var c = DB.customers.find(x=> x.id===j.customerId); $('#emailTo').value = (c && c.email) ? c.email : '';
+      // notes
+      $('#overallNotes').value = j.overallNotes||'';
+      $('#internalNotes').value = j.internalNotes||'';
+      // photos
+      renderPhotoGrid();
+      $('#photosOnPdf').checked = !!j.photosOnPdf || j.photosOnPdf===undefined; // default true
+      // preview
       updatePreview(); recalcTotals();
     }
 
-    /* === addLine with per-line notes === */
     function addLine(type, desc, qty, unit, cost, note){
       var tr = document.createElement('tr');
       var descPH = type==='Labor' ? "e.g., Diagnostics / R&R" : "e.g., Fuel Filter (FF63009) — Fleetguard";
       var qtyPH  = type==='Labor' ? "hrs (e.g., 1.5)" : "qty (e.g., 1)";
       var costPH = type==='Labor' ? "shop cost (optional)" : "shop cost (e.g., 32.00)";
       var unitPH = type==='Labor' ? "$/hr (auto or manual)" : "sell price (e.g., 44.80)";
-      tr.setAttribute('draggable','true');
       tr.classList.add('draggable-row');
-
       tr.innerHTML =
         '<td class="drag-col"><button class="tab-btn handle" title="Drag to reorder">↕</button></td>' +
         '<td><select class="lType"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Part'?'selected':'')+'>Part</option></select></td>' +
-        '<td>' +
-          '<div class="desc-wrap">' +
-            '<input class="lDesc" value="'+(desc||'')+'" placeholder="'+descPH+'"/>' +
-            '<textarea class="lNote" placeholder="Tech note for this line (prints)">'+(note||'')+'</textarea>' +
-          '</div>' +
-        '</td>' +
+        '<td><div class="desc-wrap"><input class="lDesc" value="'+(desc||'')+'" placeholder="'+descPH+'"/><textarea class="lNote" placeholder="Tech note for this line (prints)">'+(note||'')+'</textarea></div></td>' +
         '<td><input class="lQty" type="number" step="0.01" value="'+(qty||1)+'" placeholder="'+qtyPH+'"/></td>' +
         '<td><input class="lCost" type="number" step="0.01" value="'+(((cost!=null)?cost:0))+'" placeholder="'+costPH+'"/></td>' +
         '<td><input class="lUnit" type="number" step="0.01" value="'+(unit||0)+'" placeholder="'+unitPH+'"/><div class="calc-hint">—</div></td>' +
         '<td class="lLine">$0.00</td><td class="lProfit">$0.00</td><td><button class="tab-btn lDel">X</button></td>';
-
-      document.querySelector('#lines tbody').appendChild(tr);
+      $('#lines tbody').appendChild(tr);
       tr.querySelector('.lDel').addEventListener('click', function(){ tr.remove(); persistLines(); });
-      ['change','input'].forEach(function(evt){
-        ['.lType','.lDesc','.lQty','.lCost','.lUnit','.lNote'].forEach(function(sel){ tr.querySelector(sel).addEventListener(evt, persistLines); });
+      ['change','input'].forEach(evt=>{
+        ['.lType','.lDesc','.lQty','.lCost','.lUnit','.lNote'].forEach(sel=> tr.querySelector(sel).addEventListener(evt, persistLines));
       });
       persistLines();
     }
 
     function rowsToLines(){
       return $$('#lines tbody tr').map(function(tr){
-        return { 
+        return {
           type: tr.querySelector('.lType').value,
           desc: tr.querySelector('.lDesc').value,
           qty: Number(tr.querySelector('.lQty').value||0),
@@ -848,8 +785,9 @@ window.addEventListener('load', function(){
       j.docType = $('#docType').value;
       j.paymentLink = $('#payLink').value.trim();
       j.emailTo = $('#emailTo').value.trim();
-      var overall = document.getElementById('overallNotes');
-      j.overallNotes = overall ? (overall.value || '') : '';
+      j.overallNotes = $('#overallNotes').value || '';
+      j.internalNotes = $('#internalNotes').value || '';
+      j.photosOnPdf = $('#photosOnPdf').checked;
       recalcTotals(); updatePreview(); renderJobs(); saveDB();
     }
 
@@ -893,24 +831,25 @@ window.addEventListener('load', function(){
         }
       });
       var taxPct = Number($('#salesTax').value||0); var tax = subtotal*(taxPct/100); var grand = subtotal+tax;
-      document.getElementById('sub').textContent = fmt(subtotal);
-      document.getElementById('tax').textContent = fmt(tax);
-      document.getElementById('grand').textContent = fmt(grand);
-      document.getElementById('profit').textContent = fmt(profit);
-      var margin = grand>0 ? Math.round((profit/grand)*100) : 0; var badge = document.getElementById('margin'); badge.textContent = margin + '%'; badge.className='badge '+(margin>=25?'invoice': (margin>=15?'':'estimate'));
-      document.getElementById('pSub').textContent = fmt(subtotal); document.getElementById('pTax').textContent = fmt(tax); document.getElementById('pGrand').textContent = fmt(grand);
+      $('#sub').textContent = fmt(subtotal);
+      $('#tax').textContent = fmt(tax);
+      $('#grand').textContent = fmt(grand);
+      $('#profit').textContent = fmt(profit);
+      var margin = grand>0 ? Math.round((profit/grand)*100) : 0; var badge = $('#margin'); badge.textContent = margin + '%'; badge.className='badge '+(margin>=25?'invoice': (margin>=15?'':'estimate'));
+      $('#pSub').textContent = fmt(subtotal); $('#pTax').textContent = fmt(tax); $('#pGrand').textContent = fmt(grand);
     }
 
     function updatePreview(){
       var j = currentJob();
-      document.getElementById('pInvNo').textContent = document.getElementById('invNo').value.trim() || 'DRAFT';
-      document.getElementById('pDate').textContent = new Date().toLocaleDateString();
-      var t = document.getElementById('docType').value; var badge = document.getElementById('pType'); badge.textContent=t; badge.className='badge ' + (t==='Invoice'?'invoice':'estimate');
-      document.getElementById('pStatus').textContent = j && j.paid ? 'Paid' : (t==='Estimate' ? (j && j.approved ? 'Approved':'Pending Approval') : 'Unpaid');
-      var c = j ? DB.customers.find(function(x){ return x.id===j.customerId; }) : null;
-      document.getElementById('pCust').textContent = c?c.name:'—'; document.getElementById('pVeh').textContent = c?(c.vehicle||''):'';
-
-      var tbody = document.getElementById('pLines'); tbody.innerHTML=''; (j?j.lines:[]).forEach(function(l){
+      $('#pInvNo').textContent = ($('#invNo').value.trim() || 'DRAFT');
+      $('#pDate').textContent = new Date().toLocaleDateString();
+      var t = $('#docType').value; var badge = $('#pType'); badge.textContent=t; badge.className='badge ' + (t==='Invoice'?'invoice':'estimate');
+      $('#pStatus').textContent = j && j.paid ? 'Paid' : (t==='Estimate' ? (j && j.approved ? 'Approved':'Pending Approval') : 'Unpaid');
+      var c = j ? DB.customers.find(x=> x.id===j.customerId) : null;
+      $('#pCust').textContent = c?c.name:'—'; $('#pVeh').textContent = c?(c.vehicle||''):'';
+      // lines
+      var tbody = $('#pLines'); tbody.innerHTML='';
+      (j?j.lines:[]).forEach(function(l){
         var tr=document.createElement('tr'); var line=(Number(l.qty)||0)*(Number(l.unit)||0);
         tr.innerHTML='<td>'+l.type+': '+(l.desc||'')+'</td><td>'+(l.qty||0)+'</td><td>'+fmt(l.unit||0)+'</td><td>'+fmt(line)+'</td>'; tbody.appendChild(tr);
         if(l.note && l.note.trim()){
@@ -919,18 +858,38 @@ window.addEventListener('load', function(){
           tbody.appendChild(trn);
         }
       });
-
-      // Mirror overall notes
-      var prev = document.getElementById('preview');
-      var existing = document.getElementById('pOverallNotes');
-      if(existing) existing.remove();
+      // overall notes
+      var pBlk = $('#pOverallBlock'); pBlk.innerHTML='';
       if(j && j.overallNotes && j.overallNotes.trim()){
-        var blk = document.createElement('div');
-        blk.id = 'pOverallNotes';
-        blk.style.marginTop = '10px';
-        blk.innerHTML = '<h4 style="margin:8px 0 4px 0;">Technician Overall Notes</h4>' +
-                        '<div style="white-space:pre-wrap; line-height:1.35;">'+escapeHtml(j.overallNotes.trim())+'</div>';
-        prev.insertBefore(blk, document.getElementById('signatures'));
+        pBlk.innerHTML = '<h4 style="margin:8px 0 4px 0;">Technician Overall Notes</h4>' +
+          '<div style="white-space:pre-wrap; line-height:1.35;">'+escapeHtml(j.overallNotes.trim())+'</div>';
+      }
+      // signatures
+      function setSig(role){
+        var img = role==='customer' ? $('#pSigCustomer') : $('#pSigManager');
+        var nameEl = role==='customer' ? $('#pSigCustomerName') : $('#pSigManagerName');
+        var dateEl = role==='customer' ? $('#pSigCustomerDate') : $('#pSigManagerDate');
+        var data = j && j.signatures ? j.signatures[role] : null;
+        if(data && data.dataUrl){
+          img.src = data.dataUrl; img.style.display='block';
+          nameEl.textContent = data.name ? ('— '+escapeHtml(data.name)) : '';
+          dateEl.textContent = data.date ? ('('+data.date+')') : '';
+        } else {
+          img.src=''; img.style.display='none'; nameEl.textContent=''; dateEl.textContent='';
+        }
+      }
+      setSig('customer'); setSig('manager');
+
+      // photos
+      var pPhotos = $('#pPhotosBlock'); pPhotos.innerHTML='';
+      if(j && j.photosOnPdf && j.photos && j.photos.length){
+        var html = '<h4 style="margin:8px 0 4px 0;">Work Photos</h4><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px">';
+        j.photos.forEach(function(ph){
+          if(!ph || !ph.dataUrl) return;
+          html += '<div style="border:1px solid #000;padding:4px;border-radius:6px;"><img src="'+ph.dataUrl+'" style="width:100%;height:110px;object-fit:cover;border-radius:4px"/></div>';
+        });
+        html += '</div>';
+        pPhotos.innerHTML = html;
       }
 
       function escapeHtml(s){
@@ -941,143 +900,227 @@ window.addEventListener('load', function(){
     }
 
     // Buttons & listeners
-    guard('buttons', function(){
-      document.getElementById('addLabor').addEventListener('click', function(){ if(!ensureJobSelected()) return; addLine('Labor','',1, Number(document.getElementById('laborRate').value||80), 0, ''); });
-      document.getElementById('addPart').addEventListener('click', function(){ if(!ensureJobSelected()) return; addLine('Part','',1, 0, 0, ''); });
-      document.getElementById('applyMarkup').addEventListener('click', applyDefaultMarkup);
-      document.getElementById('recalc').addEventListener('click', recalcTotals);
-      document.getElementById('markPaid').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; j.paid=!j.paid; j.paidAt=j.paid?new Date().toISOString():null; updatePreview(); renderJobs(); saveDB(); alert(j.paid?'Marked Paid':'Marked Unpaid'); });
-      document.getElementById('approve').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; if(document.getElementById('docType').value!=='Estimate'){ alert('Approvals apply to Estimates.'); return; } j.approved=true; j.approvedAt=new Date().toISOString(); updatePreview(); saveDB(); alert('Estimate approved.'); });
-      document.getElementById('convert').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; j.docType='Invoice'; document.getElementById('docType').value='Invoice'; updatePreview(); saveDB(); alert('Converted to Invoice.'); });
-      document.getElementById('email').addEventListener('click', function(){
-        var j=ensureJobSelected(); if(!j) return;
-        var to=encodeURIComponent(document.getElementById('emailTo').value.trim()||'');
-        var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim());
-        var body=encodeURIComponent('Hello,\\n\\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+'.\\nPayment link: '+(j.paymentLink||'')+'\\n\\n'+(DB.settings.shopFooter||'')+'\\n\\n— '+(DB.settings.shopFrom||''));
-        location.href='mailto:'+to+'?subject='+subj+'&body='+body;
-      });
-
-      // Generate PDF / print with tighter pro layout + signature block
-      document.getElementById('pdf').addEventListener('click', function(){
-        var css =
-          'html,body{margin:0;padding:0}' +
-          'body{font-family:'+CSS.escape(getComputedStyle(document.body).fontFamily)+';font-size:11pt;line-height:1.35;color:#000}' +
-          '.print-area{padding:8px 12px 12px;border-radius:0}' +
-          '.invoice-header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:6px}' +
-          '.invoice-header h3{margin:0;font-size:16pt}' +
-          'table{width:100%;border-collapse:collapse;margin-top:6px}' +
-          'th,td{border-bottom:1px solid #000;padding:6px;text-align:left;vertical-align:top;font-size:10.5pt}' +
-          '.totals{display:grid;gap:4px;justify-items:end;margin-top:8px}.grand{font-weight:700}' +
-          '.badge{border:1px solid #000;border-radius:9999px;padding:2px 6px;font-size:9pt}' +
-          '.signatures{margin-top:16px;display:grid;gap:10px}' +
-          '.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}' +
-          '.sig-line{border-bottom:1px solid #000;height:28px}' +
-          '.sig-label{font-size:9pt;color:#333;margin-top:4px}' +
-          '.watermark{position:absolute;inset:0;z-index:0;opacity:.08}' +
-          '#wmImg{max-width:90%;max-height:90%;opacity:.12}' +
-          '#wmFallback{opacity:.12}';
-
-        var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>'
-                    + document.getElementById('preview').outerHTML
-                    + '</body></html>';
-        var w = window.open('', '_blank');
-        if(!w){ alert('Please allow pop-ups to print.'); return; }
-        w.document.open(); w.document.write(htmlDoc); w.document.close();
-        setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 250);
-      });
-
-      // Switching jobs reloads lines + notes
-      document.getElementById('invJob').addEventListener('change', function(e){ loadInvoice(e.target.value); });
-      // Customer filter changes job list
-      document.getElementById('invCustFilter').addEventListener('change', function(){
-        var current = $('#invJob').value;
-        renderInvJobOptions();
-        // If the current job no longer matches the filter, clear selection
-        if(!$('#invJob').querySelector('option[value="'+current+'"]')){ $('#invJob').value=''; $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals(); }
-      });
-
-      // Header fields autosave & recalc
-      document.getElementById('invNo').addEventListener('input', persistLines);
-      document.getElementById('docType').addEventListener('change', function(){ persistLines(); updatePreview(); });
-      document.getElementById('payLink').addEventListener('input', persistLines);
-      document.getElementById('emailTo').addEventListener('input', persistLines);
-      document.getElementById('laborRate').addEventListener('input', function(){ persistLines(); recalcTotals(); });
-      document.getElementById('salesTax').addEventListener('input', function(){ persistLines(); recalcTotals(); });
-
-      // Save overall notes live
-      var overall = document.getElementById('overallNotes');
-      if(overall){
-        overall.addEventListener('input', function(){
-          var j = currentJob(); if(!j) return;
-          j.overallNotes = this.value;
-          saveDB();
-          updatePreview();
-        });
-      }
+    $('#addLabor').addEventListener('click', function(){ if(!ensureJobSelected()) return; addLine('Labor','',1, Number($('#laborRate').value||80), 0, ''); });
+    $('#addPart').addEventListener('click', function(){ if(!ensureJobSelected()) return; addLine('Part','',1, 0, 0, ''); });
+    $('#applyMarkup').addEventListener('click', applyDefaultMarkup);
+    $('#recalc').addEventListener('click', recalcTotals);
+    $('#markPaid').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; j.paid=!j.paid; j.paidAt=j.paid?new Date().toISOString():null; updatePreview(); renderJobs(); saveDB(); alert(j.paid?'Marked Paid':'Marked Unpaid'); });
+    $('#approve').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; if($('#docType').value!=='Estimate'){ alert('Approvals apply to Estimates.'); return; } j.approved=true; j.approvedAt=new Date().toISOString(); updatePreview(); saveDB(); alert('Estimate approved.'); });
+    $('#convert').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; j.docType='Invoice'; $('#docType').value='Invoice'; updatePreview(); saveDB(); alert('Converted to Invoice.'); });
+    $('#email').addEventListener('click', function(){
+      var j=ensureJobSelected(); if(!j) return;
+      var to=encodeURIComponent($('#emailTo').value.trim()||'');
+      var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim());
+      var body=encodeURIComponent('Hello,\n\nYour '+j.docType+' total is '+$('#grand').textContent+'.\nPayment link: '+(j.paymentLink||'')+'\n\n'+(DB.settings.shopFooter||'')+'\n\n— '+(DB.settings.shopFrom||''));
+      location.href='mailto:'+to+'?subject='+subj+'&body='+body;
     });
 
-    // Templates + VIN suggestions
+    // PDF / print (tight professional layout)
+    $('#pdf').addEventListener('click', function(){
+      var css =
+        'html,body{margin:0;padding:0}' +
+        'body{font-family:'+CSS.escape(getComputedStyle(document.body).fontFamily)+';font-size:11pt;line-height:1.35;color:#000}' +
+        '.print-area{padding:8px 12px 12px;border-radius:0;position:relative}' +
+        '.invoice-header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:6px}' +
+        '.invoice-header h3{margin:0;font-size:16pt}' +
+        'table{width:100%;border-collapse:collapse;margin-top:6px}' +
+        'th,td{border-bottom:1px solid #000;padding:6px;text-align:left;vertical-align:top;font-size:10.5pt}' +
+        '.totals{display:grid;gap:4px;justify-items:end;margin-top:8px}.grand{font-weight:700}' +
+        '.badge{border:1px solid #000;border-radius:9999px;padding:2px 6px;font-size:9pt}' +
+        '.signatures{margin-top:16px;display:grid;gap:10px}' +
+        '.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}' +
+        '.sig-line{border-bottom:1px solid #000;height:28px;display:flex;align-items:flex-end}' +
+        '.sig-label{font-size:9pt;color:#333;margin-top:4px}' +
+        '.sig-img{max-height:60px;}' +
+        '.watermark{position:absolute;inset:0;z-index:0;opacity:.08}' +
+        '#wmImg{max-width:90%;max-height:90%;opacity:.12}' +
+        '#wmFallback{opacity:.12}';
+      var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>'
+                  + document.getElementById('preview').outerHTML
+                  + '</body></html>';
+      var w = window.open('', '_blank');
+      if(!w){ alert('Please allow pop-ups to print.'); return; }
+      w.document.open(); w.document.write(htmlDoc); w.document.close();
+      setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 250);
+    });
+
+    // Header field listeners
+    $('#invNo').addEventListener('input', persistLines);
+    $('#docType').addEventListener('change', function(){ persistLines(); updatePreview(); });
+    $('#payLink').addEventListener('input', persistLines);
+    $('#emailTo').addEventListener('input', persistLines);
+    $('#laborRate').addEventListener('input', function(){ persistLines(); recalcTotals(); });
+    $('#salesTax').addEventListener('input', function(){ persistLines(); recalcTotals(); });
+
+    // Switching jobs
+    $('#invJob').addEventListener('change', function(e){ loadInvoice(e.target.value); });
+
+    // Photos
+    function renderPhotoGrid(){
+      var j = currentJob(); if(!j) return;
+      var grid = $('#photoGrid'); grid.innerHTML='';
+      (j.photos||[]).forEach(function(ph,idx){
+        var d = document.createElement('div'); d.className='photo-item';
+        d.innerHTML = '<button class="del" title="Remove">✕</button><img src="'+ph.dataUrl+'" alt="photo"><label><input type="checkbox" '+(ph.include!==false?'checked':'')+'> include on PDF</label>';
+        d.querySelector('.del').addEventListener('click', function(){
+          j.photos.splice(idx,1); saveDB(); renderPhotoGrid(); updatePreview();
+        });
+        d.querySelector('input[type="checkbox"]').addEventListener('change', function(){
+          ph.include = this.checked; saveDB(); updatePreview();
+        });
+        grid.appendChild(d);
+      });
+      updatePreview();
+    }
+    $('#photoInput').addEventListener('change', function(evt){
+      var j = currentJob(); if(!j) return;
+      var files = Array.from(evt.target.files||[]);
+      if(!files.length) return;
+      var next = function(i){
+        if(i>=files.length){ saveDB(); renderPhotoGrid(); evt.target.value=''; return; }
+        var f = files[i]; var reader = new FileReader();
+        reader.onload = function(){ j.photos.push({dataUrl: reader.result, include:true}); next(i+1); };
+        reader.readAsDataURL(f);
+      };
+      next(0);
+    });
+    $('#photosOnPdf').addEventListener('change', persistLines);
+
+    // Signatures
+    function openSigModal(role){
+      var modal = $('#sigModal'); modal.style.display='flex';
+      $('#sigRole').value = role || 'customer';
+      $('#sigTitle').textContent = 'Collect '+($('#sigRole').value==='customer'?'Customer':'Service Manager')+' Signature';
+      var today = new Date(); var iso = today.toISOString().slice(0,10);
+      $('#sigDate').value = iso;
+      $('#sigName').value = '';
+      clearPad();
+    }
+    $('#sign').addEventListener('click', function(){
+      if(!ensureJobSelected()) return;
+      openSigModal('customer');
+    });
+    $('#sigClose').addEventListener('click', ()=> $('#sigModal').style.display='none');
+
+    // Sig pad
+    var canvas = document.getElementById('sigPad');
+    var ctx = canvas.getContext('2d');
+    ctx.lineWidth = 2; ctx.lineCap='round';
+    var drawing=false, last=null;
+    function pos(e){
+      if(e.touches && e.touches.length){ var r=canvas.getBoundingClientRect(); return {x: e.touches[0].clientX - r.left, y:e.touches[0].clientY - r.top}; }
+      var r=canvas.getBoundingClientRect(); return {x: e.clientX - r.left, y: e.clientY - r.top};
+    }
+    function start(e){ drawing=true; last=pos(e); e.preventDefault(); }
+    function move(e){
+      if(!drawing) return;
+      var p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; e.preventDefault();
+    }
+    function end(){ drawing=false; last=null; }
+    function clearPad(){ ctx.clearRect(0,0,canvas.width,canvas.height); }
+    canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); document.addEventListener('mouseup', end);
+    canvas.addEventListener('touchstart', start, {passive:false}); canvas.addEventListener('touchmove', move, {passive:false}); canvas.addEventListener('touchend', end);
+
+    $('#sigClear').addEventListener('click', clearPad);
+    $('#sigSave').addEventListener('click', function(){
+      var j = currentJob(); if(!j) return;
+      var url = canvas.toDataURL('image/png');
+      var role = $('#sigRole').value; var name = $('#sigName').value.trim(); var date = $('#sigDate').value;
+      j.signatures[role] = { dataUrl:url, name:name, date:date, savedAt:new Date().toISOString() };
+      // UX: mark approved if customer signs an Estimate
+      if(role==='customer' && j.docType==='Estimate'){ j.approved = true; j.approvedAt = new Date().toISOString(); }
+      saveDB(); updatePreview(); alert('Signature saved.'); $('#sigModal').style.display='none';
+    });
+
+    // Quick estimate
+    function openQE(){ $('#qeModal').style.display='flex'; }
+    $('#quickEstimate').addEventListener('click', function(){ if(!ensureJobSelected()) return; openQE(); });
+    $('#qeClose').addEventListener('click', ()=> $('#qeModal').style.display='none');
+    function buildQELines(mode){
+      var j = currentJob(); if(!j) return;
+      var title = $('#qeTitle').value.trim() || 'Quick Estimate';
+      var partsCost = Number($('#qePartsCost').value||0);
+      var mu = Number($('#qeMarkup').value||DB.settings.defaultMarkup||40)/100;
+      var hours = Number($('#qeHours').value||1);
+      var lr = Number($('#laborRate').value||80);
+      var partUnit = partsCost*(1+mu);
+      var lines = [];
+      if(partsCost>0) lines.push({type:'Part',desc:title+' — parts',qty:1,unit:partUnit,cost:partsCost,note:''});
+      if(hours>0) lines.push({type:'Labor',desc:title+' — labor',qty:hours,unit:lr,cost:0,note:''});
+      if(mode==='replace'){ j.lines = []; }
+      lines.forEach(l=> j.lines.push(l));
+      saveDB(); $('#qeModal').style.display='none'; loadInvoice(j.id);
+    }
+    $('#qeApplyAppend').addEventListener('click', ()=>buildQELines('append'));
+    $('#qeApplyReplace').addEventListener('click', function(){
+      if(confirm('Replace existing lines with this quick estimate?')) buildQELines('replace');
+    });
+
+    // Templates
+    function renderTemplates(){
+      var tb = $('#tplTable tbody'); if(!tb) return;
+      tb.innerHTML = DB.templates.map(function(t){
+        return t.items.map(it=>'<tr><td>'+t.platform+'</td><td>'+it.desc+'</td><td>'+it.type+'</td><td>'+(it.qty||'')+'</td><td>'+(it.cost!=null?fmt(it.cost):'')+'</td><td>'+(it.markup!=null?it.markup+'%':'')+'</td></tr>').join('');
+      }).join('');
+    }
     function openTemplates(matchText){
-      var list = document.getElementById('tplList'); list.innerHTML='';
+      var list = $('#tplList'); list.innerHTML='';
       DB.templates.forEach(function(tpl){
-        if(matchText && tpl.platform.toLowerCase().indexOf(matchText)===-1) { /* filtered by VIN */ }
-        var box = document.createElement('div'); box.className='card'; 
+        var box = document.createElement('div'); box.className='card'; box.style.background='#1d312a'; box.style.color='#fff';
         var btn = document.createElement('button'); btn.className='primary'; btn.textContent='Apply Bundle';
         btn.addEventListener('click', function(){ applyTemplate(tpl); });
-        box.innerHTML = '<h4>'+tpl.platform+'</h4><ul>'+tpl.items.map(function(it){ return '<li>'+it.type+' — '+it.desc+' '+(it.type==='Part' ? '('+(it.vendor||'')+' '+(it.part||'')+')' : '')+'</li>'; }).join('')+'</ul>';
+        box.innerHTML = '<h4>'+tpl.platform+'</h4><ul style="margin:0 0 8px 16px">'+tpl.items.map(function(it){ return '<li>'+it.type+' — '+it.desc+(it.type==='Part' ? (' ('+(it.vendor||'')+' '+(it.part||'')+')') : '')+'</li>'; }).join('')+'</ul>';
         box.appendChild(btn); list.appendChild(box);
       });
-      document.getElementById('tplModal').style.display='flex';
+      $('#tplModal').style.display='flex';
     }
     function applyTemplate(tpl){
-      var defMu = Number(document.getElementById('defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
+      var defMu = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
       tpl.items.forEach(function(it){
         if(it.type==='Labor'){
-          addLine('Labor', it.desc, it.qty||1, it.unit||Number(document.getElementById('laborRate').value||80), 0, '');
+          addLine('Labor', it.desc, it.qty||1, it.unit||Number($('#laborRate').value||80), 0, '');
         } else {
           var cost = Number(it.cost||0); var mu = (it.markup!=null ? Number(it.markup)/100 : defMu);
           var unit = cost * (1+mu);
           addLine('Part', it.desc + (it.part?(' ('+it.part+')'):'') + ' — ' + (it.vendor||''), 1, unit, cost, '');
         }
       });
-      document.getElementById('tplModal').style.display='none'; saveDB();
+      $('#tplModal').style.display='none'; saveDB();
     }
-    guard('templates', function(){
-      document.getElementById('tplClose').addEventListener('click', function(){ document.getElementById('tplModal').style.display='none'; });
-      document.getElementById('openTemplates').addEventListener('click', function(){ openTemplates(''); });
-    });
+    $('#tplClose').addEventListener('click', ()=> $('#tplModal').style.display='none');
+    $('#openTemplates').addEventListener('click', ()=> openTemplates(''));
 
     // Dashboard
     function renderDashboard(){
-      var open = DB.jobs.filter(function(j){ return j.status!=='Done'; }).length;
-      var unpaid = DB.jobs.filter(function(j){ return j.docType==='Invoice' && !j.paid && j.lines.length>0; }).length;
+      var open = DB.jobs.filter(j=> j.status!=='Done').length;
+      var unpaid = DB.jobs.filter(j=> j.docType==='Invoice' && !j.paid && j.lines.length>0).length;
       var rev=0, prof=0;
       var now = new Date(); var mkey = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
       function monthKey(d){ var dd = new Date(d); return dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0'); }
       DB.jobs.forEach(function(j){
-        var subtotal = j.lines.reduce(function(s,l){ return s + (Number(l.qty)||0)*(Number(l.unit)||0); }, 0);
-        var profit = j.lines.reduce(function(s,l){ return s + (l.type==='Part' ? (Number(l.qty||0)*(Number(l.unit)||0)-Number(l.cost||0)) : (Number(l.qty||0)*Number(l.unit)||0)); }, 0);
-        if(j.paid && j.paidAt && monthKey(j.paidAt)===mkey){ var tax = subtotal*(Number(document.getElementById('salesTax').value||0)/100); rev+=subtotal+tax; prof+=profit; }
+        var subtotal = j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*(Number(l.unit)||0), 0);
+        var profit = j.lines.reduce((s,l)=> s + (l.type==='Part' ? (Number(l.qty||0)*(Number(l.unit)||0)-Number(l.cost||0)) : (Number(l.qty||0)*Number(l.unit)||0)), 0);
+        if(j.paid && j.paidAt && monthKey(j.paidAt)===mkey){ var tax = subtotal*(Number($('#salesTax').value||0)/100); rev+=subtotal+tax; prof+=profit; }
       });
-      document.getElementById('openJobs').textContent = open; document.getElementById('unpaid').textContent = unpaid; document.getElementById('revMonth').textContent = fmt(rev); document.getElementById('profitMonth').textContent = fmt(prof);
+      $('#openJobs').textContent = open; $('#unpaid').textContent = unpaid; $('#revMonth').textContent = fmt(rev); $('#profitMonth').textContent = fmt(prof);
     }
 
     // Settings
     function renderSettings(){
-      document.getElementById('defaultMarkup').value = DB.settings.defaultMarkup||40;
-      document.getElementById('shopFrom').value = DB.settings.shopFrom||'';
-      document.getElementById('shopReply').value = DB.settings.shopReply||'';
-      document.getElementById('shopSubj').value = DB.settings.shopSubj||'';
-      document.getElementById('shopFooter').value = DB.settings.shopFooter||'';
+      $('#defaultMarkup').value = DB.settings.defaultMarkup||40;
+      $('#shopFrom').value = DB.settings.shopFrom||'';
+      $('#shopReply').value = DB.settings.shopReply||'';
+      $('#shopSubj').value = DB.settings.shopSubj||'';
+      $('#shopFooter').value = DB.settings.shopFooter||'';
     }
-    document.getElementById('defaultMarkup').addEventListener('change', function(){ DB.settings.defaultMarkup = Number(this.value||40); saveDB(); recalcTotals(); });
-    document.getElementById('shopFrom').addEventListener('input', function(){ DB.settings.shopFrom = this.value; saveDB(); });
-    document.getElementById('shopReply').addEventListener('input', function(){ DB.settings.shopReply = this.value; saveDB(); });
-    document.getElementById('shopSubj').addEventListener('input', function(){ DB.settings.shopSubj = this.value; saveDB(); });
-    document.getElementById('shopFooter').addEventListener('input', function(){ DB.settings.shopFooter = this.value; saveDB(); });
+    $('#defaultMarkup').addEventListener('change', function(){ DB.settings.defaultMarkup = Number(this.value||40); saveDB(); recalcTotals(); });
+    $('#shopFrom').addEventListener('input', function(){ DB.settings.shopFrom = this.value; saveDB(); });
+    $('#shopReply').addEventListener('input', function(){ DB.settings.shopReply = this.value; saveDB(); });
+    $('#shopSubj').addEventListener('input', function(){ DB.settings.shopSubj = this.value; saveDB(); });
+    $('#shopFooter').addEventListener('input', function(){ DB.settings.shopFooter = this.value; saveDB(); });
 
     // Backup/Restore/Reset
-    document.getElementById('backupBtn').addEventListener('click', function(){
+    $('#backupBtn').addEventListener('click', function(){
       try{
         var data = JSON.stringify(DB, null, 2);
         var blob = new Blob([data], {type:'application/json'});
@@ -1086,151 +1129,44 @@ window.addEventListener('load', function(){
         URL.revokeObjectURL(url);
       }catch(e){ AppLog.error('backup failed', e); alert('Backup failed.'); }
     });
-    document.getElementById('restoreFile').addEventListener('change', function(evt){
+    $('#restoreFile').addEventListener('change', function(evt){
       var f = evt.target.files && evt.target.files[0]; if(!f) return;
       var reader = new FileReader();
       reader.onload = function(){ try{ DB = JSON.parse(reader.result); upgradeDB(); saveDB(); renderAll(); alert('Restore complete.'); } catch(e){ AppLog.error('restore failed', e); alert('Restore failed — bad file?'); } };
       reader.readAsText(f);
     });
-    document.getElementById('resetBtn').addEventListener('click', function(){
-      if(confirm('This will wipe customers, jobs, lines, and settings. Continue?')){ localStorage.removeItem(STORAGE_KEY); resetDB(); alert('Reset complete.'); }
+    $('#resetBtn').addEventListener('click', function(){
+      if(confirm('This will wipe customers, jobs, lines, photos, signatures and settings. Continue?')){ localStorage.removeItem(STORAGE_KEY); resetDB(); alert('Reset complete.'); }
     });
 
-    // Initial render or seed defaults
+    // Initial seed
     if(!loadDB()){
       var cid = crypto.randomUUID(); DB.customers.push({id:cid, name:"Shane Diesel", email:"shane@example.com", vehicle:"2018 Ford Escape 2.0T"});
       DB.jobs.push({id:crypto.randomUUID(), customerId:cid, title:"Alternator + PCM diagnostics", status:"In Progress", lines:[
         {type:"Labor",desc:"Diagnostics",qty:1.5,unit:80,cost:0,profit:120,note:"Verified concern under load."},
         {type:"Part",desc:"Alternator",qty:1,unit:324,cost:250,profit:74,note:"OEM preferred; core required."}
-      ], paid:false, docType:"Estimate", paymentLink:"", overallNotes:"Initial assessment complete.", createdAt:new Date().toISOString()});
+      ], paid:false, docType:"Estimate", paymentLink:"", overallNotes:"Initial assessment complete.", internalNotes:"Customer wants OEM only.", photos:[], signatures:{customer:null,manager:null}, createdAt:new Date().toISOString()});
     } else {
       upgradeDB();
     }
     renderAll();
 
+    // Drag & drop rows (handle-only)
+    (function(){
+      const tbody = document.querySelector('#lines tbody'); if(!tbody) return;
+      let dragSrc = null;
+      function rowFrom(el){ while(el && el.tagName!=='TR') el=el.parentElement; return el; }
+      tbody.addEventListener('mousedown', (e)=>{ const h=e.target.closest('.handle'); if(!h) return; const tr=rowFrom(h); if(tr){ tr.setAttribute('draggable','true'); tr.dataset.dragOk='1'; }}, true);
+      document.addEventListener('mouseup', ()=>{ document.querySelectorAll('#lines tbody tr[draggable="true"]').forEach(tr=>{ tr.removeAttribute('draggable'); delete tr.dataset.dragOk; }); });
+      tbody.addEventListener('dragstart', (e)=>{ const tr=rowFrom(e.target); if(!tr || tr.dataset.dragOk!=='1'){ e.preventDefault(); return; } dragSrc=tr; tr.classList.add('dragging'); try{ e.dataTransfer.setData('text/plain','reorder'); }catch(_){ } e.dataTransfer.effectAllowed='move'; });
+      tbody.addEventListener('dragend', (e)=>{ const tr=rowFrom(e.target)||dragSrc; if(tr){ tr.classList.remove('dragging'); tr.removeAttribute('draggable'); delete tr.dataset.dragOk; } dragSrc=null; document.querySelectorAll('.drop-target').forEach(el=>el.classList.remove('drop-target')); });
+      function mid(tr){ const r=tr.getBoundingClientRect(); return r.top+r.height/2; }
+      tbody.addEventListener('dragover', (e)=>{ if(!dragSrc) return; e.preventDefault(); const target=rowFrom(e.target); if(!target||target===dragSrc) return; const m=mid(target); if(e.clientY<m){ tbody.insertBefore(dragSrc,target); } else { tbody.insertBefore(dragSrc,target.nextSibling); } target.classList.add('drop-target'); setTimeout(()=>target.classList.remove('drop-target'),80); });
+      tbody.addEventListener('drop', (e)=>{ if(!dragSrc) return; e.preventDefault(); dragSrc=null; try{ persistLines(); }catch(err){ console.warn('persistLines after reorder failed', err); } });
+    })();
+
   }); // guard init
-}); // onload
-
-
-/* ===== Drag & Drop logic for invoice rows (press-handle-to-drag) ===== */
-(function(){
-  const tbody = document.querySelector('#lines tbody');
-  if(!tbody) return;
-
-  let dragSrc = null;
-
-  function rowFrom(el){
-    while(el && el.tagName !== 'TR') el = el.parentElement;
-    return el;
-  }
-
-  // Mark row draggable only after pressing the handle
-  tbody.addEventListener('mousedown', (e)=>{
-    const h = e.target.closest && e.target.closest('.handle');
-    if(!h) return;
-    const tr = rowFrom(h);
-    if(tr){
-      tr.setAttribute('draggable','true');
-      tr.dataset.dragOk = '1';
-    }
-  }, true);
-
-  // Safety: clear flags on mouseup anywhere
-  document.addEventListener('mouseup', ()=>{
-    document.querySelectorAll('#lines tbody tr[draggable="true"]').forEach(tr=>{
-      tr.removeAttribute('draggable');
-      delete tr.dataset.dragOk;
-    });
-  });
-
-  // Also allow keyboard users to start drag via Enter/Space on handle
-  tbody.addEventListener('keydown', (e)=>{
-    if(!e.target.closest) return;
-    const h = e.target.closest('.handle');
-    if(!h) return;
-    if(e.key === 'Enter' || e.key === ' '){
-      e.preventDefault();
-      const tr = rowFrom(h);
-      if(tr){
-        tr.setAttribute('draggable','true');
-        tr.dataset.dragOk = '1';
-      }
-    }
-  });
-
-  tbody.addEventListener('dragstart', (e)=>{
-    const tr = rowFrom(e.target);
-    if(!tr || tr.dataset.dragOk !== '1'){
-      e.preventDefault();
-      return false;
-    }
-    dragSrc = tr;
-    tr.classList.add('dragging');
-    try{ e.dataTransfer.setData('text/plain','reorder'); }catch(_){}
-    e.dataTransfer.effectAllowed = 'move';
-  });
-
-  tbody.addEventListener('dragend', (e)=>{
-    const tr = rowFrom(e.target) || dragSrc;
-    if(tr){
-      tr.classList.remove('dragging');
-      tr.removeAttribute('draggable');
-      delete tr.dataset.dragOk;
-    }
-    dragSrc = null;
-    document.querySelectorAll('.drop-target').forEach(el=>el.classList.remove('drop-target'));
-  });
-
-  function getRowYMid(tr){
-    const r = tr.getBoundingClientRect();
-    return r.top + r.height/2;
-  }
-
-  tbody.addEventListener('dragover', (e)=>{
-    if(!dragSrc) return;
-    e.preventDefault();
-    const target = rowFrom(e.target);
-    if(!target || target===dragSrc) return;
-    const mid = getRowYMid(target);
-    if(e.clientY < mid){
-      tbody.insertBefore(dragSrc, target);
-    }else{
-      tbody.insertBefore(dragSrc, target.nextSibling);
-    }
-    target.classList.add('drop-target');
-    setTimeout(()=>target.classList.remove('drop-target'), 80);
-  });
-
-  tbody.addEventListener('drop', (e)=>{
-    if(!dragSrc) return;
-    e.preventDefault();
-    dragSrc = null;
-    try{ persistLines(); }catch(err){ console.warn('persistLines after reorder failed', err); }
-  });
-
-  // Ensure existing rows have a handle button; if not, inject a basic one at the start
-  Array.from(tbody.querySelectorAll('tr')).forEach(tr=>{
-    if(!tr.querySelector('.drag-col')){
-      const td = document.createElement('td');
-      td.className = 'drag-col';
-      td.innerHTML = '<button type="button" class="tab-btn handle" title="Drag to reorder">↕</button>';
-      tr.insertBefore(td, tr.firstChild);
-    }
-  });
-
-  // Patch addLine so newly added rows also include handle (defensive)
-  const _addLine = addLine;
-  window.addLine = function(){
-    _addLine.apply(this, arguments);
-    const last = tbody.querySelector('tr:last-child');
-    if(last && !last.querySelector('.drag-col')){
-      const td = document.createElement('td');
-      td.className = 'drag-col';
-      td.innerHTML = '<button type="button" class="tab-btn handle" title="Drag to reorder">↕</button>';
-      last.insertBefore(td, last.firstChild);
-    }
-  };
-})();
+}); // load
 </script>
 </body>
 </html>
