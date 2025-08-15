@@ -457,7 +457,7 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
   var logEl = document.getElementById('debugLog');
   var metaEl = document.getElementById('debugMeta');
   var buf = [];
-  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\\n'); } }
+  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\n'); } }
   window.AppLog = {
     info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
     warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
@@ -642,7 +642,10 @@ window.addEventListener('load', function(){
             b.addEventListener('click', ()=>applyTemplate(tpl));
             tags.appendChild(b);
           });
-          $('#addAllSuggest').onclick = ()=> matched.forEach(t=>applyTemplate(t));
+          $('#addAllSuggest').onclick = ()=>{
+            if(matched.length>4 && !confirm('Add '+matched.length+' bundles?')) return;
+            matched.forEach(t=>applyTemplate(t));
+          };
           sug.style.display='block'; saveDB();
         }).catch(()=> box.textContent='VIN decode failed.');
     });
@@ -756,8 +759,8 @@ window.addEventListener('load', function(){
         '<td><input class="lQty" type="number" step="0.01" value="'+(qty||1)+'" placeholder="'+qtyPH+'"/></td>' +
         '<td><input class="lCost" type="number" step="0.01" value="'+(((cost!=null)?cost:0))+'" placeholder="'+costPH+'"/></td>' +
         '<td><input class="lUnit" type="number" step="0.01" value="'+(unit||0)+'" placeholder="'+unitPH+'"/><div class="calc-hint">—</div></td>' +
-        '<td class="lLine">$0.00</td><td class="lProfit">$0.00</td><td><button class="tab-btn lDel">X</button></td>';
-      $('#lines tbody').appendChild(tr);
+        '<td class="lLine">$0.00</td><td class="lProfit">$0.00</td><td><button type="button" class="tab-btn lDel">X</button></td>';
+      document.querySelector('#lines tbody').appendChild(tr);
       tr.querySelector('.lDel').addEventListener('click', function(){ tr.remove(); persistLines(); });
       ['change','input'].forEach(evt=>{
         ['.lType','.lDesc','.lQty','.lCost','.lUnit','.lNote'].forEach(sel=> tr.querySelector(sel).addEventListener(evt, persistLines));
@@ -826,7 +829,7 @@ window.addEventListener('load', function(){
           var cls = (r.cost>0 && (up / r.cost) >= muDefault) ? 'ok' : (r.cost>0 ? 'warn' : 'ok');
           hint.className = 'calc-hint ' + cls;
           var dollars = fmt(up * (r.qty||1));
-          var perTxt = r.cost>0 ? '(+'+per+'%)' : '(no cost set)';
+          var perTxt = r.cost>0 ? '(+'+per+'%)' : '(set cost for %)';
           hint.textContent = dollars + ' ' + perTxt;
         }
       });
@@ -835,7 +838,11 @@ window.addEventListener('load', function(){
       $('#tax').textContent = fmt(tax);
       $('#grand').textContent = fmt(grand);
       $('#profit').textContent = fmt(profit);
-      var margin = grand>0 ? Math.round((profit/grand)*100) : 0; var badge = $('#margin'); badge.textContent = margin + '%'; badge.className='badge '+(margin>=25?'invoice': (margin>=15?'':'estimate'));
+      var margin = grand>0 ? Math.round((profit/grand)*100) : 0;
+      var badge = $('#margin');
+      badge.textContent = margin + '%';
+      // Three tiers: green >=25, neutral >=15, yellow else
+      badge.className='badge ' + (margin>=25?'invoice': (margin>=15?'badge-open':'estimate'));
       $('#pSub').textContent = fmt(subtotal); $('#pTax').textContent = fmt(tax); $('#pGrand').textContent = fmt(grand);
     }
 
@@ -851,7 +858,8 @@ window.addEventListener('load', function(){
       var tbody = $('#pLines'); tbody.innerHTML='';
       (j?j.lines:[]).forEach(function(l){
         var tr=document.createElement('tr'); var line=(Number(l.qty)||0)*(Number(l.unit)||0);
-        tr.innerHTML='<td>'+l.type+': '+(l.desc||'')+'</td><td>'+(l.qty||0)+'</td><td>'+fmt(l.unit||0)+'</td><td>'+fmt(line)+'</td>'; tbody.appendChild(tr);
+        tr.innerHTML='<td>'+l.type+': '+escapeHtml(l.desc||"")+'</td><td>'+(l.qty||0)+'</td><td>'+fmt(l.unit||0)+'</td><td>'+fmt(line)+'</td>';
+        tbody.appendChild(tr);
         if(l.note && l.note.trim()){
           var trn = document.createElement('tr');
           trn.innerHTML = '<td colspan="4" style="font-style:italic; color:#333; padding-top:4px;">Note: '+escapeHtml(l.note.trim())+'</td>';
@@ -885,7 +893,7 @@ window.addEventListener('load', function(){
       if(j && j.photosOnPdf && j.photos && j.photos.length){
         var html = '<h4 style="margin:8px 0 4px 0;">Work Photos</h4><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px">';
         j.photos.forEach(function(ph){
-          if(!ph || !ph.dataUrl) return;
+          if(!ph || !ph.dataUrl || ph.include === false) return;
           html += '<div style="border:1px solid #000;padding:4px;border-radius:6px;"><img src="'+ph.dataUrl+'" style="width:100%;height:110px;object-fit:cover;border-radius:4px"/></div>';
         });
         html += '</div>';
@@ -904,7 +912,14 @@ window.addEventListener('load', function(){
     $('#addPart').addEventListener('click', function(){ if(!ensureJobSelected()) return; addLine('Part','',1, 0, 0, ''); });
     $('#applyMarkup').addEventListener('click', applyDefaultMarkup);
     $('#recalc').addEventListener('click', recalcTotals);
-    $('#markPaid').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; j.paid=!j.paid; j.paidAt=j.paid?new Date().toISOString():null; updatePreview(); renderJobs(); saveDB(); alert(j.paid?'Marked Paid':'Marked Unpaid'); });
+    $('#markPaid').addEventListener('click', function(){
+      var j=ensureJobSelected(); if(!j) return;
+      j.paid=!j.paid;
+      j.paidAt=j.paid?new Date().toISOString():null;
+      // snapshot current tax used for monthly revenue calc
+      if(j.paid){ j.taxPercentAtSale = Number($('#salesTax').value||0); }
+      updatePreview(); renderJobs(); saveDB(); alert(j.paid?'Marked Paid':'Marked Unpaid');
+    });
     $('#approve').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; if($('#docType').value!=='Estimate'){ alert('Approvals apply to Estimates.'); return; } j.approved=true; j.approvedAt=new Date().toISOString(); updatePreview(); saveDB(); alert('Estimate approved.'); });
     $('#convert').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; j.docType='Invoice'; $('#docType').value='Invoice'; updatePreview(); saveDB(); alert('Converted to Invoice.'); });
     $('#email').addEventListener('click', function(){
@@ -941,7 +956,11 @@ window.addEventListener('load', function(){
       var w = window.open('', '_blank');
       if(!w){ alert('Please allow pop-ups to print.'); return; }
       w.document.open(); w.document.write(htmlDoc); w.document.close();
-      setTimeout(function(){ try{ w.focus(); w.print(); }catch(e){} }, 250);
+      // Wait for images (watermark, signatures, photos) before printing
+      const imgs = Array.from(w.document.images || []);
+      Promise.all(imgs.map(img => img.complete ? Promise.resolve() :
+        new Promise(res => { img.addEventListener('load',res,{once:true}); img.addEventListener('error',res,{once:true}); })
+      )).then(()=>{ try{ w.focus(); w.print(); }catch(e){} });
     });
 
     // Header field listeners
@@ -1022,8 +1041,16 @@ window.addEventListener('load', function(){
     canvas.addEventListener('touchstart', start, {passive:false}); canvas.addEventListener('touchmove', move, {passive:false}); canvas.addEventListener('touchend', end);
 
     $('#sigClear').addEventListener('click', clearPad);
+
+    function isCanvasBlank(c){
+      const ctx = c.getContext('2d');
+      const pixelBuffer = new Uint32Array(ctx.getImageData(0,0,c.width,c.height).data.buffer);
+      return !pixelBuffer.some(color => color !== 0);
+    }
+
     $('#sigSave').addEventListener('click', function(){
       var j = currentJob(); if(!j) return;
+      if(isCanvasBlank(canvas)){ alert('Please sign before saving.'); return; }
       var url = canvas.toDataURL('image/png');
       var role = $('#sigRole').value; var name = $('#sigName').value.trim(); var date = $('#sigDate').value;
       j.signatures[role] = { dataUrl:url, name:name, date:date, savedAt:new Date().toISOString() };
@@ -1100,7 +1127,11 @@ window.addEventListener('load', function(){
       DB.jobs.forEach(function(j){
         var subtotal = j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*(Number(l.unit)||0), 0);
         var profit = j.lines.reduce((s,l)=> s + (l.type==='Part' ? (Number(l.qty||0)*(Number(l.unit)||0)-Number(l.cost||0)) : (Number(l.qty||0)*Number(l.unit)||0)), 0);
-        if(j.paid && j.paidAt && monthKey(j.paidAt)===mkey){ var tax = subtotal*(Number($('#salesTax').value||0)/100); rev+=subtotal+tax; prof+=profit; }
+        if(j.paid && j.paidAt && monthKey(j.paidAt)===mkey){
+          var taxPct = (typeof j.taxPercentAtSale === 'number') ? j.taxPercentAtSale : Number($('#salesTax').value||0);
+          var tax = subtotal*(taxPct/100);
+          rev+=subtotal+tax; prof+=profit;
+        }
       });
       $('#openJobs').textContent = open; $('#unpaid').textContent = unpaid; $('#revMonth').textContent = fmt(rev); $('#profitMonth').textContent = fmt(prof);
     }
@@ -1170,4 +1201,3 @@ window.addEventListener('load', function(){
 </script>
 </body>
 </html>
-
