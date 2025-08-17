@@ -38,7 +38,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .selftest{display:none;margin-left:8px}.selftest.ok{display:inline-block;background:#10331f;border:1px solid #1f6440;color:#a5ffd8}.selftest.warn{display:inline-block;background:#3a2f00;border:1px solid #7a5f00;color:#ffeaa3}
 #toTop{position:fixed;right:20px;bottom:140px;z-index:60;background:#1d312a;color:#fff;border:1px solid #0e241c;border-radius:999px;padding:10px 14px;display:none;box-shadow:var(--shadow)}#toTop:hover{filter:brightness(1.08)}
 @media print{body{background:#fff;color:#000}header,nav.bottom,nav.top,.actions,.modal,#debug,#debugToggle,#invFilters,#internalNotesWrap,#photosWrap{display:none!important}.tab{display:block!important}#invoice{display:block!important}.print-area{box-shadow:none;margin:0;padding:0}}
-#pdf{position:fixed;bottom:80px;right:20px;z-index:1000;min-width:160px;height:50px;background:var(--info);color:#fff;border:none;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+#pdf{position:fixed;bottom:128px;right:20px;z-index:1000;min-width:160px;height:50px;background:var(--info);color:#fff;border:none;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
 #pdf:hover{filter:brightness(1.05)}
 .drag-col{width:28px;text-align:center}.handle{min-width:32px;height:36px;padding:4px 6px;cursor:grab}.handle:active{cursor:grabbing}.draggable-row.dragging{opacity:.5}.drop-target{outline:2px dashed var(--info);outline-offset:-2px}
 .desc-wrap{display:flex;flex-direction:column;gap:6px}.lNote{width:100%;min-height:64px;resize:vertical;background:#fff;color:#0e111a;border:1px solid #b6b09f;border-radius:10px;padding:8px 10px;font-size:.95rem}
@@ -231,7 +231,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 </div>
 <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
 <h3 style="color:#0e111a">Branding (Watermark)</h3>
-<div class="grid"><label>Upload Logo <input accept="image/*" id="wmFile" type="file"/></label><button class="tab-btn" id="wmClear" type="button">Clear Watermark</button></div>
+<div class="grid"><label>Upload Logo <input accept="image/*" id="wmFile" type="file"/></label></div>
 <div class="small">Upload your logo here once; it will print faintly behind the invoice/estimate.</div>
 </div>
 </section>
@@ -327,9 +327,18 @@ if (!window.crypto.randomUUID){
     var cached = localStorage.getItem(KEY);
     if(cached){ setWM(cached); }
   } catch(_){}
+  
+  try {
+    var cached = localStorage.getItem(KEY);
+    if(cached){ setWM(cached); }
+  } catch(_) {}
   var up = document.getElementById('wmFile');
   var clr = document.getElementById('wmClear');
-  function readAsDataURL(file, cb, eb){
+  // NEW: lock the upload after a watermark is set (cached or newly uploaded)
+  if (typeof cached !== 'undefined' && cached && up) {
+    try { up.disabled = true; up.title = 'Watermark locked'; up.style.opacity = '0.6'; } catch(_){}
+  }
+function readAsDataURL(file, cb, eb){
     var r = new FileReader();
     r.onload = function(){ cb(r.result); };
     r.onerror = function(){ if(eb) eb(r.error); };
@@ -341,6 +350,7 @@ if (!window.crypto.randomUUID){
     readAsDataURL(f, function(data){
       try{ localStorage.setItem(KEY, data); }catch(_){}
       setWM(data); alert('Watermark updated.');
+      try{ if(up){ up.disabled = true; up.title = 'Watermark locked'; up.style.opacity = '0.6'; } }catch(_){}
       up.value = '';
     });
   });
