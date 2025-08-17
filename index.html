@@ -140,13 +140,13 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 </div>
 <form class="grid" id="invForm">
 <select id="invJob" required=""></select>
-<input id="invNo" placeholder="Document # (e.g., 2025-001)">
+<input id="invNo" placeholder="Document # (e.g., 2025-001)"/>
 <label>Type <select id="docType"><option>Estimate</option><option>Invoice</option></select></label>
 <label>Labor Rate ($/hr) <input id="laborRate" step="0.01" type="number" value="80"/></label>
 <label>Sales Tax (%) <input id="salesTax" step="0.01" type="number" value="7"/></label>
 <label>Payment Link <input id="payLink" placeholder="https://pay.yourprovider.com/invoice/123"/></label>
 <label>Email To <input id="emailTo" placeholder="customer@example.com"/></label>
-</input></form>
+</form>
 <div class="actions">
 <button class="tab-btn" id="addLabor" type="button">+ Labor Line</button>
 <button class="tab-btn" id="addPart" type="button">+ Part Line</button>
