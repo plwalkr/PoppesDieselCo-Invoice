@@ -3,119 +3,54 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-<title>Poppe’s Diesel Co. — Shop Manager (v1.1.1 — FULL)</title>
-
-<!-- ===== THEME & BASE ===== -->
+<title>Poppe’s Diesel Co. — Shop Manager (v1.1.1 — LITE)</title>
 <style>
-:root{
-  --bg:#e6cfae; --card:#13151c; --text:#0e111a; --muted:#3e463e; --border:#2e3226;
-  --ink:#0e111a; --ink2:#161a24; --shadow:0 10px 20px rgba(0,0,0,.30);
-  --info:#0a3d2e; --ok:#1f6b55; --warn:#f5c518; --danger:#962b2b;
-  --font: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-}
-*{box-sizing:border-box} html,body{height:100%} body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
+:root{--bg:#e6cfae;--card:#13151c;--text:#0e111a;--muted:#3e463e;--border:#2e3226;--ink:#0e111a;--ink2:#161a24;--shadow:0 10px 20px rgba(0,0,0,.30);--info:#0a3d2e;--ok:#1f6b55;--warn:#f5c518;--danger:#962b2b;--font:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
 header{position:sticky;top:0;z-index:10;background:var(--ink);border-bottom:1px solid var(--border);padding:12px 16px;box-shadow:var(--shadow);color:#fff}
 h1{margin:0;font-size:20px;display:flex;gap:8px;align-items:center}
 .tag{background:var(--ink2);color:#c5c9d3;padding:2px 6px;border-radius:6px;font-size:12px;white-space:nowrap}
 nav.top{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-button,select,input,textarea{background:#ffffff;border:1px solid #b6b09f;color:#0e111a;padding:12px 14px;border-radius:12px;font-size:17px;touch-action:manipulation}
-button{cursor:pointer} .tab-btn{background:#1d312a;color:#fff;border:1px solid #0e241c}
-.tab-btn:hover{filter:brightness(1.05)}
-.primary{background:#0a3d2e;color:#fff;border-color:#0a3d2e} .success{background:#1f6b55;color:#fff;border-color:#1f6b55}
-main{padding:16px 16px 110px}
-.tab{display:none} .tab.active{display:block}
-.table-wrap{overflow:auto;border:1px solid #b6b09f;border-radius:14px;background:#ffffff}
-table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px solid #b6b09f;text-align:left;vertical-align:top}
+button,select,input,textarea{background:#fff;border:1px solid #b6b09f;color:#0e111a;padding:12px 14px;border-radius:12px;font-size:17px;touch-action:manipulation}
+button{cursor:pointer}.tab-btn{background:#1d312a;color:#fff;border:1px solid #0e241c}.tab-btn:hover{filter:brightness(1.05)}
+.primary{background:#0a3d2e;color:#fff;border-color:#0a3d2e}.success{background:#1f6b55;color:#fff;border-color:#1f6b55}
+main{padding:16px 16px 110px}.tab{display:none}.tab.active{display:block}
+.table-wrap{overflow:auto;border:1px solid #b6b09f;border-radius:14px;background:#fff}
+table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #b6b09f;text-align:left;vertical-align:top}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .card{background:#1d312a;color:#fff;border:1px solid #0e241c;border-radius:14px;padding:20px;box-shadow:var(--shadow)}
-.card h3{margin:0 0 8px 0}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0}
-.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
-.actions>*{height:48px}
+.card h3{margin:0 0 8px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}.actions>*{height:48px}
 .print-area{background:#fff;color:#000;border-radius:14px;padding:16px;position:relative;overflow:hidden}
 .watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:.08;z-index:0}
 .invoice-header{position:relative;z-index:1;display:flex;justify-content:space-between;gap:16px;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:8px}
 .lines thead th{background:#203229;color:#eaf5f0;border-bottom-color:#2f463a}
 .totals{display:grid;gap:6px;justify-items:end;margin-top:8px;position:relative;z-index:1}
 .badge{padding:.25rem .5rem;border-radius:999px;border:1px solid #000;font-size:.9em;background:#fff;color:#000}
-.badge.estimate{background:#fdf1c4;color:#2b2100} .badge.invoice{background:#d9efe7;color:#0a3d2e}
-.small{font-size:.85em;color:var(--muted)}
-.calc-hint{font-size:.8em;line-height:1.2;margin-top:6px;opacity:.9}
-.calc-hint.ok{color:#0a7f63} .calc-hint.warn{color:#b48802}
-
+.badge.estimate{background:#fdf1c4;color:#2b2100}.badge.invoice{background:#d9efe7;color:#0a3d2e}
+.small{font-size:.85em;color:var(--muted)}.calc-hint{font-size:.8em;line-height:1.2;margin-top:6px;opacity:.9}
+.calc-hint.ok{color:#0a7f63}.calc-hint.warn{color:#b48802}
 #debugToggle{position:fixed;right:12px;bottom:72px;z-index:60;background:#1e2030;border:1px solid #3a3f58;border-radius:999px;padding:10px 12px;color:#fff}
-#debug{position:fixed;right:12px;bottom:12px;left:12px;max-height:50vh;overflow:auto;background:#0f111a;border:1px solid #30364a;border-radius:12px;padding:10px 12px;z-index:60;display:none;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;font-size:12px;color:#d7e1ff}
-#debug pre{white-space:pre-wrap;margin:0}
-#debug .meta{font-size:12px;color:#9fb3d1;margin-bottom:6px}
+#debug{position:fixed;right:12px;bottom:12px;left:12px;max-height:50vh;overflow:auto;background:#0f111a;border:1px solid #30364a;border-radius:12px;padding:10px 12px;z-index:60;display:none;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#d7e1ff}
+#debug pre{white-space:pre-wrap;margin:0}#debug .meta{font-size:12px;color:#9fb3d1;margin-bottom:6px}
 #error{display:none;position:sticky;top:0;z-index:20;background:#ff5566;color:#18040a;padding:10px 14px;border-bottom:2px solid #8a1b27}
-.selftest{display:none;margin-left:8px}
-.selftest.ok{display:inline-block;background:#10331f;border:1px solid #1f6440;color:#a5ffd8}
-.selftest.warn{display:inline-block;background:#3a2f00;border:1px solid #7a5f00;color:#ffeaa3}
-
-/* Back to top */
-#toTop{
-  position:fixed; right:20px; bottom:140px; z-index:60;
-  background:#1d312a; color:#fff; border:1px solid #0e241c;
-  border-radius:999px; padding:10px 14px; display:none; box-shadow:var(--shadow)
-}
-#toTop:hover{ filter:brightness(1.08) }
-
-@media print{
-  body{background:#fff;color:#000}
-  header,nav.bottom,nav.top,.actions,.modal,#debug,#debugToggle,#invFilters,#internalNotesWrap,#photosWrap{display:none!important}
-  .tab{display:block!important} #invoice{display:block!important} .print-area{box-shadow:none;margin:0;padding:0}
-}
-
-/* Actions row & Generate PDF floating */
-#pdf{
-  position: fixed; bottom: 80px; right: 20px; z-index: 1000;
-  min-width: 160px; height: 50px; background: var(--info); color: #fff; border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-}
-#pdf:hover{ filter: brightness(1.05); }
-
-/* Drag & drop rows */
-.drag-col{ width:28px; text-align:center; }
-.handle{ min-width: 32px; height: 36px; padding: 4px 6px; cursor: grab; }
-.handle:active{ cursor: grabbing; }
-.draggable-row.dragging{ opacity: 0.5; }
-.drop-target{ outline: 2px dashed var(--info); outline-offset: -2px; }
-
-/* Notes UI */
-.desc-wrap{ display:flex; flex-direction:column; gap:6px; }
-.lNote{
-  width:100%; min-height:64px; resize:vertical;
-  background:#ffffff; color:#0e111a; border:1px solid #b6b09f; border-radius:10px;
-  padding:8px 10px; font-size:.95rem;
-}
-#overallNotesWrap{ margin-top:12px; }
-#overallNotes{ width:100%; min-height:110px; resize:vertical; }
-
-/* Signature block */
-.signatures{ margin-top:16px; display:grid; gap:10px; }
-.sig-row{ display:grid; grid-template-columns:2fr 1fr; gap:16px; align-items:end; }
-.sig{ display:flex; flex-direction:column; justify-content:flex-end; }
-.sig-line{ border-bottom:1px solid #000; height:32px; display:flex; align-items:flex-end; }
-.sig-label{ font-size:.9em; color:#333; margin-top:4px; }
-.sig-img{ max-height:60px; max-width:100%; object-fit:contain; }
-
-/* Photos (thumbnail grid in app UI) */
-.photo-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; }
-.photo-item{ position:relative; background:#fff; border:1px solid #b6b09f; border-radius:8px; padding:6px; }
-.photo-item img{ width:100%; height:90px; object-fit:cover; border-radius:6px; }
-.photo-item .del{ position:absolute; top:4px; right:4px; background:#962b2b; color:#fff; border:none; border-radius:8px; padding:2px 6px; font-size:12px; cursor:pointer; }
-.photo-item label{ display:flex; align-items:center; gap:6px; margin-top:6px; font-size:12px; }
-
-/* Jobs table status colors */
-.badge-open{background:#fff;border-color:#b6b09f}
-.badge-ip{background:#fff7d6;border-color:#caa52a}
-.badge-done{background:#d9efe7;border-color:#1f6b55;color:#0a3d2e}
+.selftest{display:none;margin-left:8px}.selftest.ok{display:inline-block;background:#10331f;border:1px solid #1f6440;color:#a5ffd8}.selftest.warn{display:inline-block;background:#3a2f00;border:1px solid #7a5f00;color:#ffeaa3}
+#toTop{position:fixed;right:20px;bottom:140px;z-index:60;background:#1d312a;color:#fff;border:1px solid #0e241c;border-radius:999px;padding:10px 14px;display:none;box-shadow:var(--shadow)}#toTop:hover{filter:brightness(1.08)}
+@media print{body{background:#fff;color:#000}header,nav.bottom,nav.top,.actions,.modal,#debug,#debugToggle,#invFilters,#internalNotesWrap,#photosWrap{display:none!important}.tab{display:block!important}#invoice{display:block!important}.print-area{box-shadow:none;margin:0;padding:0}}
+#pdf{position:fixed;bottom:80px;right:20px;z-index:1000;min-width:160px;height:50px;background:var(--info);color:#fff;border:none;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+#pdf:hover{filter:brightness(1.05)}
+.drag-col{width:28px;text-align:center}.handle{min-width:32px;height:36px;padding:4px 6px;cursor:grab}.handle:active{cursor:grabbing}.draggable-row.dragging{opacity:.5}.drop-target{outline:2px dashed var(--info);outline-offset:-2px}
+.desc-wrap{display:flex;flex-direction:column;gap:6px}.lNote{width:100%;min-height:64px;resize:vertical;background:#fff;color:#0e111a;border:1px solid #b6b09f;border-radius:10px;padding:8px 10px;font-size:.95rem}
+#overallNotesWrap{margin-top:12px}#overallNotes{width:100%;min-height:110px;resize:vertical}
+.signatures{margin-top:16px;display:grid;gap:10px}.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}.sig{display:flex;flex-direction:column;justify-content:flex-end}.sig-line{border-bottom:1px solid #000;height:32px;display:flex;align-items:flex-end}.sig-label{font-size:.9em;color:#333;margin-top:4px}.sig-img{max-height:60px;max-width:100%;object-fit:contain}
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}.photo-item{position:relative;background:#fff;border:1px solid #b6b09f;border-radius:8px;padding:6px}.photo-item img{width:100%;height:90px;object-fit:cover;border-radius:6px}.photo-item .del{position:absolute;top:4px;right:4px;background:#962b2b;color:#fff;border:none;border-radius:8px;padding:2px 6px;font-size:12px;cursor:pointer}.photo-item label{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px}
+.badge-open{background:#fff;border-color:#b6b09f}.badge-ip{background:#fff7d6;border-color:#caa52a}.badge-done{background:#d9efe7;border-color:#1f6b55;color:#0a3d2e}
 </style>
 </head>
-
 <body>
 <div id="error">JavaScript error detected. Tap to reload.</div>
 <header>
-  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.1.1</span><span id="selftest" class="tag selftest">Self-test: …</span><span class="tag">FULL</span></h1>
+  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.1.1</span><span id="selftest" class="tag selftest">Self-test: …</span><span class="tag">LITE</span></h1>
   <nav class="top">
     <button class="tab-btn" data-tab="dashboard">Dashboard</button>
     <button class="tab-btn" data-tab="customers">Customers</button>
@@ -124,9 +59,7 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
     <button class="tab-btn" data-tab="settings">Settings</button>
   </nav>
 </header>
-
 <main>
-  <!-- ===== DASHBOARD ===== -->
   <section id="dashboard" class="tab active">
     <h2>Dashboard</h2>
     <div class="cards">
@@ -136,8 +69,6 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
       <div class="card"><h3>Profit (This Month)</h3><div id="profitMonth">$0</div></div>
     </div>
   </section>
-
-  <!-- ===== CUSTOMERS ===== -->
   <section id="customers" class="tab">
     <h2>Customers</h2>
     <form id="custForm" class="grid">
@@ -151,32 +82,20 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
       <table id="custTable"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Vehicle</th><th></th></tr></thead><tbody></tbody></table>
     </div>
   </section>
-
-  <!-- ===== JOBS ===== -->
   <section id="jobs" class="tab">
     <h2>Jobs</h2>
     <form id="jobForm" class="grid">
       <select id="jobCustomer" required></select>
       <input id="jobTitle" placeholder="Job title (e.g., Front brakes + rotors)" required/>
       <input id="jobVIN" placeholder="VIN (17 chars)"/>
-      <button type="button" class="tab-btn" id="decodeVIN">Decode VIN</button>
-      <div id="vinResult" style="display:none" class="card" aria-live="polite"></div>
-      <div id="vinSuggest" style="display:none" class="card" aria-live="polite">
-        <div><strong>Suggested parts & labor</strong> (platform match)</div>
-        <div class="actions" id="vinTags"></div>
-        <button class="tab-btn primary" id="addAllSuggest" type="button">Add All</button>
-      </div>
       <textarea id="jobNotes" placeholder="Notes (symptoms, codes, etc.)"></textarea>
       <select id="jobStatus"><option>Open</option><option>In Progress</option><option>Done</option></select>
       <button class="primary" type="submit">Create Job</button>
     </form>
-
-    <!-- Internal, non-printing staff notes -->
     <div id="internalNotesWrap" class="card">
       <h3>Internal Staff Notes (won’t print)</h3>
       <textarea id="internalNotes" placeholder="For in-house eyes only — diagnostic rabbit holes, supplier rants, etc."></textarea>
     </div>
-
     <div class="table-wrap">
       <table id="jobsTable">
         <thead><tr><th>#</th><th>Customer</th><th>Title</th><th>Status</th><th>Total</th><th>Profit</th><th></th></tr></thead>
@@ -184,41 +103,25 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
       </table>
     </div>
   </section>
-
-  <!-- ===== INVOICE ===== -->
   <section id="invoice" class="tab">
     <h2>Estimate / Invoice<br><small>Poppe’s Diesel Co. — Built in the Garage, Backed by Freedom</small></h2>
-
-    <!-- Filters + Quick picks + Search -->
     <div id="invFilters" class="grid">
-      <label>Filter by Customer
-        <select id="invCustFilter"><option value="">All customers</option></select>
-      </label>
-      <label>Search Jobs
-        <input id="invJobSearch" placeholder="Type to filter jobs by customer/title…">
-      </label>
-      <div>
-        <div class="small">Recent jobs</div>
-        <div id="recentJobs" class="actions"></div>
-      </div>
+      <label>Filter by Customer <select id="invCustFilter"><option value="">All customers</option></select></label>
+      <label>Search Jobs <input id="invJobSearch" placeholder="Type to filter jobs by customer/title…"></label>
+      <div><div class="small">Recent jobs</div><div id="recentJobs" class="actions"></div></div>
     </div>
-
     <form id="invForm" class="grid">
       <select id="invJob" required></select>
       <input id="invNo" placeholder="Document # (e.g., 2025-001)"/>
-      <label>Type
-        <select id="docType"><option>Estimate</option><option>Invoice</option></select>
-      </label>
+      <label>Type <select id="docType"><option>Estimate</option><option>Invoice</option></select></label>
       <label>Labor Rate ($/hr) <input id="laborRate" type="number" step="0.01" value="80"/></label>
       <label>Sales Tax (%) <input id="salesTax" type="number" step="0.01" value="7"/></label>
       <label>Payment Link <input id="payLink" placeholder="https://pay.yourprovider.com/invoice/123"/></label>
       <label>Email To <input id="emailTo" placeholder="customer@example.com"/></label>
     </form>
-
     <div class="actions">
       <button type="button" class="tab-btn" id="addLabor">+ Labor Line</button>
       <button type="button" class="tab-btn" id="addPart">+ Part Line</button>
-      <button type="button" class="tab-btn" id="openTemplates">Maintenance Templates</button>
       <button type="button" class="tab-btn" id="applyMarkup">Apply Default Markup</button>
       <button type="button" class="tab-btn" id="quickEstimate">Quick Estimate</button>
       <button type="button" class="tab-btn" id="recalc">Recalculate</button>
@@ -229,18 +132,12 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
       <button type="button" class="tab-btn" id="email">Email</button>
       <button type="button" class="tab-btn primary" id="pdf">Generate PDF</button>
     </div>
-
-    <!-- Lines table -->
     <div class="table-wrap" style="margin-top:10px">
       <table class="lines" id="lines">
-        <thead>
-          <tr><th style="width:28px">↕</th><th>Type</th><th>Description</th><th>Qty/Hrs</th><th>Cost $</th><th>Unit $</th><th>Line $</th><th>Profit $</th><th></th></tr>
-        </thead>
+        <thead><tr><th style="width:28px">↕</th><th>Type</th><th>Description</th><th>Qty/Hrs</th><th>Cost $</th><th>Unit $</th><th>Line $</th><th>Profit $</th><th></th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
-
-    <!-- Totals -->
     <div class="totals">
       <div>Subtotal: <span id="sub">$0.00</span></div>
       <div>Tax: <span id="tax">$0.00</span></div>
@@ -248,46 +145,27 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
       <div><strong>Total Profit:</strong> <span id="profit">$0.00</span></div>
       <div>Margin: <span id="margin" class="badge estimate">0%</span></div>
     </div>
-
-    <!-- Tech overall notes (customer-visible) -->
     <div id="overallNotesWrap" class="card" style="background:#fff;color:#000;border-color:#b6b09f">
       <h3 style="color:#0e111a">Technician Overall Notes</h3>
       <textarea id="overallNotes" placeholder="Explain diagnostics, verified checks, advisories."></textarea>
     </div>
-
-    <!-- Photos -->
     <div id="photosWrap" class="card" style="background:#fff;color:#000;border-color:#b6b09f">
       <h3 style="color:#0e111a">Work Photos</h3>
       <div class="actions">
-        <label style="display:inline-flex;align-items:center;gap:8px">
-          <input type="file" id="photoInput" accept="image/*" multiple/>
-          Add photos
-        </label>
-        <label style="display:inline-flex;align-items:center;gap:8px">
-          <input type="checkbox" id="photosOnPdf" checked/> Include photos on PDF
-        </label>
+        <label style="display:inline-flex;align-items:center;gap:8px"><input type="file" id="photoInput" accept="image/*" multiple/>Add photos</label>
+        <label style="display:inline-flex;align-items:center;gap:8px"><input type="checkbox" id="photosOnPdf" checked/> Include photos on PDF</label>
       </div>
       <div id="photoGrid" class="photo-grid" aria-live="polite"></div>
     </div>
-
-    <!-- Printable preview -->
     <div class="print-area" id="preview" style="margin-top:12px">
       <div class="watermark">
-        <img id="wmImg" alt="Poppe’s Diesel Co. watermark" style="display:none;max-width:90%;max-height:90%;opacity:.15;mix-blend-mode:multiply" />
+        <img id="wmImg" alt="watermark" style="display:none;max-width:90%;max-height:90%;opacity:.15;mix-blend-mode:multiply"/>
         <svg id="wmFallback" viewBox="0 0 800 200" width="90%" height="90%" style="filter:grayscale(100%);opacity:.12">
-          <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
-                font-size="72" font-family="Impact, Haettenschweiler, 'Arial Black', sans-serif" fill="#000">
-            Poppe’s Diesel Co.
-          </text>
+          <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="72" font-family="Impact,Haettenschweiler,'Arial Black',sans-serif" fill="#000">Poppe’s Diesel Co.</text>
         </svg>
       </div>
       <div class="invoice-header">
-        <div class="shop">
-          <h3>Poppe’s Diesel Co.</h3>
-          <p>Columbus, IN</p>
-          <p>poppedieselco@gmail.com</p>
-          <p>(208) 243-7934</p>
-        </div>
+        <div class="shop"><h3>Poppe’s Diesel Co.</h3><p>Columbus, IN</p><p>poppedieselco@gmail.com</p><p>(208) 243-7934</p></div>
         <div class="meta">
           <div><strong>Doc #</strong> <span id="pInvNo">—</span></div>
           <div><strong>Date</strong> <span id="pDate">—</span></div>
@@ -296,61 +174,22 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
         </div>
       </div>
       <div><strong>Bill To:</strong> <span id="pCust">—</span><div id="pVeh"></div></div>
-
       <table class="lines"><thead><tr><th>Description</th><th>Qty/Hrs</th><th>Unit</th><th>Line $</th></tr></thead><tbody id="pLines"></tbody></table>
-
       <div id="pOverallBlock"></div>
-
-      <div class="totals">
-        <div>Subtotal: <span id="pSub">$0.00</span></div>
-        <div>Tax: <span id="pTax">$0.00</span></div>
-        <div class="grand">Grand Total: <span id="pGrand">$0.00</span></div>
-      </div>
-
-      <!-- Signature block -->
+      <div class="totals"><div>Subtotal: <span id="pSub">$0.00</span></div><div>Tax: <span id="pTax">$0.00</span></div><div class="grand">Grand Total: <span id="pGrand">$0.00</span></div></div>
       <div id="signatures" class="signatures">
-        <div class="sig-row">
-          <div class="sig">
-            <div class="sig-line">
-              <img id="pSigCustomer" class="sig-img" alt="" style="display:none"/>
-            </div>
-            <div class="sig-label">Customer Signature <span id="pSigCustomerName"></span> <span id="pSigCustomerDate" class="small"></span></div>
-          </div>
-          <div class="sig">
-            <div class="sig-line"></div>
-            <div class="sig-label">Date</div>
-          </div>
-        </div>
-        <div class="sig-row">
-          <div class="sig">
-            <div class="sig-line">
-              <img id="pSigManager" class="sig-img" alt="" style="display:none"/>
-            </div>
-            <div class="sig-label">Service Manager Signature <span id="pSigManagerName"></span> <span id="pSigManagerDate" class="small"></span></div>
-          </div>
-          <div class="sig">
-            <div class="sig-line"></div>
-            <div class="sig-label">Date</div>
-          </div>
-        </div>
+        <div class="sig-row"><div class="sig"><div class="sig-line"><img id="pSigCustomer" class="sig-img" alt="" style="display:none"/></div><div class="sig-label">Customer Signature <span id="pSigCustomerName"></span> <span id="pSigCustomerDate" class="small"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
+        <div class="sig-row"><div class="sig"><div class="sig-line"><img id="pSigManager" class="sig-img" alt="" style="display:none"/></div><div class="sig-label">Service Manager Signature <span id="pSigManagerName"></span> <span id="pSigManagerDate" class="small"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
       </div>
-
-      <!-- Photos mirrored (conditional) -->
       <div id="pPhotosBlock" style="margin-top:10px"></div>
     </div>
   </section>
-
-  <!-- ===== SETTINGS ===== -->
   <section id="settings" class="tab">
     <h2>Settings</h2>
     <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
       <h3 style="color:#0e111a">Default Parts Markup</h3>
-      <div class="grid">
-        <label>Default Markup % <input id="defaultMarkup" type="number" step="1" value="40"/></label>
-        <div class="small">Used by “Apply Default Markup”.</div>
-      </div>
+      <div class="grid"><label>Default Markup % <input id="defaultMarkup" type="number" step="1" value="40"/></label><div class="small">Used by “Apply Default Markup”.</div></div>
     </div>
-
     <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
       <h3 style="color:#0e111a">Email Presets</h3>
       <div class="grid">
@@ -361,93 +200,38 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
       </div>
       <div class="small">Tap Email to use these in a mailto draft.</div>
     </div>
-
     <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-      <h3 style="color:#0e111a">Backup & Restore</h3>
-      <div class="grid">
-        <button id="backupBtn" class="tab-btn" type="button">Download Backup (.json)</button>
-        <label>Restore from Backup <input id="restoreFile" type="file" accept=".json"/></label>
-        <button id="resetBtn" class="tab-btn" type="button">Factory Reset (keeps this page)</button>
-      </div>
-      <div class="small">Backups include customers, jobs, lines, settings, templates, photos, and signatures.</div>
-    </div>
-
-    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-      <h3 style="color:#0e111a">Templates (editable)</h3>
-      <p class="small">VIN platform match helps suggest bundles.</p>
-      <div class="table-wrap">
-        <table id="tplTable"><thead><tr><th>Platform</th><th>Item</th><th>Type</th><th>Qty/Hrs</th><th>Cost</th><th>Markup%</th></tr></thead><tbody></tbody></table>
-      </div>
+      <h3 style="color:#0e111a">Branding (Watermark)</h3>
+      <div class="grid"><label>Upload Logo <input id="wmFile" type="file" accept="image/*"></label><button id="wmClear" class="tab-btn" type="button">Clear Watermark</button></div>
+      <div class="small">Upload your logo here once; it will print faintly behind the invoice/estimate.</div>
     </div>
   </section>
 </main>
-
-<!-- Back to Top -->
 <button id="toTop" title="Back to top">↑ Top</button>
-
-<!-- ===== BOTTOM NAV ===== -->
 <nav class="bottom" style="position:fixed;bottom:0;left:0;right:0;background:#0e111a;border-top:1px solid var(--border);display:flex;justify-content:space-between;padding:10px 10px;align-items:center;color:#fff">
-  <div>
-    <button class="tab-btn" data-tab="dashboard">🏠</button>
-    <button class="tab-btn" data-tab="customers">👤</button>
-    <button class="tab-btn" data-tab="jobs">🧰</button>
-    <button class="tab-btn" data-tab="invoice">🧾</button>
-    <button class="tab-btn" data-tab="settings">⚙️</button>
-  </div>
+  <div><button class="tab-btn" data-tab="dashboard">🏠</button><button class="tab-btn" data-tab="customers">👤</button><button class="tab-btn" data-tab="jobs">🧰</button><button class="tab-btn" data-tab="invoice">🧾</button><button class="tab-btn" data-tab="settings">⚙️</button></div>
   <button id="debugToggle" title="Debug">🪲</button>
 </nav>
-
-<!-- ===== DEBUG ===== -->
-<div id="debug">
-  <div class="meta" id="debugMeta"></div>
-  <pre id="debugLog"></pre>
-</div>
-
-<!-- ===== MODALS ===== -->
-<div class="modal" id="tplModal" style="display:none">
-  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f">
-    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h3 style="color:#0e111a;margin:0">Maintenance Templates</h3>
-      <button id="tplClose" class="tab-btn">Close</button>
-    </header>
-    <div id="tplList"></div>
-  </div>
-</div>
+<div id="debug"><div class="meta" id="debugMeta"></div><pre id="debugLog"></pre></div>
 
 <!-- Signature modal -->
 <div class="modal" id="sigModal" style="display:none">
   <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
-    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h3 id="sigTitle" style="color:#0e111a;margin:0">Collect Signature</h3>
-      <button id="sigClose" class="tab-btn">Close</button>
-    </header>
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 id="sigTitle" style="color:#0e111a;margin:0">Collect Signature</h3><button id="sigClose" class="tab-btn">Close</button></header>
     <div class="grid">
       <label>Signer Name <input id="sigName" placeholder="Printed name"></label>
       <label>Date <input id="sigDate" type="date"></label>
-      <label>Role
-        <select id="sigRole">
-          <option value="customer">Customer</option>
-          <option value="manager">Service Manager</option>
-        </select>
-      </label>
+      <label>Role <select id="sigRole"><option value="customer">Customer</option><option value="manager">Service Manager</option></select></label>
     </div>
-    <div style="margin-top:8px">
-      <canvas id="sigPad" width="640" height="220" style="width:100%;background:#fff;border:1px dashed #b6b09f;border-radius:8px"></canvas>
-    </div>
-    <div class="actions" style="margin-top:8px">
-      <button id="sigClear" class="tab-btn">Clear</button>
-      <button id="sigSave" class="tab-btn primary">Save Signature</button>
-    </div>
+    <div style="margin-top:8px"><canvas id="sigPad" width="640" height="220" style="width:100%;background:#fff;border:1px dashed #b6b09f;border-radius:8px"></canvas></div>
+    <div class="actions" style="margin-top:8px"><button id="sigClear" class="tab-btn">Clear</button><button id="sigSave" class="tab-btn primary">Save Signature</button></div>
   </div>
 </div>
 
 <!-- Quick estimate modal -->
 <div class="modal" id="qeModal" style="display:none">
   <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
-    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h3 style="color:#0e111a;margin:0">Quick Estimate Builder</h3>
-      <button id="qeClose" class="tab-btn">Close</button>
-    </header>
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="color:#0e111a;margin:0">Quick Estimate Builder</h3><button id="qeClose" class="tab-btn">Close</button></header>
     <div class="grid">
       <label>Title/Concern <input id="qeTitle" placeholder="e.g., Front brakes: pads+rotors"/></label>
       <label>Parts Cost ($) <input id="qePartsCost" type="number" step="0.01" value="0"/></label>
@@ -455,829 +239,110 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
       <label>Labor Hours <input id="qeHours" type="number" step="0.1" value="1.5"/></label>
       <div class="small">Uses current labor rate & tax.</div>
     </div>
-    <div class="actions">
-      <button id="qeApplyAppend" class="tab-btn">Append Lines</button>
-      <button id="qeApplyReplace" class="tab-btn danger" style="background:#962b2b">Replace Lines</button>
-    </div>
+    <div class="actions"><button id="qeApplyAppend" class="tab-btn">Append Lines</button><button id="qeApplyReplace" class="tab-btn danger" style="background:#962b2b">Replace Lines</button></div>
   </div>
 </div>
 
 <script>
-/* ===== Utilities & debug ===== */
 (function(){
   if(!window.CSS) window.CSS = {};
-  if(typeof window.CSS.escape !== 'function'){
-    window.CSS.escape = function(v){ return String(v).replace(/[^a-zA-Z0-9_\-]/g, function(ch){ return '\\\\' + ch.charCodeAt(0).toString(16) + ' '; }); };
-  }
-
-  var logEl = document.getElementById('debugLog');
-  var metaEl = document.getElementById('debugMeta');
-  var buf = [];
+  if(typeof window.CSS.escape !== 'function'){ window.CSS.escape = function(v){ return String(v).replace(/[^a-zA-Z0-9_\\-]/g, function(ch){ return '\\\\' + ch.charCodeAt(0).toString(16) + ' '; }); }; }
+  var logEl=document.getElementById('debugLog'), metaEl=document.getElementById('debugMeta'), buf=[];
   function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\\n'); } }
-  window.AppLog = {
-    info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
-    warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
-    error: function(msg, err){ try{ console.error('[ERROR]', msg, err); }catch(e){} print('[ERROR] ' + msg + (err?(' :: '+ (err.message||err)):'')); var el = document.getElementById('error'); if(el){ el.style.display='block'; el.onclick=function(){ location.reload(); }; } }
-  };
-  metaEl.textContent = 'UA=' + (navigator.userAgent||'?') + ' | Lang=' + (navigator.language||'?') + ' | ' + (new Date()).toLocaleString();
-  document.getElementById('debugToggle').addEventListener('click', function(){
-    var box = document.getElementById('debug'); box.style.display = (box.style.display==='block'?'none':'block');
-  });
+  window.AppLog={ info:msg=>{try{console.log('[INFO]',msg)}catch(e){};print('[INFO] '+msg)}, warn:msg=>{try{console.warn('[WARN]',msg)}catch(e){};print('[WARN] '+msg)}, error:(msg,err)=>{try{console.error('[ERROR]',msg,err)}catch(e){};print('[ERROR] '+msg+(err?(' :: '+(err.message||err)):'') ); var el=document.getElementById('error'); if(el){el.style.display='block'; el.onclick=function(){ location.reload(); };} } };
+  metaEl.textContent='UA='+ (navigator.userAgent||'?') +' | Lang='+ (navigator.language||'?') +' | '+ (new Date()).toLocaleString();
+  document.getElementById('debugToggle').addEventListener('click', function(){ var box=document.getElementById('debug'); box.style.display=(box.style.display==='block'?'none':'block'); });
 })();
+function guard(name,fn){ try{ fn(); AppLog.info(name+' ✅'); } catch(e){ AppLog.error(name+' ❌',e); } }
+if(!window.crypto) window.crypto = {}; if(!crypto.randomUUID){ crypto.randomUUID = function(){ return 'id-'+Math.random().toString(16).slice(2)+'-'+Date.now(); } }
 
-function guard(name, fn){
-  try { fn(); AppLog.info(name + ' ✅'); }
-  catch(e){ AppLog.error(name + ' ❌', e); var el = document.getElementById('error'); if(el){ el.style.display='block'; el.onclick=function(){ location.reload(); }; } }
-}
-if(!window.crypto) window.crypto = {};
-if(!crypto.randomUUID){ crypto.randomUUID = function(){ return 'id-' + Math.random().toString(16).slice(2) + '-' + Date.now(); } }
-
-/* ===== Watermark into dataURL (helps PDF include it) ===== */
+// Watermark: only shows when you upload one
 (function(){
-  const KEY = 'pdc_wm_dataurl';
-  const imgEl = document.getElementById('wmImg');
-  const fallback = document.getElementById('wmFallback');
-  async function toDataURL(url){
-    const res = await fetch(url); if(!res.ok) throw new Error('fetch failed');
-    const blob = await res.blob();
-    return await new Promise((resolve,reject)=>{ const r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(blob); });
-  }
-  async function loadWM(){
-    try{
-      const cached = localStorage.getItem(KEY);
-      if(cached){ imgEl.src=cached; imgEl.style.display='block'; if(fallback) fallback.style.display='none'; return; }
-      const dataUrl = await toDataURL('Poppe_1776_Transparent.png');
-      imgEl.src=dataUrl; imgEl.style.display='block'; if(fallback) fallback.style.display='none';
-      localStorage.setItem(KEY,dataUrl);
-    }catch(e){ console.warn('Watermark not found; using text fallback.'); }
-  }
-  if(imgEl) loadWM();
+  const KEY='pdc_wm_dataurl', imgEl=document.getElementById('wmImg'), fallback=document.getElementById('wmFallback');
+  function setWM(src){ if(!imgEl) return; imgEl.src=src; imgEl.style.display='block'; if(fallback) fallback.style.display='none'; }
+  try{ const cached=localStorage.getItem(KEY); if(cached){ setWM(cached); } }catch(_){}
+  const up=document.getElementById('wmFile'), clr=document.getElementById('wmClear');
+  function readAsDataURL(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
+  if(up) up.addEventListener('change', async (e)=>{ const f=e.target.files && e.target.files[0]; if(!f) return; const data=await readAsDataURL(f); try{ localStorage.setItem(KEY,data);}catch(_ ){} setWM(data); alert('Watermark updated.'); e.target.value=''; });
+  if(clr) clr.addEventListener('click', ()=>{ try{ localStorage.removeItem(KEY);}catch(_ ){}; if(imgEl){ imgEl.style.display='none'; } if(fallback){ fallback.style.display='block'; } alert('Watermark cleared.'); });
 })();
 
-/* ===== App ===== */
 window.addEventListener('load', function(){
   guard('init', function(){
-    var STORAGE_KEY = 'poppe_shop_db_v111';
-    var DB = loadDB() || defaultDB();
+    var STORAGE_KEY='poppe_shop_db_v111', DB=loadDB()||defaultDB();
+    const UIKEY='pdc_ui_state'; function loadUI(){ try{ return JSON.parse(localStorage.getItem(UIKEY)||'{}'); }catch(_){ return {}; } } function saveUI(u){ try{ localStorage.setItem(UIKEY, JSON.stringify(u)); }catch(_ ){} } let UI=loadUI();
+    function defaultDB(){ return { customers:[], jobs:[], settings:{ defaultMarkup:40, shopFrom:'Poppe’s Diesel Co.', shopReply:'poppedieselco@gmail.com', shopSubj:'[Poppe’s Diesel Co.] ', shopFooter:'Thank you for supporting local.' } }; }
+    function saveDB(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(e){ AppLog.error('localStorage save failed', e); } }
+    function loadDB(){ try{ var s=localStorage.getItem(STORAGE_KEY); return s?JSON.parse(s):null; } catch(e){ AppLog.error('localStorage load failed', e); return null; } }
+    function upgradeDB(){ (DB.jobs||[]).forEach(function(j){ if(!j.createdAt) j.createdAt=new Date().toISOString(); if(typeof j.overallNotes==='undefined') j.overallNotes=''; if(typeof j.internalNotes==='undefined') j.internalNotes=''; if(!j.photos) j.photos=[]; if(!j.signatures) j.signatures={customer:null,manager:null}; (j.lines||[]).forEach(function(l){ if(typeof l.note==='undefined') l.note=''; }); }); saveDB(); }
 
-    // ---- UI state (remember active tab & last job) ----
-    const UIKEY = 'pdc_ui_state';
-    function loadUI(){ try{ return JSON.parse(localStorage.getItem(UIKEY)||'{}'); }catch(_){ return {}; } }
-    function saveUI(u){ try{ localStorage.setItem(UIKEY, JSON.stringify(u)); }catch(_){} }
-    let UI = loadUI();
+    var $=(sel,root)=> (root||document).querySelector(sel), $$=(sel,root)=> Array.from((root||document).querySelectorAll(sel)), fmt=(n)=>"$"+Number(n||0).toFixed(2);
+    function matchesAllTokens(hay,q){ const tokens=q.trim().toLowerCase().split(/\\s+/).filter(Boolean); const text=(hay||'').toLowerCase(); return tokens.every(t=> text.includes(t)); }
+    function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); saveDB(); }
 
-    function defaultDB(){
-      return {
-        customers: [],
-        jobs: [],
-        templates: seedTemplates(),
-        settings: { defaultMarkup: 40, shopFrom:'Poppe’s Diesel Co.', shopReply:'poppedieselco@gmail.com', shopSubj:'[Poppe’s Diesel Co.] ', shopFooter:'Thank you for supporting local.' }
-      };
-    }
-    function seedTemplates(){
-      return [
-        { platform: "Cummins 6.7L (Ram)", items: [
-          {type:"Labor", desc:"Oil & Filters Service", qty:1.0, unit:null},
-          {type:"Part", desc:"Fuel Filter (Primary)", vendor:"Fleetguard", part:"FS53000", cost:38.00, markup:40},
-          {type:"Part", desc:"Fuel Filter (Secondary)", vendor:"Fleetguard", part:"FF63009", cost:32.00, markup:40},
-          {type:"Part", desc:"Oil Filter", vendor:"Fleetguard", part:"LF16035", cost:9.50, markup:60},
-          {type:"Part", desc:"Crankcase Filter", vendor:"Cummins", part:"CV50628", cost:78.00, markup:35}
-        ]},
-        { platform: "Powerstroke 6.7L (Ford)", items: [
-          {type:"Labor", desc:"Fuel Filters & Oil", qty:1.2, unit:null},
-          {type:"Part", desc:"Fuel Filter (Frame)", vendor:"Motorcraft", part:"FD-4625", cost:34.00, markup:40},
-          {type:"Part", desc:"Fuel Filter (Engine Bay)", vendor:"Motorcraft", part:"FD-4624", cost:28.00, markup:40},
-          {type:"Part", desc:"Oil Filter", vendor:"Motorcraft", part:"FL-2051S", cost:12.50, markup:60}
-        ]},
-        { platform: "Duramax L5P (GM)", items: [
-          {type:"Labor", desc:"Fuel Filter & Air", qty:1.0, unit:null},
-          {type:"Part", desc:"Fuel Filter", vendor:"ACDelco", part:"TP1015", cost:36.00, markup:40},
-          {type:"Part", desc:"Air Filter", vendor:"ACDelco", part:"A3218C", cost:22.00, markup:55},
-          {type:"Part", desc:"Trans Service Kit", vendor:"ACDelco", part:"24296954", cost:89.00, markup:35}
-        ]}
-      ];
-    }
-    function saveDB(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(e){ AppLog.error('localStorage save failed', e); } }
-    function loadDB(){ try { var s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; } catch(e){ AppLog.error('localStorage load failed', e); return null; } }
-    function resetDB(){ DB = defaultDB(); saveDB(); renderAll(); }
+    $$('.tab-btn[data-tab]').forEach(function(b){ b.addEventListener('click', function(){ var id=b.getAttribute('data-tab'); $$('.tab').forEach(t=>t.classList.remove('active')); document.getElementById(id).classList.add('active'); UI.activeTab=id; saveUI(UI); window.scrollTo({top:0,behavior:'smooth'}); }); });
+    if(UI.activeTab && document.getElementById(UI.activeTab)){ $$('.tab').forEach(t=>t.classList.remove('active')); document.getElementById(UI.activeTab).classList.add('active'); }
 
-    // Upgrade older records to new fields
-    function upgradeDB(){
-      (DB.jobs||[]).forEach(function(j){
-        if(!j.createdAt) j.createdAt = new Date().toISOString();
-        if(typeof j.overallNotes==='undefined') j.overallNotes='';
-        if(typeof j.internalNotes==='undefined') j.internalNotes='';
-        if(!j.photos) j.photos=[];
-        if(!j.signatures) j.signatures = { customer:null, manager:null };
-        (j.lines||[]).forEach(function(l){ if(typeof l.note==='undefined') l.note=''; });
-      });
-      saveDB();
-    }
+    // Customers
+    $('#custForm').addEventListener('submit', function(e){ e.preventDefault(); var c={id:crypto.randomUUID(), name:$('#custName').value.trim(), phone:$('#custPhone').value.trim(), email:$('#custEmail').value.trim(), vehicle:$('#custVehicle').value.trim()}; if(!c.name) return; DB.customers.push(c); renderCustomers(); renderJobCustomer(); this.reset(); saveDB(); });
+    function renderCustomers(){ var tb=$('#custTable tbody'); tb.innerHTML=''; DB.customers.forEach(function(c){ var tr=document.createElement('tr'); tr.innerHTML='<td>'+c.name+'</td><td>'+(c.phone||'')+'</td><td>'+(c.email||'')+'</td><td>'+(c.vehicle||'')+'</td><td><button class="tab-btn" data-delc="'+c.id+'">Delete</button></td>'; tb.appendChild(tr); }); $$('button[data-delc]').forEach(btn=>{ btn.addEventListener('click', function(){ var id=btn.getAttribute('data-delc'); if(!confirm('Delete this customer and all their jobs?')) return; DB.jobs = DB.jobs.filter(j=> j.customerId !== id); DB.customers = DB.customers.filter(c=> c.id !== id); renderCustomers(); renderJobs(); renderJobCustomer(); saveDB(); }); }); }
 
-    /* ===== DOM helpers ===== */
-    var $ = (sel, root)=> (root||document).querySelector(sel);
-    var $$ = (sel, root)=> Array.from((root||document).querySelectorAll(sel));
-    var fmt = (n)=> "$"+Number(n||0).toFixed(2);
+    // Jobs
+    function renderJobCustomer(){ var sel=$('#jobCustomer'); sel.innerHTML='<option value="">Select...</option>'+DB.customers.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join(''); renderInvFilters(); renderInvJobOptions(); renderRecentJobs(); }
+    $('#jobForm').addEventListener('submit', function(e){ e.preventDefault(); var j={ id:crypto.randomUUID(), customerId:$('#jobCustomer').value, title:$('#jobTitle').value.trim(), vin:$('#jobVIN').value.trim(), notes:$('#jobNotes').value.trim(), status:$('#jobStatus').value, lines:[], paid:false, paidAt:null, docType:'Estimate', approved:false, approvedAt:null, paymentLink:'', vinData:null, overallNotes:'', internalNotes:'', photos:[], signatures:{customer:null, manager:null}, createdAt:new Date().toISOString() }; if(!j.customerId || !j.title) return; DB.jobs.push(j); renderJobs(); renderJobCustomer(); $('#jobForm').reset(); saveDB(); if(DB.jobs.length===1){ $('#invJob').value=j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); } });
+    function renderJobs(){ var tb=$('#jobsTable tbody'); tb.innerHTML=''; DB.jobs.forEach(function(j){ var c=DB.customers.find(x=> x.id===j.customerId); var subtotal=j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*(Number(l.unit)||0), 0); var profit=j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*((Number(l.unit)||0)-(Number(l.cost)||0)), 0); var badge=j.status==='Open'?'badge-open':(j.status==='In Progress'?'badge-ip':'badge-done'); var tr=document.createElement('tr'); tr.innerHTML='<td>'+j.id.slice(0,8)+'</td><td>'+(c?c.name:'—')+'</td><td>'+j.title+'</td><td><span class="badge '+badge+'">'+j.status+'</span></td><td>'+fmt(subtotal)+'</td><td>'+fmt(profit)+'</td><td><button class="tab-btn" data-open="'+j.id+'">Open</button></td>'; tb.appendChild(tr); }); $$('button[data-open]').forEach(b=>{ b.addEventListener('click', function(){ var id=b.getAttribute('data-open'); $('[data-tab=\"invoice\"]').click(); $('#invJob').value=id; loadInvoice(id); UI.lastJobId=id; saveUI(UI); }); }); }
+    $('#internalNotes').addEventListener('input', function(){ var j=currentJob(); if(!j) return; j.internalNotes=this.value; saveDB(); });
 
-    // tokenized AND search helper
-    function matchesAllTokens(hay, q){
-      const tokens = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
-      const text = hay.toLowerCase();
-      return tokens.every(t => text.includes(t));
-    }
-
-    function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); renderTemplates(); saveDB(); }
-
-    // Tabs
-    $$('.tab-btn[data-tab]').forEach(function(b){
-      b.addEventListener('click', function(){
-        var id = b.getAttribute('data-tab');
-        $$('.tab').forEach(t=>t.classList.remove('active'));
-        $('#'+id).classList.add('active');
-        UI.activeTab = id; saveUI(UI);
-        window.scrollTo({top:0, behavior:'smooth'});
-      });
-    });
-    if (UI.activeTab && document.getElementById(UI.activeTab)) {
-      $$('.tab').forEach(t=>t.classList.remove('active'));
-      document.getElementById(UI.activeTab).classList.add('active');
-    }
-
-    /* ===== Customers Tab ===== */
-    $('#custForm').addEventListener('submit', function(e){
-      e.preventDefault();
-      var c = {id: crypto.randomUUID(), name: $('#custName').value.trim(), phone: $('#custPhone').value.trim(), email: $('#custEmail').value.trim(), vehicle: $('#custVehicle').value.trim()};
-      if(!c.name) return;
-      DB.customers.push(c); renderCustomers(); renderJobCustomer(); this.reset(); saveDB();
-    });
-    function renderCustomers(){
-      var tb = $('#custTable tbody'); tb.innerHTML='';
-      DB.customers.forEach(function(c){
-        var tr = document.createElement('tr');
-        tr.innerHTML = '<td>'+c.name+'</td><td>'+(c.phone||'')+'</td><td>'+(c.email||'')+'</td><td>'+(c.vehicle||'')+'</td><td><button class="tab-btn" data-delc="'+c.id+'">Delete</button></td>';
-        tb.appendChild(tr);
-      });
-      $$('button[data-delc]').forEach(btn=>{
-        btn.addEventListener('click', function(){
-          var id = btn.getAttribute('data-delc');
-          if(!confirm('Delete this customer and all their jobs?')) return;
-          DB.jobs = DB.jobs.filter(j=> j.customerId !== id);
-          DB.customers = DB.customers.filter(c=> c.id !== id);
-          renderCustomers(); renderJobs(); renderJobCustomer(); saveDB();
-        });
-      });
-    }
-
-    /* ===== Jobs Tab ===== */
-    function renderJobCustomer(){
-      var sel = $('#jobCustomer');
-      sel.innerHTML = '<option value="">Select...</option>' + DB.customers.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join('');
-
-      renderInvFilters();
-      renderInvJobOptions();
-      renderRecentJobs();
-    }
-
-    $('#jobForm').addEventListener('submit', function(e){
-      e.preventDefault();
-      var j = {
-        id: crypto.randomUUID(), customerId: $('#jobCustomer').value, title: $('#jobTitle').value.trim(),
-        vin: $('#jobVIN').value.trim(), notes: $('#jobNotes').value.trim(), status: $('#jobStatus').value,
-        lines: [], paid:false, paidAt:null, docType:'Estimate', approved:false, approvedAt:null, paymentLink:'', vinData:null,
-        overallNotes:'', internalNotes:'', photos:[], signatures:{customer:null, manager:null}, createdAt:new Date().toISOString()
-      };
-      if(!j.customerId || !j.title) return;
-      DB.jobs.push(j); renderJobs(); renderJobCustomer();
-      $('#jobForm').reset(); $('#vinResult').style.display='none'; $('#vinSuggest').style.display='none'; saveDB();
-      if(DB.jobs.length===1){ $('#invJob').value = j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); }
-    });
-
-    // VIN decode + template suggestions
-    $('#decodeVIN').addEventListener('click', function(){
-      var vin = $('#jobVIN').value.trim();
-      var box = $('#vinResult'); var sug = $('#vinSuggest'); var tags = $('#vinTags');
-      box.style.display='block'; box.textContent = 'Decoding…'; sug.style.display='none'; tags.innerHTML='';
-      if(!vin || vin.length<11){ box.textContent='Enter a valid VIN (17 preferred).'; return; }
-      fetch('https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/'+encodeURIComponent(vin)+'?format=json')
-        .then(res=>res.json()).then(function(data){
-          var map={}; (data.Results||[]).forEach(r=>{ if(r.Variable&&r.Value) map[r.Variable]=r.Value; });
-          var summary = (map['Model Year']||'-')+' '+(map['Make']||'-')+' '+(map['Model']||'-');
-          box.innerHTML = '<strong>'+summary+'</strong>';
-          var platformText = (summary+' '+(map['Engine Model']||'')+' '+(map['Engine Manufacturer']||'')).toLowerCase();
-          var matched = DB.templates.filter(t=>{
-            return (t.platform.toLowerCase().includes('cummins') && platformText.includes('ram')) ||
-                   (t.platform.toLowerCase().includes('powerstroke') && platformText.includes('ford')) ||
-                   (t.platform.toLowerCase().includes('duramax') && (platformText.includes('chevrolet')||platformText.includes('gmc')||platformText.includes('gm')));
-          });
-          if(matched.length===0) matched = DB.templates;
-          matched.forEach(function(tpl){
-            var b=document.createElement('button'); b.className='tab-btn'; b.type='button'; b.textContent=tpl.platform;
-            b.addEventListener('click', ()=>applyTemplate(tpl));
-            tags.appendChild(b);
-          });
-          $('#addAllSuggest').onclick = ()=>{
-            if(matched.length>4 && !confirm('Add '+matched.length+' bundles?')) return;
-            matched.forEach(t=>applyTemplate(t));
-          };
-          sug.style.display='block'; saveDB();
-        }).catch(()=> box.textContent='VIN decode failed.');
-    });
-
-    function applyTemplate(tpl){
-      tpl.items.forEach(function(it){
-        if(it.type==='Labor'){
-          addLine('Labor', it.desc||'', Number(it.qty||1), Number($('#laborRate').value||80), Number(it.cost||0), '');
-        } else {
-          var unit = it.cost ? Number((it.cost * (1 + (Number(it.markup||DB.settings.defaultMarkup||40)/100))).toFixed(2)) : 0;
-          var desc = (it.desc||'') + (it.part?(' ('+it.part+')'):'') + (it.vendor?(' — '+it.vendor):'');
-          addLine('Part', desc, Number(it.qty||1), unit, Number(it.cost||0), '');
-        }
-      });
-      persistLines();
-    }
-
-    function renderJobs(){
-      var tb = $('#jobsTable tbody'); tb.innerHTML='';
-      DB.jobs.forEach(function(j){
-        var c = DB.customers.find(x=> x.id===j.customerId);
-        var subtotal = j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*(Number(l.unit)||0), 0);
-        var profit = j.lines.reduce((s,l)=> s + (Number(l.qty||0))*((Number(l.unit)||0)-(Number(l.cost)||0)), 0);
-        var badge = j.status==='Open' ? 'badge-open' : (j.status==='In Progress'?'badge-ip':'badge-done');
-        var tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td>'+j.id.slice(0,8)+'</td><td>'+(c?c.name:'—')+'</td><td>'+j.title+'</td>' +
-          '<td><span class="badge '+badge+'">'+j.status+'</span></td>' +
-          '<td>'+fmt(subtotal)+'</td><td>'+fmt(profit)+'</td>' +
-          '<td><button class="tab-btn" data-open="'+j.id+'">Open</button></td>';
-        tb.appendChild(tr);
-      });
-      $$('button[data-open]').forEach(b=>{
-        b.addEventListener('click', function(){
-          var id = b.getAttribute('data-open');
-          $('[data-tab="invoice"]').click();
-          $('#invJob').value = id; loadInvoice(id); UI.lastJobId=id; saveUI(UI);
-        });
-      });
-    }
-
-    // Internal notes save (non-print)
-    $('#internalNotes').addEventListener('input', function(){
-      var j = currentJob(); if(!j) return;
-      j.internalNotes = this.value; saveDB();
-    });
-
-    /* ===== Invoice Filters & pickers ===== */
-    function renderInvFilters(){
-      var sel = $('#invCustFilter');
-      sel.innerHTML = '<option value="">All customers</option>' + DB.customers.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join('');
-    }
-
-    // FULL-TEXT-ish search across multiple job fields
-    function renderInvJobOptions(){
-      const invSel = $('#invJob');
-      const cid = $('#invCustFilter').value || '';
-      const q = ($('#invJobSearch').value || '').trim().toLowerCase();
-
-      const jobs = DB.jobs.filter(function(j){
-        if(cid && j.customerId!==cid) return false;
-        if(!q) return true;
-        const cust = DB.customers.find(x=>x.id===j.customerId);
-        const fields = [
-          cust?cust.name:'', j.title||'', j.vin||'', j.notes||'', j.overallNotes||'',
-          ...(j.lines||[]).map(l => [l.desc||'', l.note||'']).flat()
-        ].join(' | ');
-        return matchesAllTokens(fields, q);
-      });
-
-      invSel.innerHTML = '<option value="">Select job…</option>' + jobs.map(function(j){
-        const c = DB.customers.find(x=> x.id===j.customerId);
-        return '<option value="'+j.id+'">'+(c?c.name:'—')+' — '+j.title+'</option>';
-      }).join('');
-    }
-
-    function renderRecentJobs(){
-      var box = $('#recentJobs'); box.innerHTML='';
-      DB.jobs.slice().sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt)).slice(0,6).forEach(function(j){
-        var c = DB.customers.find(x=> x.id===j.customerId);
-        var b = document.createElement('button'); b.type='button'; b.className='tab-btn';
-        b.textContent = (c?c.name:'—')+': '+j.title;
-        b.addEventListener('click', ()=>{ $('#invJob').value=j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); });
-        box.appendChild(b);
-      });
-    }
-    $('#invCustFilter').addEventListener('change', function(){
-      var cur = $('#invJob').value;
-      renderInvJobOptions();
-      if(!$('#invJob').querySelector('option[value="'+cur+'"]')){ $('#invJob').value=''; $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals(); }
-    });
+    // Filters
+    function renderInvFilters(){ var sel=$('#invCustFilter'); sel.innerHTML='<option value=\"\">All customers</option>'+DB.customers.map(c=>'<option value=\"'+c.id+'\">'+c.name+'</option>').join(''); }
+    function renderInvJobOptions(){ const invSel=$('#invJob'); const cid=$('#invCustFilter').value||''; const q=($('#invJobSearch').value||'').trim().toLowerCase(); const jobs=DB.jobs.filter(function(j){ if(cid && j.customerId!==cid) return false; if(!q) return true; const cust=DB.customers.find(x=>x.id===j.customerId); const fields=[cust?cust.name:'', j.title||'', j.vin||'', j.notes||'', j.overallNotes||'', ...(j.lines||[]).map(l=>[l.desc||'', l.note||'']).flat()].join(' | '); return matchesAllTokens(fields, q); }); invSel.innerHTML='<option value=\"\">Select job…</option>'+jobs.map(function(j){ const c=DB.customers.find(x=> x.id===j.customerId); return '<option value=\"'+j.id+'\">'+(c?c.name:'—')+' — '+j.title+'</option>'; }).join(''); }
+    function renderRecentJobs(){ var box=$('#recentJobs'); box.innerHTML=''; DB.jobs.slice().sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt)).slice(0,6).forEach(function(j){ var c=DB.customers.find(x=> x.id===j.customerId); var b=document.createElement('button'); b.type='button'; b.className='tab-btn'; b.textContent=(c?c.name:'—')+': '+j.title; b.addEventListener('click', ()=>{ $('#invJob').value=j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); }); box.appendChild(b); }); }
+    $('#invCustFilter').addEventListener('change', function(){ var cur=$('#invJob').value; renderInvJobOptions(); if(!$('#invJob').querySelector('option[value=\"'+cur+'\"]')){ $('#invJob').value=''; $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals(); } });
     $('#invJobSearch').addEventListener('input', renderInvJobOptions);
 
-    /* ===== Invoice core ===== */
-    function ensureJobSelected(){
-      var j = currentJob();
-      if(!j && DB.jobs.length===1){ $('#invJob').value = DB.jobs[0].id; j = DB.jobs[0]; }
-      if(!j) alert('Pick a job in the "Select job…" dropdown first.');
-      return j;
-    }
-    function currentJob(){ var id = $('#invJob').value; return DB.jobs.find(j=> j.id===id); }
+    function ensureJobSelected(createIfMissing){ var j=currentJob(); if(!j && createIfMissing){ var cust=DB.customers[0]; if(!cust){ cust={id:crypto.randomUUID(), name:'Walk-in Customer', phone:'', email:'', vehicle:''}; DB.customers.push(cust); renderCustomers(); } j={ id:crypto.randomUUID(), customerId:cust.id, title:'Quick Estimate', vin:'', notes:'', status:'Open', lines:[], paid:false, paidAt:null, docType:'Estimate', approved:false, approvedAt:null, paymentLink:'', vinData:null, overallNotes:'', internalNotes:'', photos:[], signatures:{customer:null, manager:null}, createdAt:new Date().toISOString() }; DB.jobs.push(j); saveDB(); renderJobs(); renderJobCustomer(); $('#invJob').value=j.id; UI.lastJobId=j.id; saveUI(UI); } if(!j) alert('Pick a job in the \"Select job…\" dropdown first.'); return j; }
+    function currentJob(){ var id=$('#invJob').value; return DB.jobs.find(j=> j.id===id); }
 
-    function loadInvoice(id){
-      var j = DB.jobs.find(x=> x.id===id); if(!j) return;
-      $('#lines tbody').innerHTML='';
-      (j.lines||[]).forEach(l=> addLine(l.type,l.desc,l.qty,l.unit,l.cost,l.note));
-      $('#invNo').value = j.invNo||''; $('#docType').value = j.docType||'Estimate'; $('#payLink').value = j.paymentLink||'';
-      var c = DB.customers.find(x=> x.id===j.customerId); $('#emailTo').value = (c && c.email) ? c.email : '';
-      $('#overallNotes').value = j.overallNotes||'';
-      $('#internalNotes').value = j.internalNotes||'';
-      renderPhotoGrid();
-      $('#photosOnPdf').checked = !!j.photosOnPdf || j.photosOnPdf===undefined; // default true
-      updatePreview(); recalcTotals();
-    }
+    function loadInvoice(id){ var j=DB.jobs.find(x=> x.id===id); if(!j) return; $('#lines tbody').innerHTML=''; (j.lines||[]).forEach(l=> addLine(l.type,l.desc,l.qty,l.unit,l.cost,l.note)); $('#invNo').value=j.invNo||''; $('#docType').value=j.docType||'Estimate'; $('#payLink').value=j.paymentLink||''; var c=DB.customers.find(x=> x.id===j.customerId); $('#emailTo').value=(c && c.email)?c.email:''; $('#overallNotes').value=j.overallNotes||''; $('#internalNotes').value=j.internalNotes||''; renderPhotoGrid(); $('#photosOnPdf').checked = j.photosOnPdf!==false; updatePreview(); recalcTotals(); }
 
-    // Drag & drop row reordering (pointer events fallback)
-    function makeRowDraggable(tr){
-      var handle = tr.querySelector('.handle');
-      if(!handle) return;
-      handle.addEventListener('pointerdown', function(ev){
-        ev.preventDefault();
-        var rect=tr.getBoundingClientRect();
-        var startY=ev.clientY; var startIndex=[...tr.parentNode.children].indexOf(tr);
-        tr.classList.add('dragging');
-        function onMove(e){
-          var dy = e.clientY - startY;
-          tr.style.transform='translateY('+dy+'px)';
-          var siblings=[...tr.parentNode.children].filter(x=>x!==tr);
-          var insertBefore=null;
-          for(const sib of siblings){
-            const r=sib.getBoundingClientRect();
-            const halfway = r.top + r.height/2;
-            if(e.clientY < halfway){ insertBefore = sib; break; }
-          }
-          siblings.forEach(s=> s.classList.toggle('drop-target', s===insertBefore));
-        }
-        function onUp(e){
-          tr.classList.remove('dragging'); tr.style.transform=''; $$('#lines tbody tr').forEach(s=> s.classList.remove('drop-target'));
-          document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp);
-          // Find position and insert
-          var siblings=[...tr.parentNode.children].filter(x=>x!==tr);
-          var insertBefore=null;
-          for(const sib of siblings){
-            const r=sib.getBoundingClientRect();
-            const halfway = r.top + r.height/2;
-            if(e.clientY < halfway){ insertBefore = sib; break; }
-          }
-          if(insertBefore){ tr.parentNode.insertBefore(tr, insertBefore); }
-          persistLines();
-        }
-        document.addEventListener('pointermove', onMove);
-        document.addEventListener('pointerup', onUp, {once:true});
-      });
-    }
+    function makeRowDraggable(tr){ var handle=tr.querySelector('.handle'); if(!handle) return; handle.addEventListener('pointerdown', function(ev){ ev.preventDefault(); var startY=ev.clientY; tr.classList.add('dragging'); function onMove(e){ var dy=e.clientY-startY; tr.style.transform='translateY('+dy+'px)'; var siblings=[...tr.parentNode.children].filter(x=>x!==tr); var insertBefore=null; for(const sib of siblings){ const r=sib.getBoundingClientRect(); const half=r.top+r.height/2; if(e.clientY < half){ insertBefore=sib; break; } } siblings.forEach(s=> s.classList.toggle('drop-target', s===insertBefore)); } function onUp(e){ tr.classList.remove('dragging'); tr.style.transform=''; $$('#lines tbody tr').forEach(s=> s.classList.remove('drop-target')); document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp); var siblings=[...tr.parentNode.children].filter(x=>x!==tr); var insertBefore=null; for(const sib of siblings){ const r=sib.getBoundingClientRect(); const half=r.top+r.height/2; if(e.clientY < half){ insertBefore=sib; break; } } if(insertBefore){ tr.parentNode.insertBefore(tr, insertBefore); } persistLines(); } document.addEventListener('pointermove', onMove); document.addEventListener('pointerup', onUp, {once:true}); }); }
 
-    function addLine(type, desc, qty, unit, cost, note){
-      var tr = document.createElement('tr');
-      var descPH = type==='Labor' ? "e.g., Diagnostics / R&R" : "e.g., Fuel Filter (FF63009) — Fleetguard";
-      var qtyPH  = type==='Labor' ? "hrs (e.g., 1.5)" : "qty (e.g., 1)";
-      var costPH = type==='Labor' ? "shop cost (optional)" : "shop cost (e.g., 32.00)";
-      var unitPH = type==='Labor' ? "$/hr (auto or manual)" : "sell price (e.g., 44.80)";
-      tr.classList.add('draggable-row');
-      tr.innerHTML =
-        '<td class="drag-col"><button class="tab-btn handle" title="Drag to reorder">↕</button></td>' +
-        '<td><select class="lType"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Part'?'selected':'')+'>Part</option></select></td>' +
-        '<td><div class="desc-wrap"><input class="lDesc" value="'+(desc||'')+'" placeholder="'+descPH+'"/><textarea class="lNote" placeholder="Tech note for this line (prints)">'+(note||'')+'</textarea></div></td>' +
-        '<td><input class="lQty" type="number" step="0.01" value="'+(qty||1)+'" placeholder="'+qtyPH+'"/></td>' +
-        '<td><input class="lCost" type="number" step="0.01" value="'+(((cost!=null)?cost:0))+'" placeholder="'+costPH+'"/></td>' +
-        '<td><input class="lUnit" type="number" step="0.01" value="'+(unit||0)+'" placeholder="'+unitPH+'"/><div class="calc-hint">—</div></td>' +
-        '<td class="lLine">$0.00</td><td class="lProfit">$0.00</td><td><button type="button" class="tab-btn lDel">X</button></td>';
-      document.querySelector('#lines tbody').appendChild(tr);
-      makeRowDraggable(tr);
-      tr.querySelector('.lDel').addEventListener('click', function(){ tr.remove(); persistLines(); });
-      ['change','input'].forEach(evt=>{
-        ['.lType','.lDesc','.lQty','.lCost','.lUnit','.lNote'].forEach(sel=> tr.querySelector(sel).addEventListener(evt, persistLines));
-      });
-      persistLines();
-    }
+    function addLine(type,desc,qty,unit,cost,note){ var tr=document.createElement('tr'); var descPH=type==='Labor'?'e.g., Diagnostics / R&R': 'e.g., Fuel Filter (FF63009) — Fleetguard'; var qtyPH=type==='Labor'?'hrs (e.g., 1.5)':'qty (e.g., 1)'; var costPH=type==='Labor'?'shop cost (optional)':'shop cost (e.g., 32.00)'; var unitPH=type==='Labor'?'$/hr (auto or manual)':'sell price (e.g., 44.80)'; tr.classList.add('draggable-row'); tr.innerHTML='<td class=\"drag-col\"><button class=\"tab-btn handle\" title=\"Drag to reorder\">↕</button></td><td><select class=\"lType\"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Part'?'selected':'')+'>Part</option></select></td><td><div class=\"desc-wrap\"><input class=\"lDesc\" value=\"'+(desc||'')+'\" placeholder=\"'+descPH+'\"/><textarea class=\"lNote\" placeholder=\"Tech note for this line (prints)\">'+(note||'')+'</textarea></div></td><td><input class=\"lQty\" type=\"number\" step=\"0.01\" value=\"'+(qty||1)+'\" placeholder=\"'+qtyPH+'\"/></td><td><input class=\"lCost\" type=\"number\" step=\"0.01\" value=\"'+((cost==null)?0:cost)+'\" placeholder=\"'+costPH+'\"/></td><td><input class=\"lUnit\" type=\"number\" step=\"0.01\" value=\"'+(unit||0)+'\" placeholder=\"'+unitPH+'\"/><div class=\"calc-hint\">—</div></td><td class=\"lLine\">$0.00</td><td class=\"lProfit\">$0.00</td><td><button type=\"button\" class=\"tab-btn lDel\">X</button></td>'; document.querySelector('#lines tbody').appendChild(tr); makeRowDraggable(tr); tr.querySelector('.lDel').addEventListener('click', function(){ tr.remove(); persistLines(); }); ['change','input'].forEach(evt=>{ ['.lType','.lDesc','.lQty','.lCost','.lUnit','.lNote'].forEach(sel=> tr.querySelector(sel).addEventListener(evt, persistLines)); }); persistLines(); }
 
-    function rowsToLines(){
-      return $$('#lines tbody tr').map(function(tr){
-        return {
-          type: tr.querySelector('.lType').value,
-          desc: tr.querySelector('.lDesc').value,
-          qty: Number(tr.querySelector('.lQty').value||0),
-          cost: Number(tr.querySelector('.lCost').value||0),
-          unit: Number(tr.querySelector('.lUnit').value||0),
-          note: (tr.querySelector('.lNote')?.value || '').trim()
-        };
-      });
-    }
+    function rowsToLines(){ return $$('#lines tbody tr').map(function(tr){ return { type:tr.querySelector('.lType').value, desc:tr.querySelector('.lDesc').value, qty:Number(tr.querySelector('.lQty').value||0), cost:Number(tr.querySelector('.lCost').value||0), unit:Number(tr.querySelector('.lUnit').value||0), note:(tr.querySelector('.lNote')?.value || '').trim() }; }); }
+    function persistLines(){ var j=currentJob(); if(!j) return; j.lines=rowsToLines(); j.invNo=$('#invNo').value.trim(); j.docType=$('#docType').value; j.paymentLink=$('#payLink').value.trim(); j.emailTo=$('#emailTo').value.trim(); j.overallNotes=$('#overallNotes').value||''; j.internalNotes=$('#internalNotes').value||''; j.photosOnPdf=$('#photosOnPdf').checked; recalcTotals(); updatePreview(); renderJobs(); saveDB(); }
+    function applyDefaultMarkup(){ var mu=Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100; $$('#lines tbody tr').forEach(function(tr){ var type=tr.querySelector('.lType').value; if(type==='Part'){ var cost=Number(tr.querySelector('.lCost').value||0); var newUnit=cost*(1+mu); if(newUnit>0) tr.querySelector('.lUnit').value=newUnit.toFixed(2); } }); persistLines(); }
+    function recalcTotals(){ var rows=rowsToLines(); var subtotal=0, profit=0; var laborRate=Number($('#laborRate').value||80); var muDefault=Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100; var trs=$$('#lines tbody tr'); rows.forEach(function(r,i){ if(r.type==='Labor' && (!r.unit || r.unit===0)) r.unit=laborRate; var line=r.qty*r.unit; subtotal+=line; var lineProfit=r.qty*(r.unit - (r.cost||0)); r.profit=lineProfit; profit+=lineProfit; var tr=trs[i]; if(!tr) return; tr.querySelector('.lLine').textContent=fmt(line); tr.querySelector('.lProfit').textContent=fmt(lineProfit); var hint=tr.querySelector('.calc-hint'); if(hint){ var up=(r.unit - (r.cost||0)); var per=(r.cost>0) ? Math.round((up / r.cost)*100) : 100; var cls=(r.cost>0 && (up / r.cost) >= muDefault) ? 'ok' : (r.cost>0 ? 'warn' : 'ok'); hint.className='calc-hint '+cls; var dollars=fmt(up * (r.qty||1)); var perTxt=r.cost>0 ? '(+'+per+'%)' : '(set cost for %)'; hint.textContent=dollars+' '+perTxt; } }); var taxPct=Number($('#salesTax').value||0); var tax=subtotal*(taxPct/100); var grand=subtotal+tax; $('#sub').textContent=fmt(subtotal); $('#tax').textContent=fmt(tax); $('#grand').textContent=fmt(grand); $('#profit').textContent=fmt(profit); var margin=grand>0 ? Math.round((profit/grand)*100) : 0; var badge=$('#margin'); badge.textContent=margin+'%'; badge.className='badge '+(margin>=25?'invoice': (margin>=15?'badge-open':'estimate')); $('#pSub').textContent=fmt(subtotal); $('#pTax').textContent=fmt(tax); $('#pGrand').textContent=fmt(grand); }
 
-    function persistLines(){
-      var j = currentJob(); if(!j) return;
-      j.lines = rowsToLines();
-      j.invNo = $('#invNo').value.trim();
-      j.docType = $('#docType').value;
-      j.paymentLink = $('#payLink').value.trim();
-      j.emailTo = $('#emailTo').value.trim();
-      j.overallNotes = $('#overallNotes').value || '';
-      j.internalNotes = $('#internalNotes').value || '';
-      j.photosOnPdf = $('#photosOnPdf').checked;
-      recalcTotals(); updatePreview(); renderJobs(); saveDB();
-    }
+    function updatePreview(){ var j=currentJob(); $('#pInvNo').textContent=($('#invNo').value.trim()||'DRAFT'); $('#pDate').textContent=new Date().toLocaleDateString(); var t=$('#docType').value; var badge=$('#pType'); badge.textContent=t; badge.className='badge '+(t==='Invoice'?'invoice':'estimate'); $('#pStatus').textContent=j && j.paid ? 'Paid' : (t==='Estimate' ? (j && j.approved ? 'Approved':'Pending Approval') : 'Unpaid'); var c=j ? DB.customers.find(x=> x.id===j.customerId) : null; $('#pCust').textContent=c?c.name:'—'; $('#pVeh').textContent=c?(c.vehicle||''):''; var tbody=$('#pLines'); tbody.innerHTML=''; (j?j.lines:[]).forEach(function(l){ var tr=document.createElement('tr'); var line=(Number(l.qty)||0)*(Number(l.unit)||0); tr.innerHTML='<td>'+l.type+': '+escapeHtml(l.desc||"")+'</td><td>'+(l.qty||0)+'</td><td>'+fmt(l.unit||0)+'</td><td>'+fmt(line)+'</td>'; tbody.appendChild(tr); if(l.note && l.note.trim()){ var trn=document.createElement('tr'); trn.innerHTML='<td colspan=\"4\" style=\"font-style:italic; color:#333; padding-top:4px;\">Note: '+escapeHtml(l.note.trim())+'</td>'; tbody.appendChild(trn); } }); var pBlk=$('#pOverallBlock'); pBlk.innerHTML=''; if(j && j.overallNotes && j.overallNotes.trim()){ pBlk.innerHTML='<h4 style=\"margin:8px 0 4px 0;\">Technician Overall Notes</h4><div style=\"white-space:pre-wrap; line-height:1.35;\">'+escapeHtml(j.overallNotes.trim())+'</div>'; } function setSig(role){ var img=role==='customer' ? $('#pSigCustomer') : $('#pSigManager'); var nameEl=role==='customer' ? $('#pSigCustomerName') : $('#pSigManagerName'); var dateEl=role==='customer' ? $('#pSigCustomerDate') : $('#pSigManagerDate'); var data=j && j.signatures ? j.signatures[role] : null; if(data && data.dataUrl){ img.src=data.dataUrl; img.style.display='block'; nameEl.textContent=data.name ? ('— '+escapeHtml(data.name)) : ''; dateEl.textContent=data.date ? ('('+data.date+')') : ''; } else { img.src=''; img.style.display='none'; nameEl.textContent=''; dateEl.textContent=''; } } setSig('customer'); setSig('manager'); var pPhotos=$('#pPhotosBlock'); pPhotos.innerHTML=''; if(j && j.photosOnPdf && j.photos && j.photos.length){ var html='<h4 style=\"margin:8px 0 4px 0;\">Work Photos</h4><div class=\"p-photos\">'; j.photos.forEach(function(ph){ if(!ph || !ph.dataUrl || ph.include === false) return; html += '<div class=\"p-photo\"><img src=\"'+ph.dataUrl+'\" alt=\"\"></div>'; }); html += '</div>'; pPhotos.innerHTML=html; } function escapeHtml(s){ return String(s||'').replace(/[&<>\"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'})[c]; }); } }
 
-    function applyDefaultMarkup(){
-      var mu = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
-      $$('#lines tbody tr').forEach(function(tr){
-        var type = tr.querySelector('.lType').value;
-        if(type==='Part'){
-          var cost = Number(tr.querySelector('.lCost').value||0);
-          var newUnit = cost * (1+mu);
-          if(newUnit>0) tr.querySelector('.lUnit').value = newUnit.toFixed(2);
-        }
-      });
-      persistLines();
-    }
+    // Listeners
+    $('#invJob').addEventListener('change', function(){ var id=this.value; if(!id){ $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals(); return; } loadInvoice(id); UI.lastJobId=id; saveUI(UI); });
+    $('#addLabor').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Labor','',1, Number($('#laborRate').value||80), 0, ''); });
+    $('#addPart').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Part','',1, 0, 0, ''); });
+    document.getElementById('applyMarkup').addEventListener('click', applyDefaultMarkup);
+    document.getElementById('recalc').addEventListener('click', recalcTotals);
+    document.getElementById('markPaid').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; j.paid=!j.paid; j.paidAt=j.paid?new Date().toISOString():null; if(j.paid){ j.taxPercentAtSale = Number($('#salesTax').value||0); } updatePreview(); renderJobs(); saveDB(); alert(j.paid?'Marked Paid':'Marked Unpaid'); });
+    document.getElementById('approve').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; if($('#docType').value!=='Estimate'){ alert('Approvals apply to Estimates.'); return; } j.approved=true; j.approvedAt=new Date().toISOString(); updatePreview(); saveDB(); alert('Estimate approved.'); });
+    document.getElementById('convert').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; j.docType='Invoice'; $('#docType').value='Invoice'; updatePreview(); saveDB(); alert('Converted to Invoice.'); });
+    document.getElementById('email').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; var to=encodeURIComponent($('#emailTo').value.trim()||''); var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim()); var body=encodeURIComponent('Hello,\\n\\nYour '+j.docType+' total is '+$('#grand').textContent+'.\\nPayment link: '+(j.paymentLink||'')+'\\n\\n'+(DB.settings.shopFooter||'')+'\\n\\n— '+(DB.settings.shopFrom||'')); location.href='mailto:'+to+'?subject='+subj+'&body='+body; });
+    document.getElementById('pdf').addEventListener('click', function(){ var css='html,body{margin:0;padding:0}body{font-family:'+CSS.escape(getComputedStyle(document.body).fontFamily)+';font-size:11pt;line-height:1.35;color:#000}.print-area{padding:8px 12px 12px;border-radius:0;position:relative}.invoice-header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:6px}.invoice-header h3{margin:0;font-size:16pt}table{width:100%;border-collapse:collapse;margin-top:6px}th,td{border-bottom:1px solid #000;padding:6px;text-align:left;vertical-align:top;font-size:10.5pt}.totals{display:grid;gap:4px;justify-items:end;margin-top:8px}.grand{font-weight:700}.badge{border:1px solid #000;border-radius:9999px;padding:2px 6px;font-size:9pt}.signatures{margin-top:16px;display:grid;gap:10px}.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}.sig-line{border-bottom:1px solid #000;height:28px;display:flex;align-items:flex-end}.sig-label{font-size:9pt;color:#333;margin-top:4px}.sig-img{max-height:60px;}.watermark{position:absolute;inset:0;z-index:0;opacity:.08}#wmImg{max-width:90%;max-height:90%;opacity:.12}#wmFallback{opacity:.12}.p-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}.p-photo{border:1px solid #000;padding:4px;border-radius:6px;break-inside:avoid;page-break-inside:avoid}.p-photo img{width:100%;height:1.8in;object-fit:cover;border-radius:4px;display:block}#pPhotosBlock{page-break-before:always}'; var htmlDoc='<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>'+document.getElementById('preview').outerHTML+'</body></html>'; var w=window.open('','_blank'); if(!w){ alert('Please allow pop-ups to print.'); return; } w.document.open(); w.document.write(htmlDoc); w.document.close(); const imgs=Array.from(w.document.images||[]); Promise.all(imgs.map(img=> img.complete ? Promise.resolve() : new Promise(res=>{ img.addEventListener('load',res,{once:true}); img.addEventListener('error',res,{once:true}); }) )).then(()=>{ try{ w.focus(); w.print(); }catch(e){} }); });
+    $('#invNo').addEventListener('input', persistLines); $('#docType').addEventListener('change', persistLines); $('#payLink').addEventListener('input', persistLines); $('#emailTo').addEventListener('input', persistLines); $('#laborRate').addEventListener('input', function(){ recalcTotals(); persistLines(); }); $('#salesTax').addEventListener('input', function(){ recalcTotals(); persistLines(); }); $('#overallNotes').addEventListener('input', persistLines); $('#photosOnPdf').addEventListener('change', function(){ persistLines(); updatePreview(); });
 
-    function recalcTotals(){
-      var rows = rowsToLines(); var subtotal=0, profit=0;
-      var laborRate = Number($('#laborRate').value||80);
-      var muDefault = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
-      var trs = $$('#lines tbody tr');
-      rows.forEach(function(r,i){
-        if(r.type==='Labor' && (!r.unit || r.unit===0)) r.unit = laborRate;
-        var line = r.qty*r.unit; subtotal+=line;
-        var lineProfit = r.qty*(r.unit - (r.cost||0));
-        r.profit = lineProfit; profit += lineProfit;
+    // Signature pad
+    (function(){ const modal=document.getElementById('sigModal'); document.getElementById('sign').addEventListener('click', ()=>{ modal.style.display='flex'; }); document.getElementById('sigClose').addEventListener('click', ()=>{ modal.style.display='none'; }); const canvas=document.getElementById('sigPad'); const ctx=canvas.getContext('2d'); let drawing=false, last=null; function pos(e){ const r=canvas.getBoundingClientRect(); return {x:(e.touches?e.touches[0].clientX:e.clientX)-r.left, y:(e.touches?e.touches[0].clientY:e.clientY)-r.top}; } function draw(p){ if(!last){ last=p; return; } ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.lineCap='round'; ctx.stroke(); last=p; } canvas.addEventListener('pointerdown', e=>{ drawing=true; last=pos(e); }); canvas.addEventListener('pointermove', e=>{ if(drawing) draw(pos(e)); }); canvas.addEventListener('pointerup', ()=>{ drawing=false; last=null; }); document.getElementById('sigClear').addEventListener('click', ()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); }); document.getElementById('sigSave').addEventListener('click', ()=>{ const role=document.getElementById('sigRole').value; const name=document.getElementById('sigName').value.trim(); const date=document.getElementById('sigDate').value; const dataUrl=canvas.toDataURL('image/png'); var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; } if(!j.signatures) j.signatures={customer:null,manager:null}; j.signatures[role]={ dataUrl, name, date }; saveDB(); updatePreview(); modal.style.display='none'; }); })();
 
-        var tr = trs[i]; if(!tr) return;
-        tr.querySelector('.lLine').textContent = fmt(line);
-        tr.querySelector('.lProfit').textContent = fmt(lineProfit);
+    // Photos add/remove
+    (function(){ const input=document.getElementById('photoInput'); function readAsDataURL(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); } function addPhotoToJob(job, dataUrl){ if(!job.photos) job.photos=[]; job.photos.push({ dataUrl, include:true }); } function render(){ renderPhotoGrid(); updatePreview(); saveDB(); } function onFiles(files){ var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; } (async function(){ for(const f of files){ try{ const data=await readAsDataURL(f); addPhotoToJob(j,data); }catch(e){ AppLog.error('photo read',e); } } render(); })(); } if(input){ input.addEventListener('change', ()=>{ onFiles(input.files||[]); input.value=''; }); } window.renderPhotoGrid=function(){ var j=currentJob(); var grid=document.getElementById('photoGrid'); grid.innerHTML=''; if(!j || !j.photos || !j.photos.length) return; j.photos.forEach(function(ph,idx){ var div=document.createElement('div'); div.className='photo-item'; div.innerHTML='<img src=\"'+ph.dataUrl+'\" alt=\"\"><button class=\"del\">×</button><label><input type=\"checkbox\" '+(ph.include!==false?'checked':'')+'> Include on PDF</label>'; div.querySelector('.del').addEventListener('click', ()=>{ j.photos.splice(idx,1); render(); }); div.querySelector('input[type=checkbox]').addEventListener('change', (e)=>{ ph.include = e.target.checked; render(); }); grid.appendChild(div); }); } })();
 
-        var hint = tr.querySelector('.calc-hint');
-        if(hint){
-          var up = (r.unit - (r.cost||0));
-          var per = (r.cost>0) ? Math.round((up / r.cost)*100) : 100;
-          var cls = (r.cost>0 && (up / r.cost) >= muDefault) ? 'ok' : (r.cost>0 ? 'warn' : 'ok');
-          hint.className = 'calc-hint ' + cls;
-          var dollars = fmt(up * (r.qty||1));
-          var perTxt = r.cost>0 ? '(+'+per+'%)' : '(set cost for %)';
-          hint.textContent = dollars + ' ' + perTxt;
-        }
-      });
-      var taxPct = Number($('#salesTax').value||0); var tax = subtotal*(taxPct/100); var grand = subtotal+tax;
-      $('#sub').textContent = fmt(subtotal);
-      $('#tax').textContent = fmt(tax);
-      $('#grand').textContent = fmt(grand);
-      $('#profit').textContent = fmt(profit);
-      var margin = grand>0 ? Math.round((profit/grand)*100) : 0;
-      var badge = $('#margin');
-      badge.textContent = margin + '%';
-      badge.className='badge ' + (margin>=25?'invoice': (margin>=15?'badge-open':'estimate'));
-      $('#pSub').textContent = fmt(subtotal); $('#pTax').textContent = fmt(tax); $('#pGrand').textContent = fmt(grand);
-    }
+    function renderSettings(){ $('#defaultMarkup').value=DB.settings.defaultMarkup||40; $('#shopFrom').value=DB.settings.shopFrom||'Poppe’s Diesel Co.'; $('#shopReply').value=DB.settings.shopReply||'poppedieselco@gmail.com'; $('#shopSubj').value=DB.settings.shopSubj||'[Poppe’s Diesel Co.] '; $('#shopFooter').value=DB.settings.shopFooter||'Thank you for supporting local.'; ['defaultMarkup','shopFrom','shopReply','shopSubj','shopFooter'].forEach(function(id){ var el=document.getElementById(id); if(!el) return; el.addEventListener('input', function(){ DB.settings[id] = (id==='defaultMarkup') ? Number(el.value||40) : el.value; saveDB(); }); }); }
+    function renderDashboard(){ var open=DB.jobs.filter(j=> j.status!=='Done').length; var unpaid=DB.jobs.filter(j=> j.docType==='Invoice' && !j.paid).length; var now=new Date(); var ym=now.toISOString().slice(0,7); var rev=0, prof=0; DB.jobs.forEach(function(j){ var createdMonth=(j.paidAt||j.createdAt||'').slice(0,7); if(createdMonth===ym){ var subtotal=j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*(Number(l.unit)||0), 0); var profit=j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*((Number(l.unit)||0)-(Number(l.cost)||0)), 0); rev+=subtotal; prof+=profit; } }); $('#openJobs').textContent=open; $('#unpaid').textContent=unpaid; $('#revMonth').textContent=fmt(rev); $('#profitMonth').textContent=fmt(prof); }
 
-    function updatePreview(){
-      var j = currentJob();
-      $('#pInvNo').textContent = ($('#invNo').value.trim() || 'DRAFT');
-      $('#pDate').textContent = new Date().toLocaleDateString();
-      var t = $('#docType').value; var badge = $('#pType'); badge.textContent=t; badge.className='badge ' + (t==='Invoice'?'invoice':'estimate');
-      $('#pStatus').textContent = j && j.paid ? 'Paid' : (t==='Estimate' ? (j && j.approved ? 'Approved':'Pending Approval') : 'Unpaid');
-      var c = j ? DB.customers.find(x=> x.id===j.customerId) : null;
-      $('#pCust').textContent = c?c.name:'—'; $('#pVeh').textContent = c?(c.vehicle||''):'';
+    (function selftest(){ var ok=!!(window.localStorage && document.querySelector && document.createElement); var tag=document.getElementById('selftest'); if(tag){ tag.textContent='Self-test: '+(ok?'OK':'Limited'); tag.className='tag selftest '+(ok?'ok':'warn'); } })();
+    upgradeDB(); renderAll(); if(UI.lastJobId && DB.jobs.find(j=> j.id===UI.lastJobId)){ $('#invJob').value=UI.lastJobId; loadInvoice(UI.lastJobId); }
 
-      // lines
-      var tbody = $('#pLines'); tbody.innerHTML='';
-      (j?j.lines:[]).forEach(function(l){
-        var tr=document.createElement('tr'); var line=(Number(l.qty)||0)*(Number(l.unit)||0);
-        tr.innerHTML='<td>'+l.type+': '+escapeHtml(l.desc||"")+'</td><td>'+(l.qty||0)+'</td><td>'+fmt(l.unit||0)+'</td><td>'+fmt(line)+'</td>';
-        tbody.appendChild(tr);
-        if(l.note && l.note.trim()){
-          var trn = document.createElement('tr');
-          trn.innerHTML = '<td colspan="4" style="font-style:italic; color:#333; padding-top:4px;">Note: '+escapeHtml(l.note.trim())+'</td>';
-          tbody.appendChild(trn);
-        }
-      });
-
-      // overall notes
-      var pBlk = $('#pOverallBlock'); pBlk.innerHTML='';
-      if(j && j.overallNotes && j.overallNotes.trim()){
-        pBlk.innerHTML = '<h4 style="margin:8px 0 4px 0;">Technician Overall Notes</h4>' +
-          '<div style="white-space:pre-wrap; line-height:1.35;">'+escapeHtml(j.overallNotes.trim())+'</div>';
-      }
-
-      // signatures
-      function setSig(role){
-        var img = role==='customer' ? $('#pSigCustomer') : $('#pSigManager');
-        var nameEl = role==='customer' ? $('#pSigCustomerName') : $('#pSigManagerName');
-        var dateEl = role==='customer' ? $('#pSigCustomerDate') : $('#pSigManagerDate');
-        var data = j && j.signatures ? j.signatures[role] : null;
-        if(data && data.dataUrl){
-          img.src = data.dataUrl; img.style.display='block';
-          nameEl.textContent = data.name ? ('— '+escapeHtml(data.name)) : '';
-          dateEl.textContent = data.date ? ('('+data.date+')') : '';
-        } else {
-          img.src=''; img.style.display='none'; nameEl.textContent=''; dateEl.textContent='';
-        }
-      }
-      setSig('customer'); setSig('manager');
-
-      // photos (PDF-friendly classnames)
-      var pPhotos = $('#pPhotosBlock'); pPhotos.innerHTML='';
-      if(j && j.photosOnPdf && j.photos && j.photos.length){
-        var html = '<h4 style="margin:8px 0 4px 0;">Work Photos</h4><div class="p-photos">';
-        j.photos.forEach(function(ph){
-          if(!ph || !ph.dataUrl || ph.include === false) return;
-          html += '<div class="p-photo"><img src="'+ph.dataUrl+'" alt=""></div>';
-        });
-        html += '</div>';
-        pPhotos.innerHTML = html;
-      }
-
-      function escapeHtml(s){
-        return String(s||'').replace(/[&<>"']/g, function(c){
-          return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
-        });
-      }
-    }
-
-    // Buttons & listeners
-    $('#addLabor').addEventListener('click', function(){ if(!ensureJobSelected()) return; addLine('Labor','',1, Number($('#laborRate').value||80), 0, ''); });
-    $('#addPart').addEventListener('click', function(){ if(!ensureJobSelected()) return; addLine('Part','',1, 0, 0, ''); });
-    $('#applyMarkup').addEventListener('click', applyDefaultMarkup);
-    $('#recalc').addEventListener('click', recalcTotals);
-    $('#markPaid').addEventListener('click', function(){
-      var j=ensureJobSelected(); if(!j) return;
-      j.paid=!j.paid;
-      j.paidAt=j.paid?new Date().toISOString():null;
-      if(j.paid){ j.taxPercentAtSale = Number($('#salesTax').value||0); }
-      updatePreview(); renderJobs(); saveDB(); alert(j.paid?'Marked Paid':'Marked Unpaid');
-    });
-    $('#approve').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; if($('#docType').value!=='Estimate'){ alert('Approvals apply to Estimates.'); return; } j.approved=true; j.approvedAt=new Date().toISOString(); updatePreview(); saveDB(); alert('Estimate approved.'); });
-    $('#convert').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; j.docType='Invoice'; $('#docType').value='Invoice'; updatePreview(); saveDB(); alert('Converted to Invoice.'); });
-    $('#email').addEventListener('click', function(){
-      var j=ensureJobSelected(); if(!j) return;
-      var to=encodeURIComponent($('#emailTo').value.trim()||'');
-      var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim());
-      var body=encodeURIComponent('Hello,\\n\\nYour '+j.docType+' total is '+$('#grand').textContent+'.\\nPayment link: '+(j.paymentLink||'')+'\\n\\n'+(DB.settings.shopFooter||'')+'\\n\\n— '+(DB.settings.shopFrom||''));
-      location.href='mailto:'+to+'?subject='+subj+'&body='+body;
-    });
-
-    // PDF / print (tight professional layout)
-    $('#pdf').addEventListener('click', function(){
-      var css =
-        'html,body{margin:0;padding:0}' +
-        'body{font-family:'+CSS.escape(getComputedStyle(document.body).fontFamily)+';font-size:11pt;line-height:1.35;color:#000}' +
-        '.print-area{padding:8px 12px 12px;border-radius:0;position:relative}' +
-        '.invoice-header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:6px}' +
-        '.invoice-header h3{margin:0;font-size:16pt}' +
-        'table{width:100%;border-collapse:collapse;margin-top:6px}' +
-        'th,td{border-bottom:1px solid #000;padding:6px;text-align:left;vertical-align:top;font-size:10.5pt}' +
-        '.totals{display:grid;gap:4px;justify-items:end;margin-top:8px}.grand{font-weight:700}' +
-        '.badge{border:1px solid #000;border-radius:9999px;padding:2px 6px;font-size:9pt}' +
-        '.signatures{margin-top:16px;display:grid;gap:10px}' +
-        '.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}' +
-        '.sig-line{border-bottom:1px solid #000;height:28px;display:flex;align-items:flex-end}' +
-        '.sig-label{font-size:9pt;color:#333;margin-top:4px}' +
-        '.sig-img{max-height:60px;}' +
-        '.watermark{position:absolute;inset:0;z-index:0;opacity:.08}' +
-        '#wmImg{max-width:90%;max-height:90%;opacity:.12}' +
-        '#wmFallback{opacity:.12}' +
-        '/* Photo grid for PDF */' +
-        '.p-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}' +
-        '.p-photo{border:1px solid #000;padding:4px;border-radius:6px;break-inside:avoid;page-break-inside:avoid}' +
-        '.p-photo img{width:100%;height:1.8in;object-fit:cover;border-radius:4px;display:block}' +
-        '#pPhotosBlock{page-break-before:always}'; // remove if you don't want photos on new page
-
-      var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>'
-                  + document.getElementById('preview').outerHTML
-                  + '</body></html>';
-      var w = window.open('', '_blank');
-      if(!w){ alert('Please allow pop-ups to print.'); return; }
-      w.document.open(); w.document.write(htmlDoc); w.document.close();
-      const imgs = Array.from(w.document.images || []);
-      Promise.all(imgs.map(img => img.complete ? Promise.resolve() :
-        new Promise(res => { img.addEventListener('load',res,{once:true}); img.addEventListener('error',res,{once:true}); })
-      )).then(()=>{ try{ w.focus(); w.print(); }catch(e){} });
-    });
-
-    // Header field listeners
-    $('#invNo').addEventListener('input', persistLines);
-    $('#docType').addEventListener('change', persistLines);
-    $('#payLink').addEventListener('input', persistLines);
-    $('#emailTo').addEventListener('input', persistLines);
-    $('#laborRate').addEventListener('input', function(){ recalcTotals(); persistLines(); });
-    $('#salesTax').addEventListener('input', function(){ recalcTotals(); persistLines(); });
-    $('#overallNotes').addEventListener('input', persistLines);
-    $('#photosOnPdf').addEventListener('change', function(){ persistLines(); updatePreview(); });
-
-    // Quick Estimate
-    $('#quickEstimate').addEventListener('click', function(){
-      $('#qeModal').style.display='flex';
-      $('#qeTitle').value='';
-      $('#qePartsCost').value=0;
-      $('#qeMarkup').value=Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40);
-      $('#qeHours').value=1.5;
-    });
-    $('#qeClose').addEventListener('click', function(){ $('#qeModal').style.display='none'; });
-    function qeBuildLines(){
-      var title = $('#qeTitle').value.trim()||'Service';
-      var parts = Number($('#qePartsCost').value||0);
-      var mu = Number($('#qeMarkup').value||DB.settings.defaultMarkup||40)/100;
-      var hours = Number($('#qeHours').value||1.5);
-      var unitParts = parts*(1+mu);
-      return [
-        {type:'Part', desc:title+' — parts', qty:1, unit:unitParts, cost:parts, note:''},
-        {type:'Labor', desc:title+' — labor', qty:hours, unit:Number($('#laborRate').value||80), cost:0, note:''}
-      ];
-    }
-    $('#qeApplyAppend').addEventListener('click', function(){
-      var j=ensureJobSelected(); if(!j) return;
-      qeBuildLines().forEach(l=> addLine(l.type,l.desc,l.qty,l.unit,l.cost,l.note));
-      persistLines(); $('#qeModal').style.display='none';
-    });
-    $('#qeApplyReplace').addEventListener('click', function(){
-      var j=ensureJobSelected(); if(!j) return;
-      $('#lines tbody').innerHTML='';
-      qeBuildLines().forEach(l=> addLine(l.type,l.desc,l.qty,l.unit,l.cost,l.note));
-      persistLines(); $('#qeModal').style.display='none';
-    });
-
-    // Templates modal list
-    $('#openTemplates').addEventListener('click', function(){
-      var list = $('#tplList'); list.innerHTML='';
-      DB.templates.forEach(function(tpl){
-        var div=document.createElement('div'); div.style.marginBottom='8px';
-        var head=document.createElement('div'); head.innerHTML='<strong>'+tpl.platform+'</strong>';
-        var addBtn=document.createElement('button'); addBtn.className='tab-btn'; addBtn.type='button'; addBtn.textContent='Add Bundle'; addBtn.style.marginLeft='8px';
-        addBtn.addEventListener('click', function(){ applyTemplate(tpl); });
-        head.appendChild(addBtn); div.appendChild(head);
-        var ul=document.createElement('ul'); ul.style.margin='6px 0'; ul.style.paddingLeft='18px';
-        tpl.items.forEach(function(it){ var li=document.createElement('li'); li.textContent=it.type+': '+(it.desc||'')+(it.part?(' ('+it.part+')'):'')+(it.vendor?(' — '+it.vendor):'')+(it.cost?(' @ $'+it.cost.toFixed(2)):''); ul.appendChild(li); });
-        div.appendChild(ul);
-        list.appendChild(div);
-      });
-      $('#tplModal').style.display='flex';
-    });
-    $('#tplClose').addEventListener('click', function(){ $('#tplModal').style.display='none'; });
-
-    // Settings render/save
-    function renderSettings(){
-      $('#defaultMarkup').value = DB.settings.defaultMarkup||40;
-      $('#shopFrom').value = DB.settings.shopFrom||'Poppe’s Diesel Co.';
-      $('#shopReply').value = DB.settings.shopReply||'poppedieselco@gmail.com';
-      $('#shopSubj').value = DB.settings.shopSubj||'[Poppe’s Diesel Co.] ';
-      $('#shopFooter').value = DB.settings.shopFooter||'Thank you for supporting local.';
-      // listeners
-      ['defaultMarkup','shopFrom','shopReply','shopSubj','shopFooter'].forEach(function(id){
-        var el = document.getElementById(id); if(!el) return; el.addEventListener('input', function(){ DB.settings[id] = (id==='defaultMarkup') ? Number(el.value||40) : el.value; saveDB(); });
-      });
-      $('#backupBtn').addEventListener('click', function(){
-        var data = JSON.stringify(DB, null, 2);
-        var blob = new Blob([data], {type:'application/json'});
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement('a'); a.href=url; a.download='poppes_shop_backup_'+new Date().toISOString().slice(0,10)+'.json'; a.click();
-        setTimeout(()=> URL.revokeObjectURL(url), 1000);
-      });
-      $('#restoreFile').addEventListener('change', function(e){
-        var file = e.target.files && e.target.files[0]; if(!file) return;
-        var r = new FileReader();
-        r.onload = function(){ try{ DB = JSON.parse(r.result); upgradeDB(); saveDB(); renderAll(); alert('Restore complete.'); }catch(err){ alert('Restore failed: '+err.message); } };
-        r.readAsText(file);
-      });
-      $('#resetBtn').addEventListener('click', function(){
-        if(confirm('Factory reset all data (keeps this page)?')){ resetDB(); alert('Reset complete.'); }
-      });
-    }
-
-    // Templates editable table in Settings
-    function renderTemplates(){
-      var tb = $('#tplTable tbody'); tb.innerHTML='';
-      DB.templates.forEach(function(tpl, idx){
-        tpl.items.forEach(function(it, j){
-          var tr=document.createElement('tr');
-          tr.innerHTML=
-            '<td contenteditable data-col="platform">'+tpl.platform+'</td>'+
-            '<td contenteditable data-col="desc">'+(it.desc||'')+'</td>'+
-            '<td contenteditable data-col="type">'+(it.type||'Part')+'</td>'+
-            '<td contenteditable data-col="qty">'+(it.qty==null?1:it.qty)+'</td>'+
-            '<td contenteditable data-col="cost">'+(it.cost==null?0:it.cost)+'</td>'+
-            '<td contenteditable data-col="markup">'+(it.markup==null?40:it.markup)+'</td>';
-          tr.addEventListener('input', function(e){
-            var cells = tr.querySelectorAll('[data-col]');
-            var platform = cells[0].textContent.trim();
-            var desc = cells[1].textContent.trim();
-            var type = cells[2].textContent.trim();
-            var qty = Number(cells[3].textContent.trim()||1);
-            var cost = Number(cells[4].textContent.trim()||0);
-            var markup = Number(cells[5].textContent.trim()||40);
-            DB.templates[idx].platform = platform;
-            DB.templates[idx].items[j] = {type, desc, qty, cost, markup};
-            saveDB();
-          });
-          tb.appendChild(tr);
-        });
-      });
-    }
-
-    // Photos
-    $('#photoInput').addEventListener('change', function(e){
-      var j = currentJob(); if(!j) return;
-      var files = Array.from(e.target.files||[]);
-      function readAsDataURL(file){
-        return new Promise((resolve,reject)=>{ var r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file); });
-      }
-      (async function(){
-        for(const f of files){
-          const dataUrl = await readAsDataURL(f);
-          j.photos = j.photos || [];
-          j.photos.push({ id: crypto.randomUUID(), name: f.name, dataUrl, include:true });
-        }
-        saveDB(); renderPhotoGrid(); updatePreview(); e.target.value='';
-      })();
-    });
-    function renderPhotoGrid(){
-      var j = currentJob(); var grid = $('#photoGrid'); grid.innerHTML=''; if(!j) return;
-      (j.photos||[]).forEach(function(ph){
-        var item=document.createElement('div'); item.className='photo-item';
-        item.innerHTML='<button class="del" title="Remove">✕</button><img alt="photo" /><label><input type="checkbox" '+(ph.include!==false?'checked':'')+'> Include on PDF</label>';
-        item.querySelector('img').src=ph.dataUrl;
-        item.querySelector('.del').addEventListener('click', function(){
-          if(confirm('Delete this photo?')){ j.photos=j.photos.filter(p=> p!==ph); saveDB(); renderPhotoGrid(); updatePreview(); }
-        });
-        item.querySelector('input[type="checkbox"]').addEventListener('change', function(){ ph.include=this.checked; saveDB(); updatePreview(); });
-        grid.appendChild(item);
-      });
-    }
-
-    // Signature capture
-    $('#sign').addEventListener('click', function(){ $('#sigModal').style.display='flex'; $('#sigTitle').textContent='Collect Signature'; });
-    $('#sigClose').addEventListener('click', function(){ $('#sigModal').style.display='none'; });
-
-    var sigPad = document.getElementById('sigPad');
-    var ctx = sigPad.getContext('2d'); ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.lineCap='round';
-    var drawing=false, last=null;
-    function drawLine(a,b){ ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); ctx.closePath(); }
-    function posFromEvent(e){ var r=sigPad.getBoundingClientRect(); var x=(e.touches?e.touches[0].clientX:e.clientX)-r.left; var y=(e.touches?e.touches[0].clientY:e.clientY)-r.top; return {x:x, y:y}; }
-    sigPad.addEventListener('pointerdown', function(e){ drawing=true; last=posFromEvent(e); });
-    sigPad.addEventListener('pointermove', function(e){ if(!drawing) return; var p=posFromEvent(e); drawLine(last,p); last=p; });
-    sigPad.addEventListener('pointerup', function(){ drawing=false; last=null; });
-    sigPad.addEventListener('pointerleave', function(){ drawing=false; last=null; });
-    $('#sigClear').addEventListener('click', function(){ ctx.clearRect(0,0,sigPad.width,sigPad.height); });
-    $('#sigSave').addEventListener('click', function(){
-      var j=ensureJobSelected(); if(!j) return;
-      var role = $('#sigRole').value;
-      var name = $('#sigName').value.trim();
-      var date = $('#sigDate').value || new Date().toISOString().slice(0,10);
-      var dataUrl = sigPad.toDataURL('image/png');
-      j.signatures = j.signatures || {};
-      j.signatures[role] = { name, date, dataUrl };
-      saveDB(); updatePreview();
-      alert('Signature saved for '+role+'.'); $('#sigModal').style.display='none';
-    });
-
-    // Dashboard quick stats
-    function renderDashboard(){
-      var open=DB.jobs.filter(j=> j.status!=='Done').length;
-      var unpaid=DB.jobs.filter(j=> j.docType==='Invoice' && !j.paid).length;
-      var now=new Date(); var ym=now.toISOString().slice(0,7);
-      var rev=0, prof=0;
-      DB.jobs.forEach(function(j){
-        var createdMonth=(j.paidAt||j.createdAt||'').slice(0,7);
-        if(createdMonth===ym){
-          var subtotal=j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*(Number(l.unit)||0), 0);
-          var profit=j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*((Number(l.unit)||0)-(Number(l.cost)||0)), 0);
-          rev+=subtotal; prof+=profit;
-        }
-      });
-      $('#openJobs').textContent=open;
-      $('#unpaid').textContent=unpaid;
-      $('#revMonth').textContent=fmt(rev);
-      $('#profitMonth').textContent=fmt(prof);
-    }
-
-    // Back to top
-    var toTop = $('#toTop');
-    window.addEventListener('scroll', function(){
-      toTop.style.display = window.scrollY > 350 ? 'block' : 'none';
-    });
-    toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
-
-    // Debug self-test
-    (function selftest(){
-      var ok = !!(window.localStorage && document.querySelector && document.createElement);
-      var tag = document.getElementById('selftest');
-      if(tag){ tag.textContent = 'Self-test: ' + (ok?'OK':'Limited'); tag.className = 'tag selftest ' + (ok?'ok':'warn'); }
-    })();
-
-    // Init render
-    upgradeDB();
-    renderAll();
-
-    // Restore last job selection
-    if(UI.lastJobId && DB.jobs.find(j=> j.id===UI.lastJobId)){
-      $('#invJob').value=UI.lastJobId; loadInvoice(UI.lastJobId);
-    }
+    var toTop=$('#toTop'); window.addEventListener('scroll', function(){ toTop.style.display = window.scrollY > 350 ? 'block' : 'none'; }); toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
   });
 });
 </script>
-</body>
-</html>
+</body></html>
