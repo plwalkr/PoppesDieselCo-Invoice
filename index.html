@@ -52,6 +52,14 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
 .selftest.ok{display:inline-block;background:#10331f;border:1px solid #1f6440;color:#a5ffd8}
 .selftest.warn{display:inline-block;background:#3a2f00;border:1px solid #7a5f00;color:#ffeaa3}
 
+/* Back to top */
+#toTop{
+  position:fixed; right:20px; bottom:140px; z-index:60;
+  background:#1d312a; color:#fff; border:1px solid #0e241c;
+  border-radius:999px; padding:10px 14px; display:none; box-shadow:var(--shadow)
+}
+#toTop:hover{ filter:brightness(1.08) }
+
 @media print{
   body{background:#fff;color:#000}
   header,nav.bottom,nav.top,.actions,.modal,#debug,#debugToggle,#invFilters,#internalNotesWrap,#photosWrap{display:none!important}
@@ -374,6 +382,9 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
   </section>
 </main>
 
+<!-- Back to Top -->
+<button id="toTop" title="Back to top">↑ Top</button>
+
 <!-- ===== BOTTOM NAV ===== -->
 <nav class="bottom" style="position:fixed;bottom:0;left:0;right:0;background:#0e111a;border-top:1px solid var(--border);display:flex;justify-content:space-between;padding:10px 10px;align-items:center">
   <div>
@@ -504,6 +515,12 @@ window.addEventListener('load', function(){
     var STORAGE_KEY = 'poppe_shop_db_v110';
     var DB = loadDB() || defaultDB();
 
+    // ---- UI state (remember active tab & last job) ----
+    const UIKEY = 'pdc_ui_state';
+    function loadUI(){ try{ return JSON.parse(localStorage.getItem(UIKEY)||'{}'); }catch(_){ return {}; } }
+    function saveUI(u){ try{ localStorage.setItem(UIKEY, JSON.stringify(u)); }catch(_){} }
+    let UI = loadUI();
+
     function defaultDB(){
       return {
         customers: [],
@@ -557,6 +574,13 @@ window.addEventListener('load', function(){
     var $$ = (sel, root)=> Array.from((root||document).querySelectorAll(sel));
     var fmt = (n)=> "$"+Number(n||0).toFixed(2);
 
+    // tokenized AND search helper
+    function matchesAllTokens(hay, q){
+      const tokens = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      const text = hay.toLowerCase();
+      return tokens.every(t => text.includes(t));
+    }
+
     function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); renderTemplates(); saveDB(); }
 
     // Tabs
@@ -565,9 +589,15 @@ window.addEventListener('load', function(){
         var id = b.getAttribute('data-tab');
         $$('.tab').forEach(t=>t.classList.remove('active'));
         $('#'+id).classList.add('active');
+        UI.activeTab = id; saveUI(UI);
         window.scrollTo({top:0, behavior:'smooth'});
       });
     });
+    // restore active tab if present
+    if (UI.activeTab && document.getElementById(UI.activeTab)) {
+      $$('.tab').forEach(t=>t.classList.remove('active'));
+      document.getElementById(UI.activeTab).classList.add('active');
+    }
 
     /* ===== Customers Tab ===== */
     $('#custForm').addEventListener('submit', function(e){
@@ -617,7 +647,7 @@ window.addEventListener('load', function(){
       if(!j.customerId || !j.title) return;
       DB.jobs.push(j); renderJobs(); renderJobCustomer();
       $('#jobForm').reset(); $('#vinResult').style.display='none'; $('#vinSuggest').style.display='none'; saveDB();
-      if(DB.jobs.length===1){ $('#invJob').value = j.id; loadInvoice(j.id); }
+      if(DB.jobs.length===1){ $('#invJob').value = j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); }
     });
 
     $('#decodeVIN').addEventListener('click', function(){
@@ -669,7 +699,7 @@ window.addEventListener('load', function(){
         b.addEventListener('click', function(){
           var id = b.getAttribute('data-open');
           $('[data-tab="invoice"]').click();
-          $('#invJob').value = id; loadInvoice(id);
+          $('#invJob').value = id; loadInvoice(id); UI.lastJobId=id; saveUI(UI);
         });
       });
     }
@@ -685,29 +715,37 @@ window.addEventListener('load', function(){
       var sel = $('#invCustFilter');
       sel.innerHTML = '<option value="">All customers</option>' + DB.customers.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join('');
     }
+
+    // FULL-TEXT-ish search across multiple job fields
     function renderInvJobOptions(){
-      var invSel = $('#invJob');
-      var cid = $('#invCustFilter').value || '';
-      var q = ($('#invJobSearch').value || '').toLowerCase();
-      var jobs = DB.jobs.filter(function(j){
+      const invSel = $('#invJob');
+      const cid = $('#invCustFilter').value || '';
+      const q = ($('#invJobSearch').value || '').trim().toLowerCase();
+
+      const jobs = DB.jobs.filter(function(j){
         if(cid && j.customerId!==cid) return false;
         if(!q) return true;
-        var cust = DB.customers.find(x=>x.id===j.customerId);
-        var txt = ((cust?cust.name:'')+' '+j.title).toLowerCase();
-        return txt.includes(q);
+        const cust = DB.customers.find(x=>x.id===j.customerId);
+        const fields = [
+          cust?cust.name:'', j.title||'', j.vin||'', j.notes||'', j.overallNotes||'',
+          ...(j.lines||[]).map(l => [l.desc||'', l.note||'']).flat()
+        ].join(' | ');
+        return matchesAllTokens(fields, q);
       });
+
       invSel.innerHTML = '<option value="">Select job…</option>' + jobs.map(function(j){
-        var c = DB.customers.find(x=> x.id===j.customerId);
+        const c = DB.customers.find(x=> x.id===j.customerId);
         return '<option value="'+j.id+'">'+(c?c.name:'—')+' — '+j.title+'</option>';
       }).join('');
     }
+
     function renderRecentJobs(){
       var box = $('#recentJobs'); box.innerHTML='';
       DB.jobs.slice().sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt)).slice(0,6).forEach(function(j){
         var c = DB.customers.find(x=> x.id===j.customerId);
         var b = document.createElement('button'); b.type='button'; b.className='tab-btn';
         b.textContent = (c?c.name:'—')+': '+j.title;
-        b.addEventListener('click', ()=>{ $('#invJob').value=j.id; loadInvoice(j.id); });
+        b.addEventListener('click', ()=>{ $('#invJob').value=j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); });
         box.appendChild(b);
       });
     }
@@ -972,9 +1010,9 @@ window.addEventListener('load', function(){
     $('#salesTax').addEventListener('input', function(){ persistLines(); recalcTotals(); });
 
     // Switching jobs
-    $('#invJob').addEventListener('change', function(e){ loadInvoice(e.target.value); });
+    $('#invJob').addEventListener('change', function(e){ UI.lastJobId = e.target.value; saveUI(UI); loadInvoice(e.target.value); });
 
-    // Photos
+    // Photos (downscale on import to keep PDFs small)
     function renderPhotoGrid(){
       var j = currentJob(); if(!j) return;
       var grid = $('#photoGrid'); grid.innerHTML='';
@@ -991,19 +1029,39 @@ window.addEventListener('load', function(){
       });
       updatePreview();
     }
-    $('#photoInput').addEventListener('change', function(evt){
-      var j = currentJob(); if(!j) return;
-      var files = Array.from(evt.target.files||[]);
-      if(!files.length) return;
-      var next = function(i){
-        if(i>=files.length){ saveDB(); renderPhotoGrid(); evt.target.value=''; return; }
-        var f = files[i]; var reader = new FileReader();
-        reader.onload = function(){ j.photos.push({dataUrl: reader.result, include:true}); next(i+1); };
-        reader.readAsDataURL(f);
-      };
-      next(0);
-    });
-    $('#photosOnPdf').addEventListener('change', persistLines);
+
+    (function(){
+      const MAX_W = 1200, MAX_H = 900;
+      function readAsDataURL(file){
+        return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); });
+      }
+      function downscale(dataUrl){
+        return new Promise((res)=>{
+          const img = new Image();
+          img.onload = function(){
+            const r = Math.min(MAX_W/img.width, MAX_H/img.height, 1);
+            const cw = Math.round(img.width * r), ch = Math.round(img.height * r);
+            const c = document.createElement('canvas'); c.width=cw; c.height=ch;
+            c.getContext('2d').drawImage(img,0,0,cw,ch);
+            res(c.toDataURL('image/jpeg', 0.85));
+          };
+          img.src = dataUrl;
+        });
+      }
+      document.getElementById('photoInput').addEventListener('change', async function(evt){
+        const j = currentJob(); if(!j) return;
+        const files = Array.from(evt.target.files||[]);
+        if(!files.length) return;
+        for (const f of files){
+          try{
+            const raw = await readAsDataURL(f);
+            const scaled = await downscale(raw);
+            j.photos.push({dataUrl: scaled, include:true});
+          }catch(e){ AppLog.warn('photo import failed: '+(e&&e.message)); }
+        }
+        saveDB(); renderPhotoGrid(); evt.target.value='';
+      });
+    })();
 
     // Signatures
     function openSigModal(role){
@@ -1117,7 +1175,7 @@ window.addEventListener('load', function(){
     $('#tplClose').addEventListener('click', ()=> $('#tplModal').style.display='none');
     $('#openTemplates').addEventListener('click', ()=> openTemplates(''));
 
-    // Dashboard
+    // Dashboard (fix: profit uses qty*cost)
     function renderDashboard(){
       var open = DB.jobs.filter(j=> j.status!=='Done').length;
       var unpaid = DB.jobs.filter(j=> j.docType==='Invoice' && !j.paid && j.lines.length>0).length;
@@ -1126,7 +1184,11 @@ window.addEventListener('load', function(){
       function monthKey(d){ var dd = new Date(d); return dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0'); }
       DB.jobs.forEach(function(j){
         var subtotal = j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*(Number(l.unit)||0), 0);
-        var profit = j.lines.reduce((s,l)=> s + (l.type==='Part' ? (Number(l.qty||0)*(Number(l.unit)||0)-Number(l.cost||0)) : (Number(l.qty||0)*Number(l.unit)||0)), 0);
+        // Correct profit: qty*unit - qty*cost (works for Labor too; cost usually 0)
+        var profit = j.lines.reduce((s,l)=>{
+          const q=Number(l.qty||0), u=Number(l.unit||0), c=Number(l.cost||0);
+          return s + (q*u - q*c);
+        }, 0);
         if(j.paid && j.paidAt && monthKey(j.paidAt)===mkey){
           var taxPct = (typeof j.taxPercentAtSale === 'number') ? j.taxPercentAtSale : Number($('#salesTax').value||0);
           var tax = subtotal*(taxPct/100);
@@ -1182,6 +1244,11 @@ window.addEventListener('load', function(){
     }
     renderAll();
 
+    // Restore last job after render
+    if (UI.lastJobId && DB.jobs.find(j=>j.id===UI.lastJobId)) {
+      $('#invJob').value = UI.lastJobId; loadInvoice(UI.lastJobId);
+    }
+
     // Drag & drop rows (handle-only)
     (function(){
       const tbody = document.querySelector('#lines tbody'); if(!tbody) return;
@@ -1194,6 +1261,28 @@ window.addEventListener('load', function(){
       function mid(tr){ const r=tr.getBoundingClientRect(); return r.top+r.height/2; }
       tbody.addEventListener('dragover', (e)=>{ if(!dragSrc) return; e.preventDefault(); const target=rowFrom(e.target); if(!target||target===dragSrc) return; const m=mid(target); if(e.clientY<m){ tbody.insertBefore(dragSrc,target); } else { tbody.insertBefore(dragSrc,target.nextSibling); } target.classList.add('drop-target'); setTimeout(()=>target.classList.remove('drop-target'),80); });
       tbody.addEventListener('drop', (e)=>{ if(!dragSrc) return; e.preventDefault(); dragSrc=null; try{ persistLines(); }catch(err){ console.warn('persistLines after reorder failed', err); } });
+    })();
+
+    // Back to top button behavior
+    (function(){
+      const btn = document.getElementById('toTop');
+      window.addEventListener('scroll', ()=>{ btn.style.display = (window.scrollY>400)?'block':'none'; });
+      btn.addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
+    })();
+
+    // Self-test indicator
+    (function(){
+      const st = document.getElementById('selftest');
+      function set(tag, cls){ st.textContent = 'Self-test: ' + tag; st.classList.remove('ok','warn'); st.classList.add(cls); }
+      try{
+        const lsOK = (function(){ localStorage.setItem('__pdc_t','1'); localStorage.removeItem('__pdc_t'); return true; })();
+        const canCanvas = !!document.createElement('canvas').getContext;
+        const canBlob = !!window.Blob;
+        const ok = lsOK && canCanvas && canBlob;
+        set(ok ? 'OK' : 'Limited', ok ? 'ok' : 'warn');
+      }catch(_){
+        set('Limited', 'warn');
+      }
     })();
 
   }); // guard init
