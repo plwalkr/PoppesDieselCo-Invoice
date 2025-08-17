@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-<title>Poppe’s Diesel Co. — Shop Manager (v1.1.1 — LITE)</title>
+<title>Poppe’s Diesel Co. — Shop Manager (v1.1.1 — FULL)</title>
 <style>
 :root{--bg:#e6cfae;--card:#13151c;--text:#0e111a;--muted:#3e463e;--border:#2e3226;--ink:#0e111a;--ink2:#161a24;--shadow:0 10px 20px rgba(0,0,0,.30);--info:#0a3d2e;--ok:#1f6b55;--warn:#f5c518;--danger:#962b2b;--font:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 *{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
@@ -45,12 +45,16 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .signatures{margin-top:16px;display:grid;gap:10px}.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}.sig{display:flex;flex-direction:column;justify-content:flex-end}.sig-line{border-bottom:1px solid #000;height:32px;display:flex;align-items:flex-end}.sig-label{font-size:.9em;color:#333;margin-top:4px}.sig-img{max-height:60px;max-width:100%;object-fit:contain}
 .photo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}.photo-item{position:relative;background:#fff;border:1px solid #b6b09f;border-radius:8px;padding:6px}.photo-item img{width:100%;height:90px;object-fit:cover;border-radius:6px}.photo-item .del{position:absolute;top:4px;right:4px;background:#962b2b;color:#fff;border:none;border-radius:8px;padding:2px 6px;font-size:12px;cursor:pointer}.photo-item label{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px}
 .badge-open{background:#fff;border-color:#b6b09f}.badge-ip{background:#fff7d6;border-color:#caa52a}.badge-done{background:#d9efe7;border-color:#1f6b55;color:#0a3d2e}
+
+/* Modal basic */
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4);z-index:80}
+.modal .panel{max-width:800px;width:min(96vw,800px)}
 </style>
 </head>
 <body>
 <div id="error">JavaScript error detected. Tap to reload.</div>
 <header>
-  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.1.1</span><span id="selftest" class="tag selftest">Self-test: …</span><span class="tag">LITE</span></h1>
+  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.1.1</span><span id="selftest" class="tag selftest">Self-test: …</span><span class="tag">FULL</span></h1>
   <nav class="top">
     <button class="tab-btn" data-tab="dashboard">Dashboard</button>
     <button class="tab-btn" data-tab="customers">Customers</button>
@@ -88,6 +92,13 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
       <select id="jobCustomer" required></select>
       <input id="jobTitle" placeholder="Job title (e.g., Front brakes + rotors)" required/>
       <input id="jobVIN" placeholder="VIN (17 chars)"/>
+      <button type="button" class="tab-btn" id="decodeVIN">Decode VIN</button>
+      <div id="vinResult" style="display:none" class="card" aria-live="polite"></div>
+      <div id="vinSuggest" style="display:none" class="card" aria-live="polite">
+        <div><strong>Suggested parts & labor</strong> (platform match)</div>
+        <div class="actions" id="vinTags"></div>
+        <button class="tab-btn primary" id="addAllSuggest" type="button">Add All</button>
+      </div>
       <textarea id="jobNotes" placeholder="Notes (symptoms, codes, etc.)"></textarea>
       <select id="jobStatus"><option>Open</option><option>In Progress</option><option>Done</option></select>
       <button class="primary" type="submit">Create Job</button>
@@ -122,6 +133,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
     <div class="actions">
       <button type="button" class="tab-btn" id="addLabor">+ Labor Line</button>
       <button type="button" class="tab-btn" id="addPart">+ Part Line</button>
+      <button type="button" class="tab-btn" id="openTemplates">Maintenance Templates</button>
       <button type="button" class="tab-btn" id="applyMarkup">Apply Default Markup</button>
       <button type="button" class="tab-btn" id="quickEstimate">Quick Estimate</button>
       <button type="button" class="tab-btn" id="recalc">Recalculate</button>
@@ -214,6 +226,17 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 </nav>
 <div id="debug"><div class="meta" id="debugMeta"></div><pre id="debugLog"></pre></div>
 
+<!-- Templates modal -->
+<div class="modal" id="tplModal" style="display:none">
+  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h3 style="color:#0e111a;margin:0">Maintenance Templates</h3>
+      <button id="tplClose" class="tab-btn">Close</button>
+    </header>
+    <div id="tplList"></div>
+  </div>
+</div>
+
 <!-- Signature modal -->
 <div class="modal" id="sigModal" style="display:none">
   <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
@@ -256,7 +279,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 function guard(name,fn){ try{ fn(); AppLog.info(name+' ✅'); } catch(e){ AppLog.error(name+' ❌',e); } }
 if(!window.crypto) window.crypto = {}; if(!crypto.randomUUID){ crypto.randomUUID = function(){ return 'id-'+Math.random().toString(16).slice(2)+'-'+Date.now(); } }
 
-// Watermark: only shows when you upload one
+// Watermark: upload and cache; prints on PDF
 (function(){
   const KEY='pdc_wm_dataurl', imgEl=document.getElementById('wmImg'), fallback=document.getElementById('wmFallback');
   function setWM(src){ if(!imgEl) return; imgEl.src=src; imgEl.style.display='block'; if(fallback) fallback.style.display='none'; }
@@ -271,14 +294,37 @@ window.addEventListener('load', function(){
   guard('init', function(){
     var STORAGE_KEY='poppe_shop_db_v111', DB=loadDB()||defaultDB();
     const UIKEY='pdc_ui_state'; function loadUI(){ try{ return JSON.parse(localStorage.getItem(UIKEY)||'{}'); }catch(_){ return {}; } } function saveUI(u){ try{ localStorage.setItem(UIKEY, JSON.stringify(u)); }catch(_ ){} } let UI=loadUI();
-    function defaultDB(){ return { customers:[], jobs:[], settings:{ defaultMarkup:40, shopFrom:'Poppe’s Diesel Co.', shopReply:'poppedieselco@gmail.com', shopSubj:'[Poppe’s Diesel Co.] ', shopFooter:'Thank you for supporting local.' } }; }
+    function defaultDB(){ return { customers:[], jobs:[], templates: seedTemplates(), settings:{ defaultMarkup:40, shopFrom:'Poppe’s Diesel Co.', shopReply:'poppedieselco@gmail.com', shopSubj:'[Poppe’s Diesel Co.] ', shopFooter:'Thank you for supporting local.' } }; }
+    function seedTemplates(){
+      return [
+        { platform: "Cummins 6.7L (Ram)", items: [
+          {type:"Labor", desc:"Oil & Filters Service", qty:1.0, unit:null},
+          {type:"Part", desc:"Fuel Filter (Primary)", vendor:"Fleetguard", part:"FS53000", cost:38.00, markup:40},
+          {type:"Part", desc:"Fuel Filter (Secondary)", vendor:"Fleetguard", part:"FF63009", cost:32.00, markup:40},
+          {type:"Part", desc:"Oil Filter", vendor:"Fleetguard", part:"LF16035", cost:9.50, markup:60},
+          {type:"Part", desc:"Crankcase Filter", vendor:"Cummins", part:"CV50628", cost:78.00, markup:35}
+        ]},
+        { platform: "Powerstroke 6.7L (Ford)", items: [
+          {type:"Labor", desc:"Fuel Filters & Oil", qty:1.2, unit:null},
+          {type:"Part", desc:"Fuel Filter (Frame)", vendor:"Motorcraft", part:"FD-4625", cost:34.00, markup:40},
+          {type:"Part", desc:"Fuel Filter (Engine Bay)", vendor:"Motorcraft", part:"FD-4624", cost:28.00, markup:40},
+          {type:"Part", desc:"Oil Filter", vendor:"Motorcraft", part:"FL-2051S", cost:12.50, markup:60}
+        ]},
+        { platform: "Duramax L5P (GM)", items: [
+          {type:"Labor", desc:"Fuel Filter & Air", qty:1.0, unit:null},
+          {type:"Part", desc:"Fuel Filter", vendor:"ACDelco", part:"TP1015", cost:36.00, markup:40},
+          {type:"Part", desc:"Air Filter", vendor:"ACDelco", part:"A3218C", cost:22.00, markup:55},
+          {type:"Part", desc:"Trans Service Kit", vendor:"ACDelco", part:"24296954", cost:89.00, markup:35}
+        ]}
+      ];
+    }
     function saveDB(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(e){ AppLog.error('localStorage save failed', e); } }
     function loadDB(){ try{ var s=localStorage.getItem(STORAGE_KEY); return s?JSON.parse(s):null; } catch(e){ AppLog.error('localStorage load failed', e); return null; } }
     function upgradeDB(){ (DB.jobs||[]).forEach(function(j){ if(!j.createdAt) j.createdAt=new Date().toISOString(); if(typeof j.overallNotes==='undefined') j.overallNotes=''; if(typeof j.internalNotes==='undefined') j.internalNotes=''; if(!j.photos) j.photos=[]; if(!j.signatures) j.signatures={customer:null,manager:null}; (j.lines||[]).forEach(function(l){ if(typeof l.note==='undefined') l.note=''; }); }); saveDB(); }
 
     var $=(sel,root)=> (root||document).querySelector(sel), $$=(sel,root)=> Array.from((root||document).querySelectorAll(sel)), fmt=(n)=>"$"+Number(n||0).toFixed(2);
     function matchesAllTokens(hay,q){ const tokens=q.trim().toLowerCase().split(/\\s+/).filter(Boolean); const text=(hay||'').toLowerCase(); return tokens.every(t=> text.includes(t)); }
-    function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); saveDB(); }
+    function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); renderTemplates(); saveDB(); }
 
     $$('.tab-btn[data-tab]').forEach(function(b){ b.addEventListener('click', function(){ var id=b.getAttribute('data-tab'); $$('.tab').forEach(t=>t.classList.remove('active')); document.getElementById(id).classList.add('active'); UI.activeTab=id; saveUI(UI); window.scrollTo({top:0,behavior:'smooth'}); }); });
     if(UI.activeTab && document.getElementById(UI.activeTab)){ $$('.tab').forEach(t=>t.classList.remove('active')); document.getElementById(UI.activeTab).classList.add('active'); }
@@ -289,9 +335,37 @@ window.addEventListener('load', function(){
 
     // Jobs
     function renderJobCustomer(){ var sel=$('#jobCustomer'); sel.innerHTML='<option value="">Select...</option>'+DB.customers.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join(''); renderInvFilters(); renderInvJobOptions(); renderRecentJobs(); }
-    $('#jobForm').addEventListener('submit', function(e){ e.preventDefault(); var j={ id:crypto.randomUUID(), customerId:$('#jobCustomer').value, title:$('#jobTitle').value.trim(), vin:$('#jobVIN').value.trim(), notes:$('#jobNotes').value.trim(), status:$('#jobStatus').value, lines:[], paid:false, paidAt:null, docType:'Estimate', approved:false, approvedAt:null, paymentLink:'', vinData:null, overallNotes:'', internalNotes:'', photos:[], signatures:{customer:null, manager:null}, createdAt:new Date().toISOString() }; if(!j.customerId || !j.title) return; DB.jobs.push(j); renderJobs(); renderJobCustomer(); $('#jobForm').reset(); saveDB(); if(DB.jobs.length===1){ $('#invJob').value=j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); } });
+    $('#jobForm').addEventListener('submit', function(e){ e.preventDefault(); var j={ id:crypto.randomUUID(), customerId:$('#jobCustomer').value, title:$('#jobTitle').value.trim(), vin:$('#jobVIN').value.trim(), notes:$('#jobNotes').value.trim(), status:$('#jobStatus').value, lines:[], paid:false, paidAt:null, docType:'Estimate', approved:false, approvedAt:null, paymentLink:'', vinData:null, overallNotes:'', internalNotes:'', photos:[], signatures:{customer:null, manager:null}, createdAt:new Date().toISOString() }; if(!j.customerId || !j.title) return; DB.jobs.push(j); renderJobs(); renderJobCustomer(); $('#jobForm').reset(); $('#vinResult').style.display='none'; $('#vinSuggest').style.display='none'; saveDB(); if(DB.jobs.length===1){ $('#invJob').value=j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); } });
     function renderJobs(){ var tb=$('#jobsTable tbody'); tb.innerHTML=''; DB.jobs.forEach(function(j){ var c=DB.customers.find(x=> x.id===j.customerId); var subtotal=j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*(Number(l.unit)||0), 0); var profit=j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*((Number(l.unit)||0)-(Number(l.cost)||0)), 0); var badge=j.status==='Open'?'badge-open':(j.status==='In Progress'?'badge-ip':'badge-done'); var tr=document.createElement('tr'); tr.innerHTML='<td>'+j.id.slice(0,8)+'</td><td>'+(c?c.name:'—')+'</td><td>'+j.title+'</td><td><span class="badge '+badge+'">'+j.status+'</span></td><td>'+fmt(subtotal)+'</td><td>'+fmt(profit)+'</td><td><button class="tab-btn" data-open="'+j.id+'">Open</button></td>'; tb.appendChild(tr); }); $$('button[data-open]').forEach(b=>{ b.addEventListener('click', function(){ var id=b.getAttribute('data-open'); $('[data-tab=\"invoice\"]').click(); $('#invJob').value=id; loadInvoice(id); UI.lastJobId=id; saveUI(UI); }); }); }
     $('#internalNotes').addEventListener('input', function(){ var j=currentJob(); if(!j) return; j.internalNotes=this.value; saveDB(); });
+
+    // VIN decode
+    $('#decodeVIN').addEventListener('click', function(){
+      var vin=$('#jobVIN').value.trim(); var box=$('#vinResult'); var sug=$('#vinSuggest'); var tags=$('#vinTags');
+      box.style.display='block'; box.textContent='Decoding…'; sug.style.display='none'; tags.innerHTML='';
+      if(!vin || vin.length<11){ box.textContent='Enter a valid VIN (17 preferred).'; return; }
+      fetch('https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/'+encodeURIComponent(vin)+'?format=json')
+        .then(res=>res.json()).then(function(data){
+          var map={}; (data.Results||[]).forEach(r=>{ if(r.Variable&&r.Value) map[r.Variable]=r.Value; });
+          var summary=(map['Model Year']||'-')+' '+(map['Make']||'-')+' '+(map['Model']||'-');
+          box.innerHTML='<strong>'+summary+'</strong>';
+          var platformText=(summary+' '+(map['Engine Model']||'')+' '+(map['Engine Manufacturer']||'')).toLowerCase();
+          var matched=DB.templates.filter(t=>{
+            return (t.platform.toLowerCase().includes('cummins') && platformText.includes('ram')) ||
+                   (t.platform.toLowerCase().includes('powerstroke') && platformText.includes('ford')) ||
+                   (t.platform.toLowerCase().includes('duramax') && (platformText.includes('chevrolet')||platformText.includes('gmc')||platformText.includes('gm')));
+          });
+          if(matched.length===0) matched=DB.templates;
+          tags.innerHTML='';
+          matched.forEach(function(tpl){
+            var b=document.createElement('button'); b.className='tab-btn'; b.type='button'; b.textContent=tpl.platform;
+            b.addEventListener('click', ()=>applyTemplate(tpl));
+            tags.appendChild(b);
+          });
+          $('#addAllSuggest').onclick=()=>{ matched.forEach(t=>applyTemplate(t)); };
+          sug.style.display='block'; saveDB();
+        }).catch(()=> box.textContent='VIN decode failed.');
+    });
 
     // Filters
     function renderInvFilters(){ var sel=$('#invCustFilter'); sel.innerHTML='<option value=\"\">All customers</option>'+DB.customers.map(c=>'<option value=\"'+c.id+'\">'+c.name+'</option>').join(''); }
@@ -320,6 +394,7 @@ window.addEventListener('load', function(){
     $('#invJob').addEventListener('change', function(){ var id=this.value; if(!id){ $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals(); return; } loadInvoice(id); UI.lastJobId=id; saveUI(UI); });
     $('#addLabor').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Labor','',1, Number($('#laborRate').value||80), 0, ''); });
     $('#addPart').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Part','',1, 0, 0, ''); });
+    document.getElementById('openTemplates').addEventListener('click', function(){ openTemplatesModal(); });
     document.getElementById('applyMarkup').addEventListener('click', applyDefaultMarkup);
     document.getElementById('recalc').addEventListener('click', recalcTotals);
     document.getElementById('markPaid').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; j.paid=!j.paid; j.paidAt=j.paid?new Date().toISOString():null; if(j.paid){ j.taxPercentAtSale = Number($('#salesTax').value||0); } updatePreview(); renderJobs(); saveDB(); alert(j.paid?'Marked Paid':'Marked Unpaid'); });
@@ -334,6 +409,43 @@ window.addEventListener('load', function(){
 
     // Photos add/remove
     (function(){ const input=document.getElementById('photoInput'); function readAsDataURL(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); } function addPhotoToJob(job, dataUrl){ if(!job.photos) job.photos=[]; job.photos.push({ dataUrl, include:true }); } function render(){ renderPhotoGrid(); updatePreview(); saveDB(); } function onFiles(files){ var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; } (async function(){ for(const f of files){ try{ const data=await readAsDataURL(f); addPhotoToJob(j,data); }catch(e){ AppLog.error('photo read',e); } } render(); })(); } if(input){ input.addEventListener('change', ()=>{ onFiles(input.files||[]); input.value=''; }); } window.renderPhotoGrid=function(){ var j=currentJob(); var grid=document.getElementById('photoGrid'); grid.innerHTML=''; if(!j || !j.photos || !j.photos.length) return; j.photos.forEach(function(ph,idx){ var div=document.createElement('div'); div.className='photo-item'; div.innerHTML='<img src=\"'+ph.dataUrl+'\" alt=\"\"><button class=\"del\">×</button><label><input type=\"checkbox\" '+(ph.include!==false?'checked':'')+'> Include on PDF</label>'; div.querySelector('.del').addEventListener('click', ()=>{ j.photos.splice(idx,1); render(); }); div.querySelector('input[type=checkbox]').addEventListener('change', (e)=>{ ph.include = e.target.checked; render(); }); grid.appendChild(div); }); } })();
+
+    // Templates (modal + apply)
+    function renderTemplates(){
+      var list = document.getElementById('tplList'); if(!list) return;
+      list.innerHTML = '';
+      (DB.templates||[]).forEach(function(tpl, idx){
+        var card = document.createElement('div'); card.className='card'; card.style.background='#fff'; card.style.color='#000'; card.style.borderColor='#b6b09f';
+        var html = '<h4 style=\"color:#0e111a; margin:0 0 6px 0\">'+tpl.platform+'</h4>';
+        html += '<div class=\"small\">'+tpl.items.length+' items</div>';
+        html += '<div class=\"actions\" style=\"margin-top:8px\"><button class=\"tab-btn\" data-apply=\"'+idx+'\">Apply</button></div>';
+        card.innerHTML = html; list.appendChild(card);
+      });
+      list.querySelectorAll('button[data-apply]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var idx = Number(btn.getAttribute('data-apply')||0);
+          var tpl = DB.templates[idx]; if(!tpl) return;
+          applyTemplate(tpl);
+          alert('Template applied: '+tpl.platform);
+        });
+      });
+    }
+    function openTemplatesModal(){ var m=document.getElementById('tplModal'); renderTemplates(); m.style.display='flex'; }
+    document.getElementById('tplClose').addEventListener('click', function(){ document.getElementById('tplModal').style.display='none'; });
+
+    function applyTemplate(tpl){
+      var j = ensureJobSelected(true); if(!j) return;
+      (tpl.items||[]).forEach(function(it){
+        if(it.type==='Labor'){
+          addLine('Labor', it.desc, it.qty||1, Number($('#laborRate').value||80), 0, '');
+        } else {
+          var sell = (it.cost||0) * (1 + (Number(it.markup||0)/100));
+          var desc = (it.desc||'') + (it.part?(' ('+it.part+')'):'') + (it.vendor?(' — '+it.vendor):'');
+          addLine('Part', desc, 1, Number(sell.toFixed(2)), Number(it.cost||0), '');
+        }
+      });
+      persistLines();
+    }
 
     function renderSettings(){ $('#defaultMarkup').value=DB.settings.defaultMarkup||40; $('#shopFrom').value=DB.settings.shopFrom||'Poppe’s Diesel Co.'; $('#shopReply').value=DB.settings.shopReply||'poppedieselco@gmail.com'; $('#shopSubj').value=DB.settings.shopSubj||'[Poppe’s Diesel Co.] '; $('#shopFooter').value=DB.settings.shopFooter||'Thank you for supporting local.'; ['defaultMarkup','shopFrom','shopReply','shopSubj','shopFooter'].forEach(function(id){ var el=document.getElementById(id); if(!el) return; el.addEventListener('input', function(){ DB.settings[id] = (id==='defaultMarkup') ? Number(el.value||40) : el.value; saveDB(); }); }); }
     function renderDashboard(){ var open=DB.jobs.filter(j=> j.status!=='Done').length; var unpaid=DB.jobs.filter(j=> j.docType==='Invoice' && !j.paid).length; var now=new Date(); var ym=now.toISOString().slice(0,7); var rev=0, prof=0; DB.jobs.forEach(function(j){ var createdMonth=(j.paidAt||j.createdAt||'').slice(0,7); if(createdMonth===ym){ var subtotal=j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*(Number(l.unit)||0), 0); var profit=j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*((Number(l.unit)||0)-(Number(l.cost)||0)), 0); rev+=subtotal; prof+=profit; } }); $('#openJobs').textContent=open; $('#unpaid').textContent=unpaid; $('#revMonth').textContent=fmt(rev); $('#profitMonth').textContent=fmt(prof); }
