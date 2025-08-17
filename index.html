@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-<title>Poppe’s Diesel Co. — Shop Manager (v1.1.0)</title>
+<title>Poppe’s Diesel Co. — Shop Manager (v1.1.1)</title>
 
 <!-- ===== THEME & BASE ===== -->
 <style>
@@ -98,7 +98,7 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
 .sig-label{ font-size:.9em; color:#333; margin-top:4px; }
 .sig-img{ max-height:60px; max-width:100%; object-fit:contain; }
 
-/* Photos */
+/* Photos (thumbnail grid in app UI) */
 .photo-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; }
 .photo-item{ position:relative; background:#fff; border:1px solid #b6b09f; border-radius:8px; padding:6px; }
 .photo-item img{ width:100%; height:90px; object-fit:cover; border-radius:6px; }
@@ -115,7 +115,7 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
 <body>
 <div id="error">JavaScript error detected. Tap to reload.</div>
 <header>
-  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.1.0</span><span id="selftest" class="tag selftest">Self-test: …</span></h1>
+  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.1.1</span><span id="selftest" class="tag selftest">Self-test: …</span></h1>
   <nav class="top">
     <button class="tab-btn" data-tab="dashboard">Dashboard</button>
     <button class="tab-btn" data-tab="customers">Customers</button>
@@ -468,7 +468,7 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
   var logEl = document.getElementById('debugLog');
   var metaEl = document.getElementById('debugMeta');
   var buf = [];
-  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\n'); } }
+  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\\n'); } }
   window.AppLog = {
     info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
     warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
@@ -512,7 +512,7 @@ if(!crypto.randomUUID){ crypto.randomUUID = function(){ return 'id-' + Math.rand
 /* ===== App ===== */
 window.addEventListener('load', function(){
   guard('init', function(){
-    var STORAGE_KEY = 'poppe_shop_db_v110';
+    var STORAGE_KEY = 'poppe_shop_db_v111';
     var DB = loadDB() || defaultDB();
 
     // ---- UI state (remember active tab & last job) ----
@@ -593,7 +593,6 @@ window.addEventListener('load', function(){
         window.scrollTo({top:0, behavior:'smooth'});
       });
     });
-    // restore active tab if present
     if (UI.activeTab && document.getElementById(UI.activeTab)) {
       $$('.tab').forEach(t=>t.classList.remove('active'));
       document.getElementById(UI.activeTab).classList.add('active');
@@ -626,11 +625,9 @@ window.addEventListener('load', function(){
 
     /* ===== Jobs Tab ===== */
     function renderJobCustomer(){
-      // Jobs tab customer picker
       var sel = $('#jobCustomer');
       sel.innerHTML = '<option value="">Select...</option>' + DB.customers.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join('');
 
-      // Invoice tab filters & lists
       renderInvFilters();
       renderInvJobOptions();
       renderRecentJobs();
@@ -685,7 +682,7 @@ window.addEventListener('load', function(){
       DB.jobs.forEach(function(j){
         var c = DB.customers.find(x=> x.id===j.customerId);
         var subtotal = j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*(Number(l.unit)||0), 0);
-        var profit = j.lines.reduce((s,l)=> s + (Number(l.profit)||0), 0);
+        var profit = j.lines.reduce((s,l)=> s + (Number(l.qty||0))*((Number(l.unit)||0)-(Number(l.cost)||0)), 0);
         var badge = j.status==='Open' ? 'badge-open' : (j.status==='In Progress'?'badge-ip':'badge-done');
         var tr = document.createElement('tr');
         tr.innerHTML =
@@ -767,19 +764,14 @@ window.addEventListener('load', function(){
 
     function loadInvoice(id){
       var j = DB.jobs.find(x=> x.id===id); if(!j) return;
-      // lines
       $('#lines tbody').innerHTML='';
       (j.lines||[]).forEach(l=> addLine(l.type,l.desc,l.qty,l.unit,l.cost,l.note));
-      // headers
       $('#invNo').value = j.invNo||''; $('#docType').value = j.docType||'Estimate'; $('#payLink').value = j.paymentLink||'';
       var c = DB.customers.find(x=> x.id===j.customerId); $('#emailTo').value = (c && c.email) ? c.email : '';
-      // notes
       $('#overallNotes').value = j.overallNotes||'';
       $('#internalNotes').value = j.internalNotes||'';
-      // photos
       renderPhotoGrid();
       $('#photosOnPdf').checked = !!j.photosOnPdf || j.photosOnPdf===undefined; // default true
-      // preview
       updatePreview(); recalcTotals();
     }
 
@@ -879,7 +871,6 @@ window.addEventListener('load', function(){
       var margin = grand>0 ? Math.round((profit/grand)*100) : 0;
       var badge = $('#margin');
       badge.textContent = margin + '%';
-      // Three tiers: green >=25, neutral >=15, yellow else
       badge.className='badge ' + (margin>=25?'invoice': (margin>=15?'badge-open':'estimate'));
       $('#pSub').textContent = fmt(subtotal); $('#pTax').textContent = fmt(tax); $('#pGrand').textContent = fmt(grand);
     }
@@ -892,6 +883,7 @@ window.addEventListener('load', function(){
       $('#pStatus').textContent = j && j.paid ? 'Paid' : (t==='Estimate' ? (j && j.approved ? 'Approved':'Pending Approval') : 'Unpaid');
       var c = j ? DB.customers.find(x=> x.id===j.customerId) : null;
       $('#pCust').textContent = c?c.name:'—'; $('#pVeh').textContent = c?(c.vehicle||''):'';
+
       // lines
       var tbody = $('#pLines'); tbody.innerHTML='';
       (j?j.lines:[]).forEach(function(l){
@@ -904,12 +896,14 @@ window.addEventListener('load', function(){
           tbody.appendChild(trn);
         }
       });
+
       // overall notes
       var pBlk = $('#pOverallBlock'); pBlk.innerHTML='';
       if(j && j.overallNotes && j.overallNotes.trim()){
         pBlk.innerHTML = '<h4 style="margin:8px 0 4px 0;">Technician Overall Notes</h4>' +
           '<div style="white-space:pre-wrap; line-height:1.35;">'+escapeHtml(j.overallNotes.trim())+'</div>';
       }
+
       // signatures
       function setSig(role){
         var img = role==='customer' ? $('#pSigCustomer') : $('#pSigManager');
@@ -926,13 +920,13 @@ window.addEventListener('load', function(){
       }
       setSig('customer'); setSig('manager');
 
-      // photos
+      // photos (PDF-friendly classnames)
       var pPhotos = $('#pPhotosBlock'); pPhotos.innerHTML='';
       if(j && j.photosOnPdf && j.photos && j.photos.length){
-        var html = '<h4 style="margin:8px 0 4px 0;">Work Photos</h4><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px">';
+        var html = '<h4 style="margin:8px 0 4px 0;">Work Photos</h4><div class="p-photos">';
         j.photos.forEach(function(ph){
           if(!ph || !ph.dataUrl || ph.include === false) return;
-          html += '<div style="border:1px solid #000;padding:4px;border-radius:6px;"><img src="'+ph.dataUrl+'" style="width:100%;height:110px;object-fit:cover;border-radius:4px"/></div>';
+          html += '<div class="p-photo"><img src="'+ph.dataUrl+'" alt=""></div>';
         });
         html += '</div>';
         pPhotos.innerHTML = html;
@@ -954,7 +948,6 @@ window.addEventListener('load', function(){
       var j=ensureJobSelected(); if(!j) return;
       j.paid=!j.paid;
       j.paidAt=j.paid?new Date().toISOString():null;
-      // snapshot current tax used for monthly revenue calc
       if(j.paid){ j.taxPercentAtSale = Number($('#salesTax').value||0); }
       updatePreview(); renderJobs(); saveDB(); alert(j.paid?'Marked Paid':'Marked Unpaid');
     });
@@ -964,7 +957,7 @@ window.addEventListener('load', function(){
       var j=ensureJobSelected(); if(!j) return;
       var to=encodeURIComponent($('#emailTo').value.trim()||'');
       var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim());
-      var body=encodeURIComponent('Hello,\n\nYour '+j.docType+' total is '+$('#grand').textContent+'.\nPayment link: '+(j.paymentLink||'')+'\n\n'+(DB.settings.shopFooter||'')+'\n\n— '+(DB.settings.shopFrom||''));
+      var body=encodeURIComponent('Hello,\\n\\nYour '+j.docType+' total is '+$('#grand').textContent+'.\\nPayment link: '+(j.paymentLink||'')+'\\n\\n'+(DB.settings.shopFooter||'')+'\\n\\n— '+(DB.settings.shopFrom||''));
       location.href='mailto:'+to+'?subject='+subj+'&body='+body;
     });
 
@@ -987,14 +980,19 @@ window.addEventListener('load', function(){
         '.sig-img{max-height:60px;}' +
         '.watermark{position:absolute;inset:0;z-index:0;opacity:.08}' +
         '#wmImg{max-width:90%;max-height:90%;opacity:.12}' +
-        '#wmFallback{opacity:.12}';
+        '#wmFallback{opacity:.12}' +
+        '/* Photo grid for PDF */' +
+        '.p-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}' +
+        '.p-photo{border:1px solid #000;padding:4px;border-radius:6px;break-inside:avoid;page-break-inside:avoid}' +
+        '.p-photo img{width:100%;height:1.8in;object-fit:cover;border-radius:4px;display:block}' +
+        '#pPhotosBlock{page-break-before:always}'; // remove this rule if you don't want photos on a new page
+
       var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>'
                   + document.getElementById('preview').outerHTML
                   + '</body></html>';
       var w = window.open('', '_blank');
       if(!w){ alert('Please allow pop-ups to print.'); return; }
       w.document.open(); w.document.write(htmlDoc); w.document.close();
-      // Wait for images (watermark, signatures, photos) before printing
       const imgs = Array.from(w.document.images || []);
       Promise.all(imgs.map(img => img.complete ? Promise.resolve() :
         new Promise(res => { img.addEventListener('load',res,{once:true}); img.addEventListener('error',res,{once:true}); })
@@ -1003,290 +1001,4 @@ window.addEventListener('load', function(){
 
     // Header field listeners
     $('#invNo').addEventListener('input', persistLines);
-    $('#docType').addEventListener('change', function(){ persistLines(); updatePreview(); });
-    $('#payLink').addEventListener('input', persistLines);
-    $('#emailTo').addEventListener('input', persistLines);
-    $('#laborRate').addEventListener('input', function(){ persistLines(); recalcTotals(); });
-    $('#salesTax').addEventListener('input', function(){ persistLines(); recalcTotals(); });
-
-    // Switching jobs
-    $('#invJob').addEventListener('change', function(e){ UI.lastJobId = e.target.value; saveUI(UI); loadInvoice(e.target.value); });
-
-    // Photos (downscale on import to keep PDFs small)
-    function renderPhotoGrid(){
-      var j = currentJob(); if(!j) return;
-      var grid = $('#photoGrid'); grid.innerHTML='';
-      (j.photos||[]).forEach(function(ph,idx){
-        var d = document.createElement('div'); d.className='photo-item';
-        d.innerHTML = '<button class="del" title="Remove">✕</button><img src="'+ph.dataUrl+'" alt="photo"><label><input type="checkbox" '+(ph.include!==false?'checked':'')+'> include on PDF</label>';
-        d.querySelector('.del').addEventListener('click', function(){
-          j.photos.splice(idx,1); saveDB(); renderPhotoGrid(); updatePreview();
-        });
-        d.querySelector('input[type="checkbox"]').addEventListener('change', function(){
-          ph.include = this.checked; saveDB(); updatePreview();
-        });
-        grid.appendChild(d);
-      });
-      updatePreview();
-    }
-
-    (function(){
-      const MAX_W = 1200, MAX_H = 900;
-      function readAsDataURL(file){
-        return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); });
-      }
-      function downscale(dataUrl){
-        return new Promise((res)=>{
-          const img = new Image();
-          img.onload = function(){
-            const r = Math.min(MAX_W/img.width, MAX_H/img.height, 1);
-            const cw = Math.round(img.width * r), ch = Math.round(img.height * r);
-            const c = document.createElement('canvas'); c.width=cw; c.height=ch;
-            c.getContext('2d').drawImage(img,0,0,cw,ch);
-            res(c.toDataURL('image/jpeg', 0.85));
-          };
-          img.src = dataUrl;
-        });
-      }
-      document.getElementById('photoInput').addEventListener('change', async function(evt){
-        const j = currentJob(); if(!j) return;
-        const files = Array.from(evt.target.files||[]);
-        if(!files.length) return;
-        for (const f of files){
-          try{
-            const raw = await readAsDataURL(f);
-            const scaled = await downscale(raw);
-            j.photos.push({dataUrl: scaled, include:true});
-          }catch(e){ AppLog.warn('photo import failed: '+(e&&e.message)); }
-        }
-        saveDB(); renderPhotoGrid(); evt.target.value='';
-      });
-    })();
-
-    // Signatures
-    function openSigModal(role){
-      var modal = $('#sigModal'); modal.style.display='flex';
-      $('#sigRole').value = role || 'customer';
-      $('#sigTitle').textContent = 'Collect '+($('#sigRole').value==='customer'?'Customer':'Service Manager')+' Signature';
-      var today = new Date(); var iso = today.toISOString().slice(0,10);
-      $('#sigDate').value = iso;
-      $('#sigName').value = '';
-      clearPad();
-    }
-    $('#sign').addEventListener('click', function(){
-      if(!ensureJobSelected()) return;
-      openSigModal('customer');
-    });
-    $('#sigClose').addEventListener('click', ()=> $('#sigModal').style.display='none');
-
-    // Sig pad
-    var canvas = document.getElementById('sigPad');
-    var ctx = canvas.getContext('2d');
-    ctx.lineWidth = 2; ctx.lineCap='round';
-    var drawing=false, last=null;
-    function pos(e){
-      if(e.touches && e.touches.length){ var r=canvas.getBoundingClientRect(); return {x: e.touches[0].clientX - r.left, y:e.touches[0].clientY - r.top}; }
-      var r=canvas.getBoundingClientRect(); return {x: e.clientX - r.left, y: e.clientY - r.top};
-    }
-    function start(e){ drawing=true; last=pos(e); e.preventDefault(); }
-    function move(e){
-      if(!drawing) return;
-      var p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; e.preventDefault();
-    }
-    function end(){ drawing=false; last=null; }
-    function clearPad(){ ctx.clearRect(0,0,canvas.width,canvas.height); }
-    canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); document.addEventListener('mouseup', end);
-    canvas.addEventListener('touchstart', start, {passive:false}); canvas.addEventListener('touchmove', move, {passive:false}); canvas.addEventListener('touchend', end);
-
-    $('#sigClear').addEventListener('click', clearPad);
-
-    function isCanvasBlank(c){
-      const ctx = c.getContext('2d');
-      const pixelBuffer = new Uint32Array(ctx.getImageData(0,0,c.width,c.height).data.buffer);
-      return !pixelBuffer.some(color => color !== 0);
-    }
-
-    $('#sigSave').addEventListener('click', function(){
-      var j = currentJob(); if(!j) return;
-      if(isCanvasBlank(canvas)){ alert('Please sign before saving.'); return; }
-      var url = canvas.toDataURL('image/png');
-      var role = $('#sigRole').value; var name = $('#sigName').value.trim(); var date = $('#sigDate').value;
-      j.signatures[role] = { dataUrl:url, name:name, date:date, savedAt:new Date().toISOString() };
-      // UX: mark approved if customer signs an Estimate
-      if(role==='customer' && j.docType==='Estimate'){ j.approved = true; j.approvedAt = new Date().toISOString(); }
-      saveDB(); updatePreview(); alert('Signature saved.'); $('#sigModal').style.display='none';
-    });
-
-    // Quick estimate
-    function openQE(){ $('#qeModal').style.display='flex'; }
-    $('#quickEstimate').addEventListener('click', function(){ if(!ensureJobSelected()) return; openQE(); });
-    $('#qeClose').addEventListener('click', ()=> $('#qeModal').style.display='none');
-    function buildQELines(mode){
-      var j = currentJob(); if(!j) return;
-      var title = $('#qeTitle').value.trim() || 'Quick Estimate';
-      var partsCost = Number($('#qePartsCost').value||0);
-      var mu = Number($('#qeMarkup').value||DB.settings.defaultMarkup||40)/100;
-      var hours = Number($('#qeHours').value||1);
-      var lr = Number($('#laborRate').value||80);
-      var partUnit = partsCost*(1+mu);
-      var lines = [];
-      if(partsCost>0) lines.push({type:'Part',desc:title+' — parts',qty:1,unit:partUnit,cost:partsCost,note:''});
-      if(hours>0) lines.push({type:'Labor',desc:title+' — labor',qty:hours,unit:lr,cost:0,note:''});
-      if(mode==='replace'){ j.lines = []; }
-      lines.forEach(l=> j.lines.push(l));
-      saveDB(); $('#qeModal').style.display='none'; loadInvoice(j.id);
-    }
-    $('#qeApplyAppend').addEventListener('click', ()=>buildQELines('append'));
-    $('#qeApplyReplace').addEventListener('click', function(){
-      if(confirm('Replace existing lines with this quick estimate?')) buildQELines('replace');
-    });
-
-    // Templates
-    function renderTemplates(){
-      var tb = $('#tplTable tbody'); if(!tb) return;
-      tb.innerHTML = DB.templates.map(function(t){
-        return t.items.map(it=>'<tr><td>'+t.platform+'</td><td>'+it.desc+'</td><td>'+it.type+'</td><td>'+(it.qty||'')+'</td><td>'+(it.cost!=null?fmt(it.cost):'')+'</td><td>'+(it.markup!=null?it.markup+'%':'')+'</td></tr>').join('');
-      }).join('');
-    }
-    function openTemplates(matchText){
-      var list = $('#tplList'); list.innerHTML='';
-      DB.templates.forEach(function(tpl){
-        var box = document.createElement('div'); box.className='card'; box.style.background='#1d312a'; box.style.color='#fff';
-        var btn = document.createElement('button'); btn.className='primary'; btn.textContent='Apply Bundle';
-        btn.addEventListener('click', function(){ applyTemplate(tpl); });
-        box.innerHTML = '<h4>'+tpl.platform+'</h4><ul style="margin:0 0 8px 16px">'+tpl.items.map(function(it){ return '<li>'+it.type+' — '+it.desc+(it.type==='Part' ? (' ('+(it.vendor||'')+' '+(it.part||'')+')') : '')+'</li>'; }).join('')+'</ul>';
-        box.appendChild(btn); list.appendChild(box);
-      });
-      $('#tplModal').style.display='flex';
-    }
-    function applyTemplate(tpl){
-      var defMu = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
-      tpl.items.forEach(function(it){
-        if(it.type==='Labor'){
-          addLine('Labor', it.desc, it.qty||1, it.unit||Number($('#laborRate').value||80), 0, '');
-        } else {
-          var cost = Number(it.cost||0); var mu = (it.markup!=null ? Number(it.markup)/100 : defMu);
-          var unit = cost * (1+mu);
-          addLine('Part', it.desc + (it.part?(' ('+it.part+')'):'') + ' — ' + (it.vendor||''), 1, unit, cost, '');
-        }
-      });
-      $('#tplModal').style.display='none'; saveDB();
-    }
-    $('#tplClose').addEventListener('click', ()=> $('#tplModal').style.display='none');
-    $('#openTemplates').addEventListener('click', ()=> openTemplates(''));
-
-    // Dashboard (fix: profit uses qty*cost)
-    function renderDashboard(){
-      var open = DB.jobs.filter(j=> j.status!=='Done').length;
-      var unpaid = DB.jobs.filter(j=> j.docType==='Invoice' && !j.paid && j.lines.length>0).length;
-      var rev=0, prof=0;
-      var now = new Date(); var mkey = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
-      function monthKey(d){ var dd = new Date(d); return dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0'); }
-      DB.jobs.forEach(function(j){
-        var subtotal = j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*(Number(l.unit)||0), 0);
-        // Correct profit: qty*unit - qty*cost (works for Labor too; cost usually 0)
-        var profit = j.lines.reduce((s,l)=>{
-          const q=Number(l.qty||0), u=Number(l.unit||0), c=Number(l.cost||0);
-          return s + (q*u - q*c);
-        }, 0);
-        if(j.paid && j.paidAt && monthKey(j.paidAt)===mkey){
-          var taxPct = (typeof j.taxPercentAtSale === 'number') ? j.taxPercentAtSale : Number($('#salesTax').value||0);
-          var tax = subtotal*(taxPct/100);
-          rev+=subtotal+tax; prof+=profit;
-        }
-      });
-      $('#openJobs').textContent = open; $('#unpaid').textContent = unpaid; $('#revMonth').textContent = fmt(rev); $('#profitMonth').textContent = fmt(prof);
-    }
-
-    // Settings
-    function renderSettings(){
-      $('#defaultMarkup').value = DB.settings.defaultMarkup||40;
-      $('#shopFrom').value = DB.settings.shopFrom||'';
-      $('#shopReply').value = DB.settings.shopReply||'';
-      $('#shopSubj').value = DB.settings.shopSubj||'';
-      $('#shopFooter').value = DB.settings.shopFooter||'';
-    }
-    $('#defaultMarkup').addEventListener('change', function(){ DB.settings.defaultMarkup = Number(this.value||40); saveDB(); recalcTotals(); });
-    $('#shopFrom').addEventListener('input', function(){ DB.settings.shopFrom = this.value; saveDB(); });
-    $('#shopReply').addEventListener('input', function(){ DB.settings.shopReply = this.value; saveDB(); });
-    $('#shopSubj').addEventListener('input', function(){ DB.settings.shopSubj = this.value; saveDB(); });
-    $('#shopFooter').addEventListener('input', function(){ DB.settings.shopFooter = this.value; saveDB(); });
-
-    // Backup/Restore/Reset
-    $('#backupBtn').addEventListener('click', function(){
-      try{
-        var data = JSON.stringify(DB, null, 2);
-        var blob = new Blob([data], {type:'application/json'});
-        var url = URL.createObjectURL(blob);
-        var a = document.createElement('a'); a.href = url; a.download = 'poppe_shop_backup.json'; a.click();
-        URL.revokeObjectURL(url);
-      }catch(e){ AppLog.error('backup failed', e); alert('Backup failed.'); }
-    });
-    $('#restoreFile').addEventListener('change', function(evt){
-      var f = evt.target.files && evt.target.files[0]; if(!f) return;
-      var reader = new FileReader();
-      reader.onload = function(){ try{ DB = JSON.parse(reader.result); upgradeDB(); saveDB(); renderAll(); alert('Restore complete.'); } catch(e){ AppLog.error('restore failed', e); alert('Restore failed — bad file?'); } };
-      reader.readAsText(f);
-    });
-    $('#resetBtn').addEventListener('click', function(){
-      if(confirm('This will wipe customers, jobs, lines, photos, signatures and settings. Continue?')){ localStorage.removeItem(STORAGE_KEY); resetDB(); alert('Reset complete.'); }
-    });
-
-    // Initial seed
-    if(!loadDB()){
-      var cid = crypto.randomUUID(); DB.customers.push({id:cid, name:"Shane Diesel", email:"shane@example.com", vehicle:"2018 Ford Escape 2.0T"});
-      DB.jobs.push({id:crypto.randomUUID(), customerId:cid, title:"Alternator + PCM diagnostics", status:"In Progress", lines:[
-        {type:"Labor",desc:"Diagnostics",qty:1.5,unit:80,cost:0,profit:120,note:"Verified concern under load."},
-        {type:"Part",desc:"Alternator",qty:1,unit:324,cost:250,profit:74,note:"OEM preferred; core required."}
-      ], paid:false, docType:"Estimate", paymentLink:"", overallNotes:"Initial assessment complete.", internalNotes:"Customer wants OEM only.", photos:[], signatures:{customer:null,manager:null}, createdAt:new Date().toISOString()});
-    } else {
-      upgradeDB();
-    }
-    renderAll();
-
-    // Restore last job after render
-    if (UI.lastJobId && DB.jobs.find(j=>j.id===UI.lastJobId)) {
-      $('#invJob').value = UI.lastJobId; loadInvoice(UI.lastJobId);
-    }
-
-    // Drag & drop rows (handle-only)
-    (function(){
-      const tbody = document.querySelector('#lines tbody'); if(!tbody) return;
-      let dragSrc = null;
-      function rowFrom(el){ while(el && el.tagName!=='TR') el=el.parentElement; return el; }
-      tbody.addEventListener('mousedown', (e)=>{ const h=e.target.closest('.handle'); if(!h) return; const tr=rowFrom(h); if(tr){ tr.setAttribute('draggable','true'); tr.dataset.dragOk='1'; }}, true);
-      document.addEventListener('mouseup', ()=>{ document.querySelectorAll('#lines tbody tr[draggable="true"]').forEach(tr=>{ tr.removeAttribute('draggable'); delete tr.dataset.dragOk; }); });
-      tbody.addEventListener('dragstart', (e)=>{ const tr=rowFrom(e.target); if(!tr || tr.dataset.dragOk!=='1'){ e.preventDefault(); return; } dragSrc=tr; tr.classList.add('dragging'); try{ e.dataTransfer.setData('text/plain','reorder'); }catch(_){ } e.dataTransfer.effectAllowed='move'; });
-      tbody.addEventListener('dragend', (e)=>{ const tr=rowFrom(e.target)||dragSrc; if(tr){ tr.classList.remove('dragging'); tr.removeAttribute('draggable'); delete tr.dataset.dragOk; } dragSrc=null; document.querySelectorAll('.drop-target').forEach(el=>el.classList.remove('drop-target')); });
-      function mid(tr){ const r=tr.getBoundingClientRect(); return r.top+r.height/2; }
-      tbody.addEventListener('dragover', (e)=>{ if(!dragSrc) return; e.preventDefault(); const target=rowFrom(e.target); if(!target||target===dragSrc) return; const m=mid(target); if(e.clientY<m){ tbody.insertBefore(dragSrc,target); } else { tbody.insertBefore(dragSrc,target.nextSibling); } target.classList.add('drop-target'); setTimeout(()=>target.classList.remove('drop-target'),80); });
-      tbody.addEventListener('drop', (e)=>{ if(!dragSrc) return; e.preventDefault(); dragSrc=null; try{ persistLines(); }catch(err){ console.warn('persistLines after reorder failed', err); } });
-    })();
-
-    // Back to top button behavior
-    (function(){
-      const btn = document.getElementById('toTop');
-      window.addEventListener('scroll', ()=>{ btn.style.display = (window.scrollY>400)?'block':'none'; });
-      btn.addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
-    })();
-
-    // Self-test indicator
-    (function(){
-      const st = document.getElementById('selftest');
-      function set(tag, cls){ st.textContent = 'Self-test: ' + tag; st.classList.remove('ok','warn'); st.classList.add(cls); }
-      try{
-        const lsOK = (function(){ localStorage.setItem('__pdc_t','1'); localStorage.removeItem('__pdc_t'); return true; })();
-        const canCanvas = !!document.createElement('canvas').getContext;
-        const canBlob = !!window.Blob;
-        const ok = lsOK && canCanvas && canBlob;
-        set(ok ? 'OK' : 'Limited', ok ? 'ok' : 'warn');
-      }catch(_){
-        set('Limited', 'warn');
-      }
-    })();
-
-  }); // guard init
-}); // load
-</script>
-</body>
-</html>
+    $('#docType').add
