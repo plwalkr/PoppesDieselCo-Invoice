@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-<title>Poppe’s Diesel Co. — Shop Manager (v1.1.3 — COMPAT)</title>
+<title>Poppe’s Diesel Co. — Shop Manager (v1.1.4 — COMPAT)</title>
 <style>
 :root{--bg:#e6cfae;--card:#13151c;--text:#0e111a;--muted:#3e463e;--border:#2e3226;--ink:#0e111a;--ink2:#161a24;--shadow:0 10px 20px rgba(0,0,0,.30);--info:#0a3d2e;--ok:#1f6b55;--warn:#f5c518;--danger:#962b2b;--font:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 *{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
@@ -37,7 +37,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .selftest{display:none;margin-left:8px}.selftest.ok{display:inline-block;background:#10331f;border:1px solid #1f6440;color:#a5ffd8}.selftest.warn{display:inline-block;background:#3a2f00;border:1px solid #7a5f00;color:#ffeaa3}
 #toTop{position:fixed;right:20px;bottom:140px;z-index:60;background:#1d312a;color:#fff;border:1px solid #0e241c;border-radius:999px;padding:10px 14px;display:none;box-shadow:var(--shadow)}#toTop:hover{filter:brightness(1.08)}
 @media print{body{background:#fff;color:#000}header,nav.bottom,nav.top,.actions,.modal,#debug,#debugToggle,#invFilters,#internalNotesWrap,#photosWrap{display:none!important}.tab{display:block!important}#invoice{display:block!important}.print-area{box-shadow:none;margin:0;padding:0}}
-#pdf{position:fixed;bottom:80px;right:20px;z-index:1000;min-width:160px;height:50px;background:var(--info);color:#fff;border:none;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+#pdf{position:fixed;bottom:160px;right:20px;z-index:1000;min-width:160px;height:50px;background:var(--info);color:#fff;border:none;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
 #pdf:hover{filter:brightness(1.05)}
 .drag-col{width:28px;text-align:center}.handle{min-width:32px;height:36px;padding:4px 6px;cursor:grab}.handle:active{cursor:grabbing}.draggable-row.dragging{opacity:.5}.drop-target{outline:2px dashed var(--info);outline-offset:-2px}
 .desc-wrap{display:flex;flex-direction:column;gap:6px}.lNote{width:100%;min-height:64px;resize:vertical;background:#fff;color:#0e111a;border:1px solid #b6b09f;border-radius:10px;padding:8px 10px;font-size:.95rem}
@@ -71,7 +71,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 
 <div id="error" style="display:none">JavaScript error detected. Tap to reload.</div>
 <header>
-  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.1.3</span><span id="selftest" class="tag selftest">Self-test: …</span><span class="tag">COMPAT</span></h1>
+  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.1.4</span><span id="selftest" class="tag selftest">Self-test: …</span><span class="tag">COMPAT</span></h1>
   <nav class="top">
     <button class="tab-btn" data-tab="dashboard">Dashboard</button>
     <button class="tab-btn" data-tab="customers">Customers</button>
@@ -248,7 +248,6 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
       <div class="grid"><label>Upload Logo <input id="wmFile" type="file" accept="image/*"></label><button id="wmClear" class="tab-btn" type="button">Clear Watermark</button></div>
       <div class="small">Upload your logo here once; it will print faintly behind the invoice/estimate.</div>
     </div>
-  
     <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
       <h3 style="color:#0e111a">Backup & Restore</h3>
       <div class="grid">
@@ -258,7 +257,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
       </div>
       <div class="small">Backups include customers, jobs, lines, settings, templates, photos, and signatures.</div>
     </div>
-</section>
+  </section>
 </main>
 
 <button id="toTop" title="Back to top">↑ Top</button>
@@ -344,7 +343,7 @@ if (!window.crypto.randomUUID){
 }
 
 (function(){
-  /* Watermark upload/cache (no modern syntax) */
+  /* Watermark upload/cache */
   var KEY = 'pdc_wm_dataurl';
   var imgEl = document.getElementById('wmImg');
   var fallback = document.getElementById('wmFallback');
@@ -517,11 +516,11 @@ window.addEventListener('load', function(){
       if(DB.jobs.length===1){ $('#invJob').value = j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); }
     });
 
-    // VIN decode (XMLHttpRequest for compat)
+    // VIN decode (compat using XHR)
     $('#decodeVIN').addEventListener('click', function(){
       var vin = $('#jobVIN').value.trim();
       var box = $('#vinResult'); var sug = $('#vinSuggest'); var tags = $('#vinTags');
-      box.style.display='block'; box.textContent = 'Decoding…'; sug.style.display='none'; tags.innerHTML='';
+      box.style.display='block'; box.textContent = 'Decoding…'; sug.style.display='none'; if(tags) tags.innerHTML='';
       if(!vin || vin.length<11){ box.textContent='Enter a valid VIN (17 preferred).'; return; }
       var xhr = new XMLHttpRequest();
       xhr.open('GET', 'https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/'+encodeURIComponent(vin)+'?format=json', true);
@@ -542,13 +541,14 @@ window.addEventListener('load', function(){
                        (p.indexOf('duramax')>-1 && (platformText.indexOf('chevrolet')>-1||platformText.indexOf('gmc')>-1||platformText.indexOf('gm')>-1));
               });
               if(!matched.length) matched = DB.templates.slice(0);
-              tags.innerHTML='';
+              if(tags){ tags.innerHTML=''; }
               matched.forEach(function(tpl){
                 var b=document.createElement('button'); b.className='tab-btn'; b.type='button'; b.textContent=tpl.platform;
                 b.addEventListener('click', function(){ applyTemplate(tpl); });
-                tags.appendChild(b);
+                if(tags) tags.appendChild(b);
               });
-              document.getElementById('addAllSuggest').onclick = function(){ for(var k=0;k<matched.length;k++){ applyTemplate(matched[k]); } };
+              var addAllBtn = document.getElementById('addAllSuggest');
+              if(addAllBtn){ addAllBtn.onclick = function(){ for(var k=0;k<matched.length;k++){ applyTemplate(matched[k]); } }; }
               sug.style.display='block'; saveDB();
             }catch(e){ box.textContent='VIN parse failed.'; }
           } else {
@@ -905,7 +905,7 @@ window.addEventListener('load', function(){
       var j=ensureJobSelected(); if(!j) return;
       var to=encodeURIComponent(document.getElementById('emailTo').value.trim()||'');
       var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim());
-      var body=encodeURIComponent('Hello,\n\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+'.\nPayment link: '+(j.paymentLink||'')+'\n\n'+(DB.settings.shopFooter||'')+'\n\n— '+(DB.settings.shopFrom||''));
+      var body=encodeURIComponent('Hello,\\n\\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+'.\\nPayment link: '+(j.paymentLink||'')+'\\n\\n'+(DB.settings.shopFooter||'')+'\\n\\n— '+(DB.settings.shopFrom||''));
       location.href='mailto:'+to+'?subject='+subj+'&body='+body;
     });
 
@@ -951,7 +951,7 @@ window.addEventListener('load', function(){
     document.getElementById('overallNotes').addEventListener('input', persistLines);
     document.getElementById('photosOnPdf').addEventListener('change', function(){ persistLines(); updatePreview(); });
 
-    // Signature pad (mouse only for compat; touch events often map to mouse events)
+    // Signature pad
     (function(){
       var modal=document.getElementById('sigModal');
       document.getElementById('sign').addEventListener('click', function(){ modal.style.display='flex'; });
@@ -1056,13 +1056,6 @@ window.addEventListener('load', function(){
       document.getElementById('profitMonth').textContent=fmt(prof);
     }
 
-    (function selftest(){
-      var ok = !!(window.localStorage && document.querySelector && document.createElement);
-      var tag=document.getElementById('selftest');
-      if(tag){ tag.textContent='Self-test: '+(ok?'OK':'Limited'); tag.className='tag selftest '+(ok?'ok':'warn'); }
-    })();
-
-    
     // Backup & Restore
     (function(){
       function download(filename, text){
@@ -1074,6 +1067,29 @@ window.addEventListener('load', function(){
         document.body.appendChild(a);
         a.click();
         setTimeout(function(){ URL.revokeObjectURL(url); document.body.removeChild(a); }, 0);
+      }
+      function selectMostRecentJob(){
+        try{
+          if(!DB || !DB.jobs || !DB.jobs.length) return;
+          var jobs = DB.jobs.slice(0);
+          jobs.sort(function(a,b){
+            var da = new Date(a.createdAt||0).getTime();
+            var db = new Date(b.createdAt||0).getTime();
+            return db - da;
+          });
+          var chosen = jobs[0];
+          var invSel = document.getElementById('invJob');
+          if(invSel){
+            if (typeof renderInvJobOptions === 'function') { renderInvJobOptions(); }
+            invSel.value = chosen.id;
+          }
+          if(typeof loadInvoice === 'function'){ loadInvoice(chosen.id); }
+          var invTabBtn = document.querySelector('[data-tab="invoice"]');
+          if(invTabBtn){ invTabBtn.click(); }
+          try{ UI.lastJobId = chosen.id; saveUI(UI); }catch(_){}
+        }catch(e){
+          AppLog.error('Auto-select job after restore failed', e);
+        }
       }
       var backupBtn = document.getElementById('backupBtn');
       var restoreFile = document.getElementById('restoreFile');
@@ -1102,10 +1118,11 @@ window.addEventListener('load', function(){
             try{
               var data = JSON.parse(r.result||'{}');
               if(!data || typeof data !== 'object'){ throw new Error('Invalid JSON file.'); }
-              // basic validation
               if(!('customers' in data) || !('jobs' in data)){ throw new Error('Missing customers/jobs arrays.'); }
               DB = data;
+              if (typeof upgradeDB === 'function') { upgradeDB(); }
               saveDB(); renderAll();
+              selectMostRecentJob();
               alert('Backup restored successfully.');
             }catch(e){
               AppLog.error('Restore failed', e);
@@ -1122,7 +1139,6 @@ window.addEventListener('load', function(){
         resetBtn.addEventListener('click', function(){
           if(!confirm('Factory reset? This will wipe customers, jobs, and settings from this browser. (The page itself remains.)')) return;
           try{
-            // Clear storage keys and rebuild defaults
             try{ localStorage.removeItem(STORAGE_KEY); }catch(_){}
             try{ localStorage.removeItem('pdc_ui_state'); }catch(_){}
             DB = defaultDB(); saveDB(); renderAll();
@@ -1135,8 +1151,13 @@ window.addEventListener('load', function(){
       }
     })();
 
+    (function selftest(){
+      var ok = !!(window.localStorage && document.querySelector && document.createElement);
+      var tag=document.getElementById('selftest');
+      if(tag){ tag.textContent='Self-test: '+(ok?'OK':'Limited'); tag.className='tag selftest '+(ok?'ok':'warn'); }
+    })();
+
     upgradeDB(); renderAll();
-    if(UI.lastJobId && currentJob()) { /* already set */ }
   });
 });
 </script>
