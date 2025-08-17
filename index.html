@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8"/>
@@ -15,8 +15,8 @@
 }
 *{box-sizing:border-box} html,body{height:100%} body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
 header{position:sticky;top:0;z-index:10;background:var(--ink);border-bottom:1px solid var(--border);padding:12px 16px;box-shadow:var(--shadow)}
-h1{margin:0;font-size:20px;display:flex;gap:8px;align-items:center}
-.tag{background:var(--ink2);color:var(--muted);padding:2px 6px;border-radius:6px;font-size:12px;white-space:nowrap}
+h1{margin:0;font-size:20px;display:flex;gap:8px;align-items:center;color:#fff}
+.tag{background:var(--ink2);color:#c5c9d3;padding:2px 6px;border-radius:6px;font-size:12px;white-space:nowrap}
 nav.top{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 button,select,input,textarea{background:#ffffff;border:1px solid #b6b09f;color:#0e111a;padding:12px 14px;border-radius:12px;font-size:17px;touch-action:manipulation}
 button{cursor:pointer} .tab-btn{background:#1d312a;color:#fff;border:1px solid #0e241c}
@@ -37,12 +37,13 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
 .invoice-header{position:relative;z-index:1;display:flex;justify-content:space-between;gap:16px;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:8px}
 .lines thead th{background:#203229;color:#eaf5f0;border-bottom-color:#2f463a}
 .totals{display:grid;gap:6px;justify-items:end;margin-top:8px;position:relative;z-index:1}
-.badge{padding:.25rem .5rem;border-radius:999px;border:1px solid #000;font-size:.9em}
+.badge{padding:.25rem .5rem;border-radius:999px;border:1px solid #000;font-size:.9em;background:#fff;color:#000}
 .badge.estimate{background:#fdf1c4;color:#2b2100} .badge.invoice{background:#d9efe7;color:#0a3d2e}
-.small{font-size:.85em;color:var(--muted)}
+.small{font-size:.85em;color:#2f3c2f}
 .calc-hint{font-size:.8em;line-height:1.2;margin-top:6px;opacity:.9}
 .calc-hint.ok{color:#0a7f63} .calc-hint.warn{color:#b48802}
 
+/* Debug + error */
 #debugToggle{position:fixed;right:12px;bottom:72px;z-index:60;background:#1e2030;border:1px solid #3a3f58;border-radius:999px;padding:10px 12px;color:#fff}
 #debug{position:fixed;right:12px;bottom:12px;left:12px;max-height:50vh;overflow:auto;background:#0f111a;border:1px solid #30364a;border-radius:12px;padding:10px 12px;z-index:60;display:none;font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;font-size:12px;color:#d7e1ff}
 #debug pre{white-space:pre-wrap;margin:0}
@@ -105,10 +106,19 @@ table{width:100%;border-collapse:collapse} th,td{padding:10px;border-bottom:1px 
 .photo-item .del{ position:absolute; top:4px; right:4px; background:#962b2b; color:#fff; border:none; border-radius:8px; padding:2px 6px; font-size:12px; cursor:pointer; }
 .photo-item label{ display:flex; align-items:center; gap:6px; margin-top:6px; font-size:12px; }
 
+/* PDF photo grid */
+.p-photos{display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:6px}
+.p-photo{border:1px solid #000; padding:4px; border-radius:6px; break-inside:avoid; page-break-inside:avoid}
+.p-photo img{width:100%; height:1.8in; object-fit:cover; border-radius:4px; display:block}
+
 /* Jobs table status colors */
 .badge-open{background:#fff;border-color:#b6b09f}
 .badge-ip{background:#fff7d6;border-color:#caa52a}
 .badge-done{background:#d9efe7;border-color:#1f6b55;color:#0a3d2e}
+
+/* Modal base */
+.modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:2000; background:rgba(0,0,0,.35)}
+.modal .panel{max-width:900px; width:95%}
 </style>
 </head>
 
@@ -576,7 +586,7 @@ window.addEventListener('load', function(){
 
     // tokenized AND search helper
     function matchesAllTokens(hay, q){
-      const tokens = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      const tokens = q.trim().toLowerCase().split(/\\s+/).filter(Boolean);
       const text = hay.toLowerCase();
       return tokens.every(t => text.includes(t));
     }
@@ -795,6 +805,7 @@ window.addEventListener('load', function(){
       ['change','input'].forEach(evt=>{
         ['.lType','.lDesc','.lQty','.lCost','.lUnit','.lNote'].forEach(sel=> tr.querySelector(sel).addEventListener(evt, persistLines));
       });
+      enableDragRow(tr);
       persistLines();
     }
 
@@ -822,6 +833,20 @@ window.addEventListener('load', function(){
       j.internalNotes = $('#internalNotes').value || '';
       j.photosOnPdf = $('#photosOnPdf').checked;
       recalcTotals(); updatePreview(); renderJobs(); saveDB();
+    }
+
+    function applyTemplate(tpl){
+      var j = ensureJobSelected(); if(!j) return;
+      (tpl.items||[]).forEach(function(it){
+        if(it.type==='Labor'){
+          addLine('Labor', it.desc || '', it.qty||1, it.unit||Number($('#laborRate').value||80), 0, '');
+        } else {
+          var unit = it.cost && it.markup!=null ? (Number(it.cost) * (1 + Number(it.markup)/100)) : 0;
+          var desc = (it.desc||'') + (it.part?(' ('+it.part+')'):'') + (it.vendor?(' — '+it.vendor):'');
+          addLine('Part', desc, 1, unit, it.cost||0, '');
+        }
+      });
+      persistLines();
     }
 
     function applyDefaultMarkup(){
@@ -922,6 +947,7 @@ window.addEventListener('load', function(){
 
       // photos (PDF-friendly classnames)
       var pPhotos = $('#pPhotosBlock'); pPhotos.innerHTML='';
+      var j = currentJob();
       if(j && j.photosOnPdf && j.photos && j.photos.length){
         var html = '<h4 style="margin:8px 0 4px 0;">Work Photos</h4><div class="p-photos">';
         j.photos.forEach(function(ph){
@@ -933,7 +959,7 @@ window.addEventListener('load', function(){
       }
 
       function escapeHtml(s){
-        return s.replace(/[&<>"']/g, function(c){
+        return String(s||'').replace(/[&<>"']/g, function(c){
           return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
         });
       }
@@ -972,7 +998,7 @@ window.addEventListener('load', function(){
         'table{width:100%;border-collapse:collapse;margin-top:6px}' +
         'th,td{border-bottom:1px solid #000;padding:6px;text-align:left;vertical-align:top;font-size:10.5pt}' +
         '.totals{display:grid;gap:4px;justify-items:end;margin-top:8px}.grand{font-weight:700}' +
-        '.badge{border:1px solid #000;border-radius:9999px;padding:2px 6px;font-size:9pt}' +
+        '.badge{border:1px solid #000;border-radius:9999px;padding:2px 6px;font-size:9pt;background:#fff;color:#000}' +
         '.signatures{margin-top:16px;display:grid;gap:10px}' +
         '.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}' +
         '.sig-line{border-bottom:1px solid #000;height:28px;display:flex;align-items:flex-end}' +
@@ -981,11 +1007,10 @@ window.addEventListener('load', function(){
         '.watermark{position:absolute;inset:0;z-index:0;opacity:.08}' +
         '#wmImg{max-width:90%;max-height:90%;opacity:.12}' +
         '#wmFallback{opacity:.12}' +
-        '/* Photo grid for PDF */' +
         '.p-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}' +
         '.p-photo{border:1px solid #000;padding:4px;border-radius:6px;break-inside:avoid;page-break-inside:avoid}' +
         '.p-photo img{width:100%;height:1.8in;object-fit:cover;border-radius:4px;display:block}' +
-        '#pPhotosBlock{page-break-before:always}'; // remove this rule if you don't want photos on a new page
+        '#pPhotosBlock{page-break-before:always}'; // start photos on new page
 
       var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>'
                   + document.getElementById('preview').outerHTML
@@ -1001,4 +1026,257 @@ window.addEventListener('load', function(){
 
     // Header field listeners
     $('#invNo').addEventListener('input', persistLines);
-    $('#docType').add
+    $('#docType').addEventListener('change', function(){ persistLines(); updatePreview(); });
+    $('#laborRate').addEventListener('input', function(){ recalcTotals(); updatePreview(); });
+    $('#salesTax').addEventListener('input', function(){ recalcTotals(); updatePreview(); });
+    $('#payLink').addEventListener('input', persistLines);
+    $('#emailTo').addEventListener('input', persistLines);
+    $('#overallNotes').addEventListener('input', persistLines);
+    $('#photosOnPdf').addEventListener('change', function(){ persistLines(); updatePreview(); });
+
+    // Keep last opened job
+    if(UI.lastJobId && DB.jobs.find(j=> j.id===UI.lastJobId)){
+      $('#invJob').value = UI.lastJobId; loadInvoice(UI.lastJobId);
+    }
+
+    /* ===== Photo handling ===== */
+    $('#photoInput').addEventListener('change', async function(e){
+      var j = ensureJobSelected(); if(!j) return;
+      const files = Array.from(e.target.files||[]);
+      for (const f of files){
+        const dataUrl = await readAsDataURL(await downscaleImageFile(f, 1600, 1200, 0.86)); // downscale for storage/print
+        j.photos.push({ id: crypto.randomUUID(), name: f.name, dataUrl, include:true });
+      }
+      saveDB(); renderPhotoGrid(); updatePreview();
+      e.target.value='';
+    });
+
+    function renderPhotoGrid(){
+      var j = currentJob(); var grid = $('#photoGrid'); grid.innerHTML='';
+      if(!j) return;
+      (j.photos||[]).forEach(function(ph){
+        var item = document.createElement('div'); item.className='photo-item';
+        item.innerHTML = '<button class="del" title="Remove">✕</button>' +
+                         '<img alt="photo" />' +
+                         '<label><input type="checkbox" '+(ph.include!==false?'checked':'')+'> Include on PDF</label>';
+        item.querySelector('img').src = ph.dataUrl;
+        item.querySelector('.del').addEventListener('click', function(){
+          if(confirm('Delete this photo?')){
+            j.photos = j.photos.filter(p=> p!==ph);
+            saveDB(); renderPhotoGrid(); updatePreview();
+          }
+        });
+        item.querySelector('input[type="checkbox"]').addEventListener('change', function(){
+          ph.include = this.checked; saveDB(); updatePreview();
+        });
+        grid.appendChild(item);
+      });
+    }
+
+    async function downscaleImageFile(file, maxW, maxH, quality){
+      const img = await readImageFile(file);
+      const [w, h] = fitContain(img.width, img.height, maxW, maxH);
+      const canvas = document.createElement('canvas'); canvas.width=w; canvas.height=h;
+      const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
+      return await new Promise(res => canvas.toBlob(b => res(new File([b], file.name, {type:'image/jpeg'})), 'image/jpeg', quality));
+    }
+    function fitContain(w,h,maxW,maxH){
+      const r = Math.min(maxW/w, maxH/h, 1); return [Math.round(w*r), Math.round(h*r)];
+    }
+    function readImageFile(file){
+      return new Promise((resolve,reject)=>{
+        const img = new Image();
+        img.onload=()=>resolve(img); img.onerror=reject;
+        const fr = new FileReader(); fr.onload=()=>{ img.src=fr.result; }; fr.onerror=reject; fr.readAsDataURL(file);
+      });
+    }
+    function readAsDataURL(file){
+      return new Promise((resolve,reject)=>{ const r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=reject; r.readAsDataURL(file); });
+    }
+
+    /* ===== Drag & drop ordering for lines ===== */
+    function enableDragRow(tr){
+      const handle = tr.querySelector('.handle');
+      let dragging = null;
+      handle.addEventListener('pointerdown', (e)=>{ dragging = tr; tr.classList.add('dragging'); e.preventDefault(); });
+      window.addEventListener('pointerup', ()=>{ if(dragging){ dragging.classList.remove('dragging'); dragging=null; persistLines(); } });
+      tr.addEventListener('pointerenter', ()=>{
+        const cur = $$('#lines tbody tr').find(x=> x.classList.contains('dragging'));
+        if(cur && cur!==tr){
+          const rows = Array.from(tr.parentNode.children);
+          const curIdx = rows.indexOf(cur), thisIdx = rows.indexOf(tr);
+          if(curIdx < thisIdx) tr.after(cur); else tr.before(cur);
+        }
+      });
+    }
+
+    /* ===== Templates modal ===== */
+    $('#openTemplates').addEventListener('click', function(){
+      var list = $('#tplList'); list.innerHTML='';
+      DB.templates.forEach(function(tpl, ti){
+        var wrap = document.createElement('div'); wrap.style.margin='8px 0'; wrap.style.padding='8px'; wrap.style.border='1px solid #b6b09f'; wrap.style.borderRadius='8px'; wrap.style.background='#fff';
+        var h = document.createElement('div'); h.innerHTML = '<strong>'+tpl.platform+'</strong>';
+        var btn = document.createElement('button'); btn.className='tab-btn'; btn.textContent='Apply'; btn.style.marginLeft='8px';
+        btn.addEventListener('click', ()=>applyTemplate(tpl));
+        h.appendChild(btn);
+        wrap.appendChild(h);
+
+        var tbl = document.createElement('table'); tbl.style.width='100%'; tbl.style.marginTop='6px'; tbl.innerHTML = '<thead><tr><th>Type</th><th>Description</th><th>Qty</th><th>Cost</th><th>Markup%</th></tr></thead><tbody></tbody>';
+        (tpl.items||[]).forEach(function(it){
+          var r = document.createElement('tr');
+          r.innerHTML = '<td>'+it.type+'</td><td>'+ (it.desc||'') + (it.part?(' ('+it.part+')'):'') + (it.vendor?(' — '+it.vendor):'') +'</td><td>'+ (it.qty||1) +'</td><td>'+ (it.cost!=null?fmt(it.cost):'') +'</td><td>'+ (it.markup!=null?it.markup:'') +'</td>';
+          tbl.querySelector('tbody').appendChild(r);
+        });
+        wrap.appendChild(tbl);
+        list.appendChild(wrap);
+      });
+      $('#tplModal').style.display='flex';
+    });
+    $('#tplClose').addEventListener('click', ()=> $('#tplModal').style.display='none');
+    $('#tplModal').addEventListener('click', (e)=>{ if(e.target.id==='tplModal') $('#tplModal').style.display='none'; });
+
+    /* ===== Quick estimate modal ===== */
+    $('#quickEstimate').addEventListener('click', ()=>{ $('#qeModal').style.display='flex'; });
+    $('#qeClose').addEventListener('click', ()=>{ $('#qeModal').style.display='none'; });
+    $('#qeModal').addEventListener('click', (e)=>{ if(e.target.id==='qeModal') $('#qeModal').style.display='none'; });
+    function applyQuickEstimate(replace){
+      var j = ensureJobSelected(); if(!j) return;
+      var title = $('#qeTitle').value.trim();
+      var partsCost = Number($('#qePartsCost').value||0);
+      var mu = Number($('#qeMarkup').value||40)/100;
+      var hours = Number($('#qeHours').value||1.5);
+      if(replace){ j.lines=[]; $('#lines tbody').innerHTML=''; }
+      if(title) addLine('Labor', title, hours, Number($('#laborRate').value||80), 0, '');
+      if(partsCost>0){
+        var sell = partsCost*(1+mu);
+        addLine('Part', title? (title+' — parts') : 'Parts', 1, sell, partsCost, '');
+      }
+      persistLines();
+    }
+    $('#qeApplyAppend').addEventListener('click', ()=> applyQuickEstimate(false));
+    $('#qeApplyReplace').addEventListener('click', ()=> applyQuickEstimate(true));
+
+    /* ===== Signatures ===== */
+    $('#sign').addEventListener('click', function(){
+      var j = ensureJobSelected(); if(!j) return;
+      $('#sigTitle').textContent = 'Collect Signature for '+(j.invNo||j.title||'document');
+      $('#sigName').value=''; $('#sigDate').value=new Date().toISOString().slice(0,10);
+      $('#sigRole').value='customer';
+      clearSigPad();
+      $('#sigModal').style.display='flex';
+    });
+    $('#sigClose').addEventListener('click', ()=> $('#sigModal').style.display='none');
+    $('#sigClear').addEventListener('click', clearSigPad);
+    $('#sigSave').addEventListener('click', function(){
+      var j = ensureJobSelected(); if(!j) return;
+      var role = $('#sigRole').value;
+      var name = $('#sigName').value.trim();
+      var date = $('#sigDate').value;
+      var dataUrl = sigCanvas.toDataURL('image/png');
+      j.signatures[role] = { name, date, dataUrl };
+      saveDB(); updatePreview(); $('#sigModal').style.display='none';
+    });
+
+    let sigCanvas = document.getElementById('sigPad');
+    let sigCtx = sigCanvas.getContext('2d');
+    let drawing = false, lastX=0, lastY=0;
+    function clearSigPad(){ sigCtx.fillStyle='#fff'; sigCtx.fillRect(0,0,sigCanvas.width,sigCanvas.height); sigCtx.strokeStyle='#000'; sigCtx.lineWidth=2; }
+    function startDraw(e){ drawing=true; const {x,y}=getPos(e); lastX=x; lastY=y; }
+    function moveDraw(e){ if(!drawing) return; const {x,y}=getPos(e); sigCtx.beginPath(); sigCtx.moveTo(lastX,lastY); sigCtx.lineTo(x,y); sigCtx.stroke(); lastX=x; lastY=y; }
+    function endDraw(){ drawing=false; }
+    function getPos(e){
+      const r = sigCanvas.getBoundingClientRect();
+      const pt = (e.touches? e.touches[0] : e);
+      return { x: (pt.clientX - r.left) * (sigCanvas.width / r.width), y: (pt.clientY - r.top) * (sigCanvas.height / r.height) };
+    }
+    ['mousedown','touchstart'].forEach(ev=> sigCanvas.addEventListener(ev, startDraw));
+    ['mousemove','touchmove'].forEach(ev=> sigCanvas.addEventListener(ev, moveDraw));
+    ['mouseup','mouseleave','touchend','touchcancel'].forEach(ev=> sigCanvas.addEventListener(ev, endDraw));
+    clearSigPad();
+
+    /* ===== Backup / Restore / Reset ===== */
+    $('#backupBtn').addEventListener('click', function(){
+      const blob = new Blob([JSON.stringify(DB, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='poppes_shop_backup_v111.json'; a.click();
+      setTimeout(()=> URL.revokeObjectURL(url), 1000);
+    });
+    $('#restoreFile').addEventListener('change', async function(e){
+      const file = e.target.files[0]; if(!file) return;
+      try{
+        const text = await file.text();
+        const obj = JSON.parse(text);
+        DB = obj; upgradeDB(); saveDB(); renderAll(); alert('Backup restored.');
+      }catch(err){ alert('Restore failed: '+(err.message||err)); }
+      e.target.value='';
+    });
+    $('#resetBtn').addEventListener('click', function(){
+      if(confirm('This will erase all data (customers, jobs, lines, photos, signatures). Continue?')){
+        resetDB(); alert('Reset complete.');
+      }
+    });
+
+    /* ===== Templates table render ===== */
+    function renderTemplates(){
+      var tb = $('#tplTable tbody'); tb.innerHTML='';
+      DB.templates.forEach(function(tpl){
+        (tpl.items||[]).forEach(function(it){
+          var tr = document.createElement('tr');
+          tr.innerHTML = '<td>'+tpl.platform+'</td><td>'+ (it.desc||'') + (it.part?(' ('+it.part+')'):'') + (it.vendor?(' — '+it.vendor):'') +'</td>' +
+                         '<td>'+it.type+'</td><td>'+(it.qty||'')+'</td><td>'+(it.cost!=null?fmt(it.cost):'')+'</td><td>'+(it.markup!=null?it.markup:'')+'</td>';
+          tb.appendChild(tr);
+        });
+      });
+    }
+
+    /* ===== Dashboard basics ===== */
+    function renderDashboard(){
+      var open = DB.jobs.filter(j=> j.status!=='Done').length;
+      var unpaid = DB.jobs.filter(j=> j.docType==='Invoice' && !j.paid).length;
+      var now = new Date(); var ym = now.toISOString().slice(0,7);
+      var monthJobs = DB.jobs.filter(j=> (j.paidAt||j.createdAt||'').startsWith(ym));
+      var rev = 0, prof = 0;
+      monthJobs.forEach(function(j){
+        var subtotal = j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*(Number(l.unit)||0), 0);
+        var profit = j.lines.reduce((s,l)=> s + (Number(l.qty||0))*((Number(l.unit)||0)-(Number(l.cost)||0)), 0);
+        rev += subtotal; prof += profit;
+      });
+      document.getElementById('openJobs').textContent = open;
+      document.getElementById('unpaid').textContent = unpaid;
+      document.getElementById('revMonth').textContent = fmt(rev);
+      document.getElementById('profitMonth').textContent = fmt(prof);
+    }
+
+    /* ===== Back-to-top button ===== */
+    const toTop = document.getElementById('toTop');
+    window.addEventListener('scroll', ()=>{
+      const y = window.scrollY || document.documentElement.scrollTop;
+      toTop.style.display = y>500 ? 'inline-block' : 'none';
+    });
+    toTop.addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
+
+    /* ===== Self-test ===== */
+    function selfTest(){
+      const badge = document.getElementById('selftest');
+      try{
+        localStorage.setItem('__pdc_test','ok'); localStorage.removeItem('__pdc_test');
+        if(window.open) {} // popup allowed check is runtime
+        badge.textContent='Self-test: OK';
+        badge.className='tag selftest ok';
+      }catch(e){
+        badge.textContent='Self-test: Limited';
+        badge.className='tag selftest warn';
+      }
+    }
+
+    // Initial renders
+    upgradeDB();
+    renderAll();
+    renderInvJobOptions();
+    renderRecentJobs();
+    selfTest();
+  }); // guard
+}); // load
+</script>
+</body>
+</html>
