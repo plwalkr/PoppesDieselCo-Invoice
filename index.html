@@ -261,7 +261,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 <label>Date <input id="sigDate" type="date"/></label>
 <label>Role <select id="sigRole"><option value="customer">Customer</option><option value="manager">Service Manager</option></select></label>
 </div>
-<div style="margin-top:8px"><canvas height="220" id="sigPad" style="max-width: 400px; max-height: 300px;" width="640"></canvas></div>
+<div style="margin-top:8px"><canvas height="220" id="sigPad" style="width:100%;background:#fff;border:1px dashed #b6b09f;border-radius:8px" width="640"></canvas></div>
 <div class="actions" style="margin-top:8px"><button class="tab-btn" id="sigClear">Clear</button><button class="tab-btn primary" id="sigSave">Save Signature</button></div>
 </div>
 </div>
@@ -1036,22 +1036,6 @@ window.addEventListener('load', function(){
     if(UI.lastJobId && currentJob()) { /* already set */ }
   });
 });
-
-    // Add watermark image to PDF
-    const watermarkImg = new Image();
-    watermarkImg.src = 'UploadedImage0.jpg';
-    watermarkImg.onload = function () {
-        const pdf = new jsPDF();
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = 100;
-        const imgHeight = 100;
-        const x = (pageWidth - imgWidth) / 2;
-        const y = (pageHeight - imgHeight) / 2;
-        pdf.addImage(watermarkImg, 'JPEG', x, y, imgWidth, imgHeight, '', 'NONE');
-        // Add other PDF content here
-        pdf.save("invoice_with_watermark.pdf");
-    };
-    </script>
+</script>
 </body>
 </html>
