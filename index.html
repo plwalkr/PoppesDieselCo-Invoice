@@ -140,13 +140,13 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 </div>
 <form class="grid" id="invForm">
 <select id="invJob" required=""></select>
-<input id="invNo" placeholder="Document # (e.g., 2025-001)"/>
+<input id="invNo" placeholder="Document # (e.g., 2025-001)">
 <label>Type <select id="docType"><option>Estimate</option><option>Invoice</option></select></label>
 <label>Labor Rate ($/hr) <input id="laborRate" step="0.01" type="number" value="80"/></label>
 <label>Sales Tax (%) <input id="salesTax" step="0.01" type="number" value="7"/></label>
 <label>Payment Link <input id="payLink" placeholder="https://pay.yourprovider.com/invoice/123"/></label>
 <label>Email To <input id="emailTo" placeholder="customer@example.com"/></label>
-</form>
+</input></form>
 <div class="actions">
 <button class="tab-btn" id="addLabor" type="button">+ Labor Line</button>
 <button class="tab-btn" id="addPart" type="button">+ Part Line</button>
@@ -1037,30 +1037,5 @@ window.addEventListener('load', function(){
   });
 });
 </script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const tabs = document.querySelectorAll(".tab-button");
-    const tabContents = document.querySelectorAll(".tab-content");
-
-    tabs.forEach(tab => {
-        tab.addEventListener("click", function () {
-            const target = this.getAttribute("data-target");
-
-            tabContents.forEach(content => {
-                content.style.display = "none";
-            });
-
-            document.getElementById(target).style.display = "block";
-
-            tabs.forEach(t => t.classList.remove("active"));
-            this.classList.add("active");
-        });
-    });
-
-    // Show the first tab by default
-    if (tabs.length > 0) {
-        tabs[0].click();
-    }
-});
-</script><div id="pdf-watermark-preview" style="text-align:center; margin-top:20px;"><h3>PDF Watermark Preview</h3><img src="UploadedImage0.jpg" style="max-width:300px; opacity:0.3;"/></div></body>
+</body>
 </html>
