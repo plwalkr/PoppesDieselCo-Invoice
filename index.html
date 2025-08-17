@@ -1,9 +1,9 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-<title>Poppe’s Diesel Co. — Shop Manager (v1.1.1 — FULL)</title>
+<title>Poppe’s Diesel Co. — Shop Manager (v1.1.2 — COMPAT)</title>
 <style>
 :root{--bg:#e6cfae;--card:#13151c;--text:#0e111a;--muted:#3e463e;--border:#2e3226;--ink:#0e111a;--ink2:#161a24;--shadow:0 10px 20px rgba(0,0,0,.30);--info:#0a3d2e;--ok:#1f6b55;--warn:#f5c518;--danger:#962b2b;--font:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 *{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
@@ -45,16 +45,33 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .signatures{margin-top:16px;display:grid;gap:10px}.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}.sig{display:flex;flex-direction:column;justify-content:flex-end}.sig-line{border-bottom:1px solid #000;height:32px;display:flex;align-items:flex-end}.sig-label{font-size:.9em;color:#333;margin-top:4px}.sig-img{max-height:60px;max-width:100%;object-fit:contain}
 .photo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}.photo-item{position:relative;background:#fff;border:1px solid #b6b09f;border-radius:8px;padding:6px}.photo-item img{width:100%;height:90px;object-fit:cover;border-radius:6px}.photo-item .del{position:absolute;top:4px;right:4px;background:#962b2b;color:#fff;border:none;border-radius:8px;padding:2px 6px;font-size:12px;cursor:pointer}.photo-item label{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px}
 .badge-open{background:#fff;border-color:#b6b09f}.badge-ip{background:#fff7d6;border-color:#caa52a}.badge-done{background:#d9efe7;border-color:#1f6b55;color:#0a3d2e}
-
-/* Modal basic */
 .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4);z-index:80}
 .modal .panel{max-width:800px;width:min(96vw,800px)}
+
+/* Big noscript overlay */
+.noscript-overlay{position:fixed;inset:0;background:#18040a;color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;z-index:9999}
+.noscript-overlay .box{max-width:720px;background:#2b0c15;border:2px solid #8a1b27;border-radius:12px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.noscript-overlay h2{margin:0 0 10px 0}
 </style>
 </head>
 <body>
-<div id="error">JavaScript error detected. Tap to reload.</div>
+<noscript>
+  <div class="noscript-overlay">
+    <div class="box">
+      <h2>JavaScript is disabled or blocked</h2>
+      <p>This app is 100% client-side. Please open the file in Chrome/Edge with JavaScript enabled, or whitelist local files if a security tool is blocking scripts.</p>
+      <ul>
+        <li>Download the file and open it so the address bar starts with <code>file:///</code></li>
+        <li>Disable “Safe Mode / NoScript / Tracking Protection” just for this file</li>
+        <li>Then reload</li>
+      </ul>
+    </div>
+  </div>
+</noscript>
+
+<div id="error" style="display:none">JavaScript error detected. Tap to reload.</div>
 <header>
-  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.1.1</span><span id="selftest" class="tag selftest">Self-test: …</span><span class="tag">FULL</span></h1>
+  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.1.2</span><span id="selftest" class="tag selftest">Self-test: …</span><span class="tag">COMPAT</span></h1>
   <nav class="top">
     <button class="tab-btn" data-tab="dashboard">Dashboard</button>
     <button class="tab-btn" data-tab="customers">Customers</button>
@@ -63,6 +80,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
     <button class="tab-btn" data-tab="settings">Settings</button>
   </nav>
 </header>
+
 <main>
   <section id="dashboard" class="tab active">
     <h2>Dashboard</h2>
@@ -73,6 +91,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
       <div class="card"><h3>Profit (This Month)</h3><div id="profitMonth">$0</div></div>
     </div>
   </section>
+
   <section id="customers" class="tab">
     <h2>Customers</h2>
     <form id="custForm" class="grid">
@@ -86,6 +105,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
       <table id="custTable"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Vehicle</th><th></th></tr></thead><tbody></tbody></table>
     </div>
   </section>
+
   <section id="jobs" class="tab">
     <h2>Jobs</h2>
     <form id="jobForm" class="grid">
@@ -103,10 +123,12 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
       <select id="jobStatus"><option>Open</option><option>In Progress</option><option>Done</option></select>
       <button class="primary" type="submit">Create Job</button>
     </form>
+
     <div id="internalNotesWrap" class="card">
       <h3>Internal Staff Notes (won’t print)</h3>
       <textarea id="internalNotes" placeholder="For in-house eyes only — diagnostic rabbit holes, supplier rants, etc."></textarea>
     </div>
+
     <div class="table-wrap">
       <table id="jobsTable">
         <thead><tr><th>#</th><th>Customer</th><th>Title</th><th>Status</th><th>Total</th><th>Profit</th><th></th></tr></thead>
@@ -114,6 +136,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
       </table>
     </div>
   </section>
+
   <section id="invoice" class="tab">
     <h2>Estimate / Invoice<br><small>Poppe’s Diesel Co. — Built in the Garage, Backed by Freedom</small></h2>
     <div id="invFilters" class="grid">
@@ -121,6 +144,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
       <label>Search Jobs <input id="invJobSearch" placeholder="Type to filter jobs by customer/title…"></label>
       <div><div class="small">Recent jobs</div><div id="recentJobs" class="actions"></div></div>
     </div>
+
     <form id="invForm" class="grid">
       <select id="invJob" required></select>
       <input id="invNo" placeholder="Document # (e.g., 2025-001)"/>
@@ -130,6 +154,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
       <label>Payment Link <input id="payLink" placeholder="https://pay.yourprovider.com/invoice/123"/></label>
       <label>Email To <input id="emailTo" placeholder="customer@example.com"/></label>
     </form>
+
     <div class="actions">
       <button type="button" class="tab-btn" id="addLabor">+ Labor Line</button>
       <button type="button" class="tab-btn" id="addPart">+ Part Line</button>
@@ -144,12 +169,14 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
       <button type="button" class="tab-btn" id="email">Email</button>
       <button type="button" class="tab-btn primary" id="pdf">Generate PDF</button>
     </div>
+
     <div class="table-wrap" style="margin-top:10px">
       <table class="lines" id="lines">
         <thead><tr><th style="width:28px">↕</th><th>Type</th><th>Description</th><th>Qty/Hrs</th><th>Cost $</th><th>Unit $</th><th>Line $</th><th>Profit $</th><th></th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
+
     <div class="totals">
       <div>Subtotal: <span id="sub">$0.00</span></div>
       <div>Tax: <span id="tax">$0.00</span></div>
@@ -157,10 +184,12 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
       <div><strong>Total Profit:</strong> <span id="profit">$0.00</span></div>
       <div>Margin: <span id="margin" class="badge estimate">0%</span></div>
     </div>
+
     <div id="overallNotesWrap" class="card" style="background:#fff;color:#000;border-color:#b6b09f">
       <h3 style="color:#0e111a">Technician Overall Notes</h3>
       <textarea id="overallNotes" placeholder="Explain diagnostics, verified checks, advisories."></textarea>
     </div>
+
     <div id="photosWrap" class="card" style="background:#fff;color:#000;border-color:#b6b09f">
       <h3 style="color:#0e111a">Work Photos</h3>
       <div class="actions">
@@ -169,6 +198,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
       </div>
       <div id="photoGrid" class="photo-grid" aria-live="polite"></div>
     </div>
+
     <div class="print-area" id="preview" style="margin-top:12px">
       <div class="watermark">
         <img id="wmImg" alt="watermark" style="display:none;max-width:90%;max-height:90%;opacity:.15;mix-blend-mode:multiply"/>
@@ -196,6 +226,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
       <div id="pPhotosBlock" style="margin-top:10px"></div>
     </div>
   </section>
+
   <section id="settings" class="tab">
     <h2>Settings</h2>
     <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
@@ -219,11 +250,13 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
     </div>
   </section>
 </main>
+
 <button id="toTop" title="Back to top">↑ Top</button>
 <nav class="bottom" style="position:fixed;bottom:0;left:0;right:0;background:#0e111a;border-top:1px solid var(--border);display:flex;justify-content:space-between;padding:10px 10px;align-items:center;color:#fff">
   <div><button class="tab-btn" data-tab="dashboard">🏠</button><button class="tab-btn" data-tab="customers">👤</button><button class="tab-btn" data-tab="jobs">🧰</button><button class="tab-btn" data-tab="invoice">🧾</button><button class="tab-btn" data-tab="settings">⚙️</button></div>
   <button id="debugToggle" title="Debug">🪲</button>
 </nav>
+
 <div id="debug"><div class="meta" id="debugMeta"></div><pre id="debugLog"></pre></div>
 
 <!-- Templates modal -->
@@ -267,34 +300,96 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 </div>
 
 <script>
+/* --- Minimal ES5 helpers + diagnostics --- */
+var __JS_STARTED = true;
 (function(){
-  if(!window.CSS) window.CSS = {};
-  if(typeof window.CSS.escape !== 'function'){ window.CSS.escape = function(v){ return String(v).replace(/[^a-zA-Z0-9_\\-]/g, function(ch){ return '\\\\' + ch.charCodeAt(0).toString(16) + ' '; }); }; }
-  var logEl=document.getElementById('debugLog'), metaEl=document.getElementById('debugMeta'), buf=[];
+  var logEl = document.getElementById('debugLog');
+  var metaEl = document.getElementById('debugMeta');
+  var buf = [];
   function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\\n'); } }
-  window.AppLog={ info:msg=>{try{console.log('[INFO]',msg)}catch(e){};print('[INFO] '+msg)}, warn:msg=>{try{console.warn('[WARN]',msg)}catch(e){};print('[WARN] '+msg)}, error:(msg,err)=>{try{console.error('[ERROR]',msg,err)}catch(e){};print('[ERROR] '+msg+(err?(' :: '+(err.message||err)):'') ); var el=document.getElementById('error'); if(el){el.style.display='block'; el.onclick=function(){ location.reload(); };} } };
-  metaEl.textContent='UA='+ (navigator.userAgent||'?') +' | Lang='+ (navigator.language||'?') +' | '+ (new Date()).toLocaleString();
-  document.getElementById('debugToggle').addEventListener('click', function(){ var box=document.getElementById('debug'); box.style.display=(box.style.display==='block'?'none':'block'); });
+  window.AppLog = {
+    info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
+    warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
+    error: function(msg, err){ try{ console.error('[ERROR]', msg, err); }catch(e){} print('[ERROR] ' + msg + (err?(' :: '+ (err.message||err)):'')); var el = document.getElementById('error'); if(el){ el.style.display='block'; el.onclick=function(){ location.reload(); }; } }
+  };
+  if(metaEl){
+    try{ metaEl.textContent = 'UA=' + navigator.userAgent + ' | Lang=' + navigator.language + ' | ' + (new Date()).toLocaleString(); }catch(_){}
+  }
+  var dbg = document.getElementById('debugToggle');
+  if(dbg){
+    dbg.addEventListener('click', function(){
+      var box = document.getElementById('debug');
+      box.style.display = (box.style.display==='block'?'none':'block');
+    });
+  }
 })();
-function guard(name,fn){ try{ fn(); AppLog.info(name+' ✅'); } catch(e){ AppLog.error(name+' ❌',e); } }
-if(!window.crypto) window.crypto = {}; if(!crypto.randomUUID){ crypto.randomUUID = function(){ return 'id-'+Math.random().toString(16).slice(2)+'-'+Date.now(); } }
 
-// Watermark: upload and cache; prints on PDF
+function guard(name, fn){
+  try { fn(); AppLog.info(name + ' ✅'); }
+  catch(e){ AppLog.error(name + ' ❌', e); }
+}
+if (!window.crypto) window.crypto = {};
+if (!window.crypto.randomUUID){
+  window.crypto.randomUUID = function(){ return 'id-' + Math.random().toString(16).slice(2) + '-' + Date.now(); };
+}
+
 (function(){
-  const KEY='pdc_wm_dataurl', imgEl=document.getElementById('wmImg'), fallback=document.getElementById('wmFallback');
-  function setWM(src){ if(!imgEl) return; imgEl.src=src; imgEl.style.display='block'; if(fallback) fallback.style.display='none'; }
-  try{ const cached=localStorage.getItem(KEY); if(cached){ setWM(cached); } }catch(_){}
-  const up=document.getElementById('wmFile'), clr=document.getElementById('wmClear');
-  function readAsDataURL(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
-  if(up) up.addEventListener('change', async (e)=>{ const f=e.target.files && e.target.files[0]; if(!f) return; const data=await readAsDataURL(f); try{ localStorage.setItem(KEY,data);}catch(_ ){} setWM(data); alert('Watermark updated.'); e.target.value=''; });
-  if(clr) clr.addEventListener('click', ()=>{ try{ localStorage.removeItem(KEY);}catch(_ ){}; if(imgEl){ imgEl.style.display='none'; } if(fallback){ fallback.style.display='block'; } alert('Watermark cleared.'); });
+  /* Watermark upload/cache (no modern syntax) */
+  var KEY = 'pdc_wm_dataurl';
+  var imgEl = document.getElementById('wmImg');
+  var fallback = document.getElementById('wmFallback');
+  function setWM(src){
+    if(!imgEl) return;
+    imgEl.src = src; imgEl.style.display = 'block';
+    if(fallback) fallback.style.display = 'none';
+  }
+  try {
+    var cached = localStorage.getItem(KEY);
+    if(cached){ setWM(cached); }
+  } catch(_){}
+  var up = document.getElementById('wmFile');
+  var clr = document.getElementById('wmClear');
+  function readAsDataURL(file, cb, eb){
+    var r = new FileReader();
+    r.onload = function(){ cb(r.result); };
+    r.onerror = function(){ if(eb) eb(r.error); };
+    r.readAsDataURL(file);
+  }
+  if(up) up.addEventListener('change', function(e){
+    var f = up.files && up.files[0];
+    if(!f) return;
+    readAsDataURL(f, function(data){
+      try{ localStorage.setItem(KEY, data); }catch(_){}
+      setWM(data); alert('Watermark updated.');
+      up.value = '';
+    });
+  });
+  if(clr) clr.addEventListener('click', function(){
+    try{ localStorage.removeItem(KEY); }catch(_){}
+    if(imgEl) imgEl.style.display='none';
+    if(fallback) fallback.style.display='block';
+    alert('Watermark cleared.');
+  });
 })();
 
 window.addEventListener('load', function(){
   guard('init', function(){
-    var STORAGE_KEY='poppe_shop_db_v111', DB=loadDB()||defaultDB();
-    const UIKEY='pdc_ui_state'; function loadUI(){ try{ return JSON.parse(localStorage.getItem(UIKEY)||'{}'); }catch(_){ return {}; } } function saveUI(u){ try{ localStorage.setItem(UIKEY, JSON.stringify(u)); }catch(_ ){} } let UI=loadUI();
-    function defaultDB(){ return { customers:[], jobs:[], templates: seedTemplates(), settings:{ defaultMarkup:40, shopFrom:'Poppe’s Diesel Co.', shopReply:'poppedieselco@gmail.com', shopSubj:'[Poppe’s Diesel Co.] ', shopFooter:'Thank you for supporting local.' } }; }
+    var STORAGE_KEY = 'poppe_shop_db_v112';
+    var DB = loadDB() || defaultDB();
+
+    var UIKEY = 'pdc_ui_state';
+    function loadUI(){ try{ return JSON.parse(localStorage.getItem(UIKEY)||'{}'); }catch(_){ return {}; } }
+    function saveUI(u){ try{ localStorage.setItem(UIKEY, JSON.stringify(u)); }catch(_ ){} }
+    var UI = loadUI();
+
+    function defaultDB(){
+      return {
+        customers: [],
+        jobs: [],
+        templates: seedTemplates(),
+        settings: { defaultMarkup: 40, shopFrom:'Poppe’s Diesel Co.', shopReply:'poppedieselco@gmail.com', shopSubj:'[Poppe’s Diesel Co.] ', shopFooter:'Thank you for supporting local.' }
+      };
+    }
     function seedTemplates(){
       return [
         { platform: "Cummins 6.7L (Ram)", items: [
@@ -318,110 +413,579 @@ window.addEventListener('load', function(){
         ]}
       ];
     }
-    function saveDB(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(e){ AppLog.error('localStorage save failed', e); } }
-    function loadDB(){ try{ var s=localStorage.getItem(STORAGE_KEY); return s?JSON.parse(s):null; } catch(e){ AppLog.error('localStorage load failed', e); return null; } }
-    function upgradeDB(){ (DB.jobs||[]).forEach(function(j){ if(!j.createdAt) j.createdAt=new Date().toISOString(); if(typeof j.overallNotes==='undefined') j.overallNotes=''; if(typeof j.internalNotes==='undefined') j.internalNotes=''; if(!j.photos) j.photos=[]; if(!j.signatures) j.signatures={customer:null,manager:null}; (j.lines||[]).forEach(function(l){ if(typeof l.note==='undefined') l.note=''; }); }); saveDB(); }
+    function saveDB(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(e){ AppLog.error('localStorage save failed', e); } }
+    function loadDB(){ try { var s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; } catch(e){ AppLog.error('localStorage load failed', e); return null; } }
+    function upgradeDB(){
+      var i, j, l;
+      for(i=0;i<(DB.jobs||[]).length;i++){
+        j = DB.jobs[i];
+        if(!j.createdAt) j.createdAt = new Date().toISOString();
+        if(typeof j.overallNotes==='undefined') j.overallNotes='';
+        if(typeof j.internalNotes==='undefined') j.internalNotes='';
+        if(!j.photos) j.photos=[];
+        if(!j.signatures) j.signatures={customer:null, manager:null};
+        for(l=0;l<(j.lines||[]).length;l++){ if(typeof j.lines[l].note==='undefined') j.lines[l].note=''; }
+      }
+      saveDB();
+    }
 
-    var $=(sel,root)=> (root||document).querySelector(sel), $$=(sel,root)=> Array.from((root||document).querySelectorAll(sel)), fmt=(n)=>"$"+Number(n||0).toFixed(2);
-    function matchesAllTokens(hay,q){ const tokens=q.trim().toLowerCase().split(/\\s+/).filter(Boolean); const text=(hay||'').toLowerCase(); return tokens.every(t=> text.includes(t)); }
+    function $(sel, root){ return (root||document).querySelector(sel); }
+    function $all(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
+    function fmt(n){ return "$"+Number(n||0).toFixed(2); }
+    function matchesAllTokens(hay, q){
+      var tokens = (q||'').replace(/\s+/g,' ').toLowerCase().split(' ');
+      var text = String(hay||'').toLowerCase();
+      for(var i=0;i<tokens.length;i++){ if(tokens[i] && text.indexOf(tokens[i])===-1) return false; }
+      return true;
+    }
+
     function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); renderTemplates(); saveDB(); }
 
-    $$('.tab-btn[data-tab]').forEach(function(b){ b.addEventListener('click', function(){ var id=b.getAttribute('data-tab'); $$('.tab').forEach(t=>t.classList.remove('active')); document.getElementById(id).classList.add('active'); UI.activeTab=id; saveUI(UI); window.scrollTo({top:0,behavior:'smooth'}); }); });
-    if(UI.activeTab && document.getElementById(UI.activeTab)){ $$('.tab').forEach(t=>t.classList.remove('active')); document.getElementById(UI.activeTab).classList.add('active'); }
+    // Tabs
+    $all('.tab-btn[data-tab]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var id = b.getAttribute('data-tab');
+        $all('.tab').forEach(function(t){ t.classList.remove('active'); });
+        document.getElementById(id).classList.add('active');
+        UI.activeTab = id; saveUI(UI);
+        try{ window.scrollTo(0,0); }catch(_){}
+      });
+    });
+    if (UI.activeTab && document.getElementById(UI.activeTab)) {
+      $all('.tab').forEach(function(t){ t.classList.remove('active'); });
+      document.getElementById(UI.activeTab).classList.add('active');
+    }
 
-    // Customers
-    $('#custForm').addEventListener('submit', function(e){ e.preventDefault(); var c={id:crypto.randomUUID(), name:$('#custName').value.trim(), phone:$('#custPhone').value.trim(), email:$('#custEmail').value.trim(), vehicle:$('#custVehicle').value.trim()}; if(!c.name) return; DB.customers.push(c); renderCustomers(); renderJobCustomer(); this.reset(); saveDB(); });
-    function renderCustomers(){ var tb=$('#custTable tbody'); tb.innerHTML=''; DB.customers.forEach(function(c){ var tr=document.createElement('tr'); tr.innerHTML='<td>'+c.name+'</td><td>'+(c.phone||'')+'</td><td>'+(c.email||'')+'</td><td>'+(c.vehicle||'')+'</td><td><button class="tab-btn" data-delc="'+c.id+'">Delete</button></td>'; tb.appendChild(tr); }); $$('button[data-delc]').forEach(btn=>{ btn.addEventListener('click', function(){ var id=btn.getAttribute('data-delc'); if(!confirm('Delete this customer and all their jobs?')) return; DB.jobs = DB.jobs.filter(j=> j.customerId !== id); DB.customers = DB.customers.filter(c=> c.id !== id); renderCustomers(); renderJobs(); renderJobCustomer(); saveDB(); }); }); }
+    /* Customers */
+    $('#custForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var c = {id: crypto.randomUUID(), name: $('#custName').value.trim(), phone: $('#custPhone').value.trim(), email: $('#custEmail').value.trim(), vehicle: $('#custVehicle').value.trim()};
+      if(!c.name) return;
+      DB.customers.push(c); renderCustomers(); renderJobCustomer(); this.reset(); saveDB();
+    });
+    function renderCustomers(){
+      var tb = $('#custTable tbody'); tb.innerHTML='';
+      DB.customers.forEach(function(c){
+        var tr = document.createElement('tr');
+        tr.innerHTML = '<td>'+c.name+'</td><td>'+(c.phone||'')+'</td><td>'+(c.email||'')+'</td><td>'+(c.vehicle||'')+'</td><td><button class="tab-btn" data-delc="'+c.id+'">Delete</button></td>';
+        tb.appendChild(tr);
+      });
+      $all('button[data-delc]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var id = btn.getAttribute('data-delc');
+          if(!confirm('Delete this customer and all their jobs?')) return;
+          DB.jobs = DB.jobs.filter(function(j){ return j.customerId !== id; });
+          DB.customers = DB.customers.filter(function(c){ return c.id !== id; });
+          renderCustomers(); renderJobs(); renderJobCustomer(); saveDB();
+        });
+      });
+    }
 
-    // Jobs
-    function renderJobCustomer(){ var sel=$('#jobCustomer'); sel.innerHTML='<option value="">Select...</option>'+DB.customers.map(c=>'<option value="'+c.id+'">'+c.name+'</option>').join(''); renderInvFilters(); renderInvJobOptions(); renderRecentJobs(); }
-    $('#jobForm').addEventListener('submit', function(e){ e.preventDefault(); var j={ id:crypto.randomUUID(), customerId:$('#jobCustomer').value, title:$('#jobTitle').value.trim(), vin:$('#jobVIN').value.trim(), notes:$('#jobNotes').value.trim(), status:$('#jobStatus').value, lines:[], paid:false, paidAt:null, docType:'Estimate', approved:false, approvedAt:null, paymentLink:'', vinData:null, overallNotes:'', internalNotes:'', photos:[], signatures:{customer:null, manager:null}, createdAt:new Date().toISOString() }; if(!j.customerId || !j.title) return; DB.jobs.push(j); renderJobs(); renderJobCustomer(); $('#jobForm').reset(); $('#vinResult').style.display='none'; $('#vinSuggest').style.display='none'; saveDB(); if(DB.jobs.length===1){ $('#invJob').value=j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); } });
-    function renderJobs(){ var tb=$('#jobsTable tbody'); tb.innerHTML=''; DB.jobs.forEach(function(j){ var c=DB.customers.find(x=> x.id===j.customerId); var subtotal=j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*(Number(l.unit)||0), 0); var profit=j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*((Number(l.unit)||0)-(Number(l.cost)||0)), 0); var badge=j.status==='Open'?'badge-open':(j.status==='In Progress'?'badge-ip':'badge-done'); var tr=document.createElement('tr'); tr.innerHTML='<td>'+j.id.slice(0,8)+'</td><td>'+(c?c.name:'—')+'</td><td>'+j.title+'</td><td><span class="badge '+badge+'">'+j.status+'</span></td><td>'+fmt(subtotal)+'</td><td>'+fmt(profit)+'</td><td><button class="tab-btn" data-open="'+j.id+'">Open</button></td>'; tb.appendChild(tr); }); $$('button[data-open]').forEach(b=>{ b.addEventListener('click', function(){ var id=b.getAttribute('data-open'); $('[data-tab=\"invoice\"]').click(); $('#invJob').value=id; loadInvoice(id); UI.lastJobId=id; saveUI(UI); }); }); }
-    $('#internalNotes').addEventListener('input', function(){ var j=currentJob(); if(!j) return; j.internalNotes=this.value; saveDB(); });
+    /* Jobs */
+    function renderJobCustomer(){
+      var sel = $('#jobCustomer');
+      var opts = ['<option value="">Select...</option>'];
+      DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+c.name+'</option>'); });
+      sel.innerHTML = opts.join('');
 
-    // VIN decode
-    $('#decodeVIN').addEventListener('click', function(){
-      var vin=$('#jobVIN').value.trim(); var box=$('#vinResult'); var sug=$('#vinSuggest'); var tags=$('#vinTags');
-      box.style.display='block'; box.textContent='Decoding…'; sug.style.display='none'; tags.innerHTML='';
-      if(!vin || vin.length<11){ box.textContent='Enter a valid VIN (17 preferred).'; return; }
-      fetch('https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/'+encodeURIComponent(vin)+'?format=json')
-        .then(res=>res.json()).then(function(data){
-          var map={}; (data.Results||[]).forEach(r=>{ if(r.Variable&&r.Value) map[r.Variable]=r.Value; });
-          var summary=(map['Model Year']||'-')+' '+(map['Make']||'-')+' '+(map['Model']||'-');
-          box.innerHTML='<strong>'+summary+'</strong>';
-          var platformText=(summary+' '+(map['Engine Model']||'')+' '+(map['Engine Manufacturer']||'')).toLowerCase();
-          var matched=DB.templates.filter(t=>{
-            return (t.platform.toLowerCase().includes('cummins') && platformText.includes('ram')) ||
-                   (t.platform.toLowerCase().includes('powerstroke') && platformText.includes('ford')) ||
-                   (t.platform.toLowerCase().includes('duramax') && (platformText.includes('chevrolet')||platformText.includes('gmc')||platformText.includes('gm')));
-          });
-          if(matched.length===0) matched=DB.templates;
-          tags.innerHTML='';
-          matched.forEach(function(tpl){
-            var b=document.createElement('button'); b.className='tab-btn'; b.type='button'; b.textContent=tpl.platform;
-            b.addEventListener('click', ()=>applyTemplate(tpl));
-            tags.appendChild(b);
-          });
-          $('#addAllSuggest').onclick=()=>{ matched.forEach(t=>applyTemplate(t)); };
-          sug.style.display='block'; saveDB();
-        }).catch(()=> box.textContent='VIN decode failed.');
+      renderInvFilters();
+      renderInvJobOptions();
+      renderRecentJobs();
+    }
+
+    $('#jobForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var j = {
+        id: crypto.randomUUID(), customerId: $('#jobCustomer').value, title: $('#jobTitle').value.trim(),
+        vin: $('#jobVIN').value.trim(), notes: $('#jobNotes').value.trim(), status: $('#jobStatus').value,
+        lines: [], paid:false, paidAt:null, docType:'Estimate', approved:false, approvedAt:null, paymentLink:'', vinData:null,
+        overallNotes:'', internalNotes:'', photos:[], signatures:{customer:null, manager:null}, createdAt:new Date().toISOString()
+      };
+      if(!j.customerId || !j.title) return;
+      DB.jobs.push(j); renderJobs(); renderJobCustomer();
+      document.getElementById('jobForm').reset(); $('#vinResult').style.display='none'; $('#vinSuggest').style.display='none'; saveDB();
+      if(DB.jobs.length===1){ $('#invJob').value = j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); }
     });
 
-    // Filters
-    function renderInvFilters(){ var sel=$('#invCustFilter'); sel.innerHTML='<option value=\"\">All customers</option>'+DB.customers.map(c=>'<option value=\"'+c.id+'\">'+c.name+'</option>').join(''); }
-    function renderInvJobOptions(){ const invSel=$('#invJob'); const cid=$('#invCustFilter').value||''; const q=($('#invJobSearch').value||'').trim().toLowerCase(); const jobs=DB.jobs.filter(function(j){ if(cid && j.customerId!==cid) return false; if(!q) return true; const cust=DB.customers.find(x=>x.id===j.customerId); const fields=[cust?cust.name:'', j.title||'', j.vin||'', j.notes||'', j.overallNotes||'', ...(j.lines||[]).map(l=>[l.desc||'', l.note||'']).flat()].join(' | '); return matchesAllTokens(fields, q); }); invSel.innerHTML='<option value=\"\">Select job…</option>'+jobs.map(function(j){ const c=DB.customers.find(x=> x.id===j.customerId); return '<option value=\"'+j.id+'\">'+(c?c.name:'—')+' — '+j.title+'</option>'; }).join(''); }
-    function renderRecentJobs(){ var box=$('#recentJobs'); box.innerHTML=''; DB.jobs.slice().sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt)).slice(0,6).forEach(function(j){ var c=DB.customers.find(x=> x.id===j.customerId); var b=document.createElement('button'); b.type='button'; b.className='tab-btn'; b.textContent=(c?c.name:'—')+': '+j.title; b.addEventListener('click', ()=>{ $('#invJob').value=j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); }); box.appendChild(b); }); }
-    $('#invCustFilter').addEventListener('change', function(){ var cur=$('#invJob').value; renderInvJobOptions(); if(!$('#invJob').querySelector('option[value=\"'+cur+'\"]')){ $('#invJob').value=''; $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals(); } });
+    // VIN decode (XMLHttpRequest for compat)
+    $('#decodeVIN').addEventListener('click', function(){
+      var vin = $('#jobVIN').value.trim();
+      var box = $('#vinResult'); var sug = $('#vinSuggest'); var tags = $('#vinTags');
+      box.style.display='block'; box.textContent = 'Decoding…'; sug.style.display='none'; tags.innerHTML='';
+      if(!vin || vin.length<11){ box.textContent='Enter a valid VIN (17 preferred).'; return; }
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', 'https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/'+encodeURIComponent(vin)+'?format=json', true);
+      xhr.onreadystatechange = function(){
+        if(xhr.readyState===4){
+          if(xhr.status>=200 && xhr.status<300){
+            try{
+              var data = JSON.parse(xhr.responseText||'{}');
+              var map={}, i, r;
+              for(i=0;i<(data.Results||[]).length;i++){ r=data.Results[i]; if(r.Variable && r.Value) map[r.Variable]=r.Value; }
+              var summary = (map['Model Year']||'-')+' '+(map['Make']||'-')+' '+(map['Model']||'-');
+              box.innerHTML = '<strong>'+summary+'</strong>';
+              var platformText = (summary+' '+(map['Engine Model']||'')+' '+(map['Engine Manufacturer']||'')).toLowerCase();
+              var matched = DB.templates.filter(function(t){
+                var p = t.platform.toLowerCase();
+                return (p.indexOf('cummins')>-1 && platformText.indexOf('ram')>-1) ||
+                       (p.indexOf('powerstroke')>-1 && platformText.indexOf('ford')>-1) ||
+                       (p.indexOf('duramax')>-1 && (platformText.indexOf('chevrolet')>-1||platformText.indexOf('gmc')>-1||platformText.indexOf('gm')>-1));
+              });
+              if(!matched.length) matched = DB.templates.slice(0);
+              tags.innerHTML='';
+              matched.forEach(function(tpl){
+                var b=document.createElement('button'); b.className='tab-btn'; b.type='button'; b.textContent=tpl.platform;
+                b.addEventListener('click', function(){ applyTemplate(tpl); });
+                tags.appendChild(b);
+              });
+              document.getElementById('addAllSuggest').onclick = function(){ for(var k=0;k<matched.length;k++){ applyTemplate(matched[k]); } };
+              sug.style.display='block'; saveDB();
+            }catch(e){ box.textContent='VIN parse failed.'; }
+          } else {
+            box.textContent='VIN decode failed.';
+          }
+        }
+      };
+      xhr.send(null);
+    });
+
+    function renderJobs(){
+      var tb = $('#jobsTable tbody'); tb.innerHTML='';
+      DB.jobs.forEach(function(j){
+        var c = findCustomer(j.customerId);
+        var subtotal = sumLines(j.lines, 'subtotal');
+        var profit = sumLines(j.lines, 'profit');
+        var badge = j.status==='Open' ? 'badge-open' : (j.status==='In Progress'?'badge-ip':'badge-done');
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>'+j.id.slice(0,8)+'</td><td>'+(c?c.name:'—')+'</td><td>'+j.title+'</td>' +
+          '<td><span class="badge '+badge+'">'+j.status+'</span></td>' +
+          '<td>'+fmt(subtotal)+'</td><td>'+fmt(profit)+'</td>' +
+          '<td><button class="tab-btn" data-open="'+j.id+'">Open</button></td>';
+        tb.appendChild(tr);
+      });
+      $all('button[data-open]').forEach(function(b){
+        b.addEventListener('click', function(){
+          var id = b.getAttribute('data-open');
+          document.querySelector('[data-tab="invoice"]').click();
+          $('#invJob').value = id; loadInvoice(id); UI.lastJobId=id; saveUI(UI);
+        });
+      });
+    }
+
+    // Internal notes save
+    $('#internalNotes').addEventListener('input', function(){
+      var j = currentJob(); if(!j) return;
+      j.internalNotes = this.value; saveDB();
+    });
+
+    /* Filters + job picker */
+    function renderInvFilters(){
+      var sel = $('#invCustFilter');
+      var opts = ['<option value="">All customers</option>'];
+      DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+c.name+'</option>'); });
+      sel.innerHTML = opts.join('');
+    }
+    function renderInvJobOptions(){
+      var invSel = $('#invJob');
+      var cid = $('#invCustFilter').value || '';
+      var q = ($('#invJobSearch').value || '').trim().toLowerCase();
+
+      var jobs = DB.jobs.filter(function(j){
+        if(cid && j.customerId!==cid) return false;
+        if(!q) return true;
+        var cust = findCustomer(j.customerId);
+        var fields = [(cust?cust.name:''), (j.title||''), (j.vin||''), (j.notes||''), (j.overallNotes||'')].join(' | ');
+        return matchesAllTokens(fields, q);
+      });
+
+      var opts = ['<option value="">Select job…</option>'];
+      jobs.forEach(function(j){
+        var c = findCustomer(j.customerId);
+        opts.push('<option value="'+j.id+'">'+(c?c.name:'—')+' — '+j.title+'</option>');
+      });
+      invSel.innerHTML = opts.join('');
+    }
+    function renderRecentJobs(){
+      var box = $('#recentJobs'); box.innerHTML='';
+      var jobs = DB.jobs.slice(0);
+      jobs.sort(function(a,b){ return new Date(b.createdAt) - new Date(a.createdAt); });
+      jobs.slice(0,6).forEach(function(j){
+        var c = findCustomer(j.customerId);
+        var b = document.createElement('button'); b.type='button'; b.className='tab-btn';
+        b.textContent = (c?c.name:'—')+': '+j.title;
+        b.addEventListener('click', function(){ $('#invJob').value=j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); });
+        box.appendChild(b);
+      });
+    }
+    $('#invCustFilter').addEventListener('change', function(){
+      var cur = $('#invJob').value;
+      renderInvJobOptions();
+      if(!$('#invJob').querySelector('option[value="'+cur+'"]')){ $('#invJob').value=''; $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals(); }
+    });
     $('#invJobSearch').addEventListener('input', renderInvJobOptions);
+    $('#invJob').addEventListener('change', function(){
+      var id = this.value;
+      if(!id){ $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals(); return; }
+      loadInvoice(id); UI.lastJobId=id; saveUI(UI);
+    });
 
-    function ensureJobSelected(createIfMissing){ var j=currentJob(); if(!j && createIfMissing){ var cust=DB.customers[0]; if(!cust){ cust={id:crypto.randomUUID(), name:'Walk-in Customer', phone:'', email:'', vehicle:''}; DB.customers.push(cust); renderCustomers(); } j={ id:crypto.randomUUID(), customerId:cust.id, title:'Quick Estimate', vin:'', notes:'', status:'Open', lines:[], paid:false, paidAt:null, docType:'Estimate', approved:false, approvedAt:null, paymentLink:'', vinData:null, overallNotes:'', internalNotes:'', photos:[], signatures:{customer:null, manager:null}, createdAt:new Date().toISOString() }; DB.jobs.push(j); saveDB(); renderJobs(); renderJobCustomer(); $('#invJob').value=j.id; UI.lastJobId=j.id; saveUI(UI); } if(!j) alert('Pick a job in the \"Select job…\" dropdown first.'); return j; }
-    function currentJob(){ var id=$('#invJob').value; return DB.jobs.find(j=> j.id===id); }
+    /* Invoice core */
+    function ensureJobSelected(createIfMissing){
+      var j = currentJob();
+      if(!j && createIfMissing){
+        var cust = DB.customers[0];
+        if(!cust){ cust={id:crypto.randomUUID(), name:'Walk-in Customer', phone:'', email:'', vehicle:''}; DB.customers.push(cust); renderCustomers(); }
+        j={ id:crypto.randomUUID(), customerId:cust.id, title:'Quick Estimate', vin:'', notes:'', status:'Open', lines:[], paid:false, paidAt:null, docType:'Estimate', approved:false, approvedAt:null, paymentLink:'', vinData:null, overallNotes:'', internalNotes:'', photos:[], signatures:{customer:null, manager:null}, createdAt:new Date().toISOString() };
+        DB.jobs.push(j); saveDB(); renderJobs(); renderJobCustomer(); $('#invJob').value=j.id; UI.lastJobId=j.id; saveUI(UI);
+      }
+      if(!j) alert('Pick a job in the "Select job…" dropdown first.');
+      return j;
+    }
+    function currentJob(){ var id = $('#invJob').value; var i; for(i=0;i<DB.jobs.length;i++){ if(DB.jobs[i].id===id) return DB.jobs[i]; } return null; }
+    function findCustomer(id){ var i; for(i=0;i<DB.customers.length;i++){ if(DB.customers[i].id===id) return DB.customers[i]; } return null; }
 
-    function loadInvoice(id){ var j=DB.jobs.find(x=> x.id===id); if(!j) return; $('#lines tbody').innerHTML=''; (j.lines||[]).forEach(l=> addLine(l.type,l.desc,l.qty,l.unit,l.cost,l.note)); $('#invNo').value=j.invNo||''; $('#docType').value=j.docType||'Estimate'; $('#payLink').value=j.paymentLink||''; var c=DB.customers.find(x=> x.id===j.customerId); $('#emailTo').value=(c && c.email)?c.email:''; $('#overallNotes').value=j.overallNotes||''; $('#internalNotes').value=j.internalNotes||''; renderPhotoGrid(); $('#photosOnPdf').checked = j.photosOnPdf!==false; updatePreview(); recalcTotals(); }
+    function loadInvoice(id){
+      var j = currentJob(); if(!j) j = DB.jobs.filter(function(x){ return x.id===id; })[0];
+      if(!j) return;
+      $('#lines tbody').innerHTML='';
+      for(var i=0;i<(j.lines||[]).length;i++){
+        var l=j.lines[i]; addLine(l.type,l.desc,l.qty,l.unit,l.cost,l.note);
+      }
+      $('#invNo').value = j.invNo||''; $('#docType').value = j.docType||'Estimate'; $('#payLink').value = j.paymentLink||'';
+      var c = findCustomer(j.customerId); $('#emailTo').value = (c && c.email) ? c.email : '';
+      $('#overallNotes').value = j.overallNotes||'';
+      $('#internalNotes').value = j.internalNotes||'';
+      renderPhotoGrid();
+      $('#photosOnPdf').checked = j.photosOnPdf!==false;
+      updatePreview(); recalcTotals();
+    }
 
-    function makeRowDraggable(tr){ var handle=tr.querySelector('.handle'); if(!handle) return; handle.addEventListener('pointerdown', function(ev){ ev.preventDefault(); var startY=ev.clientY; tr.classList.add('dragging'); function onMove(e){ var dy=e.clientY-startY; tr.style.transform='translateY('+dy+'px)'; var siblings=[...tr.parentNode.children].filter(x=>x!==tr); var insertBefore=null; for(const sib of siblings){ const r=sib.getBoundingClientRect(); const half=r.top+r.height/2; if(e.clientY < half){ insertBefore=sib; break; } } siblings.forEach(s=> s.classList.toggle('drop-target', s===insertBefore)); } function onUp(e){ tr.classList.remove('dragging'); tr.style.transform=''; $$('#lines tbody tr').forEach(s=> s.classList.remove('drop-target')); document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp); var siblings=[...tr.parentNode.children].filter(x=>x!==tr); var insertBefore=null; for(const sib of siblings){ const r=sib.getBoundingClientRect(); const half=r.top+r.height/2; if(e.clientY < half){ insertBefore=sib; break; } } if(insertBefore){ tr.parentNode.insertBefore(tr, insertBefore); } persistLines(); } document.addEventListener('pointermove', onMove); document.addEventListener('pointerup', onUp, {once:true}); }); }
+    function makeRowDraggable(tr){
+      var handle = tr.querySelector('.handle'); if(!handle) return;
+      handle.addEventListener('mousedown', function(ev){
+        ev.preventDefault();
+        var startY = ev.clientY;
+        tr.classList.add('dragging');
+        function onMove(e){
+          var dy = e.clientY - startY;
+          tr.style.transform = 'translateY('+dy+'px)';
+          var siblings = Array.prototype.slice.call(tr.parentNode.children).filter(function(x){ return x!==tr; });
+          var insertBefore = null, i, sib, r, half;
+          for(i=0;i<siblings.length;i++){
+            sib = siblings[i]; r = sib.getBoundingClientRect(); half = r.top + r.height/2;
+            if(e.clientY < half){ insertBefore = sib; break; }
+          }
+          for(i=0;i<siblings.length;i++){ siblings[i].classList.toggle('drop-target', siblings[i]===insertBefore); }
+        }
+        function onUp(e){
+          tr.classList.remove('dragging'); tr.style.transform='';
+          $all('#lines tbody tr').forEach(function(s){ s.classList.remove('drop-target'); });
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+          var siblings = Array.prototype.slice.call(tr.parentNode.children).filter(function(x){ return x!==tr; });
+          var insertBefore = null, i, sib, r, half;
+          for(i=0;i<siblings.length;i++){
+            sib = siblings[i]; r = sib.getBoundingClientRect(); half = r.top + r.height/2;
+            if(e.clientY < half){ insertBefore = sib; break; }
+          }
+          if(insertBefore){ tr.parentNode.insertBefore(tr, insertBefore); }
+          persistLines();
+        }
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+    }
 
-    function addLine(type,desc,qty,unit,cost,note){ var tr=document.createElement('tr'); var descPH=type==='Labor'?'e.g., Diagnostics / R&R': 'e.g., Fuel Filter (FF63009) — Fleetguard'; var qtyPH=type==='Labor'?'hrs (e.g., 1.5)':'qty (e.g., 1)'; var costPH=type==='Labor'?'shop cost (optional)':'shop cost (e.g., 32.00)'; var unitPH=type==='Labor'?'$/hr (auto or manual)':'sell price (e.g., 44.80)'; tr.classList.add('draggable-row'); tr.innerHTML='<td class=\"drag-col\"><button class=\"tab-btn handle\" title=\"Drag to reorder\">↕</button></td><td><select class=\"lType\"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Part'?'selected':'')+'>Part</option></select></td><td><div class=\"desc-wrap\"><input class=\"lDesc\" value=\"'+(desc||'')+'\" placeholder=\"'+descPH+'\"/><textarea class=\"lNote\" placeholder=\"Tech note for this line (prints)\">'+(note||'')+'</textarea></div></td><td><input class=\"lQty\" type=\"number\" step=\"0.01\" value=\"'+(qty||1)+'\" placeholder=\"'+qtyPH+'\"/></td><td><input class=\"lCost\" type=\"number\" step=\"0.01\" value=\"'+((cost==null)?0:cost)+'\" placeholder=\"'+costPH+'\"/></td><td><input class=\"lUnit\" type=\"number\" step=\"0.01\" value=\"'+(unit||0)+'\" placeholder=\"'+unitPH+'\"/><div class=\"calc-hint\">—</div></td><td class=\"lLine\">$0.00</td><td class=\"lProfit\">$0.00</td><td><button type=\"button\" class=\"tab-btn lDel\">X</button></td>'; document.querySelector('#lines tbody').appendChild(tr); makeRowDraggable(tr); tr.querySelector('.lDel').addEventListener('click', function(){ tr.remove(); persistLines(); }); ['change','input'].forEach(evt=>{ ['.lType','.lDesc','.lQty','.lCost','.lUnit','.lNote'].forEach(sel=> tr.querySelector(sel).addEventListener(evt, persistLines)); }); persistLines(); }
+    function addLine(type, desc, qty, unit, cost, note){
+      var tr = document.createElement('tr');
+      var descPH = type==='Labor' ? "e.g., Diagnostics / R&R" : "e.g., Fuel Filter (FF63009) — Fleetguard";
+      var qtyPH  = type==='Labor' ? "hrs (e.g., 1.5)" : "qty (e.g., 1)";
+      var costPH = type==='Labor' ? "shop cost (optional)" : "shop cost (e.g., 32.00)";
+      var unitPH = type==='Labor' ? "$/hr (auto or manual)" : "sell price (e.g., 44.80)";
+      tr.className = 'draggable-row';
+      tr.innerHTML =
+        '<td class="drag-col"><button class="tab-btn handle" title="Drag to reorder">↕</button></td>' +
+        '<td><select class="lType"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Part'?'selected':'')+'>Part</option></select></td>' +
+        '<td><div class="desc-wrap"><input class="lDesc" value="'+(desc||'')+'" placeholder="'+descPH+'"/><textarea class="lNote" placeholder="Tech note for this line (prints)">'+(note||'')+'</textarea></div></td>' +
+        '<td><input class="lQty" type="number" step="0.01" value="'+(qty||1)+'" placeholder="'+qtyPH+'"/></td>' +
+        '<td><input class="lCost" type="number" step="0.01" value="'+(((cost!=null)?cost:0))+'" placeholder="'+costPH+'"/></td>' +
+        '<td><input class="lUnit" type="number" step="0.01" value="'+(unit||0)+'" placeholder="'+unitPH+'"/><div class="calc-hint">—</div></td>' +
+        '<td class="lLine">$0.00</td><td class="lProfit">$0.00</td><td><button type="button" class="tab-btn lDel">X</button></td>';
+      document.querySelector('#lines tbody').appendChild(tr);
+      makeRowDraggable(tr);
+      tr.querySelector('.lDel').addEventListener('click', function(){ tr.remove(); persistLines(); });
+      ['change','input'].forEach(function(evt){
+        ['.lType','.lDesc','.lQty','.lCost','.lUnit','.lNote'].forEach(function(sel){
+          tr.querySelector(sel).addEventListener(evt, persistLines);
+        });
+      });
+      persistLines();
+    }
 
-    function rowsToLines(){ return $$('#lines tbody tr').map(function(tr){ return { type:tr.querySelector('.lType').value, desc:tr.querySelector('.lDesc').value, qty:Number(tr.querySelector('.lQty').value||0), cost:Number(tr.querySelector('.lCost').value||0), unit:Number(tr.querySelector('.lUnit').value||0), note:(tr.querySelector('.lNote')?.value || '').trim() }; }); }
-    function persistLines(){ var j=currentJob(); if(!j) return; j.lines=rowsToLines(); j.invNo=$('#invNo').value.trim(); j.docType=$('#docType').value; j.paymentLink=$('#payLink').value.trim(); j.emailTo=$('#emailTo').value.trim(); j.overallNotes=$('#overallNotes').value||''; j.internalNotes=$('#internalNotes').value||''; j.photosOnPdf=$('#photosOnPdf').checked; recalcTotals(); updatePreview(); renderJobs(); saveDB(); }
-    function applyDefaultMarkup(){ var mu=Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100; $$('#lines tbody tr').forEach(function(tr){ var type=tr.querySelector('.lType').value; if(type==='Part'){ var cost=Number(tr.querySelector('.lCost').value||0); var newUnit=cost*(1+mu); if(newUnit>0) tr.querySelector('.lUnit').value=newUnit.toFixed(2); } }); persistLines(); }
-    function recalcTotals(){ var rows=rowsToLines(); var subtotal=0, profit=0; var laborRate=Number($('#laborRate').value||80); var muDefault=Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100; var trs=$$('#lines tbody tr'); rows.forEach(function(r,i){ if(r.type==='Labor' && (!r.unit || r.unit===0)) r.unit=laborRate; var line=r.qty*r.unit; subtotal+=line; var lineProfit=r.qty*(r.unit - (r.cost||0)); r.profit=lineProfit; profit+=lineProfit; var tr=trs[i]; if(!tr) return; tr.querySelector('.lLine').textContent=fmt(line); tr.querySelector('.lProfit').textContent=fmt(lineProfit); var hint=tr.querySelector('.calc-hint'); if(hint){ var up=(r.unit - (r.cost||0)); var per=(r.cost>0) ? Math.round((up / r.cost)*100) : 100; var cls=(r.cost>0 && (up / r.cost) >= muDefault) ? 'ok' : (r.cost>0 ? 'warn' : 'ok'); hint.className='calc-hint '+cls; var dollars=fmt(up * (r.qty||1)); var perTxt=r.cost>0 ? '(+'+per+'%)' : '(set cost for %)'; hint.textContent=dollars+' '+perTxt; } }); var taxPct=Number($('#salesTax').value||0); var tax=subtotal*(taxPct/100); var grand=subtotal+tax; $('#sub').textContent=fmt(subtotal); $('#tax').textContent=fmt(tax); $('#grand').textContent=fmt(grand); $('#profit').textContent=fmt(profit); var margin=grand>0 ? Math.round((profit/grand)*100) : 0; var badge=$('#margin'); badge.textContent=margin+'%'; badge.className='badge '+(margin>=25?'invoice': (margin>=15?'badge-open':'estimate')); $('#pSub').textContent=fmt(subtotal); $('#pTax').textContent=fmt(tax); $('#pGrand').textContent=fmt(grand); }
+    function rowsToLines(){
+      var out = [];
+      $all('#lines tbody tr').forEach(function(tr){
+        out.push({
+          type: tr.querySelector('.lType').value,
+          desc: tr.querySelector('.lDesc').value,
+          qty: Number(tr.querySelector('.lQty').value||0),
+          cost: Number(tr.querySelector('.lCost').value||0),
+          unit: Number(tr.querySelector('.lUnit').value||0),
+          note: (tr.querySelector('.lNote') ? tr.querySelector('.lNote').value : '').trim()
+        });
+      });
+      return out;
+    }
 
-    function updatePreview(){ var j=currentJob(); $('#pInvNo').textContent=($('#invNo').value.trim()||'DRAFT'); $('#pDate').textContent=new Date().toLocaleDateString(); var t=$('#docType').value; var badge=$('#pType'); badge.textContent=t; badge.className='badge '+(t==='Invoice'?'invoice':'estimate'); $('#pStatus').textContent=j && j.paid ? 'Paid' : (t==='Estimate' ? (j && j.approved ? 'Approved':'Pending Approval') : 'Unpaid'); var c=j ? DB.customers.find(x=> x.id===j.customerId) : null; $('#pCust').textContent=c?c.name:'—'; $('#pVeh').textContent=c?(c.vehicle||''):''; var tbody=$('#pLines'); tbody.innerHTML=''; (j?j.lines:[]).forEach(function(l){ var tr=document.createElement('tr'); var line=(Number(l.qty)||0)*(Number(l.unit)||0); tr.innerHTML='<td>'+l.type+': '+escapeHtml(l.desc||"")+'</td><td>'+(l.qty||0)+'</td><td>'+fmt(l.unit||0)+'</td><td>'+fmt(line)+'</td>'; tbody.appendChild(tr); if(l.note && l.note.trim()){ var trn=document.createElement('tr'); trn.innerHTML='<td colspan=\"4\" style=\"font-style:italic; color:#333; padding-top:4px;\">Note: '+escapeHtml(l.note.trim())+'</td>'; tbody.appendChild(trn); } }); var pBlk=$('#pOverallBlock'); pBlk.innerHTML=''; if(j && j.overallNotes && j.overallNotes.trim()){ pBlk.innerHTML='<h4 style=\"margin:8px 0 4px 0;\">Technician Overall Notes</h4><div style=\"white-space:pre-wrap; line-height:1.35;\">'+escapeHtml(j.overallNotes.trim())+'</div>'; } function setSig(role){ var img=role==='customer' ? $('#pSigCustomer') : $('#pSigManager'); var nameEl=role==='customer' ? $('#pSigCustomerName') : $('#pSigManagerName'); var dateEl=role==='customer' ? $('#pSigCustomerDate') : $('#pSigManagerDate'); var data=j && j.signatures ? j.signatures[role] : null; if(data && data.dataUrl){ img.src=data.dataUrl; img.style.display='block'; nameEl.textContent=data.name ? ('— '+escapeHtml(data.name)) : ''; dateEl.textContent=data.date ? ('('+data.date+')') : ''; } else { img.src=''; img.style.display='none'; nameEl.textContent=''; dateEl.textContent=''; } } setSig('customer'); setSig('manager'); var pPhotos=$('#pPhotosBlock'); pPhotos.innerHTML=''; if(j && j.photosOnPdf && j.photos && j.photos.length){ var html='<h4 style=\"margin:8px 0 4px 0;\">Work Photos</h4><div class=\"p-photos\">'; j.photos.forEach(function(ph){ if(!ph || !ph.dataUrl || ph.include === false) return; html += '<div class=\"p-photo\"><img src=\"'+ph.dataUrl+'\" alt=\"\"></div>'; }); html += '</div>'; pPhotos.innerHTML=html; } function escapeHtml(s){ return String(s||'').replace(/[&<>\"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'})[c]; }); } }
+    function persistLines(){
+      var j = currentJob(); if(!j) return;
+      j.lines = rowsToLines();
+      j.invNo = $('#invNo').value.trim();
+      j.docType = $('#docType').value;
+      j.paymentLink = $('#payLink').value.trim();
+      j.emailTo = $('#emailTo').value.trim();
+      j.overallNotes = $('#overallNotes').value || '';
+      j.internalNotes = $('#internalNotes').value || '';
+      j.photosOnPdf = $('#photosOnPdf').checked;
+      recalcTotals(); updatePreview(); renderJobs(); saveDB();
+    }
 
-    // Listeners
-    $('#invJob').addEventListener('change', function(){ var id=this.value; if(!id){ $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals(); return; } loadInvoice(id); UI.lastJobId=id; saveUI(UI); });
-    $('#addLabor').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Labor','',1, Number($('#laborRate').value||80), 0, ''); });
-    $('#addPart').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Part','',1, 0, 0, ''); });
-    document.getElementById('openTemplates').addEventListener('click', function(){ openTemplatesModal(); });
+    function applyDefaultMarkup(){
+      var mu = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
+      $all('#lines tbody tr').forEach(function(tr){
+        var type = tr.querySelector('.lType').value;
+        if(type==='Part'){
+          var cost = Number(tr.querySelector('.lCost').value||0);
+          var newUnit = cost * (1+mu);
+          if(newUnit>0) tr.querySelector('.lUnit').value = newUnit.toFixed(2);
+        }
+      });
+      persistLines();
+    }
+
+    function sumLines(lines, mode){
+      var subtotal=0, profit=0, i, l;
+      for(i=0;i<(lines||[]).length;i++){
+        l = lines[i];
+        var line = Number(l.qty||0)*Number(l.unit||0);
+        subtotal += line;
+        profit += Number(l.qty||0)*(Number(l.unit||0) - Number(l.cost||0));
+      }
+      return mode==='profit'?profit:subtotal;
+    }
+
+    function recalcTotals(){
+      var rows = rowsToLines(); var subtotal=0, profit=0;
+      var laborRate = Number($('#laborRate').value||80);
+      var muDefault = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
+      var trs = $all('#lines tbody tr');
+      for(var i=0;i<rows.length;i++){
+        var r = rows[i];
+        if(r.type==='Labor' && (!r.unit || r.unit===0)) r.unit = laborRate;
+        var line = r.qty*r.unit; subtotal+=line;
+        var lineProfit = r.qty*(r.unit - (r.cost||0));
+        r.profit = lineProfit; profit += lineProfit;
+
+        var tr = trs[i]; if(!tr) continue;
+        tr.querySelector('.lLine').textContent = fmt(line);
+        tr.querySelector('.lProfit').textContent = fmt(lineProfit);
+
+        var hint = tr.querySelector('.calc-hint');
+        if(hint){
+          var up = (r.unit - (r.cost||0));
+          var per = (r.cost>0) ? Math.round((up / r.cost)*100) : 100;
+          var cls = (r.cost>0 && (up / r.cost) >= muDefault) ? 'ok' : (r.cost>0 ? 'warn' : 'ok');
+          hint.className = 'calc-hint ' + cls;
+          var dollars = fmt(up * (r.qty||1));
+          var perTxt = r.cost>0 ? '(+'+per+'%)' : '(set cost for %)';
+          hint.textContent = dollars + ' ' + perTxt;
+        }
+      }
+      var taxPct = Number($('#salesTax').value||0); var tax = subtotal*(taxPct/100); var grand = subtotal+tax;
+      document.getElementById('sub').textContent = fmt(subtotal);
+      document.getElementById('tax').textContent = fmt(tax);
+      document.getElementById('grand').textContent = fmt(grand);
+      document.getElementById('profit').textContent = fmt(profit);
+      var margin = grand>0 ? Math.round((profit/grand)*100) : 0;
+      var badge = document.getElementById('margin');
+      badge.textContent = margin + '%';
+      badge.className='badge ' + (margin>=25?'invoice': (margin>=15?'badge-open':'estimate'));
+      document.getElementById('pSub').textContent = fmt(subtotal); document.getElementById('pTax').textContent = fmt(tax); document.getElementById('pGrand').textContent = fmt(grand);
+    }
+
+    function updatePreview(){
+      var j = currentJob();
+      document.getElementById('pInvNo').textContent = (document.getElementById('invNo').value.trim() || 'DRAFT');
+      document.getElementById('pDate').textContent = new Date().toLocaleDateString();
+      var t = document.getElementById('docType').value; var badge = document.getElementById('pType'); badge.textContent=t; badge.className='badge ' + (t==='Invoice'?'invoice':'estimate');
+      document.getElementById('pStatus').textContent = j && j.paid ? 'Paid' : (t==='Estimate' ? (j && j.approved ? 'Approved':'Pending Approval') : 'Unpaid');
+      var c = j ? findCustomer(j.customerId) : null;
+      document.getElementById('pCust').textContent = c?c.name:'—'; document.getElementById('pVeh').textContent = c?(c.vehicle||''):'';
+
+      var tbody = document.getElementById('pLines'); tbody.innerHTML='';
+      if(j){
+        for(var i=0;i<j.lines.length;i++){
+          var l=j.lines[i]; var line=(Number(l.qty)||0)*(Number(l.unit)||0);
+          var tr=document.createElement('tr');
+          tr.innerHTML='<td>'+l.type+': '+escapeHtml(l.desc||"")+'</td><td>'+(l.qty||0)+'</td><td>'+fmt(l.unit||0)+'</td><td>'+fmt(line)+'</td>';
+          tbody.appendChild(tr);
+          if(l.note && l.note.trim()){
+            var trn=document.createElement('tr');
+            trn.innerHTML = '<td colspan="4" style="font-style:italic; color:#333; padding-top:4px;">Note: '+escapeHtml(l.note.trim())+'</td>';
+            tbody.appendChild(trn);
+          }
+        }
+      }
+
+      var pBlk = document.getElementById('pOverallBlock'); pBlk.innerHTML='';
+      if(j && j.overallNotes && j.overallNotes.trim()){
+        pBlk.innerHTML = '<h4 style="margin:8px 0 4px 0;">Technician Overall Notes</h4>' +
+          '<div style="white-space:pre-wrap; line-height:1.35;">'+escapeHtml(j.overallNotes.trim())+'</div>';
+      }
+
+      function setSig(role){
+        var img = role==='customer' ? document.getElementById('pSigCustomer') : document.getElementById('pSigManager');
+        var nameEl = role==='customer' ? document.getElementById('pSigCustomerName') : document.getElementById('pSigManagerName');
+        var dateEl = role==='customer' ? document.getElementById('pSigCustomerDate') : document.getElementById('pSigManagerDate');
+        var data = j && j.signatures ? j.signatures[role] : null;
+        if(data && data.dataUrl){
+          img.src = data.dataUrl; img.style.display='block';
+          nameEl.textContent = data.name ? ('— '+escapeHtml(data.name)) : '';
+          dateEl.textContent = data.date ? ('('+data.date+')') : '';
+        } else {
+          img.src=''; img.style.display='none'; nameEl.textContent=''; dateEl.textContent='';
+        }
+      }
+      setSig('customer'); setSig('manager');
+
+      var pPhotos = document.getElementById('pPhotosBlock'); pPhotos.innerHTML='';
+      if(j && j.photosOnPdf && j.photos && j.photos.length){
+        var html = '<h4 style="margin:8px 0 4px 0;">Work Photos</h4><div class="p-photos">';
+        for(var pi=0;pi<j.photos.length;pi++){
+          var ph=j.photos[pi]; if(!ph || !ph.dataUrl || ph.include === false) continue;
+          html += '<div class="p-photo"><img src="'+ph.dataUrl+'" alt=""></div>';
+        }
+        html += '</div>';
+        pPhotos.innerHTML = html;
+      }
+
+      function escapeHtml(s){
+        return String(s||'').replace(/[&<>"']/g, function(c){
+          return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
+        });
+      }
+    }
+
+    // Buttons & listeners
+    document.getElementById('addLabor').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Labor','',1, Number(document.getElementById('laborRate').value||80), 0, ''); });
+    document.getElementById('addPart').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Part','',1, 0, 0, ''); });
     document.getElementById('applyMarkup').addEventListener('click', applyDefaultMarkup);
     document.getElementById('recalc').addEventListener('click', recalcTotals);
-    document.getElementById('markPaid').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; j.paid=!j.paid; j.paidAt=j.paid?new Date().toISOString():null; if(j.paid){ j.taxPercentAtSale = Number($('#salesTax').value||0); } updatePreview(); renderJobs(); saveDB(); alert(j.paid?'Marked Paid':'Marked Unpaid'); });
-    document.getElementById('approve').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; if($('#docType').value!=='Estimate'){ alert('Approvals apply to Estimates.'); return; } j.approved=true; j.approvedAt=new Date().toISOString(); updatePreview(); saveDB(); alert('Estimate approved.'); });
-    document.getElementById('convert').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; j.docType='Invoice'; $('#docType').value='Invoice'; updatePreview(); saveDB(); alert('Converted to Invoice.'); });
-    document.getElementById('email').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; var to=encodeURIComponent($('#emailTo').value.trim()||''); var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim()); var body=encodeURIComponent('Hello,\\n\\nYour '+j.docType+' total is '+$('#grand').textContent+'.\\nPayment link: '+(j.paymentLink||'')+'\\n\\n'+(DB.settings.shopFooter||'')+'\\n\\n— '+(DB.settings.shopFrom||'')); location.href='mailto:'+to+'?subject='+subj+'&body='+body; });
-    document.getElementById('pdf').addEventListener('click', function(){ var css='html,body{margin:0;padding:0}body{font-family:'+CSS.escape(getComputedStyle(document.body).fontFamily)+';font-size:11pt;line-height:1.35;color:#000}.print-area{padding:8px 12px 12px;border-radius:0;position:relative}.invoice-header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:6px}.invoice-header h3{margin:0;font-size:16pt}table{width:100%;border-collapse:collapse;margin-top:6px}th,td{border-bottom:1px solid #000;padding:6px;text-align:left;vertical-align:top;font-size:10.5pt}.totals{display:grid;gap:4px;justify-items:end;margin-top:8px}.grand{font-weight:700}.badge{border:1px solid #000;border-radius:9999px;padding:2px 6px;font-size:9pt}.signatures{margin-top:16px;display:grid;gap:10px}.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}.sig-line{border-bottom:1px solid #000;height:28px;display:flex;align-items:flex-end}.sig-label{font-size:9pt;color:#333;margin-top:4px}.sig-img{max-height:60px;}.watermark{position:absolute;inset:0;z-index:0;opacity:.08}#wmImg{max-width:90%;max-height:90%;opacity:.12}#wmFallback{opacity:.12}.p-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}.p-photo{border:1px solid #000;padding:4px;border-radius:6px;break-inside:avoid;page-break-inside:avoid}.p-photo img{width:100%;height:1.8in;object-fit:cover;border-radius:4px;display:block}#pPhotosBlock{page-break-before:always}'; var htmlDoc='<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>'+document.getElementById('preview').outerHTML+'</body></html>'; var w=window.open('','_blank'); if(!w){ alert('Please allow pop-ups to print.'); return; } w.document.open(); w.document.write(htmlDoc); w.document.close(); const imgs=Array.from(w.document.images||[]); Promise.all(imgs.map(img=> img.complete ? Promise.resolve() : new Promise(res=>{ img.addEventListener('load',res,{once:true}); img.addEventListener('error',res,{once:true}); }) )).then(()=>{ try{ w.focus(); w.print(); }catch(e){} }); });
-    $('#invNo').addEventListener('input', persistLines); $('#docType').addEventListener('change', persistLines); $('#payLink').addEventListener('input', persistLines); $('#emailTo').addEventListener('input', persistLines); $('#laborRate').addEventListener('input', function(){ recalcTotals(); persistLines(); }); $('#salesTax').addEventListener('input', function(){ recalcTotals(); persistLines(); }); $('#overallNotes').addEventListener('input', persistLines); $('#photosOnPdf').addEventListener('change', function(){ persistLines(); updatePreview(); });
+    document.getElementById('markPaid').addEventListener('click', function(){
+      var j=ensureJobSelected(); if(!j) return;
+      j.paid=!j.paid;
+      j.paidAt=j.paid?new Date().toISOString():null;
+      if(j.paid){ j.taxPercentAtSale = Number(document.getElementById('salesTax').value||0); }
+      updatePreview(); renderJobs(); saveDB(); alert(j.paid?'Marked Paid':'Marked Unpaid');
+    });
+    document.getElementById('approve').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; if(document.getElementById('docType').value!=='Estimate'){ alert('Approvals apply to Estimates.'); return; } j.approved=true; j.approvedAt=new Date().toISOString(); updatePreview(); saveDB(); alert('Estimate approved.'); });
+    document.getElementById('convert').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; j.docType='Invoice'; document.getElementById('docType').value='Invoice'; updatePreview(); saveDB(); alert('Converted to Invoice.'); });
+    document.getElementById('email').addEventListener('click', function(){
+      var j=ensureJobSelected(); if(!j) return;
+      var to=encodeURIComponent(document.getElementById('emailTo').value.trim()||'');
+      var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim());
+      var body=encodeURIComponent('Hello,\n\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+'.\nPayment link: '+(j.paymentLink||'')+'\n\n'+(DB.settings.shopFooter||'')+'\n\n— '+(DB.settings.shopFrom||''));
+      location.href='mailto:'+to+'?subject='+subj+'&body='+body;
+    });
 
-    // Signature pad
-    (function(){ const modal=document.getElementById('sigModal'); document.getElementById('sign').addEventListener('click', ()=>{ modal.style.display='flex'; }); document.getElementById('sigClose').addEventListener('click', ()=>{ modal.style.display='none'; }); const canvas=document.getElementById('sigPad'); const ctx=canvas.getContext('2d'); let drawing=false, last=null; function pos(e){ const r=canvas.getBoundingClientRect(); return {x:(e.touches?e.touches[0].clientX:e.clientX)-r.left, y:(e.touches?e.touches[0].clientY:e.clientY)-r.top}; } function draw(p){ if(!last){ last=p; return; } ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.lineCap='round'; ctx.stroke(); last=p; } canvas.addEventListener('pointerdown', e=>{ drawing=true; last=pos(e); }); canvas.addEventListener('pointermove', e=>{ if(drawing) draw(pos(e)); }); canvas.addEventListener('pointerup', ()=>{ drawing=false; last=null; }); document.getElementById('sigClear').addEventListener('click', ()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); }); document.getElementById('sigSave').addEventListener('click', ()=>{ const role=document.getElementById('sigRole').value; const name=document.getElementById('sigName').value.trim(); const date=document.getElementById('sigDate').value; const dataUrl=canvas.toDataURL('image/png'); var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; } if(!j.signatures) j.signatures={customer:null,manager:null}; j.signatures[role]={ dataUrl, name, date }; saveDB(); updatePreview(); modal.style.display='none'; }); })();
+    // PDF
+    document.getElementById('pdf').addEventListener('click', function(){
+      var css =
+        'html,body{margin:0;padding:0}body{font-family:'+ (document.body && getComputedStyle(document.body).fontFamily || 'sans-serif') +';font-size:11pt;line-height:1.35;color:#000}' +
+        '.print-area{padding:8px 12px 12px;border-radius:0;position:relative}' +
+        '.invoice-header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:6px}' +
+        '.invoice-header h3{margin:0;font-size:16pt}' +
+        'table{width:100%;border-collapse:collapse;margin-top:6px}' +
+        'th,td{border-bottom:1px solid #000;padding:6px;text-align:left;vertical-align:top;font-size:10.5pt}' +
+        '.totals{display:grid;gap:4px;justify-items:end;margin-top:8px}.grand{font-weight:700}' +
+        '.badge{border:1px solid #000;border-radius:9999px;padding:2px 6px;font-size:9pt}' +
+        '.signatures{margin-top:16px;display:grid;gap:10px}' +
+        '.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}' +
+        '.sig-line{border-bottom:1px solid #000;height:28px;display:flex;align-items:flex-end}' +
+        '.sig-label{font-size:9pt;color:#333;margin-top:4px}' +
+        '.sig-img{max-height:60px;}' +
+        '.watermark{position:absolute;inset:0;z-index:0;opacity:.08}' +
+        '#wmImg{max-width:90%;max-height:90%;opacity:.12}' +
+        '#wmFallback{opacity:.12}' +
+        '.p-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}' +
+        '.p-photo{border:1px solid #000;padding:4px;border-radius:6px;break-inside:avoid;page-break-inside:avoid}' +
+        '.p-photo img{width:100%;height:1.8in;object-fit:cover;border-radius:4px;display:block}' +
+        '#pPhotosBlock{page-break-before:always}';
+      var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>'
+                  + document.getElementById('preview').outerHTML
+                  + '</body></html>';
+      var w = window.open('', '_blank');
+      if(!w){ alert('Please allow pop-ups to print.'); return; }
+      w.document.open(); w.document.write(htmlDoc); w.document.close();
+      try{ w.focus(); w.print(); }catch(_){}
+    });
 
-    // Photos add/remove
-    (function(){ const input=document.getElementById('photoInput'); function readAsDataURL(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); } function addPhotoToJob(job, dataUrl){ if(!job.photos) job.photos=[]; job.photos.push({ dataUrl, include:true }); } function render(){ renderPhotoGrid(); updatePreview(); saveDB(); } function onFiles(files){ var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; } (async function(){ for(const f of files){ try{ const data=await readAsDataURL(f); addPhotoToJob(j,data); }catch(e){ AppLog.error('photo read',e); } } render(); })(); } if(input){ input.addEventListener('change', ()=>{ onFiles(input.files||[]); input.value=''; }); } window.renderPhotoGrid=function(){ var j=currentJob(); var grid=document.getElementById('photoGrid'); grid.innerHTML=''; if(!j || !j.photos || !j.photos.length) return; j.photos.forEach(function(ph,idx){ var div=document.createElement('div'); div.className='photo-item'; div.innerHTML='<img src=\"'+ph.dataUrl+'\" alt=\"\"><button class=\"del\">×</button><label><input type=\"checkbox\" '+(ph.include!==false?'checked':'')+'> Include on PDF</label>'; div.querySelector('.del').addEventListener('click', ()=>{ j.photos.splice(idx,1); render(); }); div.querySelector('input[type=checkbox]').addEventListener('change', (e)=>{ ph.include = e.target.checked; render(); }); grid.appendChild(div); }); } })();
+    // Header field listeners
+    document.getElementById('invNo').addEventListener('input', persistLines);
+    document.getElementById('docType').addEventListener('change', persistLines);
+    document.getElementById('payLink').addEventListener('input', persistLines);
+    document.getElementById('emailTo').addEventListener('input', persistLines);
+    document.getElementById('laborRate').addEventListener('input', function(){ recalcTotals(); persistLines(); });
+    document.getElementById('salesTax').addEventListener('input', function(){ recalcTotals(); persistLines(); });
+    document.getElementById('overallNotes').addEventListener('input', persistLines);
+    document.getElementById('photosOnPdf').addEventListener('change', function(){ persistLines(); updatePreview(); });
 
-    // Templates (modal + apply)
+    // Signature pad (mouse only for compat; touch events often map to mouse events)
+    (function(){
+      var modal=document.getElementById('sigModal');
+      document.getElementById('sign').addEventListener('click', function(){ modal.style.display='flex'; });
+      document.getElementById('sigClose').addEventListener('click', function(){ modal.style.display='none'; });
+      var canvas=document.getElementById('sigPad'); var ctx=canvas.getContext('2d'); var drawing=false, last=null;
+      function pos(e){ var r=canvas.getBoundingClientRect(); return {x:(e.clientX)-r.left, y:(e.clientY)-r.top}; }
+      function draw(p){ if(!last){ last=p; return; } ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.lineCap='round'; ctx.stroke(); last=p; }
+      canvas.addEventListener('mousedown', function(e){ drawing=true; last=pos(e); });
+      canvas.addEventListener('mousemove', function(e){ if(drawing) draw(pos(e)); });
+      document.addEventListener('mouseup', function(){ drawing=false; last=null; });
+      document.getElementById('sigClear').addEventListener('click', function(){ ctx.clearRect(0,0,canvas.width,canvas.height); });
+      document.getElementById('sigSave').addEventListener('click', function(){
+        var role=document.getElementById('sigRole').value; var name=document.getElementById('sigName').value.trim(); var date=document.getElementById('sigDate').value; var dataUrl=canvas.toDataURL('image/png');
+        var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; }
+        if(!j.signatures) j.signatures={customer:null,manager:null};
+        j.signatures[role]={ dataUrl:dataUrl, name:name, date:date };
+        saveDB(); updatePreview(); modal.style.display='none';
+      });
+    })();
+
+    // Photos
+    (function(){
+      var input=document.getElementById('photoInput');
+      function readAsDataURL(file, cb, eb){ var r=new FileReader(); r.onload=function(){cb(r.result)}; r.onerror=function(){if(eb)eb(r.error)}; r.readAsDataURL(file); }
+      function addPhotoToJob(job, dataUrl){ if(!job.photos) job.photos=[]; job.photos.push({ dataUrl:dataUrl, include:true }); }
+      function render(){ renderPhotoGrid(); updatePreview(); saveDB(); }
+      function onFiles(files){ var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; } var i=0; (function next(){ if(i>=files.length){ render(); return; } readAsDataURL(files[i], function(data){ addPhotoToJob(j,data); i++; next(); }); })(); }
+      if(input){ input.addEventListener('change', function(){ onFiles(input.files||[]); input.value=''; }); }
+      window.renderPhotoGrid=function(){ var j=currentJob(); var grid=document.getElementById('photoGrid'); grid.innerHTML=''; if(!j || !j.photos || !j.photos.length) return; j.photos.forEach(function(ph,idx){ var div=document.createElement('div'); div.className='photo-item'; div.innerHTML='<img src="'+ph.dataUrl+'" alt=""><button class="del">×</button><label><input type="checkbox" '+(ph.include!==false?'checked':'')+'> Include on PDF</label>'; div.querySelector('.del').addEventListener('click', function(){ j.photos.splice(idx,1); render(); }); div.querySelector('input[type=checkbox]').addEventListener('change', function(e){ ph.include = e.target.checked; render(); }); grid.appendChild(div); }); }
+    })();
+
+    // Templates
     function renderTemplates(){
       var list = document.getElementById('tplList'); if(!list) return;
       list.innerHTML = '';
-      (DB.templates||[]).forEach(function(tpl, idx){
+      for(var ti=0; ti<(DB.templates||[]).length; ti++){
+        var tpl = DB.templates[ti];
         var card = document.createElement('div'); card.className='card'; card.style.background='#fff'; card.style.color='#000'; card.style.borderColor='#b6b09f';
-        var html = '<h4 style=\"color:#0e111a; margin:0 0 6px 0\">'+tpl.platform+'</h4>';
-        html += '<div class=\"small\">'+tpl.items.length+' items</div>';
-        html += '<div class=\"actions\" style=\"margin-top:8px\"><button class=\"tab-btn\" data-apply=\"'+idx+'\">Apply</button></div>';
+        var html = '<h4 style="color:#0e111a; margin:0 0 6px 0">'+tpl.platform+'</h4>';
+        html += '<div class="small">'+tpl.items.length+' items</div>';
+        html += '<div class="actions" style="margin-top:8px"><button class="tab-btn" data-apply="'+ti+'">Apply</button></div>';
         card.innerHTML = html; list.appendChild(card);
-      });
-      list.querySelectorAll('button[data-apply]').forEach(function(btn){
+      }
+      $all('button[data-apply]').forEach(function(btn){
         btn.addEventListener('click', function(){
           var idx = Number(btn.getAttribute('data-apply')||0);
           var tpl = DB.templates[idx]; if(!tpl) return;
@@ -431,30 +995,67 @@ window.addEventListener('load', function(){
       });
     }
     function openTemplatesModal(){ var m=document.getElementById('tplModal'); renderTemplates(); m.style.display='flex'; }
+    document.getElementById('openTemplates').addEventListener('click', function(){ openTemplatesModal(); });
     document.getElementById('tplClose').addEventListener('click', function(){ document.getElementById('tplModal').style.display='none'; });
 
     function applyTemplate(tpl){
       var j = ensureJobSelected(true); if(!j) return;
-      (tpl.items||[]).forEach(function(it){
+      var i, it, sell, desc;
+      for(i=0;i<(tpl.items||[]).length;i++){
+        it = tpl.items[i];
         if(it.type==='Labor'){
-          addLine('Labor', it.desc, it.qty||1, Number($('#laborRate').value||80), 0, '');
+          addLine('Labor', it.desc, it.qty||1, Number(document.getElementById('laborRate').value||80), 0, '');
         } else {
-          var sell = (it.cost||0) * (1 + (Number(it.markup||0)/100));
-          var desc = (it.desc||'') + (it.part?(' ('+it.part+')'):'') + (it.vendor?(' — '+it.vendor):'');
+          sell = (it.cost||0) * (1 + (Number(it.markup||0)/100));
+          desc = (it.desc||'') + (it.part?(' ('+it.part+')'):'') + (it.vendor?(' — '+it.vendor):'');
           addLine('Part', desc, 1, Number(sell.toFixed(2)), Number(it.cost||0), '');
         }
-      });
+      }
       persistLines();
     }
 
-    function renderSettings(){ $('#defaultMarkup').value=DB.settings.defaultMarkup||40; $('#shopFrom').value=DB.settings.shopFrom||'Poppe’s Diesel Co.'; $('#shopReply').value=DB.settings.shopReply||'poppedieselco@gmail.com'; $('#shopSubj').value=DB.settings.shopSubj||'[Poppe’s Diesel Co.] '; $('#shopFooter').value=DB.settings.shopFooter||'Thank you for supporting local.'; ['defaultMarkup','shopFrom','shopReply','shopSubj','shopFooter'].forEach(function(id){ var el=document.getElementById(id); if(!el) return; el.addEventListener('input', function(){ DB.settings[id] = (id==='defaultMarkup') ? Number(el.value||40) : el.value; saveDB(); }); }); }
-    function renderDashboard(){ var open=DB.jobs.filter(j=> j.status!=='Done').length; var unpaid=DB.jobs.filter(j=> j.docType==='Invoice' && !j.paid).length; var now=new Date(); var ym=now.toISOString().slice(0,7); var rev=0, prof=0; DB.jobs.forEach(function(j){ var createdMonth=(j.paidAt||j.createdAt||'').slice(0,7); if(createdMonth===ym){ var subtotal=j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*(Number(l.unit)||0), 0); var profit=j.lines.reduce((s,l)=> s + (Number(l.qty)||0)*((Number(l.unit)||0)-(Number(l.cost)||0)), 0); rev+=subtotal; prof+=profit; } }); $('#openJobs').textContent=open; $('#unpaid').textContent=unpaid; $('#revMonth').textContent=fmt(rev); $('#profitMonth').textContent=fmt(prof); }
+    function renderSettings(){
+      document.getElementById('defaultMarkup').value=DB.settings.defaultMarkup||40;
+      document.getElementById('shopFrom').value=DB.settings.shopFrom||'Poppe’s Diesel Co.';
+      document.getElementById('shopReply').value=DB.settings.shopReply||'poppedieselco@gmail.com';
+      document.getElementById('shopSubj').value=DB.settings.shopSubj||'[Poppe’s Diesel Co.] ';
+      document.getElementById('shopFooter').value=DB.settings.shopFooter||'Thank you for supporting local.';
+      ['defaultMarkup','shopFrom','shopReply','shopSubj','shopFooter'].forEach(function(id){
+        var el=document.getElementById(id); if(!el) return;
+        el.addEventListener('input', function(){
+          DB.settings[id] = (id==='defaultMarkup') ? Number(el.value||40) : el.value; saveDB();
+        });
+      });
+    }
 
-    (function selftest(){ var ok=!!(window.localStorage && document.querySelector && document.createElement); var tag=document.getElementById('selftest'); if(tag){ tag.textContent='Self-test: '+(ok?'OK':'Limited'); tag.className='tag selftest '+(ok?'ok':'warn'); } })();
-    upgradeDB(); renderAll(); if(UI.lastJobId && DB.jobs.find(j=> j.id===UI.lastJobId)){ $('#invJob').value=UI.lastJobId; loadInvoice(UI.lastJobId); }
+    function renderDashboard(){
+      var open=0, unpaid=0, rev=0, prof=0, now=new Date(), ym=now.toISOString().slice(0,7);
+      DB.jobs.forEach(function(j){
+        if(j.status!=='Done') open++;
+        if(j.docType==='Invoice' && !j.paid) unpaid++;
+        var createdMonth=(j.paidAt||j.createdAt||'').slice(0,7);
+        if(createdMonth===ym){
+          var subtotal=sumLines(j.lines,'subtotal');
+          var profit=sumLines(j.lines,'profit');
+          rev+=subtotal; prof+=profit;
+        }
+      });
+      document.getElementById('openJobs').textContent=open;
+      document.getElementById('unpaid').textContent=unpaid;
+      document.getElementById('revMonth').textContent=fmt(rev);
+      document.getElementById('profitMonth').textContent=fmt(prof);
+    }
 
-    var toTop=$('#toTop'); window.addEventListener('scroll', function(){ toTop.style.display = window.scrollY > 350 ? 'block' : 'none'; }); toTop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+    (function selftest(){
+      var ok = !!(window.localStorage && document.querySelector && document.createElement);
+      var tag=document.getElementById('selftest');
+      if(tag){ tag.textContent='Self-test: '+(ok?'OK':'Limited'); tag.className='tag selftest '+(ok?'ok':'warn'); }
+    })();
+
+    upgradeDB(); renderAll();
+    if(UI.lastJobId && currentJob()) { /* already set */ }
   });
 });
 </script>
-</body></html>
+</body>
+</html>
