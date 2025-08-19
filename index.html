@@ -71,7 +71,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 </noscript>
 <div id="error" style="display:none">JavaScript error detected. Tap to reload.</div>
 <header>
-<h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.1.2</span><span class="tag selftest" id="selftest">Self-test: …</span><span class="tag">COMPAT</span></h1>
+<h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.1.3</span><span class="tag selftest" id="selftest">Self-test: …</span><span class="tag">COMPAT</span></h1>
 <nav class="top">
 <button class="tab-btn" data-tab="dashboard">Dashboard</button>
 <button class="tab-btn" data-tab="customers">Customers</button>
@@ -233,6 +233,16 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 <h3 style="color:#0e111a">Branding (Watermark)</h3>
 <div class="grid"><label>Upload Logo <input accept="image/*" id="wmFile" type="file"/></label></div>
 <div class="small">Upload your logo here once; it will print faintly behind the invoice/estimate.</div>
+</div>
+
+<div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
+  <h3 style="color:#0e111a">Backup &amp; Restore</h3>
+  <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="tab-btn" id="exportJson" type="button">Save JSON</button>
+    <input id="importJsonFile" type="file" accept="application/json" style="display:none"/>
+    <button class="tab-btn" id="importJson" type="button">Load JSON</button>
+  </div>
+  <div class="small">Saves/loads everything: customers, jobs, lines, notes, photos, signatures, and settings. Loading replaces current data.</div>
 </div>
 </section>
 </main>
@@ -643,7 +653,7 @@ window.addEventListener('load', function(){
         var l=j.lines[i]; addLine(l.type,l.desc,l.qty,l.unit,l.cost,l.note);
       }
       $('#invNo').value = j.invNo||''; $('#docType').value = j.docType||'Estimate'; $('#payLink').value = j.paymentLink||'';
-      var c = findCustomer(j.customerId); $('#emailTo').value = (c && c.email) ? c.email : '';
+      var c = findCustomer(j.customerId); $('#emailTo').value = (j.emailTo && j.emailTo.trim()) ? j.emailTo : ((c && c.email) ? c.email : '');
       $('#overallNotes').value = j.overallNotes||'';
       $('#internalNotes').value = j.internalNotes||'';
       renderPhotoGrid();
@@ -1042,7 +1052,56 @@ window.addEventListener('load', function(){
       if(tag){ tag.textContent='Self-test: '+(ok?'OK':'Limited'); tag.className='tag selftest '+(ok?'ok':'warn'); }
     })();
 
-    upgradeDB(); renderAll();
+    
+// === JSON Backup & Restore ===
+function __pdc_backupToJson(){
+  try {
+    var payload = { version: 'v1.1.3', exportedAt: new Date().toISOString(), db: DB, ui: UI };
+    var blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'poppes_shop_backup_' + new Date().toISOString().slice(0,19).replace(/[:T]/g,'-') + '.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ try{ URL.revokeObjectURL(a.href); document.body.removeChild(a);}catch(_){} }, 1000);
+  } catch(e){ alert('Export failed: '+ e.message); }
+}
+function __pdc_restoreFromJson(obj){
+  if(!obj || !obj.db){ throw new Error('Invalid backup file'); }
+  DB = obj.db || DB;
+  UI = obj.ui || UI || {};
+  upgradeDB();
+  saveDB();
+  saveUI(UI);
+  renderAll();
+  try {
+    if (UI.lastJobId){
+      var has = (DB.jobs||[]).some(function(j){ return j.id===UI.lastJobId; });
+      if (has){ document.getElementById('invJob').value = UI.lastJobId; loadInvoice(UI.lastJobId); }
+    }
+  } catch(_){}
+  alert('Backup restored.');
+}
+var __pdc_impBtn = document.getElementById('importJson');
+var __pdc_expBtn = document.getElementById('exportJson');
+var __pdc_file   = document.getElementById('importJsonFile');
+if (__pdc_expBtn){ __pdc_expBtn.addEventListener('click', __pdc_backupToJson); }
+if (__pdc_impBtn && __pdc_file){
+  __pdc_impBtn.addEventListener('click', function(){
+    __pdc_file.onchange = function(){
+      try {
+        var f = __pdc_file.files && __pdc_file.files[0]; if(!f) return;
+        var r = new FileReader();
+        r.onload = function(){ try{ var obj = JSON.parse(r.result||'{}'); __pdc_restoreFromJson(obj); } catch(e){ alert('Import failed: '+e.message); } };
+        r.onerror = function(){ alert('File read failed'); };
+        r.readAsText(f);
+      } finally { __pdc_file.value=''; }
+    };
+    __pdc_file.click();
+  });
+}
+
+upgradeDB(); renderAll();
     if(UI.lastJobId && currentJob()) { /* already set */ }
   });
 });
