@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Poppe’s Diesel Co. — Shop Manager (v1.1.5 SAFE)</title>
+<title>Poppe’s Diesel Co. — Shop Manager (v1.1.6 SAFE)</title>
 <style>
 :root{--bg:#e6cfae;--card:#13151c;--text:#0e111a;--muted:#3e463e;--border:#2e3226;--ink:#0e111a;--ink2:#161a24;--shadow:0 10px 20px rgba(0,0,0,.30);--info:#0a3d2e;--ok:#1f6b55;--warn:#f5c518;--danger:#962b2b;--font:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 *{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
@@ -71,7 +71,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 </noscript>
 <div id="error" style="display:none">JavaScript error detected. Tap to reload.</div>
 <header>
-<h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.1.5</span><span class="tag selftest" id="selftest">Self-test: …</span><span class="tag">SAFE</span></h1>
+<h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.1.6 SAFE</span><span class="tag selftest" id="selftest">Self-test: …</span><span class="tag">SAFE</span></h1>
 <nav class="top">
 <button class="tab-btn" data-tab="dashboard">Dashboard</button>
 <button class="tab-btn" data-tab="customers">Customers</button>
@@ -924,7 +924,57 @@ window.addEventListener('load', function(){
         '#pPhotosBlock{page-break-before:always}';
       var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>'
                   + document.getElementById('preview').outerHTML
-                  + '</body></html>';
+                  + '
+<!-- === Version Manager (auto-updated) === -->
+<meta name="app-version" content="v1.1.6 SAFE">
+<style>
+  .app-version-badge{
+    position: fixed; right: .75rem; bottom: .75rem; z-index: 9999;
+    font: 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    background: #111827; color: #e5e7eb; border: 1px solid #374151;
+    border-radius: .5rem; padding: .4rem .6rem; opacity: .9;
+    box-shadow: 0 6px 18px rgba(0,0,0,.25);
+  }
+</style>
+<script>
+(function(){
+  const APP_VERSION = "v1.1.6 SAFE"; 
+  window.APP_VERSION = APP_VERSION;
+  try {
+    // Update title
+    const t = document.title || "";
+    const m = t.match(/\(v[\d\.]+.*?\)/);
+    if (m) document.title = t.replace(m[0], "(" + APP_VERSION + ")");
+    else if (t) document.title = t + " (" + APP_VERSION + ")";
+
+    // Update any [data-version] elements
+    const els = document.querySelectorAll("[data-version]");
+    els.forEach(el => el.setAttribute("data-version", APP_VERSION));
+
+    // Ensure a visible badge exists
+    function ensureBadge(){
+      let badge = document.getElementById("appVersionBadge");
+      if (!badge){
+        badge = document.createElement("div");
+        badge.id = "appVersionBadge";
+        badge.className = "app-version-badge";
+        document.body.appendChild(badge);
+      }
+      badge.textContent = APP_VERSION;
+    }
+    if (document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', ensureBadge, {once:true});
+    } else {
+      ensureBadge();
+    }
+  } catch(_){
+    /* no-op */
+  }
+})();
+</script>
+<!-- === /Version Manager === -->
+
+</body></html>';
       var w = window.open('', '_blank');
       if(!w){ alert('Please allow pop-ups to print.'); return; }
       w.document.open(); w.document.write(htmlDoc); w.document.close();
@@ -1054,7 +1104,7 @@ window.addEventListener('load', function(){
 
     
 
-// === JSON Backup & Restore (v1.1.5, safe DOM wiring) ===
+// === JSON Backup & Restore (v1.1.6 SAFE, safe DOM wiring) ===
 (function(){
   'use strict';
 
@@ -1122,7 +1172,7 @@ window.addEventListener('load', function(){
 
   window.__pdc_backupToJson = function(){
     try {
-      var payload = { version: 'v1.1.5', exportedAt: new Date().toISOString(), db: JSON.parse(JSON.stringify(DB)), ui: JSON.parse(JSON.stringify(UI||{})) };
+      var payload = { version: 'v1.1.6 SAFE', exportedAt: new Date().toISOString(), db: JSON.parse(JSON.stringify(DB)), ui: JSON.parse(JSON.stringify(UI||{})) };
       (payload.db.jobs||[]).forEach(function(j){
         (j.photos||[]).forEach(function(ph){
           if (!ph || typeof ph !== 'object') return;
@@ -1217,8 +1267,58 @@ window.addEventListener('load', function(){
     wire();
   }
 })();
-// === /JSON Backup & Restore (v1.1.5) ===
+// === /JSON Backup & Restore (v1.1.6 SAFE) ===
 
 </script>
+
+<!-- === Version Manager (auto-updated) === -->
+<meta name="app-version" content="v1.1.6 SAFE">
+<style>
+  .app-version-badge{
+    position: fixed; right: .75rem; bottom: .75rem; z-index: 9999;
+    font: 12px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    background: #111827; color: #e5e7eb; border: 1px solid #374151;
+    border-radius: .5rem; padding: .4rem .6rem; opacity: .9;
+    box-shadow: 0 6px 18px rgba(0,0,0,.25);
+  }
+</style>
+<script>
+(function(){
+  const APP_VERSION = "v1.1.6 SAFE"; 
+  window.APP_VERSION = APP_VERSION;
+  try {
+    // Update title
+    const t = document.title || "";
+    const m = t.match(/\(v[\d\.]+.*?\)/);
+    if (m) document.title = t.replace(m[0], "(" + APP_VERSION + ")");
+    else if (t) document.title = t + " (" + APP_VERSION + ")";
+
+    // Update any [data-version] elements
+    const els = document.querySelectorAll("[data-version]");
+    els.forEach(el => el.setAttribute("data-version", APP_VERSION));
+
+    // Ensure a visible badge exists
+    function ensureBadge(){
+      let badge = document.getElementById("appVersionBadge");
+      if (!badge){
+        badge = document.createElement("div");
+        badge.id = "appVersionBadge";
+        badge.className = "app-version-badge";
+        document.body.appendChild(badge);
+      }
+      badge.textContent = APP_VERSION;
+    }
+    if (document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', ensureBadge, {once:true});
+    } else {
+      ensureBadge();
+    }
+  } catch(_){
+    /* no-op */
+  }
+})();
+</script>
+<!-- === /Version Manager === -->
+
 </body>
 </html>
