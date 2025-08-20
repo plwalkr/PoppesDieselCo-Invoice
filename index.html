@@ -1054,167 +1054,170 @@ window.addEventListener('load', function(){
 
     
 
-// === JSON Backup & Restore (v1.1.4) ===
-function __pdc_backupToJson(){
-  try {
-    // Deep clone to avoid accidental live references
-    var payload = { version: 'v1.1.4', exportedAt: new Date().toISOString(), db: JSON.parse(JSON.stringify(DB)), ui: JSON.parse(JSON.stringify(UI||{})) };
-    // Sanity: ensure photos remain inline data URLs
-    (payload.db.jobs||[]).forEach(function(j){
-      (j.photos||[]).forEach(function(ph){
-        if (!ph || typeof ph !== 'object') return;
-        if (typeof ph.dataUrl !== 'string' || ph.dataUrl.indexOf('data:image') !== 0) { /* leave as-is */ }
-        if (typeof ph.include === 'undefined') ph.include = true;
-      });
-    });
-    var blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'poppes_shop_backup_' + new Date().toISOString().slice(0,19).replace(/[:T]/g,'-') + '.json';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(function(){ try{ URL.revokeObjectURL(a.href); document.body.removeChild(a);}catch(_){} }, 1000);
-  } catch(e){ alert('Export failed: '+ e.message); }
-}
-
-function normalizeLine(l){
-  if(!l) return l;
-  l.type = (l.type==='Labor' ? 'Labor' : 'Part');
-  l.desc = (l.desc||'').toString();
-  l.qty  = Number(l.qty||0);
-  l.cost = Number(l.cost||0);
-  l.unit = Number(l.unit||0);
-  l.note = (typeof l.note==='string'? l.note : '');
-  return l;
-}
-
-function normalizeJob(j, defaultMarkupPct){
-  if(!j) return j;
-  if (!j.id) j.id = (crypto.randomUUID ? crypto.randomUUID() : ('id-'+Math.random().toString(16).slice(2)));
-  if (!j.createdAt) j.createdAt = new Date().toISOString();
-  if (typeof j.overallNotes==='undefined') j.overallNotes='';
-  if (typeof j.internalNotes==='undefined') j.internalNotes='';
-  if (!Array.isArray(j.lines)) j.lines = [];
-  if (!Array.isArray(j.photos)) j.photos = [];
-  if (!j.signatures) j.signatures = {customer:null, manager:null};
-  if (typeof j.photosOnPdf==='undefined') j.photosOnPdf = true;
-
-  // Normalize lines + auto-detect parts markup if unit is missing
-  j.lines = j.lines.map(function(l){
-    l = normalizeLine(l);
-    if (l.type === 'Part' && (!l.unit || l.unit===0) && l.cost>0){
-      var mu = (Number(defaultMarkupPct) || 40) / 100;
-      l.unit = Number((l.cost * (1+mu)).toFixed(2));
-    }
-    return l;
-  });
-
-  // Normalize photos
-  j.photos = j.photos.map(function(ph){
-    if (!ph || typeof ph !== 'object') return {dataUrl:'', include:true};
-    var dataUrl = String(ph.dataUrl||'');
-    var include = (ph.include!==false);
-    return { dataUrl:dataUrl, include:include };
-  });
-
-  return j;
-}
-
-function runSelfTest(tagId){
-  var tag = document.getElementById(tagId||'selftest');
-  try {
-    var custs = (DB.customers||[]).length;
-    var jobs = (DB.jobs||[]).length;
-    var photos = 0, lines = 0;
-    (DB.jobs||[]).forEach(function(j){
-      photos += (j.photos||[]).length;
-      lines  += (j.lines||[]).length;
-    });
-    if(tag){
-      tag.textContent = 'OK: '+custs+' cust • '+jobs+' jobs • '+lines+' lines • '+photos+' photos';
-      tag.className = 'tag selftest ok';
-      tag.style.display = 'inline-block';
-    }
-  } catch(e){
-    if(tag){
-      tag.textContent = 'Limited: self-test failed';
-      tag.className = 'tag selftest warn';
-      tag.style.display = 'inline-block';
-    }
-  }
-}
-
-function __pdc_restoreFromJson(obj){
-  // Accept both wrapped backups ({db, ui}) and legacy "raw DB" files
-  var importedDB = null, importedUI = null;
-  if (obj && obj.db){ importedDB = obj.db; importedUI = obj.ui||{}; }
-  else if (obj && (obj.customers || obj.jobs || obj.settings)){ importedDB = obj; importedUI = {}; }
-  else { throw new Error('Invalid backup file'); }
-
-  // Apply normalization/migrations
-  var defaultMarkupPct = (importedDB.settings && importedDB.settings.defaultMarkup) ? importedDB.settings.defaultMarkup : 40;
-  importedDB.customers = Array.isArray(importedDB.customers) ? importedDB.customers : [];
-  importedDB.jobs = (importedDB.jobs||[]).map(function(j){ return normalizeJob(j, defaultMarkupPct); });
-  if (!importedDB.templates) importedDB.templates = (typeof seedTemplates==='function' ? seedTemplates() : []);
-  if (!importedDB.settings){
-    importedDB.settings = { defaultMarkup: 40, shopFrom:'Poppe’s Diesel Co.', shopReply:'poppedieselco@gmail.com', shopSubj:'[Poppe’s Diesel Co.] ', shopFooter:'Thank you for supporting local.' };
-  }
-
-  DB = importedDB;
-  UI = importedUI || {};
-
-  // Persist and re-render
-  upgradeDB();
-  saveDB();
-  saveUI(UI);
-  renderAll();
-
-  // Auto-select last job or most recent
-  try {
-    var targetId = UI.lastJobId;
-    if (!targetId && (DB.jobs||[]).length){
-      var sorted = DB.jobs.slice(0).sort(function(a,b){
-        return new Date(b.createdAt||0) - new Date(a.createdAt||0);
-      });
-      targetId = sorted[0].id;
-    }
-    if (targetId){
-      var sel = document.getElementById('invJob');
-      if (sel && sel.querySelector('option[value="'+targetId+'"]')){
-        sel.value = targetId; loadInvoice(targetId);
-      }
-    }
-  } catch(_){}
-
-  runSelfTest('selftest');
-  alert('Backup restored.');
-}
-
-// Wire buttons (override any previous handler by adding ours last)
+// === JSON Backup & Restore (v1.1.5, safe DOM wiring) ===
 (function(){
-  var __pdc_impBtn = document.getElementById('importJson');
-  var __pdc_expBtn = document.getElementById('exportJson');
-  var __pdc_file   = document.getElementById('importJsonFile');
-  if (__pdc_expBtn){ __pdc_expBtn.addEventListener('click', function(e){ e.preventDefault(); __pdc_backupToJson(); }, {capture:false}); }
-  if (__pdc_impBtn && __pdc_file){
-    __pdc_impBtn.addEventListener('click', function(e){
-      e.preventDefault();
-      __pdc_file.onchange = function(){
-        try {
-          var f = __pdc_file.files && __pdc_file.files[0]; if(!f) return;
-          var r = new FileReader();
-          r.onload = function(){ try{ var obj = JSON.parse(r.result||'{}'); __pdc_restoreFromJson(obj); } catch(e){ alert('Import failed: '+e.message); } };
-          r.onerror = function(){ alert('File read failed'); };
-          r.readAsText(f);
-        } finally { __pdc_file.value=''; }
-      };
-      __pdc_file.click();
-    }, {capture:false});
+  'use strict';
+
+  function normalizeLine(l){
+    if(!l) return l;
+    l.type = (l.type==='Labor' ? 'Labor' : 'Part');
+    l.desc = (l.desc||'').toString();
+    l.qty  = Number(l.qty||0);
+    l.cost = Number(l.cost||0);
+    l.unit = Number(l.unit||0);
+    l.note = (typeof l.note==='string'? l.note : '');
+    return l;
   }
-  // Show a quick pass/fail on boot too
-  try { runSelfTest('selftest'); } catch(_){}
+
+  function normalizeJob(j, defaultMarkupPct){
+    if(!j) return j;
+    try {
+      if (!j.id) j.id = (crypto.randomUUID ? crypto.randomUUID() : ('id-'+Math.random().toString(16).slice(2)));
+    } catch(_) { j.id = 'id-'+Math.random().toString(16).slice(2); }
+    if (!j.createdAt) j.createdAt = new Date().toISOString();
+    if (typeof j.overallNotes==='undefined') j.overallNotes='';
+    if (typeof j.internalNotes==='undefined') j.internalNotes='';
+    if (!Array.isArray(j.lines)) j.lines = [];
+    if (!Array.isArray(j.photos)) j.photos = [];
+    if (!j.signatures) j.signatures = {customer:null, manager:null};
+    if (typeof j.photosOnPdf==='undefined') j.photosOnPdf = true;
+
+    // Normalize lines + auto-detect parts markup if missing
+    j.lines = j.lines.map(function(l){
+      l = normalizeLine(l);
+      if (l.type === 'Part' && (!l.unit || l.unit===0) && l.cost>0){
+        var mu = (Number(defaultMarkupPct) || 40) / 100;
+        l.unit = Number((l.cost * (1+mu)).toFixed(2));
+      }
+      return l;
+    });
+
+    // Normalize photos
+    j.photos = j.photos.map(function(ph){
+      if (!ph || typeof ph !== 'object') return {dataUrl:'', include:true};
+      var dataUrl = String(ph.dataUrl||'');
+      var include = (ph.include!==false);
+      return { dataUrl:dataUrl, include:include };
+    });
+
+    return j;
+  }
+
+  function runSelfTest(tagId){
+    try {
+      var tag = document.getElementById(tagId||'selftest');
+      var jobs = (window.DB && Array.isArray(DB.jobs)) ? DB.jobs.length : 0;
+      var custs = (window.DB && Array.isArray(DB.customers)) ? DB.customers.length : 0;
+      var photos = 0, lines = 0;
+      if (window.DB && Array.isArray(DB.jobs)){
+        DB.jobs.forEach(function(j){ photos += (j.photos||[]).length; lines += (j.lines||[]).length; });
+      }
+      if(tag){
+        tag.textContent = 'OK: '+custs+' cust • '+jobs+' jobs • '+lines+' lines • '+photos+' photos';
+        tag.className = 'tag selftest ok';
+        tag.style.display = 'inline-block';
+      }
+    } catch(_){ /* silent */ }
+  }
+
+  window.__pdc_backupToJson = function(){
+    try {
+      var payload = { version: 'v1.1.5', exportedAt: new Date().toISOString(), db: JSON.parse(JSON.stringify(DB)), ui: JSON.parse(JSON.stringify(UI||{})) };
+      (payload.db.jobs||[]).forEach(function(j){
+        (j.photos||[]).forEach(function(ph){
+          if (!ph || typeof ph !== 'object') return;
+          if (typeof ph.include === 'undefined') ph.include = true;
+        });
+      });
+      var blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'poppes_shop_backup_' + new Date().toISOString().slice(0,19).replace(/[:T]/g,'-') + '.json';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function(){ try{ URL.revokeObjectURL(a.href); document.body.removeChild(a);}catch(_){} }, 1000);
+    } catch(e){ alert('Export failed: '+ e.message); }
+  };
+
+  window.__pdc_restoreFromJson = function(obj){
+    var importedDB = null, importedUI = null;
+    if (obj && obj.db){ importedDB = obj.db; importedUI = obj.ui||{}; }
+    else if (obj && (obj.customers || obj.jobs || obj.settings)){ importedDB = obj; importedUI = {}; }
+    else { alert('Invalid backup file'); return; }
+
+    try {
+      var defaultMarkupPct = (importedDB.settings && importedDB.settings.defaultMarkup) ? importedDB.settings.defaultMarkup : 40;
+      importedDB.customers = Array.isArray(importedDB.customers) ? importedDB.customers : [];
+      importedDB.jobs = (importedDB.jobs||[]).map(function(j){ return normalizeJob(j, defaultMarkupPct); });
+      if (!importedDB.templates) importedDB.templates = (typeof seedTemplates==='function' ? seedTemplates() : []);
+      if (!importedDB.settings){
+        importedDB.settings = { defaultMarkup: 40, shopFrom:'Poppe’s Diesel Co.', shopReply:'poppedieselco@gmail.com', shopSubj:'[Poppe’s Diesel Co.] ', shopFooter:'Thank you for supporting local.' };
+      }
+
+      window.DB = importedDB;
+      window.UI = importedUI || {};
+
+      if (typeof upgradeDB==='function') upgradeDB();
+      if (typeof saveDB==='function') saveDB();
+      if (typeof saveUI==='function') saveUI(UI);
+      if (typeof renderAll==='function') renderAll();
+
+      try {
+        var targetId = (UI && UI.lastJobId) || null;
+        if (!targetId && Array.isArray(DB.jobs) && DB.jobs.length){
+          var sorted = DB.jobs.slice(0).sort(function(a,b){
+            return new Date(b.createdAt||0) - new Date(a.createdAt||0);
+          });
+          targetId = sorted[0].id;
+        }
+        if (targetId){
+          var sel = document.getElementById('invJob');
+          if (sel && sel.querySelector('option[value="'+targetId+'"]')){
+            sel.value = targetId; if (typeof loadInvoice==='function') loadInvoice(targetId);
+          }
+        }
+      } catch(_){}
+
+      runSelfTest('selftest');
+      alert('Backup restored.');
+    } catch(e){
+      alert('Import failed: ' + e.message);
+    }
+  };
+
+  // Wire buttons after DOM is ready to avoid race conditions
+  function wire(){
+    try {
+      var impBtn = document.getElementById('importJson');
+      var expBtn = document.getElementById('exportJson');
+      var file   = document.getElementById('importJsonFile');
+      if (expBtn) expBtn.addEventListener('click', function(e){ e.preventDefault(); __pdc_backupToJson(); });
+      if (impBtn && file){
+        impBtn.addEventListener('click', function(e){
+          e.preventDefault();
+          file.onchange = function(){
+            try {
+              var f = file.files && file.files[0]; if(!f) return;
+              var r = new FileReader();
+              r.onload = function(){ try{ var obj = JSON.parse(r.result||'{}'); __pdc_restoreFromJson(obj); } catch(e){ alert('Import failed: '+e.message); } };
+              r.onerror = function(){ alert('File read failed'); };
+              r.readAsText(f);
+            } finally { file.value=''; }
+          };
+          file.click();
+        });
+      }
+      setTimeout(function(){ runSelfTest('selftest'); }, 50);
+    } catch(_){ /* silent */ }
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', wire, {once:true});
+  } else {
+    wire();
+  }
 })();
-// === /JSON Backup & Restore (v1.1.4) ===
+// === /JSON Backup & Restore (v1.1.5) ===
 
 </script>
 </body>
