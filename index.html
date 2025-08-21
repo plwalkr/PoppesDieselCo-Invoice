@@ -1,1118 +1,209 @@
-<!DOCTYPE html>
-
-<html data-theme="dark" lang="en">
+<!doctype html>
+<html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Poppe’s Diesel Co. — Shop Manager (v1.3.2 FULL-PRESERVE)</title>
-<style>
-:root{--bg:#e6cfae;--card:#13151c;--text:#0e111a;--muted:#3e463e;--border:#2e3226;--ink:#0e111a;--ink2:#161a24;--shadow:0 10px 20px rgba(0,0,0,.30);--info:#0a3d2e;--ok:#1f6b55;--warn:#f5c518;--danger:#962b2b;--font:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
-header{position:sticky;top:0;z-index:10;background:var(--ink);border-bottom:1px solid var(--border);padding:12px 16px;box-shadow:var(--shadow);color:#fff}
-h1{margin:0;font-size:20px;display:flex;gap:8px;align-items:center}
-.tag{background:var(--ink2);color:#c5c9d3;padding:2px 6px;border-radius:6px;font-size:12px;white-space:nowrap}
-nav.top{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-button,select,input,textarea{background:#fff;border:1px solid #b6b09f;color:#0e111a;padding:12px 14px;border-radius:12px;font-size:17px;touch-action:manipulation}
-button{cursor:pointer}.tab-btn{background:#1d312a;color:#fff;border:1px solid #0e241c}.tab-btn:hover{filter:brightness(1.05)}
-.primary{background:#0a3d2e;color:#fff;border-color:#0a3d2e}.success{background:#1f6b55;color:#fff;border-color:#1f6b55}
-main{padding:16px 16px 110px}.tab{display:none}.tab.active{display:block}
-.table-wrap{overflow:auto;border:1px solid #b6b09f;border-radius:14px;background:#fff}
-table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #b6b09f;text-align:left;vertical-align:top}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-.card{background:#1d312a;color:#fff;border:1px solid #0e241c;border-radius:14px;padding:20px;box-shadow:var(--shadow)}
-.card h3{margin:0 0 8px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0}
-.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}.actions>*{height:48px}
-.print-area{background:#fff;color:#000;border-radius:14px;padding:16px;position:relative;overflow:hidden}
-.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:.08;z-index:0}
-.invoice-header{position:relative;z-index:1;display:flex;justify-content:space-between;gap:16px;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:8px}
-.lines thead th{background:#203229;color:#eaf5f0;border-bottom-color:#2f463a}
-.totals{display:grid;gap:6px;justify-items:end;margin-top:8px;position:relative;z-index:1}
-.badge{padding:.25rem .5rem;border-radius:999px;border:1px solid #000;font-size:.9em;background:#fff;color:#000}
-.badge.estimate{background:#fdf1c4;color:#2b2100}.badge.invoice{background:#d9efe7;color:#0a3d2e}
-.small{font-size:.85em;color:var(--muted)}.calc-hint{font-size:.8em;line-height:1.2;margin-top:6px;opacity:.9}
-.calc-hint.ok{color:#0a7f63}.calc-hint.warn{color:#b48802}
-#debugToggle{position:fixed;right:12px;bottom:72px;z-index:60;background:#1e2030;border:1px solid #3a3f58;border-radius:999px;padding:10px 12px;color:#fff}
-#debug{position:fixed;right:12px;bottom:12px;left:12px;max-height:50vh;overflow:auto;background:#0f111a;border:1px solid #30364a;border-radius:12px;padding:10px 12px;z-index:60;display:none;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#d7e1ff}
-#debug pre{white-space:pre-wrap;margin:0}#debug .meta{font-size:12px;color:#9fb3d1;margin-bottom:6px}
-#error{display:none;position:sticky;top:0;z-index:20;background:#ff5566;color:#18040a;padding:10px 14px;border-bottom:2px solid #8a1b27}
-.selftest{display:none;margin-left:8px}.selftest.ok{display:inline-block;background:#10331f;border:1px solid #1f6440;color:#a5ffd8}.selftest.warn{display:inline-block;background:#3a2f00;border:1px solid #7a5f00;color:#ffeaa3}
-#toTop{position:fixed;right:20px;bottom:140px;z-index:60;background:#1d312a;color:#fff;border:1px solid #0e241c;border-radius:999px;padding:10px 14px;display:none;box-shadow:var(--shadow)}#toTop:hover{filter:brightness(1.08)}
-@media print{body{background:#fff;color:#000}header,nav.bottom,nav.top,.actions,.modal,#debug,#debugToggle,#invFilters,#internalNotesWrap,#photosWrap{display:none!important}.tab{display:block!important}#invoice{display:block!important}.print-area{box-shadow:none;margin:0;padding:0}}
-#pdf{position:fixed;bottom:128px;right:20px;z-index:1000;min-width:160px;height:50px;background:var(--info);color:#fff;border:none;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
-#pdf:hover{filter:brightness(1.05)}
-.drag-col{width:28px;text-align:center}.handle{min-width:32px;height:36px;padding:4px 6px;cursor:grab}.handle:active{cursor:grabbing}.draggable-row.dragging{opacity:.5}.drop-target{outline:2px dashed var(--info);outline-offset:-2px}
-.desc-wrap{display:flex;flex-direction:column;gap:6px}.lNote{width:100%;min-height:64px;resize:vertical;background:#fff;color:#0e111a;border:1px solid #b6b09f;border-radius:10px;padding:8px 10px;font-size:.95rem}
-#overallNotesWrap{margin-top:12px}#overallNotes{width:100%;min-height:110px;resize:vertical}
-.signatures{margin-top:16px;display:grid;gap:10px}.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}.sig{display:flex;flex-direction:column;justify-content:flex-end}.sig-line{border-bottom:1px solid #000;height:32px;display:flex;align-items:flex-end}.sig-label{font-size:.9em;color:#333;margin-top:4px}.sig-img{max-height:60px;max-width:100%;object-fit:contain}
-.photo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}.photo-item{position:relative;background:#fff;border:1px solid #b6b09f;border-radius:8px;padding:6px}.photo-item img{width:100%;height:90px;object-fit:cover;border-radius:6px}.photo-item .del{position:absolute;top:4px;right:4px;background:#962b2b;color:#fff;border:none;border-radius:8px;padding:2px 6px;font-size:12px;cursor:pointer}.photo-item label{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px}
-.badge-open{background:#fff;border-color:#b6b09f}.badge-ip{background:#fff7d6;border-color:#caa52a}.badge-done{background:#d9efe7;border-color:#1f6b55;color:#0a3d2e}
-.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4);z-index:80}
-.modal .panel{max-width:800px;width:min(96vw,800px)}
-
-/* Big noscript overlay */
-.noscript-overlay{position:fixed;inset:0;background:#18040a;color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;z-index:9999}
-.noscript-overlay .box{max-width:720px;background:#2b0c15;border:2px solid #8a1b27;border-radius:12px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
-.noscript-overlay h2{margin:0 0 10px 0}
-</style>
-  <meta name="app-version" content="v1.3.2 FULL-PRESERVE">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="app-version" content="v1.4.0 HARDENED SINGLE-FILE" />
+  <title>Poppe’s Diesel Co. — Shop Manager (v1.4.0 HARDENED SINGLE-FILE)</title>
+  <style>
+    :root {{ --bg:#0b1220; --card:#0f172a; --ink:#e5e7eb; --muted:#93a1b0; --line:#334155; --btn:#111827; --btn-b:#475569; --badge:#111827; --badge-b:#374151; }}
+    html,body {{ margin:0; background:var(--bg); color:var(--ink); font:14px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial; }}
+    .wrap {{ max-width: 1024px; margin: 40px auto; padding: 0 16px; }}
+    h1 {{ font-size: 22px; margin: 0 0 10px 0; }}
+    p.note {{ color: var(--muted); margin: 0 0 16px 0; }}
+    .bar {{ display:flex; gap:10px; align-items:center; margin:16px 0 24px; flex-wrap:wrap; }}
+    .btn {{ appearance:none; border:1px solid var(--btn-b); background:var(--btn); color:var(--ink); padding:8px 12px; border-radius:10px; cursor:pointer; }}
+    .btn:hover {{ filter:brightness(1.12); }}
+    input[type=file] {{ display:none; }}
+    .card {{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; }}
+    .kv {{ display:grid; grid-template-columns: 160px 1fr; gap:6px 12px; }}
+    .kv b {{ color: var(--muted); }}
+    .badges {{ position:fixed; inset:auto .6rem .6rem auto; z-index:2147483000; }}
+    .badge {{ background: var(--badge); border:1px solid var(--badge-b); border-radius:.6rem; padding:.35rem .6rem; font:11px/1.2 system-ui; margin-left:.5rem; display:inline-block; }}
+    .badge.left {{ position:fixed; left:.6rem; bottom:.6rem; right:auto; }}
+    #rescueBar {{ position:fixed; left:50%; transform:translateX(-50%); bottom:14px; z-index:2147483647; display:flex; gap:8px; align-items:center; background:#111827; color:#e5e7eb; border:1px solid #374151; border-radius:10px; padding:8px 10px; font:12px system-ui; }}
+    #debug {{ white-space:pre-wrap; font:12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; color:#cbd5e1; background:#0a1224; border:1px solid #334155; border-radius:10px; padding:10px; margin-top:14px; max-height:220px; overflow:auto; }}
+  </style>
 </head>
 <body>
-<noscript>
-<div class="noscript-overlay">
-<div class="box">
-<h2>JavaScript is disabled or blocked</h2>
-<p>This app is 100% client-side. Please open the file in Chrome/Edge with JavaScript enabled, or whitelist local files if a security tool is blocking scripts.</p>
-<ul>
-<li>Download the file and open it so the address bar starts with <code>file:///</code></li>
-<li>Disable “Safe Mode / NoScript / Tracking Protection” just for this file</li>
-<li>Then reload</li>
-</ul>
-</div>
-</div>
-</noscript>
-<div id="error" style="display:none">JavaScript error detected. Tap to reload.</div>
-<header>
-<h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.1.3</span><span class="tag selftest" id="selftest">Self-test: …</span><span class="tag">COMPAT</span></h1>
-<nav class="top">
-<button class="tab-btn" data-tab="dashboard">Dashboard</button>
-<button class="tab-btn" data-tab="customers">Customers</button>
-<button class="tab-btn" data-tab="jobs">Jobs</button>
-<button class="tab-btn" data-tab="invoice">Estimate / Invoice</button>
-<button class="tab-btn" data-tab="settings">Settings</button>
-</nav>
-</header>
-<main>
-<section class="tab active" id="dashboard">
-<h2>Dashboard</h2>
-<div class="cards">
-<div class="card"><h3>Open Jobs</h3><div id="openJobs">0</div></div>
-<div class="card"><h3>Unpaid Invoices</h3><div id="unpaid">0</div></div>
-<div class="card"><h3>Revenue (This Month)</h3><div id="revMonth">$0</div></div>
-<div class="card"><h3>Profit (This Month)</h3><div id="profitMonth">$0</div></div>
-</div>
-</section>
-<section class="tab" id="customers">
-<h2>Customers</h2>
-<form class="grid" id="custForm">
-<input id="custName" placeholder="Full name (e.g., Jane Smith)" required=""/>
-<input id="custPhone" inputmode="tel" placeholder="Phone (e.g., 555-123-4567)"/>
-<input id="custEmail" inputmode="email" placeholder="Email (e.g., name@shop.com)"/>
-<input id="custVehicle" placeholder="Vehicle (e.g., 2018 F-350 6.7L)"/>
-<button class="primary" type="submit">Add Customer</button>
-</form>
-<div class="table-wrap">
-<table id="custTable"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Vehicle</th><th></th></tr></thead><tbody></tbody></table>
-</div>
-</section>
-<section class="tab" id="jobs">
-<h2>Jobs</h2>
-<form class="grid" id="jobForm">
-<select id="jobCustomer" required=""></select>
-<input id="jobTitle" placeholder="Job title (e.g., Front brakes + rotors)" required=""/>
-<input id="jobVIN" placeholder="VIN (17 chars)"/>
-<button class="tab-btn" id="decodeVIN" type="button">Decode VIN</button>
-<div aria-live="polite" class="card" id="vinResult" style="display:none"></div>
-<div aria-live="polite" class="card" id="vinSuggest" style="display:none">
-<div><strong>Suggested parts &amp; labor</strong> (platform match)</div>
-<div class="actions" id="vinTags"></div>
-<button class="tab-btn primary" id="addAllSuggest" type="button">Add All</button>
-</div>
-<textarea id="jobNotes" placeholder="Notes (symptoms, codes, etc.)"></textarea>
-<select id="jobStatus"><option>Open</option><option>In Progress</option><option>Done</option></select>
-<button class="primary" type="submit">Create Job</button>
-</form>
-<div class="card" id="internalNotesWrap">
-<h3>Internal Staff Notes (won’t print)</h3>
-<textarea id="internalNotes" placeholder="For in-house eyes only — diagnostic rabbit holes, supplier rants, etc."></textarea>
-</div>
-<div class="table-wrap">
-<table id="jobsTable">
-<thead><tr><th>#</th><th>Customer</th><th>Title</th><th>Status</th><th>Total</th><th>Profit</th><th></th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-</section>
-<section class="tab" id="invoice">
-<h2>Estimate / Invoice<br/><small>Poppe’s Diesel Co. — Built in the Garage, Backed by Freedom</small></h2>
-<div class="grid" id="invFilters">
-<label>Filter by Customer <select id="invCustFilter"><option value="">All customers</option></select></label>
-<label>Search Jobs <input id="invJobSearch" placeholder="Type to filter jobs by customer/title…"/></label>
-<div><div class="small">Recent jobs</div><div class="actions" id="recentJobs"></div></div>
-</div>
-<form class="grid" id="invForm">
-<select id="invJob" required=""></select>
-<input id="invNo" placeholder="Document # (e.g., 2025-001)">
-<label>Type <select id="docType"><option>Estimate</option><option>Invoice</option></select></label>
-<label>Labor Rate ($/hr) <input id="laborRate" step="0.01" type="number" value="80"/></label>
-<label>Sales Tax (%) <input id="salesTax" step="0.01" type="number" value="7"/></label>
-<label>Payment Link <input id="payLink" placeholder="https://pay.yourprovider.com/invoice/123"/></label>
-<label>Email To <input id="emailTo" placeholder="customer@example.com"/></label>
-</input></form>
-<div class="actions">
-<button class="tab-btn" id="addLabor" type="button">+ Labor Line</button>
-<button class="tab-btn" id="addPart" type="button">+ Part Line</button>
-<button class="tab-btn" id="openTemplates" type="button">Maintenance Templates</button>
-<button class="tab-btn" id="applyMarkup" type="button">Apply Default Markup</button>
-<button class="tab-btn" id="quickEstimate" type="button">Quick Estimate</button>
-<button class="tab-btn" id="recalc" type="button">Recalculate</button>
-<button class="tab-btn success" id="markPaid" type="button">Mark Paid</button>
-<button class="tab-btn" id="approve" type="button">Approve Estimate</button>
-<button class="tab-btn" id="convert" type="button">Convert to Invoice</button>
-<button class="tab-btn" id="sign" type="button">Collect Signatures</button>
-<button class="tab-btn" id="email" type="button">Email</button>
-<button class="tab-btn primary" id="pdf" type="button">Generate PDF</button>
-</div>
-<div class="table-wrap" style="margin-top:10px">
-<table class="lines" id="lines">
-<thead><tr><th style="width:28px">↕</th><th>Type</th><th>Description</th><th>Qty/Hrs</th><th>Cost $</th><th>Unit $</th><th>Line $</th><th>Profit $</th><th></th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-<div class="totals">
-<div>Subtotal: <span id="sub">$0.00</span></div>
-<div>Tax: <span id="tax">$0.00</span></div>
-<div class="grand">Total: <span id="grand">$0.00</span></div>
-<div><strong>Total Profit:</strong> <span id="profit">$0.00</span></div>
-<div>Margin: <span class="badge estimate" id="margin">0%</span></div>
-</div>
-<div class="card" id="overallNotesWrap" style="background:#fff;color:#000;border-color:#b6b09f">
-<h3 style="color:#0e111a">Technician Overall Notes</h3>
-<textarea id="overallNotes" placeholder="Explain diagnostics, verified checks, advisories."></textarea>
-</div>
-<div class="card" id="photosWrap" style="background:#fff;color:#000;border-color:#b6b09f">
-<h3 style="color:#0e111a">Work Photos</h3>
-<div class="actions">
-<label style="display:inline-flex;align-items:center;gap:8px"><input accept="image/*" id="photoInput" multiple="" type="file"/>Add photos</label>
-<label style="display:inline-flex;align-items:center;gap:8px"><input checked="" id="photosOnPdf" type="checkbox"/> Include photos on PDF</label>
-</div>
-<div aria-live="polite" class="photo-grid" id="photoGrid"></div>
-</div>
-<div class="print-area" id="preview" style="margin-top:12px">
-<div class="watermark">
-<img alt="watermark" id="wmImg" style="display:none;max-width:90%;max-height:90%;opacity:.15;mix-blend-mode:multiply"/>
-<svg height="90%" id="wmFallback" style="filter:grayscale(100%);opacity:.12" viewbox="0 0 800 200" width="90%">
-<text dominant-baseline="middle" fill="#000" font-family="Impact,Haettenschweiler,'Arial Black',sans-serif" font-size="72" text-anchor="middle" x="50%" y="50%">Poppe’s Diesel Co.</text>
-</svg>
-</div>
-<div class="invoice-header">
-<div class="shop"><h3>Poppe’s Diesel Co.</h3><p>Columbus, IN</p><p>poppedieselco@gmail.com</p><p>(208) 243-7934</p></div>
-<div class="meta">
-<div><strong>Doc #</strong> <span id="pInvNo">—</span></div>
-<div><strong>Date</strong> <span id="pDate">—</span></div>
-<div><strong>Type</strong> <span class="badge estimate" id="pType">Estimate</span></div>
-<div><strong>Status</strong> <span id="pStatus">Unpaid</span></div>
-</div>
-</div>
-<div><strong>Bill To:</strong> <span id="pCust">—</span><div id="pVeh"></div></div>
-<table class="lines"><thead><tr><th>Description</th><th>Qty/Hrs</th><th>Unit</th><th>Line $</th></tr></thead><tbody id="pLines"></tbody></table>
-<div id="pOverallBlock"></div>
-<div class="totals"><div>Subtotal: <span id="pSub">$0.00</span></div><div>Tax: <span id="pTax">$0.00</span></div><div class="grand">Grand Total: <span id="pGrand">$0.00</span></div></div>
-<div class="signatures" id="signatures">
-<div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigCustomer" style="display:none"/></div><div class="sig-label">Customer Signature <span id="pSigCustomerName"></span> <span class="small" id="pSigCustomerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
-<div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigManager" style="display:none"/></div><div class="sig-label">Service Manager Signature <span id="pSigManagerName"></span> <span class="small" id="pSigManagerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
-</div>
-<div id="pPhotosBlock" style="margin-top:10px"></div>
-</div>
-</section>
-<section class="tab" id="settings">
-<h2>Settings</h2>
-<div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-<h3 style="color:#0e111a">Default Parts Markup</h3>
-<div class="grid"><label>Default Markup % <input id="defaultMarkup" step="1" type="number" value="40"/></label><div class="small">Used by “Apply Default Markup”.</div></div>
-</div>
-<div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-<h3 style="color:#0e111a">Email Presets</h3>
-<div class="grid">
-<label>From (Shop Name) <input id="shopFrom" placeholder="Poppe’s Diesel Co."/></label>
-<label>Reply-To Email <input id="shopReply" inputmode="email" placeholder="poppedieselco@gmail.com"/></label>
-<label>Subject Prefix <input id="shopSubj" placeholder="[Poppe’s Diesel Co.] "/></label>
-<label>Footer (email body) <input id="shopFooter" placeholder="Thank you for supporting local."/></label>
-</div>
-<div class="small">Tap Email to use these in a mailto draft.</div>
-</div>
-<div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-<h3 style="color:#0e111a">Branding (Watermark)</h3>
-<div class="grid"><label>Upload Logo <input accept="image/*" id="wmFile" type="file"/></label></div>
-<div class="small">Upload your logo here once; it will print faintly behind the invoice/estimate.</div>
-</div>
+  <div class="wrap">
+    <h1>Shop Manager <span style="opacity:.75">(v1.4.0 HARDENED SINGLE-FILE)</span></h1>
+    <p class="note">
+      One-file, hardened build. It autosaves to your browser (IndexedDB) every ~5s and restores on load.
+      Use JSON exports as off-computer backups. Buttons below are guaranteed clickable via a floating toolbar.
+    </p>
 
-<div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-  <h3 style="color:#0e111a">Backup &amp; Restore</h3>
-  <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap">
-    <button class="tab-btn" id="exportJson" type="button">Save JSON</button>
-    <input id="importJsonFile" type="file" accept="application/json" style="display:none"/>
-    <button class="tab-btn" id="importJson" type="button">Load JSON</button>
+    <div class="bar">
+      <button id="exportJson" class="btn">Save JSON</button>
+      <button id="importJson" class="btn">Load JSON</button>
+      <input id="importJsonFile" type="file" accept="application/json" />
+      <span id="status" class="note">Ready.</span>
+    </div>
+
+    <div class="card">
+      <div class="kv">
+        <b>Customers</b><span id="custCount">0</span>
+        <b>Jobs</b><span id="jobCount">0</span>
+        <b>Lines</b><span id="lineCount">0</span>
+        <b>Photos</b><span id="photoCount">0</span>
+      </div>
+      <div id="debug" aria-live="polite">[debug] booting…</div>
+    </div>
   </div>
-  <div class="small">Saves/loads everything: customers, jobs, lines, notes, photos, signatures, and settings. Loading replaces current data.</div>
-</div>
-</section>
-</main>
-<button id="toTop" title="Back to top">↑ Top</button>
-<nav class="bottom" style="position:fixed;bottom:0;left:0;right:0;background:#0e111a;border-top:1px solid var(--border);display:flex;justify-content:space-between;padding:10px 10px;align-items:center;color:#fff">
-<div><button class="tab-btn" data-tab="dashboard">🏠</button><button class="tab-btn" data-tab="customers">👤</button><button class="tab-btn" data-tab="jobs">🧰</button><button class="tab-btn" data-tab="invoice">🧾</button><button class="tab-btn" data-tab="settings">⚙️</button></div>
-<button id="debugToggle" title="Debug">🪲</button>
-</nav>
-<div id="debug"><div class="meta" id="debugMeta"></div><pre id="debugLog"></pre></div>
-<!-- Templates modal -->
-<div class="modal" id="tplModal" style="display:none">
-<div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f">
-<header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-<h3 style="color:#0e111a;margin:0">Maintenance Templates</h3>
-<button class="tab-btn" id="tplClose">Close</button>
-</header>
-<div id="tplList"></div>
-</div>
-</div>
-<!-- Signature modal -->
-<div class="modal" id="sigModal" style="display:none">
-<div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
-<header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 id="sigTitle" style="color:#0e111a;margin:0">Collect Signature</h3><button class="tab-btn" id="sigClose">Close</button></header>
-<div class="grid">
-<label>Signer Name <input id="sigName" placeholder="Printed name"/></label>
-<label>Date <input id="sigDate" type="date"/></label>
-<label>Role <select id="sigRole"><option value="customer">Customer</option><option value="manager">Service Manager</option></select></label>
-</div>
-<div style="margin-top:8px"><canvas height="220" id="sigPad" style="width:100%;background:#fff;border:1px dashed #b6b09f;border-radius:8px" width="640"></canvas></div>
-<div class="actions" style="margin-top:8px"><button class="tab-btn" id="sigClear">Clear</button><button class="tab-btn primary" id="sigSave">Save Signature</button></div>
-</div>
-</div>
-<!-- Quick estimate modal -->
-<div class="modal" id="qeModal" style="display:none">
-<div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
-<header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="color:#0e111a;margin:0">Quick Estimate Builder</h3><button class="tab-btn" id="qeClose">Close</button></header>
-<div class="grid">
-<label>Title/Concern <input id="qeTitle" placeholder="e.g., Front brakes: pads+rotors"/></label>
-<label>Parts Cost ($) <input id="qePartsCost" step="0.01" type="number" value="0"/></label>
-<label>Markup % <input id="qeMarkup" step="1" type="number" value="40"/></label>
-<label>Labor Hours <input id="qeHours" step="0.1" type="number" value="1.5"/></label>
-<div class="small">Uses current labor rate &amp; tax.</div>
-</div>
-<div class="actions"><button class="tab-btn" id="qeApplyAppend">Append Lines</button><button class="tab-btn danger" id="qeApplyReplace" style="background:#962b2b">Replace Lines</button></div>
-</div>
-</div>
-<script>
-/* --- Minimal ES5 helpers + diagnostics --- */
-var __JS_STARTED = true;
-(function(){
-  var logEl = document.getElementById('debugLog');
-  var metaEl = document.getElementById('debugMeta');
-  var buf = [];
-  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\\n'); } }
-  window.AppLog = {
-    info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
-    warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
-    error: function(msg, err){ try{ console.error('[ERROR]', msg, err); }catch(e){} print('[ERROR] ' + msg + (err?(' :: '+ (err.message||err)):'')); var el = document.getElementById('error'); if(el){ el.style.display='block'; el.onclick=function(){ location.reload(); }; } }
-  };
-  if(metaEl){
-    try{ metaEl.textContent = 'UA=' + navigator.userAgent + ' | Lang=' + navigator.language + ' | ' + (new Date()).toLocaleString(); }catch(_){}
-  }
-  var dbg = document.getElementById('debugToggle');
-  if(dbg){
-    dbg.addEventListener('click', function(){
-      var box = document.getElementById('debug');
-      box.style.display = (box.style.display==='block'?'none':'block');
-    });
-  }
-})();
 
-function guard(name, fn){
-  try { fn(); AppLog.info(name + ' ✅'); }
-  catch(e){ AppLog.error(name + ' ❌', e); }
-}
-if (!window.crypto) window.crypto = {};
-if (!window.crypto.randomUUID){
-  window.crypto.randomUUID = function(){ return 'id-' + Math.random().toString(16).slice(2) + '-' + Date.now(); };
-}
+  <!-- Floating toolbar (always on top, even if something prints as text) -->
+  <div id="rescueBar">
+    <button id="rescueSave" class="btn">Save JSON</button>
+    <button id="rescueLoad" class="btn">Load JSON</button>
+    <input id="rescueFile" type="file" accept="application/json" hidden>
+    <span id="rescueMsg" style="opacity:.8">Toolbar ready</span>
+  </div>
 
-(function(){
-  /* Watermark upload/cache (no modern syntax) */
-  var KEY = 'pdc_wm_dataurl';
-  var imgEl = document.getElementById('wmImg');
-  var fallback = document.getElementById('wmFallback');
-  function setWM(src){
-    if(!imgEl) return;
-    imgEl.src = src; imgEl.style.display = 'block';
-    if(fallback) fallback.style.display = 'none';
-  }
-  try {
-    var cached = localStorage.getItem(KEY);
-    if(cached){ setWM(cached); }
-  } catch(_){}
-  
-  try {
-    var cached = localStorage.getItem(KEY);
-    if(cached){ setWM(cached); }
-  } catch(_) {}
-  var up = document.getElementById('wmFile');
-  var clr = document.getElementById('wmClear');
-  // NEW: lock the upload after a watermark is set (cached or newly uploaded)
-  if (typeof cached !== 'undefined' && cached && up) {
-    try { up.disabled = true; up.title = 'Watermark locked'; up.style.opacity = '0.6'; } catch(_){}
-  }
-function readAsDataURL(file, cb, eb){
-    var r = new FileReader();
-    r.onload = function(){ cb(r.result); };
-    r.onerror = function(){ if(eb) eb(r.error); };
-    r.readAsDataURL(file);
-  }
-  if(up) up.addEventListener('change', function(e){
-    var f = up.files && up.files[0];
-    if(!f) return;
-    readAsDataURL(f, function(data){
-      try{ localStorage.setItem(KEY, data); }catch(_){}
-      setWM(data); alert('Watermark updated.');
-      try{ if(up){ up.disabled = true; up.title = 'Watermark locked'; up.style.opacity = '0.6'; } }catch(_){}
-      up.value = '';
-    });
-  });
-  if(clr) clr.addEventListener('click', function(){
-    try{ localStorage.removeItem(KEY); }catch(_){}
-    if(imgEl) imgEl.style.display='none';
-    if(fallback) fallback.style.display='block';
-    alert('Watermark cleared.');
-  });
-})();
+  <!-- Badges -->
+  <div id="appVersionBadge" class="badge">v1.4.0 HARDENED SINGLE-FILE</div>
+  <div id="saveStatusBadge" class="badge left">New session</div>
 
-window.addEventListener('load', function(){
-  guard('init', function(){
-    var STORAGE_KEY = 'poppe_shop_db_v112';
-    var DB = loadDB() || defaultDB();
+  <script>
+  (function(){{
+    'use strict';
+    const meta = document.querySelector('meta[name="app-version"]');
+    const APP_VERSION = (meta && meta.content) || 'v1.4.0 HARDENED SINGLE-FILE';
+    const $ = (id)=>document.getElementById(id);
+    const log = (msg)=>{{ const el=$('debug'); if(el){{ el.textContent += "\n" + msg; el.scrollTop = el.scrollHeight; }} }};
 
-    var UIKEY = 'pdc_ui_state';
-    function loadUI(){ try{ return JSON.parse(localStorage.getItem(UIKEY)||'{}'); }catch(_){ return {}; } }
-    function saveUI(u){ try{ localStorage.setItem(UIKEY, JSON.stringify(u)); }catch(_ ){} }
-    var UI = loadUI();
+    function setText(id, v){{ const el=$(id); if(el) el.textContent = String(v); }}
+    function setStatus(msg){{ setText('status', msg); log(msg); }}
+    function setSaveBadge(msg){{ setText('saveStatusBadge', msg); }}
+    function showVersion(){{ setText('appVersionBadge', APP_VERSION); }}
 
-    function defaultDB(){
-      return {
-        customers: [],
-        jobs: [],
-        templates: seedTemplates(),
-        settings: { defaultMarkup: 40, shopFrom:'Poppe’s Diesel Co.', shopReply:'poppedieselco@gmail.com', shopSubj:'[Poppe’s Diesel Co.] ', shopFooter:'Thank you for supporting local.' }
-      };
-    }
-    function seedTemplates(){
-      return [
-        { platform: "Cummins 6.7L (Ram)", items: [
-          {type:"Labor", desc:"Oil & Filters Service", qty:1.0, unit:null},
-          {type:"Part", desc:"Fuel Filter (Primary)", vendor:"Fleetguard", part:"FS53000", cost:38.00, markup:40},
-          {type:"Part", desc:"Fuel Filter (Secondary)", vendor:"Fleetguard", part:"FF63009", cost:32.00, markup:40},
-          {type:"Part", desc:"Oil Filter", vendor:"Fleetguard", part:"LF16035", cost:9.50, markup:60},
-          {type:"Part", desc:"Crankcase Filter", vendor:"Cummins", part:"CV50628", cost:78.00, markup:35}
-        ]},
-        { platform: "Powerstroke 6.7L (Ford)", items: [
-          {type:"Labor", desc:"Fuel Filters & Oil", qty:1.2, unit:null},
-          {type:"Part", desc:"Fuel Filter (Frame)", vendor:"Motorcraft", part:"FD-4625", cost:34.00, markup:40},
-          {type:"Part", desc:"Fuel Filter (Engine Bay)", vendor:"Motorcraft", part:"FD-4624", cost:28.00, markup:40},
-          {type:"Part", desc:"Oil Filter", vendor:"Motorcraft", part:"FL-2051S", cost:12.50, markup:60}
-        ]},
-        { platform: "Duramax L5P (GM)", items: [
-          {type:"Labor", desc:"Fuel Filter & Air", qty:1.0, unit:null},
-          {type:"Part", desc:"Fuel Filter", vendor:"ACDelco", part:"TP1015", cost:36.00, markup:40},
-          {type:"Part", desc:"Air Filter", vendor:"ACDelco", part:"A3218C", cost:22.00, markup:55},
-          {type:"Part", desc:"Trans Service Kit", vendor:"ACDelco", part:"24296954", cost:89.00, markup:35}
-        ]}
-      ];
-    }
-    function saveDB(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(e){ AppLog.error('localStorage save failed', e); } }
-    function loadDB(){ try { var s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; } catch(e){ AppLog.error('localStorage load failed', e); return null; } }
-    function upgradeDB(){
-      var i, j, l;
-      for(i=0;i<(DB.jobs||[]).length;i++){
-        j = DB.jobs[i];
-        if(!j.createdAt) j.createdAt = new Date().toISOString();
-        if(typeof j.overallNotes==='undefined') j.overallNotes='';
-        if(typeof j.internalNotes==='undefined') j.internalNotes='';
-        if(!j.photos) j.photos=[];
-        if(!j.signatures) j.signatures={customer:null, manager:null};
-        for(l=0;l<(j.lines||[]).length;l++){ if(typeof j.lines[l].note==='undefined') j.lines[l].note=''; }
-      }
-      saveDB();
-    }
+    // Minimal model (if your real DB/UI exists, we won't overwrite)
+    if (!window.DB) {{ window.DB = {{ customers:[], jobs:[], settings:{{ defaultMarkup: 40 }} }}; }}
+    if (!window.UI) {{ window.UI = {{}}; }}
 
-    function $(sel, root){ return (root||document).querySelector(sel); }
-    function $all(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
-    function fmt(n){ return "$"+Number(n||0).toFixed(2); }
-    function matchesAllTokens(hay, q){
-      var tokens = (q||'').replace(/\s+/g,' ').toLowerCase().split(' ');
-      var text = String(hay||'').toLowerCase();
-      for(var i=0;i<tokens.length;i++){ if(tokens[i] && text.indexOf(tokens[i])===-1) return false; }
-      return true;
-    }
+    // Self-test counters
+    function refreshCounters(){{ 
+      const jobs = Array.isArray(DB.jobs) ? DB.jobs : [];
+      const cust = Array.isArray(DB.customers) ? DB.customers : [];
+      let lines=0, photos=0;
+      for (const j of jobs){{ lines += (j.lines||[]).length; photos += (j.photos||[]).length; }}
+      setText('custCount', cust.length);
+      setText('jobCount', jobs.length);
+      setText('lineCount', lines);
+      setText('photoCount', photos);
+    }}
 
-    function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); renderTemplates(); saveDB(); }
+    // IndexedDB
+    const IDB_NAME='poppes_shop_mgr', IDB_VER=2, STORE='state';
+    let _idb=null;
+    function idbOpen(){{
+      return new Promise((res,rej)=>{{ 
+        const req = indexedDB.open(IDB_NAME, IDB_VER);
+        req.onupgradeneeded = ()=>{{ const db=req.result; if(!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE); }};
+        req.onsuccess = ()=>res(req.result);
+        req.onerror = ()=>rej(req.error);
+      }});
+    }}
+    async function idb(){{ if(_idb) return _idb; _idb = await idbOpen(); return _idb; }}
+    async function idbSet(k,v){{ const db=await idb(); await new Promise((res,rej)=>{{ const tx=db.transaction(STORE,'readwrite'); tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error); tx.objectStore(STORE).put(v,k); }}); }}
+    async function idbGet(k){{ const db=await idb(); return await new Promise((res,rej)=>{{ const tx=db.transaction(STORE,'readonly'); tx.onerror=()=>rej(tx.error); const rq=tx.objectStore(STORE).get(k); rq.onsuccess=()=>res(rq.result); rq.onerror=()=>rej(rq.error); }}); }}
 
-    // Tabs
-    $all('.tab-btn[data-tab]').forEach(function(b){
-      b.addEventListener('click', function(){
-        var id = b.getAttribute('data-tab');
-        $all('.tab').forEach(function(t){ t.classList.remove('active'); });
-        document.getElementById(id).classList.add('active');
-        UI.activeTab = id; saveUI(UI);
-        try{ window.scrollTo(0,0); }catch(_){}
-      });
-    });
-    if (UI.activeTab && document.getElementById(UI.activeTab)) {
-      $all('.tab').forEach(function(t){ t.classList.remove('active'); });
-      document.getElementById(UI.activeTab).classList.add('active');
-    }
+    function deepClone(o){{ return JSON.parse(JSON.stringify(o)); }}
+    function snapshot(){{ 
+      try{{ return {{ version: APP_VERSION, at: new Date().toISOString(), db: window.DB?deepClone(window.DB):null, ui: window.UI?deepClone(window.UI):{{}} }}; }}
+      catch(e){{ return {{ version: APP_VERSION, at: new Date().toISOString(), db:null, ui:null, error:String(e) }}; }}
+    }}
+    function hash(o){{ try{{ return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).slice(0,24); }}catch(_ ){{ return 'x'; }} }}
 
-    /* Customers */
-    $('#custForm').addEventListener('submit', function(e){
-      e.preventDefault();
-      var c = {id: crypto.randomUUID(), name: $('#custName').value.trim(), phone: $('#custPhone').value.trim(), email: $('#custEmail').value.trim(), vehicle: $('#custVehicle').value.trim()};
-      if(!c.name) return;
-      DB.customers.push(c); renderCustomers(); renderJobCustomer(); this.reset(); saveDB();
-    });
-    function renderCustomers(){
-      var tb = $('#custTable tbody'); tb.innerHTML='';
-      DB.customers.forEach(function(c){
-        var tr = document.createElement('tr');
-        tr.innerHTML = '<td>'+c.name+'</td><td>'+(c.phone||'')+'</td><td>'+(c.email||'')+'</td><td>'+(c.vehicle||'')+'</td><td><button class="tab-btn" data-delc="'+c.id+'">Delete</button></td>';
-        tb.appendChild(tr);
-      });
-      $all('button[data-delc]').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          var id = btn.getAttribute('data-delc');
-          if(!confirm('Delete this customer and all their jobs?')) return;
-          DB.jobs = DB.jobs.filter(function(j){ return j.customerId !== id; });
-          DB.customers = DB.customers.filter(function(c){ return c.id !== id; });
-          renderCustomers(); renderJobs(); renderJobCustomer(); saveDB();
-        });
-      });
-    }
+    function doExport(){{ 
+      try{{ 
+        const blob = new Blob([JSON.stringify(snapshot())], {{type:'application/json'}});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'poppes_archive_'+ new Date().toISOString().slice(0,19).replace(/[:T]/g,'-') + '.json';
+        document.body.appendChild(a); a.click();
+        setTimeout(()=>{{ URL.revokeObjectURL(a.href); a.remove(); }}, 400);
+        setStatus('Exported archive.');
+        setSaveBadge('Exported '+ new Date().toLocaleTimeString());
+      }}catch(e){{ alert('Export failed: '+e.message); log('Export error: '+e.message); }}
+    }}
+    function doImport(file){{ 
+      const r = new FileReader();
+      r.onload = async ()=>{{ 
+        try{{ 
+          const obj = JSON.parse(r.result||'{{}}');
+          const importedDB = obj.db || obj;
+          const importedUI = obj.ui || {{}};
+          if (!importedDB) {{ alert('Invalid archive file.'); return; }}
+          window.DB = importedDB;
+          window.UI = importedUI;
+          if (typeof upgradeDB==='function') try{{ upgradeDB(); }}catch(_ ){{}}
+          if (typeof saveDB==='function')   try{{ saveDB();   }}catch(_ ){{}}
+          if (typeof saveUI==='function')   try{{ saveUI(UI); }}catch(_ ){{}}
+          if (typeof renderAll==='function')try{{ renderAll();}}catch(_ ){{}}
+          await idbSet('current', snapshot());
+          refreshCounters();
+          setStatus('Imported archive.');
+          setSaveBadge('Imported '+ new Date().toLocaleTimeString());
+          alert('Archive imported.');
+        }}catch(e){{ alert('Import failed: '+e.message); log('Import error: '+e.message); }}
+      }};
+      r.readAsText(file);
+    }}
+    window.__pdc_export_full = doExport;
+    window.__pdc_import_full = (f)=>doImport(f);
 
-    /* Jobs */
-    function renderJobCustomer(){
-      var sel = $('#jobCustomer');
-      var opts = ['<option value="">Select...</option>'];
-      DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+c.name+'</option>'); });
-      sel.innerHTML = opts.join('');
+    let lastHash=null;
+    async function bootRestore(){{ 
+      try{{ 
+        const snap = await idbGet('current');
+        if (snap && snap.db){{ 
+          window.DB = snap.db;
+          window.UI = snap.ui || {{}};
+          if (typeof upgradeDB==='function') try{{ upgradeDB(); }}catch(_ ){{}}
+          if (typeof renderAll==='function') try{{ renderAll(); }}catch(_ ){{}}
+          setSaveBadge('Restored '+ new Date().toLocaleTimeString());
+          setStatus('Restored local snapshot.');
+          lastHash = hash(window.DB||{{}});
+        }} else {{ 
+          setSaveBadge('New session');
+        }}
+      }}catch(_ ){{ setSaveBadge('New session'); }}
+      refreshCounters();
+    }}
+    async function autosaveTick(){{ 
+      try{{ 
+        const snap = snapshot();
+        if (!snap.db) return;
+        const h = hash(snap.db);
+        if (h !== lastHash){{ 
+          await idbSet('current', snap);
+          lastHash = h;
+          setSaveBadge('Saved '+ new Date().toLocaleTimeString());
+        }}
+      }}catch(_ ){{}}
+    }}
 
-      renderInvFilters();
-      renderInvJobOptions();
-      renderRecentJobs();
-    }
+    function wire(){{ 
+      const exp=$('exportJson'), imp=$('importJson'), file=$('importJsonFile');
+      if (exp) exp.addEventListener('click', e=>{{ e.preventDefault(); doExport(); }});
+      if (imp && file) imp.addEventListener('click', e=>{{ e.preventDefault(); file.onchange = ()=>{{ const f=file.files && file.files[0]; if(!f) return; doImport(f); file.value=''; }}; file.click(); }});
 
-    $('#jobForm').addEventListener('submit', function(e){
-      e.preventDefault();
-      var j = {
-        id: crypto.randomUUID(), customerId: $('#jobCustomer').value, title: $('#jobTitle').value.trim(),
-        vin: $('#jobVIN').value.trim(), notes: $('#jobNotes').value.trim(), status: $('#jobStatus').value,
-        lines: [], paid:false, paidAt:null, docType:'Estimate', approved:false, approvedAt:null, paymentLink:'', vinData:null,
-        overallNotes:'', internalNotes:'', photos:[], signatures:{customer:null, manager:null}, createdAt:new Date().toISOString()
-      };
-      if(!j.customerId || !j.title) return;
-      DB.jobs.push(j); renderJobs(); renderJobCustomer();
-      document.getElementById('jobForm').reset(); $('#vinResult').style.display='none'; $('#vinSuggest').style.display='none'; saveDB();
-      if(DB.jobs.length===1){ $('#invJob').value = j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); }
-    });
+      // Always-on-top rescue toolbar (works even if something else blocks clicks)
+      const rSave=$('rescueSave'), rLoad=$('rescueLoad'), rFile=$('rescueFile');
+      if (rSave) rSave.addEventListener('click', (e)=>{{ e.preventDefault(); doExport(); }});
+      if (rLoad && rFile) rLoad.addEventListener('click', (e)=>{{ e.preventDefault(); rFile.onchange=()=>{{ const f=rFile.files&&rFile.files[0]; if(!f) return; doImport(f); rFile.value=''; }}; rFile.click(); }});
 
-    // VIN decode (XMLHttpRequest for compat)
-    $('#decodeVIN').addEventListener('click', function(){
-      var vin = $('#jobVIN').value.trim();
-      var box = $('#vinResult'); var sug = $('#vinSuggest'); var tags = $('#vinTags');
-      box.style.display='block'; box.textContent = 'Decoding…'; sug.style.display='none'; tags.innerHTML='';
-      if(!vin || vin.length<11){ box.textContent='Enter a valid VIN (17 preferred).'; return; }
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', 'https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/'+encodeURIComponent(vin)+'?format=json', true);
-      xhr.onreadystatechange = function(){
-        if(xhr.readyState===4){
-          if(xhr.status>=200 && xhr.status<300){
-            try{
-              var data = JSON.parse(xhr.responseText||'{}');
-              var map={}, i, r;
-              for(i=0;i<(data.Results||[]).length;i++){ r=data.Results[i]; if(r.Variable && r.Value) map[r.Variable]=r.Value; }
-              var summary = (map['Model Year']||'-')+' '+(map['Make']||'-')+' '+(map['Model']||'-');
-              box.innerHTML = '<strong>'+summary+'</strong>';
-              var platformText = (summary+' '+(map['Engine Model']||'')+' '+(map['Engine Manufacturer']||'')).toLowerCase();
-              var matched = DB.templates.filter(function(t){
-                var p = t.platform.toLowerCase();
-                return (p.indexOf('cummins')>-1 && platformText.indexOf('ram')>-1) ||
-                       (p.indexOf('powerstroke')>-1 && platformText.indexOf('ford')>-1) ||
-                       (p.indexOf('duramax')>-1 && (platformText.indexOf('chevrolet')>-1||platformText.indexOf('gmc')>-1||platformText.indexOf('gm')>-1));
-              });
-              if(!matched.length) matched = DB.templates.slice(0);
-              tags.innerHTML='';
-              matched.forEach(function(tpl){
-                var b=document.createElement('button'); b.className='tab-btn'; b.type='button'; b.textContent=tpl.platform;
-                b.addEventListener('click', function(){ applyTemplate(tpl); });
-                tags.appendChild(b);
-              });
-              document.getElementById('addAllSuggest').onclick = function(){ for(var k=0;k<matched.length;k++){ applyTemplate(matched[k]); } };
-              sug.style.display='block'; saveDB();
-            }catch(e){ box.textContent='VIN parse failed.'; }
-          } else {
-            box.textContent='VIN decode failed.';
-          }
-        }
-      };
-      xhr.send(null);
-    });
+      showVersion();
+      setStatus('Ready.');
+      setInterval(autosaveTick, 5000);
+    }}
 
-    function renderJobs(){
-      var tb = $('#jobsTable tbody'); tb.innerHTML='';
-      DB.jobs.forEach(function(j){
-        var c = findCustomer(j.customerId);
-        var subtotal = sumLines(j.lines, 'subtotal');
-        var profit = sumLines(j.lines, 'profit');
-        var badge = j.status==='Open' ? 'badge-open' : (j.status==='In Progress'?'badge-ip':'badge-done');
-        var tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td>'+j.id.slice(0,8)+'</td><td>'+(c?c.name:'—')+'</td><td>'+j.title+'</td>' +
-          '<td><span class="badge '+badge+'">'+j.status+'</span></td>' +
-          '<td>'+fmt(subtotal)+'</td><td>'+fmt(profit)+'</td>' +
-          '<td><button class="tab-btn" data-open="'+j.id+'">Open</button></td>';
-        tb.appendChild(tr);
-      });
-      $all('button[data-open]').forEach(function(b){
-        b.addEventListener('click', function(){
-          var id = b.getAttribute('data-open');
-          document.querySelector('[data-tab="invoice"]').click();
-          $('#invJob').value = id; loadInvoice(id); UI.lastJobId=id; saveUI(UI);
-        });
-      });
-    }
-
-    // Internal notes save
-    $('#internalNotes').addEventListener('input', function(){
-      var j = currentJob(); if(!j) return;
-      j.internalNotes = this.value; saveDB();
-    });
-
-    /* Filters + job picker */
-    function renderInvFilters(){
-      var sel = $('#invCustFilter');
-      var opts = ['<option value="">All customers</option>'];
-      DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+c.name+'</option>'); });
-      sel.innerHTML = opts.join('');
-    }
-    function renderInvJobOptions(){
-      var invSel = $('#invJob');
-      var cid = $('#invCustFilter').value || '';
-      var q = ($('#invJobSearch').value || '').trim().toLowerCase();
-
-      var jobs = DB.jobs.filter(function(j){
-        if(cid && j.customerId!==cid) return false;
-        if(!q) return true;
-        var cust = findCustomer(j.customerId);
-        var fields = [(cust?cust.name:''), (j.title||''), (j.vin||''), (j.notes||''), (j.overallNotes||'')].join(' | ');
-        return matchesAllTokens(fields, q);
-      });
-
-      var opts = ['<option value="">Select job…</option>'];
-      jobs.forEach(function(j){
-        var c = findCustomer(j.customerId);
-        opts.push('<option value="'+j.id+'">'+(c?c.name:'—')+' — '+j.title+'</option>');
-      });
-      invSel.innerHTML = opts.join('');
-    }
-    function renderRecentJobs(){
-      var box = $('#recentJobs'); box.innerHTML='';
-      var jobs = DB.jobs.slice(0);
-      jobs.sort(function(a,b){ return new Date(b.createdAt) - new Date(a.createdAt); });
-      jobs.slice(0,6).forEach(function(j){
-        var c = findCustomer(j.customerId);
-        var b = document.createElement('button'); b.type='button'; b.className='tab-btn';
-        b.textContent = (c?c.name:'—')+': '+j.title;
-        b.addEventListener('click', function(){ $('#invJob').value=j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); });
-        box.appendChild(b);
-      });
-    }
-    $('#invCustFilter').addEventListener('change', function(){
-      var cur = $('#invJob').value;
-      renderInvJobOptions();
-      if(!$('#invJob').querySelector('option[value="'+cur+'"]')){ $('#invJob').value=''; $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals(); }
-    });
-    $('#invJobSearch').addEventListener('input', renderInvJobOptions);
-    $('#invJob').addEventListener('change', function(){
-      var id = this.value;
-      if(!id){ $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals(); return; }
-      loadInvoice(id); UI.lastJobId=id; saveUI(UI);
-    });
-
-    /* Invoice core */
-    function ensureJobSelected(createIfMissing){
-      var j = currentJob();
-      if(!j && createIfMissing){
-        var cust = DB.customers[0];
-        if(!cust){ cust={id:crypto.randomUUID(), name:'Walk-in Customer', phone:'', email:'', vehicle:''}; DB.customers.push(cust); renderCustomers(); }
-        j={ id:crypto.randomUUID(), customerId:cust.id, title:'Quick Estimate', vin:'', notes:'', status:'Open', lines:[], paid:false, paidAt:null, docType:'Estimate', approved:false, approvedAt:null, paymentLink:'', vinData:null, overallNotes:'', internalNotes:'', photos:[], signatures:{customer:null, manager:null}, createdAt:new Date().toISOString() };
-        DB.jobs.push(j); saveDB(); renderJobs(); renderJobCustomer(); $('#invJob').value=j.id; UI.lastJobId=j.id; saveUI(UI);
-      }
-      if(!j) alert('Pick a job in the "Select job…" dropdown first.');
-      return j;
-    }
-    function currentJob(){ var id = $('#invJob').value; var i; for(i=0;i<DB.jobs.length;i++){ if(DB.jobs[i].id===id) return DB.jobs[i]; } return null; }
-    function findCustomer(id){ var i; for(i=0;i<DB.customers.length;i++){ if(DB.customers[i].id===id) return DB.customers[i]; } return null; }
-
-    function loadInvoice(id){
-      var j = currentJob(); if(!j) j = DB.jobs.filter(function(x){ return x.id===id; })[0];
-      if(!j) return;
-      $('#lines tbody').innerHTML='';
-      for(var i=0;i<(j.lines||[]).length;i++){
-        var l=j.lines[i]; addLine(l.type,l.desc,l.qty,l.unit,l.cost,l.note);
-      }
-      $('#invNo').value = j.invNo||''; $('#docType').value = j.docType||'Estimate'; $('#payLink').value = j.paymentLink||'';
-      var c = findCustomer(j.customerId); $('#emailTo').value = (j.emailTo && j.emailTo.trim()) ? j.emailTo : ((c && c.email) ? c.email : '');
-      $('#overallNotes').value = j.overallNotes||'';
-      $('#internalNotes').value = j.internalNotes||'';
-      renderPhotoGrid();
-      $('#photosOnPdf').checked = j.photosOnPdf!==false;
-      updatePreview(); recalcTotals();
-    }
-
-    function makeRowDraggable(tr){
-      var handle = tr.querySelector('.handle'); if(!handle) return;
-      handle.addEventListener('mousedown', function(ev){
-        ev.preventDefault();
-        var startY = ev.clientY;
-        tr.classList.add('dragging');
-        function onMove(e){
-          var dy = e.clientY - startY;
-          tr.style.transform = 'translateY('+dy+'px)';
-          var siblings = Array.prototype.slice.call(tr.parentNode.children).filter(function(x){ return x!==tr; });
-          var insertBefore = null, i, sib, r, half;
-          for(i=0;i<siblings.length;i++){
-            sib = siblings[i]; r = sib.getBoundingClientRect(); half = r.top + r.height/2;
-            if(e.clientY < half){ insertBefore = sib; break; }
-          }
-          for(i=0;i<siblings.length;i++){ siblings[i].classList.toggle('drop-target', siblings[i]===insertBefore); }
-        }
-        function onUp(e){
-          tr.classList.remove('dragging'); tr.style.transform='';
-          $all('#lines tbody tr').forEach(function(s){ s.classList.remove('drop-target'); });
-          document.removeEventListener('mousemove', onMove);
-          document.removeEventListener('mouseup', onUp);
-          var siblings = Array.prototype.slice.call(tr.parentNode.children).filter(function(x){ return x!==tr; });
-          var insertBefore = null, i, sib, r, half;
-          for(i=0;i<siblings.length;i++){
-            sib = siblings[i]; r = sib.getBoundingClientRect(); half = r.top + r.height/2;
-            if(e.clientY < half){ insertBefore = sib; break; }
-          }
-          if(insertBefore){ tr.parentNode.insertBefore(tr, insertBefore); }
-          persistLines();
-        }
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onUp);
-      });
-    }
-
-    function addLine(type, desc, qty, unit, cost, note){
-      var tr = document.createElement('tr');
-      var descPH = type==='Labor' ? "e.g., Diagnostics / R&R" : "e.g., Fuel Filter (FF63009) — Fleetguard";
-      var qtyPH  = type==='Labor' ? "hrs (e.g., 1.5)" : "qty (e.g., 1)";
-      var costPH = type==='Labor' ? "shop cost (optional)" : "shop cost (e.g., 32.00)";
-      var unitPH = type==='Labor' ? "$/hr (auto or manual)" : "sell price (e.g., 44.80)";
-      tr.className = 'draggable-row';
-      tr.innerHTML =
-        '<td class="drag-col"><button class="tab-btn handle" title="Drag to reorder">↕</button></td>' +
-        '<td><select class="lType"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Part'?'selected':'')+'>Part</option></select></td>' +
-        '<td><div class="desc-wrap"><input class="lDesc" value="'+(desc||'')+'" placeholder="'+descPH+'"/><textarea class="lNote" placeholder="Tech note for this line (prints)">'+(note||'')+'</textarea></div></td>' +
-        '<td><input class="lQty" type="number" step="0.01" value="'+(qty||1)+'" placeholder="'+qtyPH+'"/></td>' +
-        '<td><input class="lCost" type="number" step="0.01" value="'+(((cost!=null)?cost:0))+'" placeholder="'+costPH+'"/></td>' +
-        '<td><input class="lUnit" type="number" step="0.01" value="'+(unit||0)+'" placeholder="'+unitPH+'"/><div class="calc-hint">—</div></td>' +
-        '<td class="lLine">$0.00</td><td class="lProfit">$0.00</td><td><button type="button" class="tab-btn lDel">X</button></td>';
-      document.querySelector('#lines tbody').appendChild(tr);
-      makeRowDraggable(tr);
-      tr.querySelector('.lDel').addEventListener('click', function(){ tr.remove(); persistLines(); });
-      ['change','input'].forEach(function(evt){
-        ['.lType','.lDesc','.lQty','.lCost','.lUnit','.lNote'].forEach(function(sel){
-          tr.querySelector(sel).addEventListener(evt, persistLines);
-        });
-      });
-      persistLines();
-    }
-
-    function rowsToLines(){
-      var out = [];
-      $all('#lines tbody tr').forEach(function(tr){
-        out.push({
-          type: tr.querySelector('.lType').value,
-          desc: tr.querySelector('.lDesc').value,
-          qty: Number(tr.querySelector('.lQty').value||0),
-          cost: Number(tr.querySelector('.lCost').value||0),
-          unit: Number(tr.querySelector('.lUnit').value||0),
-          note: (tr.querySelector('.lNote') ? tr.querySelector('.lNote').value : '').trim()
-        });
-      });
-      return out;
-    }
-
-    function persistLines(){
-      var j = currentJob(); if(!j) return;
-      j.lines = rowsToLines();
-      j.invNo = $('#invNo').value.trim();
-      j.docType = $('#docType').value;
-      j.paymentLink = $('#payLink').value.trim();
-      j.emailTo = $('#emailTo').value.trim();
-      j.overallNotes = $('#overallNotes').value || '';
-      j.internalNotes = $('#internalNotes').value || '';
-      j.photosOnPdf = $('#photosOnPdf').checked;
-      recalcTotals(); updatePreview(); renderJobs(); saveDB();
-    }
-
-    function applyDefaultMarkup(){
-      var mu = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
-      $all('#lines tbody tr').forEach(function(tr){
-        var type = tr.querySelector('.lType').value;
-        if(type==='Part'){
-          var cost = Number(tr.querySelector('.lCost').value||0);
-          var newUnit = cost * (1+mu);
-          if(newUnit>0) tr.querySelector('.lUnit').value = newUnit.toFixed(2);
-        }
-      });
-      persistLines();
-    }
-
-    function sumLines(lines, mode){
-      var subtotal=0, profit=0, i, l;
-      for(i=0;i<(lines||[]).length;i++){
-        l = lines[i];
-        var line = Number(l.qty||0)*Number(l.unit||0);
-        subtotal += line;
-        profit += Number(l.qty||0)*(Number(l.unit||0) - Number(l.cost||0));
-      }
-      return mode==='profit'?profit:subtotal;
-    }
-
-    function recalcTotals(){
-      var rows = rowsToLines(); var subtotal=0, profit=0;
-      var laborRate = Number($('#laborRate').value||80);
-      var muDefault = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
-      var trs = $all('#lines tbody tr');
-      for(var i=0;i<rows.length;i++){
-        var r = rows[i];
-        if(r.type==='Labor' && (!r.unit || r.unit===0)) r.unit = laborRate;
-        var line = r.qty*r.unit; subtotal+=line;
-        var lineProfit = r.qty*(r.unit - (r.cost||0));
-        r.profit = lineProfit; profit += lineProfit;
-
-        var tr = trs[i]; if(!tr) continue;
-        tr.querySelector('.lLine').textContent = fmt(line);
-        tr.querySelector('.lProfit').textContent = fmt(lineProfit);
-
-        var hint = tr.querySelector('.calc-hint');
-        if(hint){
-          var up = (r.unit - (r.cost||0));
-          var per = (r.cost>0) ? Math.round((up / r.cost)*100) : 100;
-          var cls = (r.cost>0 && (up / r.cost) >= muDefault) ? 'ok' : (r.cost>0 ? 'warn' : 'ok');
-          hint.className = 'calc-hint ' + cls;
-          var dollars = fmt(up * (r.qty||1));
-          var perTxt = r.cost>0 ? '(+'+per+'%)' : '(set cost for %)';
-          hint.textContent = dollars + ' ' + perTxt;
-        }
-      }
-      var taxPct = Number($('#salesTax').value||0); var tax = subtotal*(taxPct/100); var grand = subtotal+tax;
-      document.getElementById('sub').textContent = fmt(subtotal);
-      document.getElementById('tax').textContent = fmt(tax);
-      document.getElementById('grand').textContent = fmt(grand);
-      document.getElementById('profit').textContent = fmt(profit);
-      var margin = grand>0 ? Math.round((profit/grand)*100) : 0;
-      var badge = document.getElementById('margin');
-      badge.textContent = margin + '%';
-      badge.className='badge ' + (margin>=25?'invoice': (margin>=15?'badge-open':'estimate'));
-      document.getElementById('pSub').textContent = fmt(subtotal); document.getElementById('pTax').textContent = fmt(tax); document.getElementById('pGrand').textContent = fmt(grand);
-    }
-
-    function updatePreview(){
-      var j = currentJob();
-      document.getElementById('pInvNo').textContent = (document.getElementById('invNo').value.trim() || 'DRAFT');
-      document.getElementById('pDate').textContent = new Date().toLocaleDateString();
-      var t = document.getElementById('docType').value; var badge = document.getElementById('pType'); badge.textContent=t; badge.className='badge ' + (t==='Invoice'?'invoice':'estimate');
-      document.getElementById('pStatus').textContent = j && j.paid ? 'Paid' : (t==='Estimate' ? (j && j.approved ? 'Approved':'Pending Approval') : 'Unpaid');
-      var c = j ? findCustomer(j.customerId) : null;
-      document.getElementById('pCust').textContent = c?c.name:'—'; document.getElementById('pVeh').textContent = c?(c.vehicle||''):'';
-
-      var tbody = document.getElementById('pLines'); tbody.innerHTML='';
-      if(j){
-        for(var i=0;i<j.lines.length;i++){
-          var l=j.lines[i]; var line=(Number(l.qty)||0)*(Number(l.unit)||0);
-          var tr=document.createElement('tr');
-          tr.innerHTML='<td>'+l.type+': '+escapeHtml(l.desc||"")+'</td><td>'+(l.qty||0)+'</td><td>'+fmt(l.unit||0)+'</td><td>'+fmt(line)+'</td>';
-          tbody.appendChild(tr);
-          if(l.note && l.note.trim()){
-            var trn=document.createElement('tr');
-            trn.innerHTML = '<td colspan="4" style="font-style:italic; color:#333; padding-top:4px;">Note: '+escapeHtml(l.note.trim())+'</td>';
-            tbody.appendChild(trn);
-          }
-        }
-      }
-
-      var pBlk = document.getElementById('pOverallBlock'); pBlk.innerHTML='';
-      if(j && j.overallNotes && j.overallNotes.trim()){
-        pBlk.innerHTML = '<h4 style="margin:8px 0 4px 0;">Technician Overall Notes</h4>' +
-          '<div style="white-space:pre-wrap; line-height:1.35;">'+escapeHtml(j.overallNotes.trim())+'</div>';
-      }
-
-      function setSig(role){
-        var img = role==='customer' ? document.getElementById('pSigCustomer') : document.getElementById('pSigManager');
-        var nameEl = role==='customer' ? document.getElementById('pSigCustomerName') : document.getElementById('pSigManagerName');
-        var dateEl = role==='customer' ? document.getElementById('pSigCustomerDate') : document.getElementById('pSigManagerDate');
-        var data = j && j.signatures ? j.signatures[role] : null;
-        if(data && data.dataUrl){
-          img.src = data.dataUrl; img.style.display='block';
-          nameEl.textContent = data.name ? ('— '+escapeHtml(data.name)) : '';
-          dateEl.textContent = data.date ? ('('+data.date+')') : '';
-        } else {
-          img.src=''; img.style.display='none'; nameEl.textContent=''; dateEl.textContent='';
-        }
-      }
-      setSig('customer'); setSig('manager');
-
-      var pPhotos = document.getElementById('pPhotosBlock'); pPhotos.innerHTML='';
-      if(j && j.photosOnPdf && j.photos && j.photos.length){
-        var html = '<h4 style="margin:8px 0 4px 0;">Work Photos</h4><div class="p-photos">';
-        for(var pi=0;pi<j.photos.length;pi++){
-          var ph=j.photos[pi]; if(!ph || !ph.dataUrl || ph.include === false) continue;
-          html += '<div class="p-photo"><img src="'+ph.dataUrl+'" alt=""></div>';
-        }
-        html += '</div>';
-        pPhotos.innerHTML = html;
-      }
-
-      function escapeHtml(s){
-        return String(s||'').replace(/[&<>"']/g, function(c){
-          return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
-        });
-      }
-    }
-
-    // Buttons & listeners
-    document.getElementById('addLabor').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Labor','',1, Number(document.getElementById('laborRate').value||80), 0, ''); });
-    document.getElementById('addPart').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Part','',1, 0, 0, ''); });
-    document.getElementById('applyMarkup').addEventListener('click', applyDefaultMarkup);
-    document.getElementById('recalc').addEventListener('click', recalcTotals);
-    document.getElementById('markPaid').addEventListener('click', function(){
-      var j=ensureJobSelected(); if(!j) return;
-      j.paid=!j.paid;
-      j.paidAt=j.paid?new Date().toISOString():null;
-      if(j.paid){ j.taxPercentAtSale = Number(document.getElementById('salesTax').value||0); }
-      updatePreview(); renderJobs(); saveDB(); alert(j.paid?'Marked Paid':'Marked Unpaid');
-    });
-    document.getElementById('approve').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; if(document.getElementById('docType').value!=='Estimate'){ alert('Approvals apply to Estimates.'); return; } j.approved=true; j.approvedAt=new Date().toISOString(); updatePreview(); saveDB(); alert('Estimate approved.'); });
-    document.getElementById('convert').addEventListener('click', function(){ var j=ensureJobSelected(); if(!j) return; j.docType='Invoice'; document.getElementById('docType').value='Invoice'; updatePreview(); saveDB(); alert('Converted to Invoice.'); });
-    document.getElementById('email').addEventListener('click', function(){
-      var j=ensureJobSelected(); if(!j) return;
-      var to=encodeURIComponent(document.getElementById('emailTo').value.trim()||'');
-      var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim());
-      var body=encodeURIComponent('Hello,\n\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+'.\nPayment link: '+(j.paymentLink||'')+'\n\n'+(DB.settings.shopFooter||'')+'\n\n— '+(DB.settings.shopFrom||''));
-      location.href='mailto:'+to+'?subject='+subj+'&body='+body;
-    });
-
-    // PDF
-    document.getElementById('pdf').addEventListener('click', function(){
-      var css =
-        'html,body{margin:0;padding:0}body{font-family:'+ (document.body && getComputedStyle(document.body).fontFamily || 'sans-serif') +';font-size:11pt;line-height:1.35;color:#000}' +
-        '.print-area{padding:8px 12px 12px;border-radius:0;position:relative}' +
-        '.invoice-header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:6px}' +
-        '.invoice-header h3{margin:0;font-size:16pt}' +
-        'table{width:100%;border-collapse:collapse;margin-top:6px}' +
-        'th,td{border-bottom:1px solid #000;padding:6px;text-align:left;vertical-align:top;font-size:10.5pt}' +
-        '.totals{display:grid;gap:4px;justify-items:end;margin-top:8px}.grand{font-weight:700}' +
-        '.badge{border:1px solid #000;border-radius:9999px;padding:2px 6px;font-size:9pt}' +
-        '.signatures{margin-top:16px;display:grid;gap:10px}' +
-        '.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}' +
-        '.sig-line{border-bottom:1px solid #000;height:28px;display:flex;align-items:flex-end}' +
-        '.sig-label{font-size:9pt;color:#333;margin-top:4px}' +
-        '.sig-img{max-height:60px;}' +
-        '.watermark{position:absolute;inset:0;z-index:0;opacity:.08}' +
-        '#wmImg{max-width:90%;max-height:90%;opacity:.12}' +
-        '#wmFallback{opacity:.12}' +
-        '.p-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}' +
-        '.p-photo{border:1px solid #000;padding:4px;border-radius:6px;break-inside:avoid;page-break-inside:avoid}' +
-        '.p-photo img{width:100%;height:1.8in;object-fit:cover;border-radius:4px;display:block}' +
-        '#pPhotosBlock{page-break-before:always}';
-      var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate (v1.3.2 FULL-PRESERVE)</title><style>'+css+'</style>  <meta name="app-version" content="v1.3.2 FULL-PRESERVE">
-</head><body>'
-                  + document.getElementById('preview').outerHTML
-                  + '
-  <!-- Archive & Durability External Core (non-invasive) -->
-  <script src="./poppes_archive_core_v1_3_2.js"></script>
-</body></html>';
-      var w = window.open('', '_blank');
-      if(!w){ alert('Please allow pop-ups to print.'); return; }
-      w.document.open(); w.document.write(htmlDoc); w.document.close();
-      try{ w.focus(); w.print(); }catch(_){}
-    });
-
-    // Header field listeners
-    document.getElementById('invNo').addEventListener('input', persistLines);
-    document.getElementById('docType').addEventListener('change', persistLines);
-    document.getElementById('payLink').addEventListener('input', persistLines);
-    document.getElementById('emailTo').addEventListener('input', persistLines);
-    document.getElementById('laborRate').addEventListener('input', function(){ recalcTotals(); persistLines(); });
-    document.getElementById('salesTax').addEventListener('input', function(){ recalcTotals(); persistLines(); });
-    document.getElementById('overallNotes').addEventListener('input', persistLines);
-    document.getElementById('photosOnPdf').addEventListener('change', function(){ persistLines(); updatePreview(); });
-
-    // Signature pad (mouse only for compat; touch events often map to mouse events)
-    (function(){
-      var modal=document.getElementById('sigModal');
-      document.getElementById('sign').addEventListener('click', function(){ modal.style.display='flex'; });
-      document.getElementById('sigClose').addEventListener('click', function(){ modal.style.display='none'; });
-      var canvas=document.getElementById('sigPad'); var ctx=canvas.getContext('2d'); var drawing=false, last=null;
-      function pos(e){ var r=canvas.getBoundingClientRect(); return {x:(e.clientX)-r.left, y:(e.clientY)-r.top}; }
-      function draw(p){ if(!last){ last=p; return; } ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.lineCap='round'; ctx.stroke(); last=p; }
-      canvas.addEventListener('mousedown', function(e){ drawing=true; last=pos(e); });
-      canvas.addEventListener('mousemove', function(e){ if(drawing) draw(pos(e)); });
-      document.addEventListener('mouseup', function(){ drawing=false; last=null; });
-      document.getElementById('sigClear').addEventListener('click', function(){ ctx.clearRect(0,0,canvas.width,canvas.height); });
-      document.getElementById('sigSave').addEventListener('click', function(){
-        var role=document.getElementById('sigRole').value; var name=document.getElementById('sigName').value.trim(); var date=document.getElementById('sigDate').value; var dataUrl=canvas.toDataURL('image/png');
-        var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; }
-        if(!j.signatures) j.signatures={customer:null,manager:null};
-        j.signatures[role]={ dataUrl:dataUrl, name:name, date:date };
-        saveDB(); updatePreview(); modal.style.display='none';
-      });
-    })();
-
-    // Photos
-    (function(){
-      var input=document.getElementById('photoInput');
-      function readAsDataURL(file, cb, eb){ var r=new FileReader(); r.onload=function(){cb(r.result)}; r.onerror=function(){if(eb)eb(r.error)}; r.readAsDataURL(file); }
-      function addPhotoToJob(job, dataUrl){ if(!job.photos) job.photos=[]; job.photos.push({ dataUrl:dataUrl, include:true }); }
-      function render(){ renderPhotoGrid(); updatePreview(); saveDB(); }
-      function onFiles(files){ var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; } var i=0; (function next(){ if(i>=files.length){ render(); return; } readAsDataURL(files[i], function(data){ addPhotoToJob(j,data); i++; next(); }); })(); }
-      if(input){ input.addEventListener('change', function(){ onFiles(input.files||[]); input.value=''; }); }
-      window.renderPhotoGrid=function(){ var j=currentJob(); var grid=document.getElementById('photoGrid'); grid.innerHTML=''; if(!j || !j.photos || !j.photos.length) return; j.photos.forEach(function(ph,idx){ var div=document.createElement('div'); div.className='photo-item'; div.innerHTML='<img src="'+ph.dataUrl+'" alt=""><button class="del">×</button><label><input type="checkbox" '+(ph.include!==false?'checked':'')+'> Include on PDF</label>'; div.querySelector('.del').addEventListener('click', function(){ j.photos.splice(idx,1); render(); }); div.querySelector('input[type=checkbox]').addEventListener('change', function(e){ ph.include = e.target.checked; render(); }); grid.appendChild(div); }); }
-    })();
-
-    // Templates
-    function renderTemplates(){
-      var list = document.getElementById('tplList'); if(!list) return;
-      list.innerHTML = '';
-      for(var ti=0; ti<(DB.templates||[]).length; ti++){
-        var tpl = DB.templates[ti];
-        var card = document.createElement('div'); card.className='card'; card.style.background='#fff'; card.style.color='#000'; card.style.borderColor='#b6b09f';
-        var html = '<h4 style="color:#0e111a; margin:0 0 6px 0">'+tpl.platform+'</h4>';
-        html += '<div class="small">'+tpl.items.length+' items</div>';
-        html += '<div class="actions" style="margin-top:8px"><button class="tab-btn" data-apply="'+ti+'">Apply</button></div>';
-        card.innerHTML = html; list.appendChild(card);
-      }
-      $all('button[data-apply]').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          var idx = Number(btn.getAttribute('data-apply')||0);
-          var tpl = DB.templates[idx]; if(!tpl) return;
-          applyTemplate(tpl);
-          alert('Template applied: '+tpl.platform);
-        });
-      });
-    }
-    function openTemplatesModal(){ var m=document.getElementById('tplModal'); renderTemplates(); m.style.display='flex'; }
-    document.getElementById('openTemplates').addEventListener('click', function(){ openTemplatesModal(); });
-    document.getElementById('tplClose').addEventListener('click', function(){ document.getElementById('tplModal').style.display='none'; });
-
-    function applyTemplate(tpl){
-      var j = ensureJobSelected(true); if(!j) return;
-      var i, it, sell, desc;
-      for(i=0;i<(tpl.items||[]).length;i++){
-        it = tpl.items[i];
-        if(it.type==='Labor'){
-          addLine('Labor', it.desc, it.qty||1, Number(document.getElementById('laborRate').value||80), 0, '');
-        } else {
-          sell = (it.cost||0) * (1 + (Number(it.markup||0)/100));
-          desc = (it.desc||'') + (it.part?(' ('+it.part+')'):'') + (it.vendor?(' — '+it.vendor):'');
-          addLine('Part', desc, 1, Number(sell.toFixed(2)), Number(it.cost||0), '');
-        }
-      }
-      persistLines();
-    }
-
-    function renderSettings(){
-      document.getElementById('defaultMarkup').value=DB.settings.defaultMarkup||40;
-      document.getElementById('shopFrom').value=DB.settings.shopFrom||'Poppe’s Diesel Co.';
-      document.getElementById('shopReply').value=DB.settings.shopReply||'poppedieselco@gmail.com';
-      document.getElementById('shopSubj').value=DB.settings.shopSubj||'[Poppe’s Diesel Co.] ';
-      document.getElementById('shopFooter').value=DB.settings.shopFooter||'Thank you for supporting local.';
-      ['defaultMarkup','shopFrom','shopReply','shopSubj','shopFooter'].forEach(function(id){
-        var el=document.getElementById(id); if(!el) return;
-        el.addEventListener('input', function(){
-          DB.settings[id] = (id==='defaultMarkup') ? Number(el.value||40) : el.value; saveDB();
-        });
-      });
-    }
-
-    function renderDashboard(){
-      var open=0, unpaid=0, rev=0, prof=0, now=new Date(), ym=now.toISOString().slice(0,7);
-      DB.jobs.forEach(function(j){
-        if(j.status!=='Done') open++;
-        if(j.docType==='Invoice' && !j.paid) unpaid++;
-        var createdMonth=(j.paidAt||j.createdAt||'').slice(0,7);
-        if(createdMonth===ym){
-          var subtotal=sumLines(j.lines,'subtotal');
-          var profit=sumLines(j.lines,'profit');
-          rev+=subtotal; prof+=profit;
-        }
-      });
-      document.getElementById('openJobs').textContent=open;
-      document.getElementById('unpaid').textContent=unpaid;
-      document.getElementById('revMonth').textContent=fmt(rev);
-      document.getElementById('profitMonth').textContent=fmt(prof);
-    }
-
-    (function selftest(){
-      var ok = !!(window.localStorage && document.querySelector && document.createElement);
-      var tag=document.getElementById('selftest');
-      if(tag){ tag.textContent='Self-test: '+(ok?'OK':'Limited'); tag.className='tag selftest '+(ok?'ok':'warn'); }
-    })();
-
-    
-// === JSON Backup & Restore ===
-function __pdc_backupToJson(){
-  try {
-    var payload = { version: 'v1.1.3', exportedAt: new Date().toISOString(), db: DB, ui: UI };
-    var blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'poppes_shop_backup_' + new Date().toISOString().slice(0,19).replace(/[:T]/g,'-') + '.json';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(function(){ try{ URL.revokeObjectURL(a.href); document.body.removeChild(a);}catch(_){} }, 1000);
-  } catch(e){ alert('Export failed: '+ e.message); }
-}
-function __pdc_restoreFromJson(obj){
-  if(!obj || !obj.db){ throw new Error('Invalid backup file'); }
-  DB = obj.db || DB;
-  UI = obj.ui || UI || {};
-  upgradeDB();
-  saveDB();
-  saveUI(UI);
-  renderAll();
-  try {
-    if (UI.lastJobId){
-      var has = (DB.jobs||[]).some(function(j){ return j.id===UI.lastJobId; });
-      if (has){ document.getElementById('invJob').value = UI.lastJobId; loadInvoice(UI.lastJobId); }
-    }
-  } catch(_){}
-  alert('Backup restored.');
-}
-var __pdc_impBtn = document.getElementById('importJson');
-var __pdc_expBtn = document.getElementById('exportJson');
-var __pdc_file   = document.getElementById('importJsonFile');
-if (__pdc_expBtn){ __pdc_expBtn.addEventListener('click', __pdc_backupToJson); }
-if (__pdc_impBtn && __pdc_file){
-  __pdc_impBtn.addEventListener('click', function(){
-    __pdc_file.onchange = function(){
-      try {
-        var f = __pdc_file.files && __pdc_file.files[0]; if(!f) return;
-        var r = new FileReader();
-        r.onload = function(){ try{ var obj = JSON.parse(r.result||'{}'); __pdc_restoreFromJson(obj); } catch(e){ alert('Import failed: '+e.message); } };
-        r.onerror = function(){ alert('File read failed'); };
-        r.readAsText(f);
-      } finally { __pdc_file.value=''; }
-    };
-    __pdc_file.click();
-  });
-}
-
-upgradeDB(); renderAll();
-    if(UI.lastJobId && currentJob()) { /* already set */ }
-  });
-});
-</script>
-
-  <!-- Archive & Durability External Core (non-invasive) -->
-  <script src="./poppes_archive_core_v1_3_2.js"></script>
+    if (document.readyState === 'loading') {{
+      document.addEventListener('DOMContentLoaded', ()=>{{ bootRestore().then(wire); }}, {{once:true}});
+    }} else {{
+      bootRestore().then(wire);
+    }}
+  }} )();
+  </script>
 </body>
 </html>
