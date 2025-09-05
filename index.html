@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Poppe’s Diesel Co. — Shop Manager (v1.3.0 — IDB)</title>
+<title>Poppe’s Diesel Co. — Shop Manager (v1.3.1 — IDB+A11Y)</title>
 <style>
 :root{--bg:#e6cfae;--card:#13151c;--text:#0e111a;--muted:#3e463e;--border:#2e3226;--ink:#0e111a;--ink2:#161a24;--shadow:0 10px 20px rgba(0,0,0,.30);--info:#0a3d2e;--ok:#1f6b55;--warn:#f5c518;--danger:#962b2b;--font:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 *{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
@@ -75,13 +75,13 @@ body.modal-open{ position:fixed; width:100%; overflow:hidden; }
 
 <div id="error" style="display:none">JavaScript error detected. Tap to reload.</div>
 <header>
-  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.3.0</span><span class="tag selftest" id="selftest">Self-test: …</span><span class="tag">IDB</span></h1>
+  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.3.1</span><span class="tag selftest" id="selftest">Self-test: …</span><span class="tag">IDB</span></h1>
   <nav class="top">
-    <button class="tab-btn" data-tab="dashboard">Dashboard</button>
-    <button class="tab-btn" data-tab="customers">Customers</button>
-    <button class="tab-btn" data-tab="jobs">Jobs</button>
-    <button class="tab-btn" data-tab="invoice">Estimate / Invoice</button>
-    <button class="tab-btn" data-tab="settings">Settings</button>
+    <button class="tab-btn" data-tab="dashboard" id="tabDashboard">Dashboard</button>
+    <button class="tab-btn" data-tab="customers" id="tabCustomers">Customers</button>
+    <button class="tab-btn" data-tab="jobs" id="tabJobs">Jobs</button>
+    <button class="tab-btn" data-tab="invoice" id="tabInvoice">Estimate / Invoice</button>
+    <button class="tab-btn" data-tab="settings" id="tabSettings">Settings</button>
   </nav>
 </header>
 
@@ -103,17 +103,17 @@ body.modal-open{ position:fixed; width:100%; overflow:hidden; }
       <input id="custPhone" inputmode="tel" placeholder="Phone (e.g., 555-123-4567)"/>
       <input id="custEmail" inputmode="email" placeholder="Email (e.g., name@shop.com)"/>
       <input id="custVehicle" placeholder="Vehicle (e.g., 2018 F-350 6.7L)"/>
-      <button class="primary" type="submit">Add Customer</button>
+      <button class="primary" type="submit" id="btnAddCustomer">Add Customer</button>
     </form>
     <div class="table-wrap">
-      <table id="custTable"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Vehicle</th><th></th></tr></thead><tbody></tbody></table>
+      <table id="custTable" aria-label="Customers"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Vehicle</th><th></th></tr></thead><tbody></tbody></table>
     </div>
   </section>
 
   <section class="tab" id="jobs">
     <h2>Jobs</h2>
     <form class="grid" id="jobForm">
-      <select id="jobCustomer" required=""></select>
+      <select id="jobCustomer" required="" aria-label="Job customer"></select>
       <input id="jobTitle" placeholder="Job title (e.g., Front brakes + rotors)" required=""/>
       <input id="jobVIN" placeholder="VIN (17 chars)"/>
       <button class="tab-btn" id="decodeVIN" type="button">Decode VIN</button>
@@ -124,15 +124,15 @@ body.modal-open{ position:fixed; width:100%; overflow:hidden; }
         <button class="tab-btn primary" id="addAllSuggest" type="button">Add All</button>
       </div>
       <textarea id="jobNotes" placeholder="Notes (symptoms, codes, etc.)"></textarea>
-      <select id="jobStatus"><option>Open</option><option>In Progress</option><option>Done</option></select>
-      <button class="primary" type="submit">Create Job</button>
+      <select id="jobStatus" aria-label="Job status"><option>Open</option><option>In Progress</option><option>Done</option></select>
+      <button class="primary" type="submit" id="btnCreateJob">Create Job</button>
     </form>
     <div class="card" id="internalNotesWrap">
       <h3>Internal Staff Notes (won’t print)</h3>
       <textarea id="internalNotes" placeholder="For in-house eyes only — diagnostic rabbit holes, supplier rants, etc."></textarea>
     </div>
     <div class="table-wrap">
-      <table id="jobsTable">
+      <table id="jobsTable" aria-label="Jobs">
         <thead><tr><th>#</th><th>Customer</th><th>Title</th><th>Status</th><th>Total</th><th>Profit</th><th></th></tr></thead>
         <tbody></tbody>
       </table>
@@ -142,12 +142,12 @@ body.modal-open{ position:fixed; width:100%; overflow:hidden; }
   <section class="tab" id="invoice">
     <h2>Estimate / Invoice<br/><small>Poppe’s Diesel Co. — Built in the Garage, Backed by Freedom</small></h2>
     <div class="grid" id="invFilters">
-      <label>Filter by Customer <select id="invCustFilter"><option value="">All customers</option></select></label>
+      <label>Filter by Customer <select id="invCustFilter" aria-label="Filter by customer"><option value="">All customers</option></select></label>
       <label>Search Jobs <input id="invJobSearch" placeholder="Type to filter jobs by customer/title…"/></label>
       <div><div class="small">Recent jobs</div><div class="actions" id="recentJobs"></div></div>
     </div>
     <form class="grid" id="invForm">
-      <select id="invJob" required=""></select>
+      <select id="invJob" required="" aria-label="Invoice job"></select>
       <input id="invNo" placeholder="Document # (e.g., 2025-001)">
       <label>Type <select id="docType"><option>Estimate</option><option>Invoice</option></select></label>
       <label>Labor Rate ($/hr) <input id="laborRate" step="0.01" type="number" value="80"/></label>
@@ -170,7 +170,7 @@ body.modal-open{ position:fixed; width:100%; overflow:hidden; }
       <button class="tab-btn primary" id="pdf" type="button">Generate PDF</button>
     </div>
     <div class="table-wrap" style="margin-top:10px">
-      <table class="lines" id="lines">
+      <table class="lines" id="lines" aria-label="Invoice lines">
         <thead><tr><th style="width:28px">↕</th><th>Type</th><th>Description</th><th>Qty/Hrs</th><th>Cost $</th><th>Unit $</th><th>Line $</th><th>Profit $</th><th></th></tr></thead>
         <tbody></tbody>
       </table>
@@ -272,10 +272,10 @@ body.modal-open{ position:fixed; width:100%; overflow:hidden; }
 <div id="debug"><div class="meta" id="debugMeta"></div><pre id="debugLog"></pre></div>
 
 <!-- Templates modal -->
-<div class="modal" id="tplModal" style="display:none">
-  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f">
+<div class="modal" id="tplModal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="tplTitle">
+  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f" tabindex="-1">
     <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h3 style="color:#0e111a;margin:0">Maintenance Templates</h3>
+      <h3 id="tplTitle" style="color:#0e111a;margin:0">Maintenance Templates</h3>
       <button class="tab-btn" id="tplClose" type="button">Close</button>
     </header>
     <div id="tplList"></div>
@@ -283,8 +283,8 @@ body.modal-open{ position:fixed; width:100%; overflow:hidden; }
 </div>
 
 <!-- Signature modal -->
-<div class="modal" id="sigModal" style="display:none">
-  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
+<div class="modal" id="sigModal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="sigTitle">
+  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px" tabindex="-1">
     <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
       <h3 id="sigTitle" style="color:#0e111a;margin:0">Collect Signature</h3>
       <button class="tab-btn" id="sigClose" type="button">Close</button>
@@ -294,34 +294,26 @@ body.modal-open{ position:fixed; width:100%; overflow:hidden; }
       <label>Date <input id="sigDate" type="date"/></label>
       <label>Role <select id="sigRole"><option value="customer">Customer</option><option value="manager">Service Manager</option></select></label>
     </div>
-    <div style="margin-top:8px">
-      <canvas height="220" id="sigPad" style="width:100%;background:#fff;border:1px dashed #b6b09f;border-radius:8px" width="640"></canvas>
-    </div>
-    <div class="actions" style="margin-top:8px">
-      <button class="tab-btn" id="sigClear" type="button">Clear</button>
-      <button class="tab-btn primary" id="sigSave" type="button">Save Signature</button>
-    </div>
+    <div style="margin-top:8px"><canvas height="220" id="sigPad" style="width:100%;background:#fff;border:1px dashed #b6b09f;border-radius:8px" width="640"></canvas></div>
+    <div class="actions" style="margin-top:8px"><button class="tab-btn" id="sigClear" type="button">Clear</button><button class="tab-btn primary" id="sigSave" type="button">Save Signature</button></div>
   </div>
 </div>
 
 <!-- Quick estimate modal -->
-<div class="modal" id="qeModal" style="display:none">
-  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
+<div class="modal" id="qeModal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="qeTitle">
+  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px" tabindex="-1">
     <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h3 style="color:#0e111a;margin:0">Quick Estimate Builder</h3>
+      <h3 id="qeTitle" style="color:#0e111a;margin:0">Quick Estimate Builder</h3>
       <button class="tab-btn" id="qeClose" type="button">Close</button>
     </header>
     <div class="grid">
-      <label>Title/Concern <input id="qeTitle" placeholder="e.g., Front brakes: pads+rotors"/></label>
+      <label>Title/Concern <input id="qeTitleInput" placeholder="e.g., Front brakes: pads+rotors"/></label>
       <label>Parts Cost ($) <input id="qePartsCost" step="0.01" type="number" value="0"/></label>
       <label>Markup % <input id="qeMarkup" step="1" type="number" value="40"/></label>
       <label>Labor Hours <input id="qeHours" step="0.1" type="number" value="1.5"/></label>
       <div class="small">Uses current labor rate &amp; tax.</div>
     </div>
-    <div class="actions">
-      <button class="tab-btn" id="qeApplyAppend" type="button">Append Lines</button>
-      <button class="tab-btn danger" id="qeApplyReplace" type="button" style="background:#962b2b">Replace Lines</button>
-    </div>
+    <div class="actions"><button class="tab-btn" id="qeApplyAppend" type="button">Append Lines</button><button class="tab-btn danger" id="qeApplyReplace" type="button" style="background:#962b2b">Replace Lines</button></div>
   </div>
 </div>
 
@@ -379,19 +371,11 @@ var BlobStore = (function(){
   function put(id, dataUrl, cb){ ensure(function(){ try{ var req = rw('blobs').put(dataUrl, id); req.onsuccess=function(){ if(cb) cb(null); }; req.onerror=function(e){ if(cb) cb(e.target.error); }; }catch(e){ if(cb) cb(e); } }); }
   function get(id, cb){ ensure(function(){ try{ var req = ro('blobs').get(id); req.onsuccess=function(){ cb(null, req.result||null); }; req.onerror=function(e){ cb(e.target.error||new Error('idb get error')); }; }catch(e){ cb(e); } }); }
   function del(id, cb){ ensure(function(){ try{ var req = rw('blobs')['delete'](id); req.onsuccess=function(){ if(cb) cb(null); }; req.onerror=function(e){ if(cb) cb(e.target.error); }; }catch(e){ if(cb) cb(e); } }); }
-  function getMany(ids, cb){ // cb(err, map)
-    var out={}, n=ids.length, done=0, failed=false;
-    if(!n){ cb(null, out); return; }
-    for(var i=0;i<ids.length;i++){
-      (function(id){
-        get(id, function(err, data){ if(failed) return; if(err){ failed=true; cb(err); return; } out[id]=data||null; done++; if(done===n) cb(null,out); });
-      })(ids[i]);
-    }
-  }
+  function getMany(ids, cb){ var out={}, n=ids.length, done=0, failed=false; if(!n){ cb(null, out); return; } for(var i=0;i<ids.length;i++){ (function(id){ get(id, function(err, data){ if(failed) return; if(err){ failed=true; cb(err); return; } out[id]=data||null; done++; if(done===n) cb(null,out); }); })(ids[i]); } }
   return { open: open, put: put, get: get, del: del, getMany: getMany, supported:supported };
 })();
 
-/* -------- Watermark (uses BlobStore 'wm' key) -------- */
+/* -------- Watermark (IDB) -------- */
 (function(){
   var imgEl = document.getElementById('wmImg');
   var fallback = document.getElementById('wmFallback');
@@ -407,32 +391,57 @@ var BlobStore = (function(){
     r.readAsDataURL(file);
   }
   BlobStore.open(function(){
-    // migrate old LS watermark if present
     try{
       var old = localStorage.getItem('pdc_wm_dataurl');
-      if(old){
-        BlobStore.put('wm', old, function(){ try{ localStorage.removeItem('pdc_wm_dataurl'); }catch(_){} setWM(old); });
-      } else {
-        BlobStore.get('wm', function(_e, data){ setWM(data); });
-      }
+      if(old){ BlobStore.put('wm', old, function(){ try{ localStorage.removeItem('pdc_wm_dataurl'); }catch(_){} setWM(old); }); }
+      else { BlobStore.get('wm', function(_e, data){ setWM(data); }); }
     }catch(_){}
   });
   var up = document.getElementById('wmFile');
   var clr = document.getElementById('wmClear');
   if(up) up.addEventListener('change', function(){
     var f = up.files && up.files[0]; if(!f) return;
-    readAsDataURL(f, function(data){
-      BlobStore.put('wm', data, function(){ setWM(data); alert('Watermark updated.'); up.value=''; });
-    });
+    readAsDataURL(f, function(data){ BlobStore.put('wm', data, function(){ setWM(data); alert('Watermark updated.'); up.value=''; }); });
   });
-  if(clr) clr.addEventListener('click', function(){
-    BlobStore.del('wm', function(){ setWM(''); alert('Watermark cleared.'); });
-  });
+  if(clr) clr.addEventListener('click', function(){ BlobStore.del('wm', function(){ setWM(''); alert('Watermark cleared.'); }); });
+})();
+
+/* -------- Generic modal helpers (a11y: Esc + return focus) -------- */
+function openModal(modal, firstFocusEl){
+  var opener = document.activeElement;
+  modal.dataset.openerId = (opener && opener.id) || '';
+  modal.style.display='flex';
+  setTimeout(function(){ (firstFocusEl||modal.querySelector('.panel')||modal).focus(); }, 0);
+  function onKey(e){ if(e.key==='Escape'){ closeModal(modal); } }
+  modal._esc = onKey; document.addEventListener('keydown', onKey);
+}
+function closeModal(modal){
+  modal.style.display='none';
+  if (modal._esc){ document.removeEventListener('keydown', modal._esc); modal._esc=null; }
+  var openerId = modal.dataset.openerId; if (openerId){ var el=document.getElementById(openerId); if(el) el.focus(); }
+}
+
+/* -------- Request persistent storage + log quota -------- */
+(function(){
+  if (navigator.storage){
+    (async function(){
+      try{
+        if (navigator.storage.persist){
+          var granted = await navigator.storage.persist();
+          AppLog.info('Persistent storage granted? ' + granted);
+        }
+        if (navigator.storage.estimate){
+          var est = await navigator.storage.estimate();
+          AppLog.info('Storage usage/quota: ' + (est.usage||0) + ' / ' + (est.quota||0));
+        }
+      }catch(_){}
+    })();
+  }
 })();
 
 window.addEventListener('load', function(){
   guard('init', function(){
-    var STORAGE_KEY = 'poppe_shop_db_v112'; /* keep old key for continuity */
+    var STORAGE_KEY = 'poppe_shop_db_v112'; /* keep old key */
     var DB = loadDB() || defaultDB();
 
     var UIKEY = 'pdc_ui_state';
@@ -474,13 +483,13 @@ window.addEventListener('load', function(){
     function saveDB(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(e){ AppLog.error('localStorage save failed', e); } }
     function loadDB(){ try { var s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; } catch(e){ AppLog.error('localStorage load failed', e); return null; } }
 
-    /* --- Migration: move inline images to IndexedDB, replace with IDs --- */
+    /* --- Migration: inline images -> IDB --- */
     function migrateImagesToIDB(done){
       BlobStore.open(function(){
         var jobs = DB.jobs||[];
         var pending=0, changed=false;
 
-        function handlePhoto(j, idx, ph){
+        function handlePhoto(ph){
           if(ph && ph.dataUrl && !ph.id){
             changed=true; pending++;
             var id = 'photo-'+crypto.randomUUID();
@@ -496,7 +505,7 @@ window.addEventListener('load', function(){
         }
         for(var i=0;i<jobs.length;i++){
           var j = jobs[i];
-          if(j.photos){ for(var p=0;p<j.photos.length;p++){ handlePhoto(j,p,j.photos[p]); } }
+          if(j.photos){ for(var p=0;p<j.photos.length;p++){ handlePhoto(j.photos[p]); } }
           if(j.signatures){
             handleSig(j.signatures.customer);
             handleSig(j.signatures.manager);
@@ -516,6 +525,7 @@ window.addEventListener('load', function(){
       for(var i=0;i<tokens.length;i++){ if(tokens[i] && text.indexOf(tokens[i])===-1) return false; }
       return true;
     }
+    function td(text){ var el=document.createElement('td'); el.textContent=String(text||''); return el; }
 
     function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); renderTemplates(); saveDB(); }
 
@@ -534,7 +544,7 @@ window.addEventListener('load', function(){
       document.getElementById(UI.activeTab).classList.add('active');
     }
 
-    /* Customers */
+    /* Customers (XSS-safe rendering) */
     $('#custForm').addEventListener('submit', function(e){
       e.preventDefault();
       var c = {id: crypto.randomUUID(), name: $('#custName').value.trim(), phone: $('#custPhone').value.trim(), email: $('#custEmail').value.trim(), vehicle: $('#custVehicle').value.trim()};
@@ -545,7 +555,18 @@ window.addEventListener('load', function(){
       var tb = $('#custTable tbody'); tb.innerHTML='';
       DB.customers.forEach(function(c){
         var tr = document.createElement('tr');
-        tr.innerHTML = '<td>'+c.name+'</td><td>'+(c.phone||'')+'</td><td>'+(c.email||'')+'</td><td>'+(c.vehicle||'')+'</td><td><button class="tab-btn" data-delc="'+c.id+'" type="button">Delete</button></td>';
+        tr.appendChild(td(c.name));
+        tr.appendChild(td(c.phone||''));
+        tr.appendChild(td(c.email||''));
+        tr.appendChild(td(c.vehicle||''));
+        var tdDel = document.createElement('td');
+        var btn = document.createElement('button');
+        btn.className='tab-btn';
+        btn.type='button';
+        btn.textContent='Delete';
+        btn.setAttribute('data-delc', c.id);
+        tdDel.appendChild(btn);
+        tr.appendChild(tdDel);
         tb.appendChild(tr);
       });
       $all('button[data-delc]').forEach(function(btn){
@@ -559,13 +580,14 @@ window.addEventListener('load', function(){
       });
     }
 
-    /* Jobs */
+    /* Jobs (XSS-safe rendering) */
     function renderJobCustomer(){
       var sel = $('#jobCustomer');
-      var opts = ['<option value="">Select...</option>'];
-      DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+c.name+'</option>'); });
-      sel.innerHTML = opts.join('');
-
+      sel.innerHTML='';
+      var opt0 = document.createElement('option'); opt0.value=''; opt0.textContent='Select...'; sel.appendChild(opt0);
+      DB.customers.forEach(function(c){
+        var o=document.createElement('option'); o.value=c.id; o.textContent=c.name; sel.appendChild(o);
+      });
       renderInvFilters();
       renderInvJobOptions();
       renderRecentJobs();
@@ -585,7 +607,7 @@ window.addEventListener('load', function(){
       if(DB.jobs.length===1){ $('#invJob').value = j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); }
     });
 
-    // VIN decode (XMLHttpRequest for compat)
+    // VIN decode (compat)
     $('#decodeVIN').addEventListener('click', function(){
       var vin = $('#jobVIN').value.trim();
       var box = $('#vinResult'); var sug = $('#vinSuggest'); var tags = $('#vinTags');
@@ -601,7 +623,7 @@ window.addEventListener('load', function(){
               var map={}, i, r;
               for(i=0;i<(data.Results||[]).length;i++){ r=data.Results[i]; if(r.Variable && r.Value) map[r.Variable]=r.Value; }
               var summary = (map['Model Year']||'-')+' '+(map['Make']||'-')+' '+(map['Model']||'-');
-              box.innerHTML = '<strong>'+summary+'</strong>';
+              box.textContent = summary; // avoid innerHTML
               var platformText = (summary+' '+(map['Engine Model']||'')+' '+(map['Engine Manufacturer']||'')).toLowerCase();
               var matched = DB.templates.filter(function(t){
                 var p = t.platform.toLowerCase();
@@ -633,13 +655,20 @@ window.addEventListener('load', function(){
         var c = findCustomer(j.customerId);
         var subtotal = sumLines(j.lines, 'subtotal');
         var profit = sumLines(j.lines, 'profit');
-        var badge = j.status==='Open' ? 'badge-open' : (j.status==='In Progress'?'badge-ip':'badge-done');
         var tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td>'+j.id.slice(0,8)+'</td><td>'+(c?c.name:'—')+'</td><td>'+j.title+'</td>' +
-          '<td><span class="badge '+badge+'">'+j.status+'</span></td>' +
-          '<td>'+fmt(subtotal)+'</td><td>'+fmt(profit)+'</td>' +
-          '<td><button class="tab-btn" data-open="'+j.id+'" type="button">Open</button></td>';
+        tr.appendChild(td(j.id.slice(0,8)));
+        tr.appendChild(td(c?c.name:'—'));
+        tr.appendChild(td(j.title));
+        var tdStatus = document.createElement('td');
+        var badge = document.createElement('span');
+        var cls = j.status==='Open' ? 'badge-open' : (j.status==='In Progress'?'badge-ip':'badge-done');
+        badge.className = 'badge '+cls; badge.textContent = j.status;
+        tdStatus.appendChild(badge); tr.appendChild(tdStatus);
+        tr.appendChild(td(fmt(subtotal)));
+        tr.appendChild(td(fmt(profit)));
+        var tdBtn = document.createElement('td');
+        var bt = document.createElement('button'); bt.className='tab-btn'; bt.type='button'; bt.textContent='Open'; bt.setAttribute('data-open', j.id);
+        tdBtn.appendChild(bt); tr.appendChild(tdBtn);
         tb.appendChild(tr);
       });
       $all('button[data-open]').forEach(function(b){
@@ -652,20 +681,16 @@ window.addEventListener('load', function(){
     }
 
     // Internal notes save
-    $('#internalNotes').addEventListener('input', function(){
-      var j = currentJob(); if(!j) return;
-      j.internalNotes = this.value; saveDB();
-    });
+    $('#internalNotes').addEventListener('input', function(){ var j = currentJob(); if(!j) return; j.internalNotes = this.value; saveDB(); });
 
-    /* Filters + job picker */
+    /* Filters + job picker (options built safely) */
     function renderInvFilters(){
-      var sel = $('#invCustFilter');
-      var opts = ['<option value="">All customers</option>'];
-      DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+c.name+'</option>'); });
-      sel.innerHTML = opts.join('');
+      var sel = $('#invCustFilter'); sel.innerHTML='';
+      var a = document.createElement('option'); a.value=''; a.textContent='All customers'; sel.appendChild(a);
+      DB.customers.forEach(function(c){ var o=document.createElement('option'); o.value=c.id; o.textContent=c.name; sel.appendChild(o); });
     }
     function renderInvJobOptions(){
-      var invSel = $('#invJob');
+      var invSel = $('#invJob'); invSel.innerHTML='';
       var cid = $('#invCustFilter').value || '';
       var q = ($('#invJobSearch').value || '').trim().toLowerCase();
 
@@ -677,12 +702,12 @@ window.addEventListener('load', function(){
         return matchesAllTokens(fields, q);
       });
 
-      var opts = ['<option value="">Select job…</option>'];
+      var o0=document.createElement('option'); o0.value=''; o0.textContent='Select job…'; invSel.appendChild(o0);
       jobs.forEach(function(j){
         var c = findCustomer(j.customerId);
-        opts.push('<option value="'+j.id+'">'+(c?c.name:'—')+' — '+j.title+'</option>');
+        var o=document.createElement('option'); o.value=j.id; o.textContent=(c?c.name:'—')+' — '+j.title;
+        invSel.appendChild(o);
       });
-      invSel.innerHTML = opts.join('');
     }
     function renderRecentJobs(){
       var box = $('#recentJobs'); box.innerHTML='';
@@ -691,8 +716,7 @@ window.addEventListener('load', function(){
       jobs.slice(0,6).forEach(function(j){
         var c = findCustomer(j.customerId);
         var b = document.createElement('button'); b.type='button'; b.className='tab-btn';
-        b.textContent = (c?c.name:'—')+': '+j.title;
-        b.addEventListener('click', function(){ $('#invJob').value=j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); });
+        b.textContent = (c?c.name:'—')+': '+j.title; b.addEventListener('click', function(){ $('#invJob').value=j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); });
         box.appendChild(b);
       });
     }
@@ -826,7 +850,10 @@ window.addEventListener('load', function(){
       return out;
     }
 
-    function persistLines(){
+    /* Debounced persistLines */
+    var _persistTimer=null;
+    function persistLines(){ clearTimeout(_persistTimer); _persistTimer = setTimeout(_persistNow, 150); }
+    function _persistNow(){
       var j = currentJob(); if(!j) return;
       j.lines = rowsToLines();
       j.invNo = $('#invNo').value.trim();
@@ -912,6 +939,7 @@ window.addEventListener('load', function(){
       document.getElementById('pCust').textContent = c?c.name:'—'; document.getElementById('pVeh').textContent = c?(c.vehicle||''):'';
 
       var tbody = document.getElementById('pLines'); tbody.innerHTML='';
+      function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]); }); }
       if(j){
         for(var i=0;i<j.lines.length;i++){
           var l=j.lines[i]; var line=(Number(l.qty)||0)*(Number(l.unit)||0);
@@ -932,7 +960,6 @@ window.addEventListener('load', function(){
           '<div style="white-space:pre-wrap; line-height:1.35;">'+escapeHtml(j.overallNotes.trim())+'</div>';
       }
 
-      // Signatures from IDB
       function setSig(role){
         var img = role==='customer' ? document.getElementById('pSigCustomer') : document.getElementById('pSigManager');
         var nameEl = role==='customer' ? document.getElementById('pSigCustomerName') : document.getElementById('pSigManagerName');
@@ -942,7 +969,7 @@ window.addEventListener('load', function(){
           BlobStore.get(data.id, function(_e, url){
             if(url){ img.src=url; img.style.display='block'; } else { img.src=''; img.style.display='none'; }
           });
-          nameEl.textContent = data.name ? ('— '+escapeHtml(data.name)) : '';
+          nameEl.textContent = data.name ? ('— '+data.name) : '';
           dateEl.textContent = data.date ? ('('+data.date+')') : '';
         } else {
           img.src=''; img.style.display='none'; nameEl.textContent=''; dateEl.textContent='';
@@ -950,7 +977,6 @@ window.addEventListener('load', function(){
       }
       setSig('customer'); setSig('manager');
 
-      // Photos preview
       var pPhotos = document.getElementById('pPhotosBlock'); pPhotos.innerHTML='';
       if(j && j.photosOnPdf && j.photos && j.photos.length){
         var html = '<h4 style="margin:8px 0 4px 0;">Work Photos</h4><div class="p-photos">';
@@ -960,34 +986,27 @@ window.addEventListener('load', function(){
         }
         html += '</div>';
         pPhotos.innerHTML = html;
-        // fill images
         $all('#pPhotosBlock img').forEach(function(img){
           var id = img.getAttribute('data-phid');
           BlobStore.get(id, function(_e, url){ if(url){ img.src=url; } });
         });
       }
-
-      function escapeHtml(s){
-        return String(s||'').replace(/[&<>"']/g, function(c){
-          return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
-        });
-      }
     }
 
-    // Quick Estimate modal
+    // Quick Estimate modal (uses openModal/closeModal)
     (function(){
       var modal = document.getElementById('qeModal');
       var open = document.getElementById('quickEstimate');
       var closeBtn = document.getElementById('qeClose');
       var applyAppend = document.getElementById('qeApplyAppend');
       var applyReplace = document.getElementById('qeApplyReplace');
-      function close(){ if(modal) modal.style.display='none'; }
-      function openModal(){ if(modal) modal.style.display='flex'; }
-      if(open){ open.addEventListener('click', openModal); }
+      function close(){ closeModal(modal); }
+      function openM(){ openModal(modal, document.getElementById('qeTitleInput')); }
+      if(open){ open.addEventListener('click', openM); }
       if(closeBtn){ closeBtn.addEventListener('click', close); }
       function buildLines(mode){
         var j = ensureJobSelected(true); if(!j) return;
-        var title = (document.getElementById('qeTitle').value||'').trim();
+        var title = (document.getElementById('qeTitleInput').value||'').trim();
         var partsCost = Number(document.getElementById('qePartsCost').value||0);
         var mu = Number(document.getElementById('qeMarkup').value||40)/100;
         var hours = Number(document.getElementById('qeHours').value||1.5);
@@ -1005,16 +1024,230 @@ window.addEventListener('load', function(){
       if(applyReplace){ applyReplace.addEventListener('click', function(){ buildLines('replace'); }); }
     })();
 
-    // Back to Top button
-    (function(){
-      var btn = document.getElementById('toTop');
-      if(!btn) return;
-      window.addEventListener('scroll', function(){
-        try{
-          btn.style.display = (window.scrollY > 200 ? 'block' : 'none');
-        }catch(_){}
+    // Templates modal
+    function renderTemplates(){
+      var list = document.getElementById('tplList'); if(!list) return;
+      list.innerHTML = '';
+      for(var ti=0; ti<(DB.templates||[]).length; ti++){
+        var tpl = DB.templates[ti];
+        var card = document.createElement('div'); card.className='card'; card.style.background='#fff'; card.style.color='#000'; card.style.borderColor='#b6b09f';
+        var h = document.createElement('h4'); h.style.color='#0e111a'; h.style.margin='0 0 6px 0'; h.textContent=tpl.platform; card.appendChild(h);
+        var sm = document.createElement('div'); sm.className='small'; sm.textContent = tpl.items.length+' items'; card.appendChild(sm);
+        var act = document.createElement('div'); act.className='actions'; act.style.marginTop='8px';
+        var btn = document.createElement('button'); btn.className='tab-btn'; btn.type='button'; btn.textContent='Apply'; btn.setAttribute('data-apply', String(ti));
+        act.appendChild(btn); card.appendChild(act); list.appendChild(card);
+      }
+      $all('button[data-apply]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var idx = Number(btn.getAttribute('data-apply')||0);
+          var tpl = DB.templates[idx]; if(!tpl) return;
+          applyTemplate(tpl);
+          alert('Template applied: '+tpl.platform);
+        });
       });
-      btn.addEventListener('click', function(){ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(_){ window.scrollTo(0,0); } });
+    }
+    function openTemplatesModal(){ var m=document.getElementById('tplModal'); renderTemplates(); openModal(m, m.querySelector('.panel')); }
+    document.getElementById('openTemplates').addEventListener('click', function(){ openTemplatesModal(); });
+    document.getElementById('tplClose').addEventListener('click', function(){ closeModal(document.getElementById('tplModal')); });
+
+    function applyTemplate(tpl){
+      var j = ensureJobSelected(true); if(!j) return;
+      var i, it, sell, desc;
+      for(i=0;i<(tpl.items||[]).length;i++){
+        it = tpl.items[i];
+        if(it.type==='Labor'){
+          addLine('Labor', it.desc, it.qty||1, Number(document.getElementById('laborRate').value||80), 0, '');
+        } else {
+          sell = (it.cost||0) * (1 + (Number(it.markup||0)/100));
+          desc = (it.desc||'') + (it.part?(' ('+it.part+')'):'') + (it.vendor?(' — '+it.vendor):'');
+          addLine('Part', desc, 1, Number(sell.toFixed(2)), Number(it.cost||0), '');
+        }
+      }
+      persistLines();
+    }
+
+    function renderSettings(){
+      document.getElementById('defaultMarkup').value=DB.settings.defaultMarkup||40;
+      document.getElementById('shopFrom').value=DB.settings.shopFrom||'Poppe’s Diesel Co.';
+      document.getElementById('shopReply').value=DB.settings.shopReply||'poppedieselco@gmail.com';
+      document.getElementById('shopSubj').value=DB.settings.shopSubj||'[Poppe’s Diesel Co.] ';
+      document.getElementById('shopFooter').value=DB.settings.shopFooter||'Thank you for supporting local.';
+      ['defaultMarkup','shopFrom','shopReply','shopSubj','shopFooter'].forEach(function(id){
+        var el=document.getElementById(id); if(!el) return;
+        el.addEventListener('input', function(){ DB.settings[id] = (id==='defaultMarkup') ? Number(el.value||40) : el.value; saveDB(); });
+      });
+    }
+
+    function renderDashboard(){
+      var open=0, unpaid=0, rev=0, prof=0, now=new Date(), ym=now.toISOString().slice(0,7);
+      DB.jobs.forEach(function(j){
+        if(j.status!=='Done') open++;
+        if(j.docType==='Invoice' && !j.paid) unpaid++;
+        var createdMonth=(j.paidAt||j.createdAt||'').slice(0,7);
+        if(createdMonth===ym){
+          var subtotal=sumLines(j.lines,'subtotal');
+          var profit=sumLines(j.lines,'profit');
+          rev+=subtotal; prof+=profit;
+        }
+      });
+      document.getElementById('openJobs').textContent=open;
+      document.getElementById('unpaid').textContent=unpaid;
+      document.getElementById('revMonth').textContent=fmt(rev);
+      document.getElementById('profitMonth').textContent=fmt(prof);
+    }
+
+    (function selftest(){
+      var ok = !!(window.localStorage && document.querySelector && document.createElement && window.indexedDB);
+      var tag=document.getElementById('selftest');
+      if(tag){ tag.textContent='Self-test: '+(ok?'OK':'Limited'); tag.className='tag selftest '+(ok?'ok':'warn'); }
+    })();
+
+    // Signature pad (pointer-aware, DPI aware, Esc, scroll lock + return focus)
+    (function(){
+      var modal=document.getElementById('sigModal');
+      var openBtn=document.getElementById('sign');
+      var closeBtn=document.getElementById('sigClose');
+      var canvas=document.getElementById('sigPad');
+      var ctx=canvas.getContext('2d');
+      var drawing=false, last=null, scrollY=0;
+
+      function lockScroll(){ scrollY = window.scrollY || window.pageYOffset || 0; document.body.classList.add('modal-open'); document.body.style.top = (-scrollY) + 'px'; }
+      function unlockScroll(){ document.body.classList.remove('modal-open'); document.body.style.top = ''; window.scrollTo(0, scrollY || 0); }
+
+      function resizeCanvas(){
+        var r=canvas.getBoundingClientRect();
+        var dpr=window.devicePixelRatio||1;
+        canvas.width=Math.max(1, Math.round(r.width*dpr));
+        canvas.height=Math.max(1, Math.round(r.height*dpr));
+        ctx.setTransform(1,0,0,1,0,0);
+        ctx.scale(dpr,dpr);
+        ctx.lineCap='round';
+        ctx.lineJoin='round';
+        ctx.lineWidth=2;
+        ctx.strokeStyle='#000';
+      }
+
+      function pos(e){ var r=canvas.getBoundingClientRect(); return { x:(e.clientX - r.left), y:(e.clientY - r.top) }; }
+      function draw(p){ if(!last){ last=p; return; } ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; }
+      function end(){ drawing=false; last=null; }
+
+      openBtn.addEventListener('click', function(){
+        openModal(modal, document.getElementById('sigName'));
+        lockScroll();
+        setTimeout(resizeCanvas, 0);
+      });
+      closeBtn.addEventListener('click', function(){ closeModal(modal); unlockScroll(); });
+
+      if (window.PointerEvent){
+        canvas.addEventListener('pointerdown', function(e){ e.preventDefault(); drawing=true; last=pos(e); try{ canvas.setPointerCapture(e.pointerId); }catch(_){} });
+        canvas.addEventListener('pointermove', function(e){ if(drawing) draw(pos(e)); });
+        canvas.addEventListener('pointerup', function(e){ end(); try{ canvas.releasePointerCapture(e.pointerId); }catch(_){ } });
+        canvas.addEventListener('pointercancel', end);
+        canvas.addEventListener('lostpointercapture', end);
+      } else {
+        canvas.addEventListener('mousedown', function(e){ drawing=true; last=pos(e); });
+        canvas.addEventListener('mousemove', function(e){ if(drawing) draw(pos(e)); });
+        document.addEventListener('mouseup', end);
+        canvas.addEventListener('touchstart', function(e){ e.preventDefault(); drawing=true; last=pos(e.touches[0]); }, {passive:false});
+        canvas.addEventListener('touchmove', function(e){ e.preventDefault(); if(drawing) draw(pos(e.touches[0])); }, {passive:false});
+        canvas.addEventListener('touchend', end);
+        canvas.addEventListener('touchcancel', end);
+      }
+
+      document.getElementById('sigClear').addEventListener('click', function(){ ctx.clearRect(0,0,canvas.width,canvas.height); });
+
+      document.getElementById('sigSave').addEventListener('click', function(){
+        var role=document.getElementById('sigRole').value;
+        var name=document.getElementById('sigName').value.trim();
+        var date=document.getElementById('sigDate').value;
+        var dataUrl=canvas.toDataURL('image/png');
+
+        var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; }
+        if(!j.signatures) j.signatures={customer:null,manager:null};
+        var id = 'sig-'+crypto.randomUUID();
+        BlobStore.put(id, dataUrl, function(){
+          j.signatures[role]={ id:id, name:name, date:date };
+          saveDB(); updatePreview();
+          closeModal(modal); unlockScroll();
+        });
+      });
+    })();
+
+    // Photos (resize + JPEG encode) -> IDB
+    (function(){
+      var input=document.getElementById('photoInput');
+
+      function readAsImage(file, cb, eb){
+        var fr=new FileReader();
+        fr.onload=function(){
+          var img=new Image();
+          img.onload=function(){ cb(img); };
+          img.onerror=function(){ if(eb) eb(new Error('Image decode failed')); };
+          img.src=fr.result;
+        };
+        fr.onerror=function(){ if(eb) eb(fr.error); };
+        fr.readAsDataURL(file);
+      }
+
+      function toJpegDataURL(img, maxW, maxH, quality){
+        maxW=maxW||1400; maxH=maxH||1400; quality=(quality==null)?0.72:quality;
+        var w=img.naturalWidth||img.width, h=img.naturalHeight||img.height;
+        var scale=Math.min(1, maxW/w, maxH/h);
+        var dw=Math.max(1, Math.round(w*scale)), dh=Math.max(1, Math.round(h*scale));
+        var c=document.createElement('canvas'); c.width=dw; c.height=dh;
+        var ctx=c.getContext('2d'); ctx.drawImage(img, 0, 0, dw, dh);
+        try { return c.toDataURL('image/jpeg', quality); }
+        catch(_){ return c.toDataURL('image/png'); }
+      }
+
+      function addPhotoToJob(job, dataUrl){
+        if(!job.photos) job.photos=[];
+        var id='photo-'+crypto.randomUUID();
+        BlobStore.put(id, dataUrl, function(){
+          job.photos.push({ id:id, include:true });
+          renderPhotoGrid(); updatePreview(); saveDB();
+        });
+      }
+
+      function onFiles(files){
+        var j=currentJob();
+        if(!j){ alert('Select or create a job first.'); return; }
+        var i=0;
+        (function next(){
+          if(i>=files.length){ return; }
+          var f=files[i++];
+          if(!/^image\//.test(f.type)){ next(); return; }
+          readAsImage(f, function(img){
+            var jpg = toJpegDataURL(img, 1400, 1400, 0.72);
+            addPhotoToJob(j, jpg);
+            next();
+          }, function(){ next(); });
+        })();
+      }
+
+      if(input){
+        input.addEventListener('change', function(){ onFiles(input.files||[]); input.value=''; });
+      }
+
+      window.renderPhotoGrid=function(){
+        var j=currentJob(); var grid=document.getElementById('photoGrid');
+        grid.innerHTML=''; if(!j || !j.photos || !j.photos.length) return;
+        j.photos.forEach(function(ph,idx){
+          var div=document.createElement('div'); div.className='photo-item';
+          var img=document.createElement('img'); img.alt='';
+          if(ph.id){ BlobStore.get(ph.id, function(_e, url){ if(url) img.src=url; }); }
+          var del=document.createElement('button'); del.className='del'; del.type='button'; del.textContent='×';
+          del.addEventListener('click', function(){
+            var id = ph.id; j.photos.splice(idx,1);
+            BlobStore.del(id, function(){ renderPhotoGrid(); updatePreview(); saveDB(); });
+          });
+          var label=document.createElement('label');
+          var cb=document.createElement('input'); cb.type='checkbox'; cb.checked=(ph.include!==false);
+          cb.addEventListener('change', function(e){ ph.include = e.target.checked; updatePreview(); saveDB(); });
+          label.appendChild(cb); label.appendChild(document.createTextNode(' Include on PDF'));
+          div.appendChild(img); div.appendChild(del); div.appendChild(label); grid.appendChild(div);
+        });
+      };
     })();
 
     /* ---------- Backup & Restore (IDB-aware) ---------- */
@@ -1041,7 +1274,7 @@ window.addEventListener('load', function(){
             if(j.signatures.manager && j.signatures.manager.id) set[j.signatures.manager.id]=true;
           }
         }
-        set['wm']=true; // watermark (may or may not exist)
+        set['wm']=true;
         return Object.keys(set);
       }
 
@@ -1050,7 +1283,7 @@ window.addEventListener('load', function(){
         exportBtn.addEventListener('click', function(){
           var backup = {
             _note: 'Poppe’s Diesel Co. Shop Manager backup (data only)',
-            version: 'v1.3.0',
+            version: 'v1.3.1',
             exportedAt: new Date().toISOString(),
             db: DB,
             ui: UI
@@ -1066,11 +1299,11 @@ window.addEventListener('load', function(){
           BlobStore.getMany(ids, function(_e, map){
             var backup = {
               _note: 'Poppe’s Diesel Co. Shop Manager FULL backup (includes blobs)',
-              version: 'v1.3.0',
+              version: 'v1.3.1',
               exportedAt: new Date().toISOString(),
               db: DB,
               ui: UI,
-              blobs: map // {id: dataURL}
+              blobs: map
             };
             downloadText('poppes_shop_backup_full_'+Date.now()+'.json', JSON.stringify(backup, null, 2));
           });
@@ -1083,38 +1316,29 @@ window.addEventListener('load', function(){
         importBtn.addEventListener('click', function(){
           var f = importFile.files && importFile.files[0];
           if(!f){ alert('Choose a backup JSON file first.'); return; }
+          if(!confirm('Importing will overwrite current data. Continue?')) return;
           var reader = new FileReader();
           reader.onload = function(){
             try{
               var data = JSON.parse(reader.result||'{}');
               var newDB = data.db || data || null;
               if(!newDB || !newDB.customers || !newDB.jobs){ alert('Invalid backup format.'); return; }
-
-              // Persist text DB (small)
               localStorage.setItem(EXKEY, JSON.stringify(newDB));
               if(data.ui){ try{ localStorage.setItem(UIKEY, JSON.stringify(data.ui)); }catch(_){} }
-
-              // Restore blobs if present
               var blobs = data.blobs || {};
               var ids = Object.keys(blobs);
               if(ids.length){
                 var n=0;
                 for(var i=0;i<ids.length;i++){
-                  (function(id){
-                    BlobStore.put(id, blobs[id], function(){ n++; if(n===ids.length) after(); });
-                  })(ids[i]);
+                  (function(id){ BlobStore.put(id, blobs[id], function(){ n++; if(n===ids.length) after(); }); })(ids[i]);
                 }
               } else { after(); }
-
               function after(){
-                DB = newDB;
-                UI = data.ui || UI;
-                renderAll();
-                alert('Backup imported.');
+                DB = newDB; UI = data.ui || UI; renderAll(); alert('Backup imported.');
+                // Restore last job if present
+                if (UI.lastJobId){ var sel=document.getElementById('invJob'); if(sel && sel.querySelector('option[value="'+UI.lastJobId+'"]')){ sel.value=UI.lastJobId; loadInvoice(UI.lastJobId); } }
               }
-            }catch(e){
-              alert('Import failed: '+(e.message||e));
-            }
+            }catch(e){ alert('Import failed: '+(e.message||e)); }
           };
           reader.onerror = function(){ alert('Could not read file.'); };
           reader.readAsText(f);
@@ -1144,7 +1368,7 @@ window.addEventListener('load', function(){
       location.href='mailto:'+to+'?subject='+subj+'&body='+body;
     });
 
-    // Build print HTML with inline data URLs for all blobs
+    // Build print HTML (inline data URLs for blobs)
     function buildPrintHtml(cb){
       var j = currentJob(); if(!j){ alert('Select a job first.'); return; }
       var ids = [];
@@ -1179,29 +1403,15 @@ window.addEventListener('load', function(){
           '.p-photo img{width:100%;height:1.8in;object-fit:cover;border-radius:4px;display:block}' +
           '#pPhotosBlock{page-break-before:always}';
 
-        // Build photos HTML with inlined data URLs
-        var photosHtml = '';
-        if(j.photosOnPdf && j.photos && j.photos.length){
-          var any=false, str='<h4 style="margin:8px 0 4px 0;">Work Photos</h4><div class="p-photos">';
-          for(var k=0;k<j.photos.length;k++){
-            var ph=j.photos[k];
-            if(!ph || ph.include===false || !ph.id) continue;
-            var du = map[ph.id] || '';
-            if(du){ any=true; str += '<div class="p-photo"><img src="'+du+'" alt=""></div>'; }
-          }
-          str += '</div>';
-          if(any) photosHtml = str;
-        }
+        function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]); }); }
 
-        // Signatures inline
-        var custSigDU = (j.signatures && j.signatures.customer && j.signatures.customer.id) ? (map[j.signatures.customer.id]||'') : '';
-        var mgrSigDU  = (j.signatures && j.signatures.manager   && j.signatures.manager.id)   ? (map[j.signatures.manager.id]||'')   : '';
-        var custName = (j.signatures && j.signatures.customer && j.signatures.customer.name) ? ('— '+escapeHtml(j.signatures.customer.name)) : '';
-        var custDate = (j.signatures && j.signatures.customer && j.signatures.customer.date) ? ('('+j.signatures.customer.date+')') : '';
-        var mgrName  = (j.signatures && j.signatures.manager   && j.signatures.manager.name) ? ('— '+escapeHtml(j.signatures.manager.name)) : '';
-        var mgrDate  = (j.signatures && j.signatures.manager   && j.signatures.manager.date) ? ('('+j.signatures.manager.date+')') : '';
+        var c = findCustomer(j.customerId);
+        var subtotal=sumLines(j.lines,'subtotal');
+        var taxPct = Number(document.getElementById('salesTax').value||0);
+        var tax = subtotal*(taxPct/100);
+        var grand = subtotal+tax;
+        var docType = j.docType||'Estimate';
 
-        // Lines HTML
         var linesHtml = '';
         for(var i=0;i<j.lines.length;i++){
           var l=j.lines[i]; var line=(Number(l.qty)||0)*(Number(l.unit)||0);
@@ -1211,18 +1421,24 @@ window.addEventListener('load', function(){
           }
         }
 
-        function escapeHtml(s){
-          return String(s||'').replace(/[&<>"']/g, function(c){
-            return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
-          });
+        var photosHtml = '';
+        if(j.photosOnPdf && j.photos && j.photos.length){
+          var any=false, str='<h4 style="margin:8px 0 4px 0;">Work Photos</h4><div class="p-photos">';
+          for(var k=0;k<j.photos.length;k++){
+            var ph=j.photos[k]; if(!ph || ph.include===false || !ph.id) continue;
+            var du = map[ph.id] || '';
+            if(du){ any=true; str += '<div class="p-photo"><img src="'+du+'" alt=""></div>'; }
+          }
+          str += '</div>';
+          if(any) photosHtml = str;
         }
 
-        var c = findCustomer(j.customerId);
-        var subtotal=sumLines(j.lines,'subtotal');
-        var taxPct = Number(document.getElementById('salesTax').value||0);
-        var tax = subtotal*(taxPct/100);
-        var grand = subtotal+tax;
-        var docType = j.docType||'Estimate';
+        var custSigDU = (j.signatures && j.signatures.customer && j.signatures.customer.id) ? (map[j.signatures.customer.id]||'') : '';
+        var mgrSigDU  = (j.signatures && j.signatures.manager   && j.signatures.manager.id)   ? (map[j.signatures.manager.id]||'')   : '';
+        var custName = (j.signatures && j.signatures.customer && j.signatures.customer.name) ? ('— '+escapeHtml(j.signatures.customer.name)) : '';
+        var custDate = (j.signatures && j.signatures.customer && j.signatures.customer.date) ? ('('+j.signatures.customer.date+')') : '';
+        var mgrName  = (j.signatures && j.signatures.manager   && j.signatures.manager.name) ? ('— '+escapeHtml(j.signatures.manager.name)) : '';
+        var mgrDate  = (j.signatures && j.signatures.manager   && j.signatures.manager.date) ? ('('+j.signatures.manager.date+')') : '';
 
         var wmBlock = wm ? ('<img id="wmImg" src="'+wm+'" style="display:block;max-width:90%;max-height:90%;opacity:.12;mix-blend-mode:multiply"/>')
                          : ('<svg height="90%" id="wmFallback" style="filter:grayscale(100%);opacity:.12" viewBox="0 0 800 200" width="90%"><text dominant-baseline="middle" fill="#000" font-family="Impact,Haettenschweiler,Arial Black,sans-serif" font-size="72" text-anchor="middle" x="50%" y="50%">Poppe’s Diesel Co.</text></svg>');
@@ -1273,276 +1489,28 @@ window.addEventListener('load', function(){
     document.getElementById('overallNotes').addEventListener('input', persistLines);
     document.getElementById('photosOnPdf').addEventListener('change', function(){ persistLines(); updatePreview(); });
 
-    // Signature pad (pointer+touch, DPI aware) with background scroll lock
+    // Back to Top button
     (function(){
-      var modal=document.getElementById('sigModal');
-      var openBtn=document.getElementById('sign');
-      var closeBtn=document.getElementById('sigClose');
-      var canvas=document.getElementById('sigPad');
-      var ctx=canvas.getContext('2d');
-      var drawing=false, last=null, scrollY=0;
-
-      function lockScroll(){
-        scrollY = window.scrollY || window.pageYOffset || 0;
-        document.body.classList.add('modal-open');
-        document.body.style.top = (-scrollY) + 'px';
-      }
-      function unlockScroll(){
-        document.body.classList.remove('modal-open');
-        document.body.style.top = '';
-        window.scrollTo(0, scrollY || 0);
-      }
-
-      function resizeCanvas(){
-        var r=canvas.getBoundingClientRect();
-        var dpr=window.devicePixelRatio||1;
-        canvas.width=Math.max(1, Math.round(r.width*dpr));
-        canvas.height=Math.max(1, Math.round(r.height*dpr));
-        ctx.setTransform(1,0,0,1,0,0);
-        ctx.scale(dpr,dpr);
-        ctx.lineCap='round';
-        ctx.lineJoin='round';
-        ctx.lineWidth=2;
-        ctx.strokeStyle='#000';
-      }
-
-      function pos(e){
-        var r=canvas.getBoundingClientRect();
-        return { x:(e.clientX - r.left), y:(e.clientY - r.top) };
-      }
-
-      function draw(p){
-        if(!last){ last=p; return; }
-        ctx.beginPath();
-        ctx.moveTo(last.x,last.y);
-        ctx.lineTo(p.x,p.y);
-        ctx.stroke();
-        last=p;
-      }
-
-      function end(){ drawing=false; last=null; }
-
-      openBtn.addEventListener('click', function(){
-        modal.style.display='flex';
-        lockScroll();
-        setTimeout(resizeCanvas, 0);
+      var btn = document.getElementById('toTop');
+      if(!btn) return;
+      window.addEventListener('scroll', function(){
+        try{ btn.style.display = (window.scrollY > 200 ? 'block' : 'none'); }catch(_){}
       });
-
-      closeBtn.addEventListener('click', function(){
-        modal.style.display='none';
-        unlockScroll();
-      });
-
-      if (window.PointerEvent){
-        canvas.addEventListener('pointerdown', function(e){
-          e.preventDefault();
-          drawing=true; last=pos(e);
-          try{ canvas.setPointerCapture(e.pointerId); }catch(_){}
-        });
-        canvas.addEventListener('pointermove', function(e){ if(drawing) draw(pos(e)); });
-        canvas.addEventListener('pointerup', function(e){
-          end();
-          try{ canvas.releasePointerCapture(e.pointerId); }catch(_){}
-        });
-        canvas.addEventListener('pointercancel', end);
-        canvas.addEventListener('lostpointercapture', end);
-      } else {
-        canvas.addEventListener('mousedown', function(e){ drawing=true; last=pos(e); });
-        canvas.addEventListener('mousemove', function(e){ if(drawing) draw(pos(e)); });
-        document.addEventListener('mouseup', end);
-
-        canvas.addEventListener('touchstart', function(e){ e.preventDefault(); drawing=true; last=pos(e.touches[0]); }, {passive:false});
-        canvas.addEventListener('touchmove', function(e){ e.preventDefault(); if(drawing) draw(pos(e.touches[0])); }, {passive:false});
-        canvas.addEventListener('touchend', end);
-        canvas.addEventListener('touchcancel', end);
-      }
-
-      document.getElementById('sigClear').addEventListener('click', function(){
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-      });
-
-      document.getElementById('sigSave').addEventListener('click', function(){
-        var role=document.getElementById('sigRole').value;
-        var name=document.getElementById('sigName').value.trim();
-        var date=document.getElementById('sigDate').value;
-        var dataUrl=canvas.toDataURL('image/png');
-
-        var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; }
-        if(!j.signatures) j.signatures={customer:null,manager:null};
-        var id = 'sig-'+crypto.randomUUID();
-        BlobStore.put(id, dataUrl, function(){
-          j.signatures[role]={ id:id, name:name, date:date };
-          saveDB(); updatePreview();
-          modal.style.display='none';
-          unlockScroll();
-        });
-      });
+      btn.addEventListener('click', function(){ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(_){ window.scrollTo(0,0); } });
     })();
 
-    // Photos (resize + JPEG re-encode to keep storage small) -> store in IDB
-    (function(){
-      var input=document.getElementById('photoInput');
-
-      function readAsImage(file, cb, eb){
-        var fr=new FileReader();
-        fr.onload=function(){
-          var img=new Image();
-          img.onload=function(){ cb(img); };
-          img.onerror=function(){ if(eb) eb(new Error('Image decode failed')); };
-          img.src=fr.result;
-        };
-        fr.onerror=function(){ if(eb) eb(fr.error); };
-        fr.readAsDataURL(file);
-      }
-
-      function toJpegDataURL(img, maxW, maxH, quality){
-        maxW=maxW||1400; maxH=maxH||1400; quality=(quality==null)?0.72:quality;
-        var w=img.naturalWidth||img.width, h=img.naturalHeight||img.height;
-        var scale=Math.min(1, maxW/w, maxH/h);
-        var dw=Math.max(1, Math.round(w*scale)), dh=Math.max(1, Math.round(h*scale));
-        var c=document.createElement('canvas'); c.width=dw; c.height=dh;
-        var ctx=c.getContext('2d'); ctx.drawImage(img, 0, 0, dw, dh);
-        try { return c.toDataURL('image/jpeg', quality); }
-        catch(_){ return c.toDataURL('image/png'); }
-      }
-
-      function addPhotoToJob(job, dataUrl){
-        if(!job.photos) job.photos=[];
-        var id='photo-'+crypto.randomUUID();
-        BlobStore.put(id, dataUrl, function(){
-          job.photos.push({ id:id, include:true });
-          renderPhotoGrid(); updatePreview(); saveDB();
-        });
-      }
-
-      function onFiles(files){
-        var j=currentJob();
-        if(!j){ alert('Select or create a job first.'); return; }
-        var i=0;
-        (function next(){
-          if(i>=files.length){ return; }
-          var f=files[i++];
-
-          if(!/^image\//.test(f.type)){ next(); return; }
-
-          readAsImage(f, function(img){
-            var jpg = toJpegDataURL(img, 1400, 1400, 0.72);
-            addPhotoToJob(j, jpg);
-            next();
-          }, function(){ next(); });
-        })();
-      }
-
-      if(input){
-        input.addEventListener('change', function(){
-          onFiles(input.files||[]);
-          input.value='';
-        });
-      }
-
-      window.renderPhotoGrid=function(){
-        var j=currentJob(); var grid=document.getElementById('photoGrid');
-        grid.innerHTML=''; if(!j || !j.photos || !j.photos.length) return;
-        j.photos.forEach(function(ph,idx){
-          var div=document.createElement('div'); div.className='photo-item';
-          var img=document.createElement('img'); img.alt='';
-          if(ph.id){ BlobStore.get(ph.id, function(_e, url){ if(url) img.src=url; }); }
-          var del=document.createElement('button'); del.className='del'; del.type='button'; del.textContent='×';
-          del.addEventListener('click', function(){
-            var id = ph.id; j.photos.splice(idx,1);
-            // optional: also delete blob
-            BlobStore.del(id, function(){ renderPhotoGrid(); updatePreview(); saveDB(); });
-          });
-          var label=document.createElement('label');
-          var cb=document.createElement('input'); cb.type='checkbox'; cb.checked=(ph.include!==false);
-          cb.addEventListener('change', function(e){ ph.include = e.target.checked; updatePreview(); saveDB(); });
-          label.appendChild(cb); label.appendChild(document.createTextNode(' Include on PDF'));
-          div.appendChild(img); div.appendChild(del); div.appendChild(label); grid.appendChild(div);
-        });
-      };
-    })();
-
-    // Templates
-    function renderTemplates(){
-      var list = document.getElementById('tplList'); if(!list) return;
-      list.innerHTML = '';
-      for(var ti=0; ti<(DB.templates||[]).length; ti++){
-        var tpl = DB.templates[ti];
-        var card = document.createElement('div'); card.className='card'; card.style.background='#fff'; card.style.color='#000'; card.style.borderColor='#b6b09f';
-        var html = '<h4 style="color:#0e111a; margin:0 0 6px 0">'+tpl.platform+'</h4>';
-        html += '<div class="small">'+tpl.items.length+' items</div>';
-        html += '<div class="actions" style="margin-top:8px"><button class="tab-btn" data-apply="'+ti+'" type="button">Apply</button></div>';
-        card.innerHTML = html; list.appendChild(card);
-      }
-      $all('button[data-apply]').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          var idx = Number(btn.getAttribute('data-apply')||0);
-          var tpl = DB.templates[idx]; if(!tpl) return;
-          applyTemplate(tpl);
-          alert('Template applied: '+tpl.platform);
-        });
-      });
-    }
-    function openTemplatesModal(){ var m=document.getElementById('tplModal'); renderTemplates(); m.style.display='flex'; }
-    document.getElementById('openTemplates').addEventListener('click', function(){ openTemplatesModal(); });
-    document.getElementById('tplClose').addEventListener('click', function(){ document.getElementById('tplModal').style.display='none'; });
-
-    function applyTemplate(tpl){
-      var j = ensureJobSelected(true); if(!j) return;
-      var i, it, sell, desc;
-      for(i=0;i<(tpl.items||[]).length;i++){
-        it = tpl.items[i];
-        if(it.type==='Labor'){
-          addLine('Labor', it.desc, it.qty||1, Number(document.getElementById('laborRate').value||80), 0, '');
-        } else {
-          sell = (it.cost||0) * (1 + (Number(it.markup||0)/100));
-          desc = (it.desc||'') + (it.part?(' ('+it.part+')'):'') + (it.vendor?(' — '+it.vendor):'');
-          addLine('Part', desc, 1, Number(sell.toFixed(2)), Number(it.cost||0), '');
+    // Restore last opened job after initial render
+    function restoreLastJobIfAny(){
+      if (UI.lastJobId){
+        var sel = document.getElementById('invJob');
+        if (sel && sel.querySelector('option[value="'+UI.lastJobId+'"]')){
+          sel.value = UI.lastJobId;
+          loadInvoice(UI.lastJobId);
         }
       }
-      persistLines();
     }
 
-    function renderSettings(){
-      document.getElementById('defaultMarkup').value=DB.settings.defaultMarkup||40;
-      document.getElementById('shopFrom').value=DB.settings.shopFrom||'Poppe’s Diesel Co.';
-      document.getElementById('shopReply').value=DB.settings.shopReply||'poppedieselco@gmail.com';
-      document.getElementById('shopSubj').value=DB.settings.shopSubj||'[Poppe’s Diesel Co.] ';
-      document.getElementById('shopFooter').value=DB.settings.shopFooter||'Thank you for supporting local.';
-      ['defaultMarkup','shopFrom','shopReply','shopSubj','shopFooter'].forEach(function(id){
-        var el=document.getElementById(id); if(!el) return;
-        el.addEventListener('input', function(){
-          DB.settings[id] = (id==='defaultMarkup') ? Number(el.value||40) : el.value; saveDB();
-        });
-      });
-    }
-
-    function renderDashboard(){
-      var open=0, unpaid=0, rev=0, prof=0, now=new Date(), ym=now.toISOString().slice(0,7);
-      DB.jobs.forEach(function(j){
-        if(j.status!=='Done') open++;
-        if(j.docType==='Invoice' && !j.paid) unpaid++;
-        var createdMonth=(j.paidAt||j.createdAt||'').slice(0,7);
-        if(createdMonth===ym){
-          var subtotal=sumLines(j.lines,'subtotal');
-          var profit=sumLines(j.lines,'profit');
-          rev+=subtotal; prof+=profit;
-        }
-      });
-      document.getElementById('openJobs').textContent=open;
-      document.getElementById('unpaid').textContent=unpaid;
-      document.getElementById('revMonth').textContent=fmt(rev);
-      document.getElementById('profitMonth').textContent=fmt(prof);
-    }
-
-    (function selftest(){
-      var ok = !!(window.localStorage && document.querySelector && document.createElement && window.indexedDB);
-      var tag=document.getElementById('selftest');
-      if(tag){ tag.textContent='Self-test: '+(ok?'OK':'Limited'); tag.className='tag selftest '+(ok?'ok':'warn'); }
-    })();
-
-    // Kick migration, then initial render
-    migrateImagesToIDB(function(){ renderAll(); });
+    migrateImagesToIDB(function(){ renderAll(); restoreLastJobIfAny(); });
     if(UI.lastJobId && currentJob()) { /* already set */ }
   });
 });
