@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Poppe’s Diesel Co. — Shop Manager (v1.2.0 — COMPAT)</title>
+<title>Poppe’s Diesel Co. — Shop Manager (v1.3.0 — IDB)</title>
 <style>
 :root{--bg:#e6cfae;--card:#13151c;--text:#0e111a;--muted:#3e463e;--border:#2e3226;--ink:#0e111a;--ink2:#161a24;--shadow:0 10px 20px rgba(0,0,0,.30);--info:#0a3d2e;--ok:#1f6b55;--warn:#f5c518;--danger:#962b2b;--font:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 *{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
-header{position:sticky;top:0;z-index:10;background:var(--ink);border-bottom:1px solid var(--border);padding:12px 16px;box-shadow:var(--shadow);color:#fff}
+header{position:sticky;top:0;z-index:10;background:var(--ink);border-bottom:1px solid #2e3226;padding:12px 16px;box-shadow:var(--shadow);color:#fff}
 h1{margin:0;font-size:20px;display:flex;gap:8px;align-items:center}
 .tag{background:var(--ink2);color:#c5c9d3;padding:2px 6px;border-radius:6px;font-size:12px;white-space:nowrap}
 nav.top{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
@@ -48,33 +48,34 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4);z-index:80}
 .modal .panel{max-width:800px;width:min(96vw,800px)}
 
-/* Big noscript overlay */
+/* Noscript */
 .noscript-overlay{position:fixed;inset:0;background:#18040a;color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;z-index:9999}
 .noscript-overlay .box{max-width:720px;background:#2b0c15;border:2px solid #8a1b27;border-radius:12px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .noscript-overlay h2{margin:0 0 10px 0}
 
-/* Touch + modal scroll lock for signature */
+/* Signature/touch & modal scroll lock */
 #sigPad{ touch-action:none; }
 body.modal-open{ position:fixed; width:100%; overflow:hidden; }
 </style>
 </head>
 <body>
 <noscript>
-<div class="noscript-overlay">
-  <div class="box">
-    <h2>JavaScript is disabled or blocked</h2>
-    <p>This app is 100% client-side. Please open the file in Chrome/Edge with JavaScript enabled, or whitelist local files if a security tool is blocking scripts.</p>
-    <ul>
-      <li>Download the file and open it so the address bar starts with <code>file:///</code></li>
-      <li>Disable “Safe Mode / NoScript / Tracking Protection” just for this file</li>
-      <li>Then reload</li>
-    </ul>
+  <div class="noscript-overlay">
+    <div class="box">
+      <h2>JavaScript is disabled or blocked</h2>
+      <p>This app is 100% client-side. Please open the file in Chrome/Edge with JavaScript enabled, or whitelist local files if a security tool is blocking scripts.</p>
+      <ul>
+        <li>Download the file and open it so the address bar starts with <code>file:///</code></li>
+        <li>Disable “Safe Mode / NoScript / Tracking Protection” just for this file</li>
+        <li>Then reload</li>
+      </ul>
+    </div>
   </div>
-</div>
 </noscript>
+
 <div id="error" style="display:none">JavaScript error detected. Tap to reload.</div>
 <header>
-  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.2.0</span><span class="tag selftest" id="selftest">Self-test: …</span><span class="tag">COMPAT</span></h1>
+  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.3.0</span><span class="tag selftest" id="selftest">Self-test: …</span><span class="tag">IDB</span></h1>
   <nav class="top">
     <button class="tab-btn" data-tab="dashboard">Dashboard</button>
     <button class="tab-btn" data-tab="customers">Customers</button>
@@ -83,186 +84,188 @@ body.modal-open{ position:fixed; width:100%; overflow:hidden; }
     <button class="tab-btn" data-tab="settings">Settings</button>
   </nav>
 </header>
+
 <main>
-<section class="tab active" id="dashboard">
-  <h2>Dashboard</h2>
-  <div class="cards">
-    <div class="card"><h3>Open Jobs</h3><div id="openJobs">0</div></div>
-    <div class="card"><h3>Unpaid Invoices</h3><div id="unpaid">0</div></div>
-    <div class="card"><h3>Revenue (This Month)</h3><div id="revMonth">$0</div></div>
-    <div class="card"><h3>Profit (This Month)</h3><div id="profitMonth">$0</div></div>
-  </div>
-</section>
-
-<section class="tab" id="customers">
-  <h2>Customers</h2>
-  <form class="grid" id="custForm">
-    <input id="custName" placeholder="Full name (e.g., Jane Smith)" required=""/>
-    <input id="custPhone" inputmode="tel" placeholder="Phone (e.g., 555-123-4567)"/>
-    <input id="custEmail" inputmode="email" placeholder="Email (e.g., name@shop.com)"/>
-    <input id="custVehicle" placeholder="Vehicle (e.g., 2018 F-350 6.7L)"/>
-    <button class="primary" type="submit">Add Customer</button>
-  </form>
-  <div class="table-wrap">
-    <table id="custTable"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Vehicle</th><th></th></tr></thead><tbody></tbody></table>
-  </div>
-</section>
-
-<section class="tab" id="jobs">
-  <h2>Jobs</h2>
-  <form class="grid" id="jobForm">
-    <select id="jobCustomer" required=""></select>
-    <input id="jobTitle" placeholder="Job title (e.g., Front brakes + rotors)" required=""/>
-    <input id="jobVIN" placeholder="VIN (17 chars)"/>
-    <button class="tab-btn" id="decodeVIN" type="button">Decode VIN</button>
-    <div aria-live="polite" class="card" id="vinResult" style="display:none"></div>
-    <div aria-live="polite" class="card" id="vinSuggest" style="display:none">
-      <div><strong>Suggested parts &amp; labor</strong> (platform match)</div>
-      <div class="actions" id="vinTags"></div>
-      <button class="tab-btn primary" id="addAllSuggest" type="button">Add All</button>
+  <section class="tab active" id="dashboard">
+    <h2>Dashboard</h2>
+    <div class="cards">
+      <div class="card"><h3>Open Jobs</h3><div id="openJobs">0</div></div>
+      <div class="card"><h3>Unpaid Invoices</h3><div id="unpaid">0</div></div>
+      <div class="card"><h3>Revenue (This Month)</h3><div id="revMonth">$0</div></div>
+      <div class="card"><h3>Profit (This Month)</h3><div id="profitMonth">$0</div></div>
     </div>
-    <textarea id="jobNotes" placeholder="Notes (symptoms, codes, etc.)"></textarea>
-    <select id="jobStatus"><option>Open</option><option>In Progress</option><option>Done</option></select>
-    <button class="primary" type="submit">Create Job</button>
-  </form>
-  <div class="card" id="internalNotesWrap">
-    <h3>Internal Staff Notes (won’t print)</h3>
-    <textarea id="internalNotes" placeholder="For in-house eyes only — diagnostic rabbit holes, supplier rants, etc."></textarea>
-  </div>
-  <div class="table-wrap">
-    <table id="jobsTable">
-      <thead><tr><th>#</th><th>Customer</th><th>Title</th><th>Status</th><th>Total</th><th>Profit</th><th></th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-</section>
+  </section>
 
-<section class="tab" id="invoice">
-  <h2>Estimate / Invoice<br/><small>Poppe’s Diesel Co. — Built in the Garage, Backed by Freedom</small></h2>
-  <div class="grid" id="invFilters">
-    <label>Filter by Customer <select id="invCustFilter"><option value="">All customers</option></select></label>
-    <label>Search Jobs <input id="invJobSearch" placeholder="Type to filter jobs by customer/title…"/></label>
-    <div><div class="small">Recent jobs</div><div class="actions" id="recentJobs"></div></div>
-  </div>
-  <form class="grid" id="invForm">
-    <select id="invJob" required=""></select>
-    <input id="invNo" placeholder="Document # (e.g., 2025-001)">
-    <label>Type <select id="docType"><option>Estimate</option><option>Invoice</option></select></label>
-    <label>Labor Rate ($/hr) <input id="laborRate" step="0.01" type="number" value="80"/></label>
-    <label>Sales Tax (%) <input id="salesTax" step="0.01" type="number" value="7"/></label>
-    <label>Payment Link <input id="payLink" placeholder="https://pay.yourprovider.com/invoice/123"/></label>
-    <label>Email To <input id="emailTo" placeholder="customer@example.com"/></label>
-  </form>
-  <div class="actions">
-    <button class="tab-btn" id="addLabor" type="button">+ Labor Line</button>
-    <button class="tab-btn" id="addPart" type="button">+ Part Line</button>
-    <button class="tab-btn" id="openTemplates" type="button">Maintenance Templates</button>
-    <button class="tab-btn" id="applyMarkup" type="button">Apply Default Markup</button>
-    <button class="tab-btn" id="quickEstimate" type="button">Quick Estimate</button>
-    <button class="tab-btn" id="recalc" type="button">Recalculate</button>
-    <button class="tab-btn success" id="markPaid" type="button">Mark Paid</button>
-    <button class="tab-btn" id="approve" type="button">Approve Estimate</button>
-    <button class="tab-btn" id="convert" type="button">Convert to Invoice</button>
-    <button class="tab-btn" id="sign" type="button">Collect Signatures</button>
-    <button class="tab-btn" id="email" type="button">Email</button>
-    <button class="tab-btn primary" id="pdf" type="button">Generate PDF</button>
-  </div>
-  <div class="table-wrap" style="margin-top:10px">
-    <table class="lines" id="lines">
-      <thead><tr><th style="width:28px">↕</th><th>Type</th><th>Description</th><th>Qty/Hrs</th><th>Cost $</th><th>Unit $</th><th>Line $</th><th>Profit $</th><th></th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
-  <div class="totals">
-    <div>Subtotal: <span id="sub">$0.00</span></div>
-    <div>Tax: <span id="tax">$0.00</span></div>
-    <div class="grand">Total: <span id="grand">$0.00</span></div>
-    <div><strong>Total Profit:</strong> <span id="profit">$0.00</span></div>
-    <div>Margin: <span class="badge estimate" id="margin">0%</span></div>
-  </div>
-  <div class="card" id="overallNotesWrap" style="background:#fff;color:#000;border-color:#b6b09f">
-    <h3 style="color:#0e111a">Technician Overall Notes</h3>
-    <textarea id="overallNotes" placeholder="Explain diagnostics, verified checks, advisories."></textarea>
-  </div>
-  <div class="card" id="photosWrap" style="background:#fff;color:#000;border-color:#b6b09f">
-    <h3 style="color:#0e111a">Work Photos</h3>
+  <section class="tab" id="customers">
+    <h2>Customers</h2>
+    <form class="grid" id="custForm">
+      <input id="custName" placeholder="Full name (e.g., Jane Smith)" required=""/>
+      <input id="custPhone" inputmode="tel" placeholder="Phone (e.g., 555-123-4567)"/>
+      <input id="custEmail" inputmode="email" placeholder="Email (e.g., name@shop.com)"/>
+      <input id="custVehicle" placeholder="Vehicle (e.g., 2018 F-350 6.7L)"/>
+      <button class="primary" type="submit">Add Customer</button>
+    </form>
+    <div class="table-wrap">
+      <table id="custTable"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Vehicle</th><th></th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <section class="tab" id="jobs">
+    <h2>Jobs</h2>
+    <form class="grid" id="jobForm">
+      <select id="jobCustomer" required=""></select>
+      <input id="jobTitle" placeholder="Job title (e.g., Front brakes + rotors)" required=""/>
+      <input id="jobVIN" placeholder="VIN (17 chars)"/>
+      <button class="tab-btn" id="decodeVIN" type="button">Decode VIN</button>
+      <div aria-live="polite" class="card" id="vinResult" style="display:none"></div>
+      <div aria-live="polite" class="card" id="vinSuggest" style="display:none">
+        <div><strong>Suggested parts &amp; labor</strong> (platform match)</div>
+        <div class="actions" id="vinTags"></div>
+        <button class="tab-btn primary" id="addAllSuggest" type="button">Add All</button>
+      </div>
+      <textarea id="jobNotes" placeholder="Notes (symptoms, codes, etc.)"></textarea>
+      <select id="jobStatus"><option>Open</option><option>In Progress</option><option>Done</option></select>
+      <button class="primary" type="submit">Create Job</button>
+    </form>
+    <div class="card" id="internalNotesWrap">
+      <h3>Internal Staff Notes (won’t print)</h3>
+      <textarea id="internalNotes" placeholder="For in-house eyes only — diagnostic rabbit holes, supplier rants, etc."></textarea>
+    </div>
+    <div class="table-wrap">
+      <table id="jobsTable">
+        <thead><tr><th>#</th><th>Customer</th><th>Title</th><th>Status</th><th>Total</th><th>Profit</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="tab" id="invoice">
+    <h2>Estimate / Invoice<br/><small>Poppe’s Diesel Co. — Built in the Garage, Backed by Freedom</small></h2>
+    <div class="grid" id="invFilters">
+      <label>Filter by Customer <select id="invCustFilter"><option value="">All customers</option></select></label>
+      <label>Search Jobs <input id="invJobSearch" placeholder="Type to filter jobs by customer/title…"/></label>
+      <div><div class="small">Recent jobs</div><div class="actions" id="recentJobs"></div></div>
+    </div>
+    <form class="grid" id="invForm">
+      <select id="invJob" required=""></select>
+      <input id="invNo" placeholder="Document # (e.g., 2025-001)">
+      <label>Type <select id="docType"><option>Estimate</option><option>Invoice</option></select></label>
+      <label>Labor Rate ($/hr) <input id="laborRate" step="0.01" type="number" value="80"/></label>
+      <label>Sales Tax (%) <input id="salesTax" step="0.01" type="number" value="7"/></label>
+      <label>Payment Link <input id="payLink" placeholder="https://pay.yourprovider.com/invoice/123"/></label>
+      <label>Email To <input id="emailTo" placeholder="customer@example.com"/></label>
+    </form>
     <div class="actions">
-      <label style="display:inline-flex;align-items:center;gap:8px"><input accept="image/*" id="photoInput" multiple="" type="file"/>Add photos</label>
-      <label style="display:inline-flex;align-items:center;gap:8px"><input checked="" id="photosOnPdf" type="checkbox"/> Include photos on PDF</label>
+      <button class="tab-btn" id="addLabor" type="button">+ Labor Line</button>
+      <button class="tab-btn" id="addPart" type="button">+ Part Line</button>
+      <button class="tab-btn" id="openTemplates" type="button">Maintenance Templates</button>
+      <button class="tab-btn" id="applyMarkup" type="button">Apply Default Markup</button>
+      <button class="tab-btn" id="quickEstimate" type="button">Quick Estimate</button>
+      <button class="tab-btn" id="recalc" type="button">Recalculate</button>
+      <button class="tab-btn success" id="markPaid" type="button">Mark Paid</button>
+      <button class="tab-btn" id="approve" type="button">Approve Estimate</button>
+      <button class="tab-btn" id="convert" type="button">Convert to Invoice</button>
+      <button class="tab-btn" id="sign" type="button">Collect Signatures</button>
+      <button class="tab-btn" id="email" type="button">Email</button>
+      <button class="tab-btn primary" id="pdf" type="button">Generate PDF</button>
     </div>
-    <div aria-live="polite" class="photo-grid" id="photoGrid"></div>
-  </div>
-  <div class="print-area" id="preview" style="margin-top:12px">
-    <div class="watermark">
-      <img alt="watermark" id="wmImg" style="display:none;max-width:90%;max-height:90%;opacity:.50;mix-blend-mode:multiply"/>
-      <svg height="90%" id="wmFallback" style="filter:grayscale(100%);opacity:.12" viewBox="0 0 800 200" width="90%">
-        <text dominant-baseline="middle" fill="#000" font-family="Impact,Haettenschweiler,'Arial Black',sans-serif" font-size="72" text-anchor="middle" x="50%" y="50%">Poppe’s Diesel Co.</text>
-      </svg>
+    <div class="table-wrap" style="margin-top:10px">
+      <table class="lines" id="lines">
+        <thead><tr><th style="width:28px">↕</th><th>Type</th><th>Description</th><th>Qty/Hrs</th><th>Cost $</th><th>Unit $</th><th>Line $</th><th>Profit $</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
     </div>
-    <div class="invoice-header">
-      <div class="shop"><h3>Poppe’s Diesel Co.</h3><p>Columbus, IN</p><p>poppedieselco@gmail.com</p><p>(208) 243-7934</p></div>
-      <div class="meta">
-        <div><strong>Doc #</strong> <span id="pInvNo">—</span></div>
-        <div><strong>Date</strong> <span id="pDate">—</span></div>
-        <div><strong>Type</strong> <span class="badge estimate" id="pType">Estimate</span></div>
-        <div><strong>Status</strong> <span id="pStatus">Unpaid</span></div>
-      </div>
+    <div class="totals">
+      <div>Subtotal: <span id="sub">$0.00</span></div>
+      <div>Tax: <span id="tax">$0.00</span></div>
+      <div class="grand">Total: <span id="grand">$0.00</span></div>
+      <div><strong>Total Profit:</strong> <span id="profit">$0.00</span></div>
+      <div>Margin: <span class="badge estimate" id="margin">0%</span></div>
     </div>
-    <div><strong>Bill To:</strong> <span id="pCust">—</span><div id="pVeh"></div></div>
-    <table class="lines"><thead><tr><th>Description</th><th>Qty/Hrs</th><th>Unit</th><th>Line $</th></tr></thead><tbody id="pLines"></tbody></table>
-    <div id="pOverallBlock"></div>
-    <div class="totals"><div>Subtotal: <span id="pSub">$0.00</span></div><div>Tax: <span id="pTax">$0.00</span></div><div class="grand">Grand Total: <span id="pGrand">$0.00</span></div></div>
-    <div class="signatures" id="signatures">
-      <div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigCustomer" style="display:none"/></div><div class="sig-label">Customer Signature <span id="pSigCustomerName"></span> <span class="small" id="pSigCustomerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
-      <div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigManager" style="display:none"/></div><div class="sig-label">Service Manager Signature <span id="pSigManagerName"></span> <span class="small" id="pSigManagerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
+    <div class="card" id="overallNotesWrap" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Technician Overall Notes</h3>
+      <textarea id="overallNotes" placeholder="Explain diagnostics, verified checks, advisories."></textarea>
     </div>
-    <div id="pPhotosBlock" style="margin-top:10px"></div>
-  </div>
-</section>
-
-<section class="tab" id="settings">
-  <h2>Settings</h2>
-  <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-    <h3 style="color:#0e111a">Default Parts Markup</h3>
-    <div class="grid"><label>Default Markup % <input id="defaultMarkup" step="1" type="number" value="40"/></label><div class="small">Used by “Apply Default Markup”.</div></div>
-  </div>
-  <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-    <h3 style="color:#0e111a">Email Presets</h3>
-    <div class="grid">
-      <label>From (Shop Name) <input id="shopFrom" placeholder="Poppe’s Diesel Co."/></label>
-      <label>Reply-To Email <input id="shopReply" inputmode="email" placeholder="poppedieselco@gmail.com"/></label>
-      <label>Subject Prefix <input id="shopSubj" placeholder="[Poppe’s Diesel Co.] "/></label>
-      <label>Footer (email body) <input id="shopFooter" placeholder="Thank you for supporting local."/></label>
-    </div>
-    <div class="small">Tap Email to use these in a mailto draft.</div>
-  </div>
-  <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-    <h3 style="color:#0e111a">Branding (Watermark)</h3>
-    <div class="grid">
-      <label>Upload Logo <input accept="image/*" id="wmFile" type="file"/></label>
-      <button class="tab-btn" id="wmClear" type="button" style="background:#962b2b;color:#fff;border-color:#962b2b">Clear Watermark</button>
-    </div>
-    <div class="small">Upload your logo here once; it will print faintly behind the invoice/estimate.</div>
-  </div>
-
-  <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-    <h3 style="color:#0e111a">Backup & Restore</h3>
-    <div class="grid">
+    <div class="card" id="photosWrap" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Work Photos</h3>
       <div class="actions">
-        <button class="tab-btn" id="exportBtn" type="button">Export Data (JSON)</button>
-        <label style="display:inline-flex;align-items:center;gap:8px">
-          <input id="importFile" type="file" accept="application/json"/> Import JSON
-        </label>
-        <button class="tab-btn" id="importBtn" type="button">Import</button>
+        <label style="display:inline-flex;align-items:center;gap:8px"><input accept="image/*" id="photoInput" multiple="" type="file"/>Add photos</label>
+        <label style="display:inline-flex;align-items:center;gap:8px"><input checked="" id="photosOnPdf" type="checkbox"/> Include photos on PDF</label>
       </div>
-      <div class="small">Exports customers, jobs, settings, UI state, and your watermark so you can restore after site updates.</div>
+      <div aria-live="polite" class="photo-grid" id="photoGrid"></div>
     </div>
-  </div>
-</section>
+    <div class="print-area" id="preview" style="margin-top:12px">
+      <div class="watermark">
+        <img alt="watermark" id="wmImg" style="display:none;max-width:90%;max-height:90%;opacity:.50;mix-blend-mode:multiply"/>
+        <svg height="90%" id="wmFallback" style="filter:grayscale(100%);opacity:.12" viewBox="0 0 800 200" width="90%">
+          <text dominant-baseline="middle" fill="#000" font-family="Impact,Haettenschweiler,'Arial Black',sans-serif" font-size="72" text-anchor="middle" x="50%" y="50%">Poppe’s Diesel Co.</text>
+        </svg>
+      </div>
+      <div class="invoice-header">
+        <div class="shop"><h3>Poppe’s Diesel Co.</h3><p>Columbus, IN</p><p>poppedieselco@gmail.com</p><p>(208) 243-7934</p></div>
+        <div class="meta">
+          <div><strong>Doc #</strong> <span id="pInvNo">—</span></div>
+          <div><strong>Date</strong> <span id="pDate">—</span></div>
+          <div><strong>Type</strong> <span class="badge estimate" id="pType">Estimate</span></div>
+          <div><strong>Status</strong> <span id="pStatus">Unpaid</span></div>
+        </div>
+      </div>
+      <div><strong>Bill To:</strong> <span id="pCust">—</span><div id="pVeh"></div></div>
+      <table class="lines"><thead><tr><th>Description</th><th>Qty/Hrs</th><th>Unit</th><th>Line $</th></tr></thead><tbody id="pLines"></tbody></table>
+      <div id="pOverallBlock"></div>
+      <div class="totals"><div>Subtotal: <span id="pSub">$0.00</span></div><div>Tax: <span id="pTax">$0.00</span></div><div class="grand">Grand Total: <span id="pGrand">$0.00</span></div></div>
+      <div class="signatures" id="signatures">
+        <div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigCustomer" style="display:none"/></div><div class="sig-label">Customer Signature <span id="pSigCustomerName"></span> <span class="small" id="pSigCustomerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
+        <div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigManager" style="display:none"/></div><div class="sig-label">Service Manager Signature <span id="pSigManagerName"></span> <span class="small" id="pSigManagerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
+      </div>
+      <div id="pPhotosBlock" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section class="tab" id="settings">
+    <h2>Settings</h2>
+    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Default Parts Markup</h3>
+      <div class="grid"><label>Default Markup % <input id="defaultMarkup" step="1" type="number" value="40"/></label><div class="small">Used by “Apply Default Markup”.</div></div>
+    </div>
+    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Email Presets</h3>
+      <div class="grid">
+        <label>From (Shop Name) <input id="shopFrom" placeholder="Poppe’s Diesel Co."/></label>
+        <label>Reply-To Email <input id="shopReply" inputmode="email" placeholder="poppedieselco@gmail.com"/></label>
+        <label>Subject Prefix <input id="shopSubj" placeholder="[Poppe’s Diesel Co.] "/></label>
+        <label>Footer (email body) <input id="shopFooter" placeholder="Thank you for supporting local."/></label>
+      </div>
+      <div class="small">Tap Email to use these in a mailto draft.</div>
+    </div>
+    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Branding (Watermark)</h3>
+      <div class="grid">
+        <label>Upload Logo <input accept="image/*" id="wmFile" type="file"/></label>
+        <button class="tab-btn" id="wmClear" type="button" style="background:#962b2b;color:#fff;border-color:#962b2b">Clear Watermark</button>
+      </div>
+      <div class="small">Stored in IndexedDB. Prints faintly behind the invoice/estimate.</div>
+    </div>
+
+    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Backup & Restore</h3>
+      <div class="grid">
+        <div class="actions">
+          <button class="tab-btn" id="exportBtn" type="button">Export Data (JSON)</button>
+          <button class="tab-btn" id="exportFullBtn" type="button">Export Full Archive (JSON+Blobs)</button>
+          <label style="display:inline-flex;align-items:center;gap:8px">
+            <input id="importFile" type="file" accept="application/json"/> Import JSON
+          </label>
+          <button class="tab-btn" id="importBtn" type="button">Import</button>
+        </div>
+        <div class="small">“Data” export excludes images (small, fast). “Full Archive” includes photos/signatures/watermark for a complete restore.</div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <button id="toTop" title="Back to top">↑ Top</button>
-<nav class="bottom" style="position:fixed;bottom:0;left:0;right:0;background:#0e111a;border-top:1px solid var(--border);display:flex;justify-content:space-between;padding:10px 10px;align-items:center;color:#fff">
+<nav class="bottom" style="position:fixed;bottom:0;left:0;right:0;background:#0e111a;border-top:1px solid #2e3226;display:flex;justify-content:space-between;padding:10px 10px;align-items:center;color:#fff">
   <div><button class="tab-btn" data-tab="dashboard">🏠</button><button class="tab-btn" data-tab="customers">👤</button><button class="tab-btn" data-tab="jobs">🧰</button><button class="tab-btn" data-tab="invoice">🧾</button><button class="tab-btn" data-tab="settings">⚙️</button></div>
   <button id="debugToggle" title="Debug">🪲</button>
 </nav>
@@ -329,7 +332,7 @@ var __JS_STARTED = true;
   var logEl = document.getElementById('debugLog');
   var metaEl = document.getElementById('debugMeta');
   var buf = [];
-  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\\n'); } }
+  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\n'); } }
   window.AppLog = {
     info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
     warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
@@ -356,48 +359,80 @@ if (!window.crypto.randomUUID){
   window.crypto.randomUUID = function(){ return 'id-' + Math.random().toString(16).slice(2) + '-' + Date.now(); };
 }
 
-/* Watermark upload/cache */
+/* -------- IndexedDB Blob Store (photos/signatures/watermark) -------- */
+var BlobStore = (function(){
+  var db=null, supported=!!(window.indexedDB);
+  var PENDING = [];
+  function open(cb){
+    if(!supported){ cb(new Error('IndexedDB not supported')); return; }
+    var req = indexedDB.open('poppes_shop_idb', 1);
+    req.onupgradeneeded = function(e){
+      var d = e.target.result;
+      if(!d.objectStoreNames.contains('blobs')) d.createObjectStore('blobs'); // key: id string, value: dataURL string
+    };
+    req.onsuccess = function(e){ db = e.target.result; cb(null); while(PENDING.length){ (PENDING.shift())(); } };
+    req.onerror = function(e){ cb(e.target.error||new Error('idb open failed')); };
+  }
+  function rw(storeName){ return db.transaction(storeName, 'readwrite').objectStore(storeName); }
+  function ro(storeName){ return db.transaction(storeName, 'readonly').objectStore(storeName); }
+  function ensure(fn){ if(db) fn(); else PENDING.push(fn); }
+  function put(id, dataUrl, cb){ ensure(function(){ try{ var req = rw('blobs').put(dataUrl, id); req.onsuccess=function(){ if(cb) cb(null); }; req.onerror=function(e){ if(cb) cb(e.target.error); }; }catch(e){ if(cb) cb(e); } }); }
+  function get(id, cb){ ensure(function(){ try{ var req = ro('blobs').get(id); req.onsuccess=function(){ cb(null, req.result||null); }; req.onerror=function(e){ cb(e.target.error||new Error('idb get error')); }; }catch(e){ cb(e); } }); }
+  function del(id, cb){ ensure(function(){ try{ var req = rw('blobs')['delete'](id); req.onsuccess=function(){ if(cb) cb(null); }; req.onerror=function(e){ if(cb) cb(e.target.error); }; }catch(e){ if(cb) cb(e); } }); }
+  function getMany(ids, cb){ // cb(err, map)
+    var out={}, n=ids.length, done=0, failed=false;
+    if(!n){ cb(null, out); return; }
+    for(var i=0;i<ids.length;i++){
+      (function(id){
+        get(id, function(err, data){ if(failed) return; if(err){ failed=true; cb(err); return; } out[id]=data||null; done++; if(done===n) cb(null,out); });
+      })(ids[i]);
+    }
+  }
+  return { open: open, put: put, get: get, del: del, getMany: getMany, supported:supported };
+})();
+
+/* -------- Watermark (uses BlobStore 'wm' key) -------- */
 (function(){
-  var KEY = 'pdc_wm_dataurl';
   var imgEl = document.getElementById('wmImg');
   var fallback = document.getElementById('wmFallback');
   function setWM(src){
     if(!imgEl) return;
-    imgEl.src = src; imgEl.style.display = 'block';
-    if(fallback) fallback.style.display = 'none';
+    if(src){ imgEl.src = src; imgEl.style.display = 'block'; if(fallback) fallback.style.display = 'none'; }
+    else { imgEl.src=''; imgEl.style.display='none'; if(fallback) fallback.style.display='block'; }
   }
-  try {
-    var cached = localStorage.getItem(KEY);
-    if(cached){ setWM(cached); }
-  } catch(_){}
-  var up = document.getElementById('wmFile');
-  var clr = document.getElementById('wmClear');
   function readAsDataURL(file, cb, eb){
     var r = new FileReader();
     r.onload = function(){ cb(r.result); };
     r.onerror = function(){ if(eb) eb(r.error); };
     r.readAsDataURL(file);
   }
+  BlobStore.open(function(){
+    // migrate old LS watermark if present
+    try{
+      var old = localStorage.getItem('pdc_wm_dataurl');
+      if(old){
+        BlobStore.put('wm', old, function(){ try{ localStorage.removeItem('pdc_wm_dataurl'); }catch(_){} setWM(old); });
+      } else {
+        BlobStore.get('wm', function(_e, data){ setWM(data); });
+      }
+    }catch(_){}
+  });
+  var up = document.getElementById('wmFile');
+  var clr = document.getElementById('wmClear');
   if(up) up.addEventListener('change', function(){
-    var f = up.files && up.files[0];
-    if(!f) return;
+    var f = up.files && up.files[0]; if(!f) return;
     readAsDataURL(f, function(data){
-      try{ localStorage.setItem(KEY, data); }catch(_){}
-      setWM(data); alert('Watermark updated.');
-      up.value = '';
+      BlobStore.put('wm', data, function(){ setWM(data); alert('Watermark updated.'); up.value=''; });
     });
   });
   if(clr) clr.addEventListener('click', function(){
-    try{ localStorage.removeItem(KEY); }catch(_){}
-    if(imgEl) imgEl.style.display='none';
-    if(fallback) fallback.style.display='block';
-    alert('Watermark cleared.');
+    BlobStore.del('wm', function(){ setWM(''); alert('Watermark cleared.'); });
   });
 })();
 
 window.addEventListener('load', function(){
   guard('init', function(){
-    var STORAGE_KEY = 'poppe_shop_db_v112';
+    var STORAGE_KEY = 'poppe_shop_db_v112'; /* keep old key for continuity */
     var DB = loadDB() || defaultDB();
 
     var UIKEY = 'pdc_ui_state';
@@ -438,18 +473,38 @@ window.addEventListener('load', function(){
     }
     function saveDB(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(e){ AppLog.error('localStorage save failed', e); } }
     function loadDB(){ try { var s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; } catch(e){ AppLog.error('localStorage load failed', e); return null; } }
-    function upgradeDB(){
-      var i, j, l;
-      for(i=0;i<(DB.jobs||[]).length;i++){
-        j = DB.jobs[i];
-        if(!j.createdAt) j.createdAt = new Date().toISOString();
-        if(typeof j.overallNotes==='undefined') j.overallNotes='';
-        if(typeof j.internalNotes==='undefined') j.internalNotes='';
-        if(!j.photos) j.photos=[];
-        if(!j.signatures) j.signatures={customer:null, manager:null};
-        for(l=0;l<(j.lines||[]).length;l++){ if(typeof j.lines[l].note==='undefined') j.lines[l].note=''; }
-      }
-      saveDB();
+
+    /* --- Migration: move inline images to IndexedDB, replace with IDs --- */
+    function migrateImagesToIDB(done){
+      BlobStore.open(function(){
+        var jobs = DB.jobs||[];
+        var pending=0, changed=false;
+
+        function handlePhoto(j, idx, ph){
+          if(ph && ph.dataUrl && !ph.id){
+            changed=true; pending++;
+            var id = 'photo-'+crypto.randomUUID();
+            BlobStore.put(id, ph.dataUrl, function(){ ph.id=id; delete ph.dataUrl; pending--; if(pending===0) finish(); });
+          }
+        }
+        function handleSig(obj){
+          if(obj && obj.dataUrl && !obj.id){
+            changed=true; pending++;
+            var id = 'sig-'+crypto.randomUUID();
+            BlobStore.put(id, obj.dataUrl, function(){ obj.id=id; delete obj.dataUrl; pending--; if(pending===0) finish(); });
+          }
+        }
+        for(var i=0;i<jobs.length;i++){
+          var j = jobs[i];
+          if(j.photos){ for(var p=0;p<j.photos.length;p++){ handlePhoto(j,p,j.photos[p]); } }
+          if(j.signatures){
+            handleSig(j.signatures.customer);
+            handleSig(j.signatures.manager);
+          }
+        }
+        function finish(){ if(changed) saveDB(); if(done) done(); }
+        if(pending===0) finish();
+      });
     }
 
     function $(sel, root){ return (root||document).querySelector(sel); }
@@ -686,11 +741,10 @@ window.addEventListener('load', function(){
 
     function makeRowDraggable(tr){
       var handle = tr.querySelector('.handle'); if(!handle) return;
-
-      function startDrag(clientY){
-        var startY = clientY;
+      handle.addEventListener('mousedown', function(ev){ startDrag(ev.clientY); ev.preventDefault(); });
+      if (window.PointerEvent) handle.addEventListener('pointerdown', function(ev){ startDrag(ev.clientY); ev.preventDefault(); });
+      function startDrag(startY){
         tr.classList.add('dragging');
-
         function onMove(e){
           var y = e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || startY;
           var dy = y - startY;
@@ -721,7 +775,6 @@ window.addEventListener('load', function(){
           if(insertBefore){ tr.parentNode.insertBefore(tr, insertBefore); }
           persistLines();
         }
-
         if (window.PointerEvent) {
           document.addEventListener('pointermove', onMove);
           document.addEventListener('pointerup', endDrag);
@@ -729,18 +782,6 @@ window.addEventListener('load', function(){
           document.addEventListener('mousemove', onMove);
           document.addEventListener('mouseup', endDrag);
         }
-      }
-
-      if (window.PointerEvent) {
-        handle.addEventListener('pointerdown', function(ev){
-          ev.preventDefault();
-          startDrag(ev.clientY);
-        });
-      } else {
-        handle.addEventListener('mousedown', function(ev){
-          ev.preventDefault();
-          startDrag(ev.clientY);
-        });
       }
     }
 
@@ -891,13 +932,16 @@ window.addEventListener('load', function(){
           '<div style="white-space:pre-wrap; line-height:1.35;">'+escapeHtml(j.overallNotes.trim())+'</div>';
       }
 
+      // Signatures from IDB
       function setSig(role){
         var img = role==='customer' ? document.getElementById('pSigCustomer') : document.getElementById('pSigManager');
         var nameEl = role==='customer' ? document.getElementById('pSigCustomerName') : document.getElementById('pSigManagerName');
         var dateEl = role==='customer' ? document.getElementById('pSigCustomerDate') : document.getElementById('pSigManagerDate');
         var data = j && j.signatures ? j.signatures[role] : null;
-        if(data && data.dataUrl){
-          img.src = data.dataUrl; img.style.display='block';
+        if(data && data.id){
+          BlobStore.get(data.id, function(_e, url){
+            if(url){ img.src=url; img.style.display='block'; } else { img.src=''; img.style.display='none'; }
+          });
           nameEl.textContent = data.name ? ('— '+escapeHtml(data.name)) : '';
           dateEl.textContent = data.date ? ('('+data.date+')') : '';
         } else {
@@ -906,15 +950,21 @@ window.addEventListener('load', function(){
       }
       setSig('customer'); setSig('manager');
 
+      // Photos preview
       var pPhotos = document.getElementById('pPhotosBlock'); pPhotos.innerHTML='';
       if(j && j.photosOnPdf && j.photos && j.photos.length){
         var html = '<h4 style="margin:8px 0 4px 0;">Work Photos</h4><div class="p-photos">';
         for(var pi=0;pi<j.photos.length;pi++){
-          var ph=j.photos[pi]; if(!ph || !ph.dataUrl || ph.include === false) continue;
-          html += '<div class="p-photo"><img src="'+ph.dataUrl+'" alt=""></div>';
+          var ph=j.photos[pi]; if(!ph || !ph.id || ph.include === false) continue;
+          html += '<div class="p-photo"><img data-phid="'+ph.id+'" alt=""></div>';
         }
         html += '</div>';
         pPhotos.innerHTML = html;
+        // fill images
+        $all('#pPhotosBlock img').forEach(function(img){
+          var id = img.getAttribute('data-phid');
+          BlobStore.get(id, function(_e, url){ if(url){ img.src=url; } });
+        });
       }
 
       function escapeHtml(s){
@@ -967,11 +1017,11 @@ window.addEventListener('load', function(){
       btn.addEventListener('click', function(){ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(_){ window.scrollTo(0,0); } });
     })();
 
-    // Backup & Restore handlers
+    /* ---------- Backup & Restore (IDB-aware) ---------- */
     (function(){
       var EXKEY = 'poppe_shop_db_v112';
       var UIKEY = 'pdc_ui_state';
-      var WMKEY = 'pdc_wm_dataurl';
+
       function downloadText(filename, text){
         var blob = new Blob([text], {type:'application/json'});
         var url = URL.createObjectURL(blob);
@@ -980,21 +1030,53 @@ window.addEventListener('load', function(){
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(function(){ URL.revokeObjectURL(url); }, 500);
       }
+
+      function collectBlobIdsFromDB(db){
+        var set = {};
+        for(var i=0;i<(db.jobs||[]).length;i++){
+          var j=db.jobs[i];
+          if(j.photos){ for(var p=0;p<j.photos.length;p++){ if(j.photos[p] && j.photos[p].id) set[j.photos[p].id]=true; } }
+          if(j.signatures){
+            if(j.signatures.customer && j.signatures.customer.id) set[j.signatures.customer.id]=true;
+            if(j.signatures.manager && j.signatures.manager.id) set[j.signatures.manager.id]=true;
+          }
+        }
+        set['wm']=true; // watermark (may or may not exist)
+        return Object.keys(set);
+      }
+
       var exportBtn = document.getElementById('exportBtn');
       if(exportBtn){
         exportBtn.addEventListener('click', function(){
           var backup = {
-            _note: 'Poppe’s Diesel Co. Shop Manager backup',
-            version: 'v1.2.0',
+            _note: 'Poppe’s Diesel Co. Shop Manager backup (data only)',
+            version: 'v1.3.0',
             exportedAt: new Date().toISOString(),
             db: DB,
-            ui: UI,
-            wm: null
+            ui: UI
           };
-          try{ backup.wm = localStorage.getItem(WMKEY)||null; }catch(_){}
-          downloadText('poppes_shop_backup_'+Date.now()+'.json', JSON.stringify(backup, null, 2));
+          downloadText('poppes_shop_backup_data_'+Date.now()+'.json', JSON.stringify(backup, null, 2));
         });
       }
+
+      var exportFullBtn = document.getElementById('exportFullBtn');
+      if(exportFullBtn){
+        exportFullBtn.addEventListener('click', function(){
+          var ids = collectBlobIdsFromDB(DB);
+          BlobStore.getMany(ids, function(_e, map){
+            var backup = {
+              _note: 'Poppe’s Diesel Co. Shop Manager FULL backup (includes blobs)',
+              version: 'v1.3.0',
+              exportedAt: new Date().toISOString(),
+              db: DB,
+              ui: UI,
+              blobs: map // {id: dataURL}
+            };
+            downloadText('poppes_shop_backup_full_'+Date.now()+'.json', JSON.stringify(backup, null, 2));
+          });
+        });
+      }
+
       var importBtn = document.getElementById('importBtn');
       var importFile = document.getElementById('importFile');
       if(importBtn && importFile){
@@ -1007,14 +1089,29 @@ window.addEventListener('load', function(){
               var data = JSON.parse(reader.result||'{}');
               var newDB = data.db || data || null;
               if(!newDB || !newDB.customers || !newDB.jobs){ alert('Invalid backup format.'); return; }
+
+              // Persist text DB (small)
               localStorage.setItem(EXKEY, JSON.stringify(newDB));
               if(data.ui){ try{ localStorage.setItem(UIKEY, JSON.stringify(data.ui)); }catch(_){} }
-              if(data.wm){ try{ localStorage.setItem(WMKEY, data.wm); }catch(_){} }
-              DB = newDB;
-              UI = data.ui || UI;
-              renderAll();
-              alert('Backup imported. Reloading the UI.');
-              location.reload();
+
+              // Restore blobs if present
+              var blobs = data.blobs || {};
+              var ids = Object.keys(blobs);
+              if(ids.length){
+                var n=0;
+                for(var i=0;i<ids.length;i++){
+                  (function(id){
+                    BlobStore.put(id, blobs[id], function(){ n++; if(n===ids.length) after(); });
+                  })(ids[i]);
+                }
+              } else { after(); }
+
+              function after(){
+                DB = newDB;
+                UI = data.ui || UI;
+                renderAll();
+                alert('Backup imported.');
+              }
             }catch(e){
               alert('Import failed: '+(e.message||e));
             }
@@ -1025,6 +1122,7 @@ window.addEventListener('load', function(){
       }
     })();
 
+    /* ---------- Email / PDF ---------- */
     document.getElementById('addLabor').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Labor','',1, Number(document.getElementById('laborRate').value||80), 0, ''); });
     document.getElementById('addPart').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Part','',1, 0, 0, ''); });
     document.getElementById('applyMarkup').addEventListener('click', applyDefaultMarkup);
@@ -1042,40 +1140,127 @@ window.addEventListener('load', function(){
       var j=ensureJobSelected(); if(!j) return;
       var to=encodeURIComponent(document.getElementById('emailTo').value.trim()||'');
       var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim());
-      var body=encodeURIComponent('Hello,\\n\\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+'.\\nPayment link: '+(j.paymentLink||'')+'\\n\\n'+(DB.settings.shopFooter||'')+'\\n\\n— '+(DB.settings.shopFrom||''));
+      var body=encodeURIComponent('Hello,\n\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+'.\nPayment link: '+(j.paymentLink||'')+'\n\n'+(DB.settings.shopFooter||'')+'\n\n— '+(DB.settings.shopFrom||''));
       location.href='mailto:'+to+'?subject='+subj+'&body='+body;
     });
 
-    // PDF
+    // Build print HTML with inline data URLs for all blobs
+    function buildPrintHtml(cb){
+      var j = currentJob(); if(!j){ alert('Select a job first.'); return; }
+      var ids = [];
+      if(j.signatures){
+        if(j.signatures.customer && j.signatures.customer.id) ids.push(j.signatures.customer.id);
+        if(j.signatures.manager && j.signatures.manager.id) ids.push(j.signatures.manager.id);
+      }
+      if(j.photosOnPdf && j.photos){ for(var i=0;i<j.photos.length;i++){ if(j.photos[i] && j.photos[i].id && j.photos[i].include!==false) ids.push(j.photos[i].id); } }
+      ids.push('wm');
+
+      BlobStore.getMany(ids, function(_e, map){
+        var wm = map['wm']||'';
+        var css =
+          'html,body{margin:0;padding:0}body{font-family:'+ (document.body && getComputedStyle(document.body).fontFamily || 'sans-serif') +';font-size:11pt;line-height:1.35;color:#000}' +
+          '.print-area{padding:8px 12px 12px;border-radius:0;position:relative}' +
+          '.invoice-header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:6px}' +
+          '.invoice-header h3{margin:0;font-size:16pt}' +
+          'table{width:100%;border-collapse:collapse;margin-top:6px}' +
+          'th,td{border-bottom:1px solid #000;padding:6px;text-align:left;vertical-align:top;font-size:10.5pt}' +
+          '.totals{display:grid;gap:4px;justify-items:end;margin-top:8px}.grand{font-weight:700}' +
+          '.badge{border:1px solid #000;border-radius:9999px;padding:2px 6px;font-size:9pt}' +
+          '.signatures{margin-top:16px;display:grid;gap:10px}' +
+          '.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}' +
+          '.sig-line{border-bottom:1px solid #000;height:28px;display:flex;align-items:flex-end}' +
+          '.sig-label{font-size:9pt;color:#333;margin-top:4px}' +
+          '.sig-img{max-height:60px;}' +
+          '.watermark{position:absolute;inset:0;z-index:0;opacity:.08}' +
+          '#wmImg{max-width:90%;max-height:90%;opacity:.12}' +
+          '#wmFallback{opacity:.12}' +
+          '.p-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}' +
+          '.p-photo{border:1px solid #000;padding:4px;border-radius:6px;break-inside:avoid;page-break-inside:avoid}' +
+          '.p-photo img{width:100%;height:1.8in;object-fit:cover;border-radius:4px;display:block}' +
+          '#pPhotosBlock{page-break-before:always}';
+
+        // Build photos HTML with inlined data URLs
+        var photosHtml = '';
+        if(j.photosOnPdf && j.photos && j.photos.length){
+          var any=false, str='<h4 style="margin:8px 0 4px 0;">Work Photos</h4><div class="p-photos">';
+          for(var k=0;k<j.photos.length;k++){
+            var ph=j.photos[k];
+            if(!ph || ph.include===false || !ph.id) continue;
+            var du = map[ph.id] || '';
+            if(du){ any=true; str += '<div class="p-photo"><img src="'+du+'" alt=""></div>'; }
+          }
+          str += '</div>';
+          if(any) photosHtml = str;
+        }
+
+        // Signatures inline
+        var custSigDU = (j.signatures && j.signatures.customer && j.signatures.customer.id) ? (map[j.signatures.customer.id]||'') : '';
+        var mgrSigDU  = (j.signatures && j.signatures.manager   && j.signatures.manager.id)   ? (map[j.signatures.manager.id]||'')   : '';
+        var custName = (j.signatures && j.signatures.customer && j.signatures.customer.name) ? ('— '+escapeHtml(j.signatures.customer.name)) : '';
+        var custDate = (j.signatures && j.signatures.customer && j.signatures.customer.date) ? ('('+j.signatures.customer.date+')') : '';
+        var mgrName  = (j.signatures && j.signatures.manager   && j.signatures.manager.name) ? ('— '+escapeHtml(j.signatures.manager.name)) : '';
+        var mgrDate  = (j.signatures && j.signatures.manager   && j.signatures.manager.date) ? ('('+j.signatures.manager.date+')') : '';
+
+        // Lines HTML
+        var linesHtml = '';
+        for(var i=0;i<j.lines.length;i++){
+          var l=j.lines[i]; var line=(Number(l.qty)||0)*(Number(l.unit)||0);
+          linesHtml += '<tr><td>'+l.type+': '+escapeHtml(l.desc||"")+'</td><td>'+(l.qty||0)+'</td><td>'+fmt(l.unit||0)+'</td><td>'+fmt(line)+'</td></tr>';
+          if(l.note && l.note.trim()){
+            linesHtml += '<tr><td colspan="4" style="font-style:italic; color:#333; padding-top:4px;">Note: '+escapeHtml(l.note.trim())+'</td></tr>';
+          }
+        }
+
+        function escapeHtml(s){
+          return String(s||'').replace(/[&<>"']/g, function(c){
+            return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
+          });
+        }
+
+        var c = findCustomer(j.customerId);
+        var subtotal=sumLines(j.lines,'subtotal');
+        var taxPct = Number(document.getElementById('salesTax').value||0);
+        var tax = subtotal*(taxPct/100);
+        var grand = subtotal+tax;
+        var docType = j.docType||'Estimate';
+
+        var wmBlock = wm ? ('<img id="wmImg" src="'+wm+'" style="display:block;max-width:90%;max-height:90%;opacity:.12;mix-blend-mode:multiply"/>')
+                         : ('<svg height="90%" id="wmFallback" style="filter:grayscale(100%);opacity:.12" viewBox="0 0 800 200" width="90%"><text dominant-baseline="middle" fill="#000" font-family="Impact,Haettenschweiler,Arial Black,sans-serif" font-size="72" text-anchor="middle" x="50%" y="50%">Poppe’s Diesel Co.</text></svg>');
+
+        var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>' +
+          '<div class="print-area">' +
+            '<div class="watermark">'+ wmBlock +'</div>' +
+            '<div class="invoice-header">' +
+              '<div class="shop"><h3>Poppe’s Diesel Co.</h3><p>Columbus, IN</p><p>poppedieselco@gmail.com</p><p>(208) 243-7934</p></div>' +
+              '<div class="meta">' +
+                '<div><strong>Doc #</strong> '+escapeHtml(j.invNo||'DRAFT')+'</div>' +
+                '<div><strong>Date</strong> '+(new Date()).toLocaleDateString()+'</div>' +
+                '<div><strong>Type</strong> <span class="badge '+(docType==='Invoice'?'invoice':'estimate')+'">'+docType+'</span></div>' +
+                '<div><strong>Status</strong> '+(j.paid?'Paid':(docType==='Estimate'?(j.approved?'Approved':'Pending Approval'):'Unpaid'))+'</div>' +
+              '</div>' +
+            '</div>' +
+            '<div><strong>Bill To:</strong> '+(c?escapeHtml(c.name):'—')+'<div>'+(c?(escapeHtml(c.vehicle||'')):'')+'</div></div>' +
+            '<table class="lines"><thead><tr><th>Description</th><th>Qty/Hrs</th><th>Unit</th><th>Line $</th></tr></thead><tbody>'+linesHtml+'</tbody></table>' +
+            (j.overallNotes && j.overallNotes.trim()?('<h4 style="margin:8px 0 4px 0;">Technician Overall Notes</h4><div style="white-space:pre-wrap; line-height:1.35;">'+escapeHtml(j.overallNotes.trim())+'</div>'):'') +
+            '<div class="totals"><div>Subtotal: '+fmt(subtotal)+'</div><div>Tax: '+fmt(tax)+'</div><div class="grand">Grand Total: '+fmt(grand)+'</div></div>' +
+            '<div class="signatures">' +
+              '<div class="sig-row"><div class="sig"><div class="sig-line">'+(custSigDU?('<img class="sig-img" src="'+custSigDU+'" alt="">'):'')+'</div><div class="sig-label">Customer Signature <span>'+custName+'</span> <span class="small">'+custDate+'</span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>' +
+              '<div class="sig-row"><div class="sig"><div class="sig-line">'+(mgrSigDU?('<img class="sig-img" src="'+mgrSigDU+'" alt="">'):'')+'</div><div class="sig-label">Service Manager Signature <span>'+mgrName+'</span> <span class="small">'+mgrDate+'</span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>' +
+            '</div>' +
+            (photosHtml||'') +
+          '</div></body></html>';
+
+        cb(htmlDoc);
+      });
+    }
+
     document.getElementById('pdf').addEventListener('click', function(){
-      var css =
-        'html,body{margin:0;padding:0}body{font-family:'+ (document.body && getComputedStyle(document.body).fontFamily || 'sans-serif') +';font-size:11pt;line-height:1.35;color:#000}' +
-        '.print-area{padding:8px 12px 12px;border-radius:0;position:relative}' +
-        '.invoice-header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:6px}' +
-        '.invoice-header h3{margin:0;font-size:16pt}' +
-        'table{width:100%;border-collapse:collapse;margin-top:6px}' +
-        'th,td{border-bottom:1px solid #000;padding:6px;text-align:left;vertical-align:top;font-size:10.5pt}' +
-        '.totals{display:grid;gap:4px;justify-items:end;margin-top:8px}.grand{font-weight:700}' +
-        '.badge{border:1px solid #000;border-radius:9999px;padding:2px 6px;font-size:9pt}' +
-        '.signatures{margin-top:16px;display:grid;gap:10px}' +
-        '.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}' +
-        '.sig-line{border-bottom:1px solid #000;height:28px;display:flex;align-items:flex-end}' +
-        '.sig-label{font-size:9pt;color:#333;margin-top:4px}' +
-        '.sig-img{max-height:60px;}' +
-        '.watermark{position:absolute;inset:0;z-index:0;opacity:.08}' +
-        '#wmImg{max-width:90%;max-height:90%;opacity:.12}' +
-        '#wmFallback{opacity:.12}' +
-        '.p-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}' +
-        '.p-photo{border:1px solid #000;padding:4px;border-radius:6px;break-inside:avoid;page-break-inside:avoid}' +
-        '.p-photo img{width:100%;height:1.8in;object-fit:cover;border-radius:4px;display:block}' +
-        '#pPhotosBlock{page-break-before:always}';
-      var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>'
-                  + document.getElementById('preview').outerHTML
-                  + '</body></html>';
-      var w = window.open('', '_blank');
-      if(!w){ alert('Please allow pop-ups to print.'); return; }
-      w.document.open(); w.document.write(htmlDoc); w.document.close();
-      try{ w.focus(); w.print(); }catch(_){}
+      buildPrintHtml(function(htmlDoc){
+        var w = window.open('', '_blank');
+        if(!w){ alert('Please allow pop-ups to print.'); return; }
+        w.document.open(); w.document.write(htmlDoc); w.document.close();
+        try{ w.focus(); w.print(); }catch(_){}
+      });
     });
 
     // Header field listeners
@@ -1172,10 +1357,6 @@ window.addEventListener('load', function(){
         canvas.addEventListener('touchcancel', end);
       }
 
-      window.addEventListener('resize', function(){
-        if(modal.style.display!=='none'){ resizeCanvas(); }
-      });
-
       document.getElementById('sigClear').addEventListener('click', function(){
         ctx.clearRect(0,0,canvas.width,canvas.height);
       });
@@ -1188,23 +1369,97 @@ window.addEventListener('load', function(){
 
         var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; }
         if(!j.signatures) j.signatures={customer:null,manager:null};
-        j.signatures[role]={ dataUrl:dataUrl, name:name, date:date };
-
-        saveDB(); updatePreview();
-        modal.style.display='none';
-        unlockScroll();
+        var id = 'sig-'+crypto.randomUUID();
+        BlobStore.put(id, dataUrl, function(){
+          j.signatures[role]={ id:id, name:name, date:date };
+          saveDB(); updatePreview();
+          modal.style.display='none';
+          unlockScroll();
+        });
       });
     })();
 
-    // Photos
+    // Photos (resize + JPEG re-encode to keep storage small) -> store in IDB
     (function(){
       var input=document.getElementById('photoInput');
-      function readAsDataURL(file, cb, eb){ var r=new FileReader(); r.onload=function(){cb(r.result)}; r.onerror=function(){if(eb)eb(r.error)}; r.readAsDataURL(file); }
-      function addPhotoToJob(job, dataUrl){ if(!job.photos) job.photos=[]; job.photos.push({ dataUrl:dataUrl, include:true }); }
-      function render(){ renderPhotoGrid(); updatePreview(); saveDB(); }
-      function onFiles(files){ var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; } var i=0; (function next(){ if(i>=files.length){ render(); return; } readAsDataURL(files[i], function(data){ addPhotoToJob(j,data); i++; next(); }); })(); }
-      if(input){ input.addEventListener('change', function(){ onFiles(input.files||[]); input.value=''; }); }
-      window.renderPhotoGrid=function(){ var j=currentJob(); var grid=document.getElementById('photoGrid'); grid.innerHTML=''; if(!j || !j.photos || !j.photos.length) return; j.photos.forEach(function(ph,idx){ var div=document.createElement('div'); div.className='photo-item'; div.innerHTML='<img src="'+ph.dataUrl+'" alt=""><button class="del" type="button">×</button><label><input type="checkbox" '+(ph.include!==false?'checked':'')+'> Include on PDF</label>'; div.querySelector('.del').addEventListener('click', function(){ j.photos.splice(idx,1); render(); }); div.querySelector('input[type=checkbox]').addEventListener('change', function(e){ ph.include = e.target.checked; render(); }); grid.appendChild(div); }); }
+
+      function readAsImage(file, cb, eb){
+        var fr=new FileReader();
+        fr.onload=function(){
+          var img=new Image();
+          img.onload=function(){ cb(img); };
+          img.onerror=function(){ if(eb) eb(new Error('Image decode failed')); };
+          img.src=fr.result;
+        };
+        fr.onerror=function(){ if(eb) eb(fr.error); };
+        fr.readAsDataURL(file);
+      }
+
+      function toJpegDataURL(img, maxW, maxH, quality){
+        maxW=maxW||1400; maxH=maxH||1400; quality=(quality==null)?0.72:quality;
+        var w=img.naturalWidth||img.width, h=img.naturalHeight||img.height;
+        var scale=Math.min(1, maxW/w, maxH/h);
+        var dw=Math.max(1, Math.round(w*scale)), dh=Math.max(1, Math.round(h*scale));
+        var c=document.createElement('canvas'); c.width=dw; c.height=dh;
+        var ctx=c.getContext('2d'); ctx.drawImage(img, 0, 0, dw, dh);
+        try { return c.toDataURL('image/jpeg', quality); }
+        catch(_){ return c.toDataURL('image/png'); }
+      }
+
+      function addPhotoToJob(job, dataUrl){
+        if(!job.photos) job.photos=[];
+        var id='photo-'+crypto.randomUUID();
+        BlobStore.put(id, dataUrl, function(){
+          job.photos.push({ id:id, include:true });
+          renderPhotoGrid(); updatePreview(); saveDB();
+        });
+      }
+
+      function onFiles(files){
+        var j=currentJob();
+        if(!j){ alert('Select or create a job first.'); return; }
+        var i=0;
+        (function next(){
+          if(i>=files.length){ return; }
+          var f=files[i++];
+
+          if(!/^image\//.test(f.type)){ next(); return; }
+
+          readAsImage(f, function(img){
+            var jpg = toJpegDataURL(img, 1400, 1400, 0.72);
+            addPhotoToJob(j, jpg);
+            next();
+          }, function(){ next(); });
+        })();
+      }
+
+      if(input){
+        input.addEventListener('change', function(){
+          onFiles(input.files||[]);
+          input.value='';
+        });
+      }
+
+      window.renderPhotoGrid=function(){
+        var j=currentJob(); var grid=document.getElementById('photoGrid');
+        grid.innerHTML=''; if(!j || !j.photos || !j.photos.length) return;
+        j.photos.forEach(function(ph,idx){
+          var div=document.createElement('div'); div.className='photo-item';
+          var img=document.createElement('img'); img.alt='';
+          if(ph.id){ BlobStore.get(ph.id, function(_e, url){ if(url) img.src=url; }); }
+          var del=document.createElement('button'); del.className='del'; del.type='button'; del.textContent='×';
+          del.addEventListener('click', function(){
+            var id = ph.id; j.photos.splice(idx,1);
+            // optional: also delete blob
+            BlobStore.del(id, function(){ renderPhotoGrid(); updatePreview(); saveDB(); });
+          });
+          var label=document.createElement('label');
+          var cb=document.createElement('input'); cb.type='checkbox'; cb.checked=(ph.include!==false);
+          cb.addEventListener('change', function(e){ ph.include = e.target.checked; updatePreview(); saveDB(); });
+          label.appendChild(cb); label.appendChild(document.createTextNode(' Include on PDF'));
+          div.appendChild(img); div.appendChild(del); div.appendChild(label); grid.appendChild(div);
+        });
+      };
     })();
 
     // Templates
@@ -1281,12 +1536,13 @@ window.addEventListener('load', function(){
     }
 
     (function selftest(){
-      var ok = !!(window.localStorage && document.querySelector && document.createElement);
+      var ok = !!(window.localStorage && document.querySelector && document.createElement && window.indexedDB);
       var tag=document.getElementById('selftest');
       if(tag){ tag.textContent='Self-test: '+(ok?'OK':'Limited'); tag.className='tag selftest '+(ok?'ok':'warn'); }
     })();
 
-    upgradeDB(); renderAll();
+    // Kick migration, then initial render
+    migrateImagesToIDB(function(){ renderAll(); });
     if(UI.lastJobId && currentJob()) { /* already set */ }
   });
 });
