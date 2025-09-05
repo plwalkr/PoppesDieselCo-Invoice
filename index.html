@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html data-theme="dark" lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -146,7 +145,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 <label>Sales Tax (%) <input id="salesTax" step="0.01" type="number" value="7"/></label>
 <label>Payment Link <input id="payLink" placeholder="https://pay.yourprovider.com/invoice/123"/></label>
 <label>Email To <input id="emailTo" placeholder="customer@example.com"/></label>
-</input></form>
+</form>
 <div class="actions">
 <button class="tab-btn" id="addLabor" type="button">+ Labor Line</button>
 <button class="tab-btn" id="addPart" type="button">+ Part Line</button>
@@ -231,24 +230,27 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 </div>
 <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
 <h3 style="color:#0e111a">Branding (Watermark)</h3>
-<div class="grid"><label>Upload Logo <input accept="image/*" id="wmFile" type="file"/></label></div>
+<div class="grid">
+  <label>Upload Logo <input accept="image/*" id="wmFile" type="file"/></label>
+  <button class="tab-btn" id="wmClear" type="button" style="background:#962b2b;color:#fff;border-color:#962b2b">Clear Watermark</button>
+</div>
 <div class="small">Upload your logo here once; it will print faintly behind the invoice/estimate.</div>
 </div>
 
-    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-      <h3 style="color:#0e111a">Backup & Restore</h3>
-      <div class="grid">
-        <div class="actions">
-          <button class="tab-btn" id="exportBtn" type="button">Export Data (JSON)</button>
-          <label style="display:inline-flex;align-items:center;gap:8px">
-            <input id="importFile" type="file" accept="application/json"/> Import JSON
-          </label>
-          <button class="tab-btn" id="importBtn" type="button">Import</button>
-        </div>
-        <div class="small">Exports customers, jobs, settings, UI state, and your watermark so you can restore after site updates.</div>
-      </div>
+<div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
+  <h3 style="color:#0e111a">Backup & Restore</h3>
+  <div class="grid">
+    <div class="actions">
+      <button class="tab-btn" id="exportBtn" type="button">Export Data (JSON)</button>
+      <label style="display:inline-flex;align-items:center;gap:8px">
+        <input id="importFile" type="file" accept="application/json"/> Import JSON
+      </label>
+      <button class="tab-btn" id="importBtn" type="button">Import</button>
     </div>
-    </section>
+    <div class="small">Exports customers, jobs, settings, UI state, and your watermark so you can restore after site updates.</div>
+  </div>
+</div>
+</section>
 </main>
 <button id="toTop" title="Back to top">↑ Top</button>
 <nav class="bottom" style="position:fixed;bottom:0;left:0;right:0;background:#0e111a;border-top:1px solid var(--border);display:flex;justify-content:space-between;padding:10px 10px;align-items:center;color:#fff">
@@ -300,7 +302,7 @@ var __JS_STARTED = true;
   var logEl = document.getElementById('debugLog');
   var metaEl = document.getElementById('debugMeta');
   var buf = [];
-  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\\n'); } }
+  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\n'); } }
   window.AppLog = {
     info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
     warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
@@ -461,7 +463,7 @@ window.addEventListener('load', function(){
       var tb = $('#custTable tbody'); tb.innerHTML='';
       DB.customers.forEach(function(c){
         var tr = document.createElement('tr');
-        tr.innerHTML = '<td>'+c.name+'</td><td>'+(c.phone||'')+'</td><td>'+(c.email||'')+'</td><td>'+(c.vehicle||'')+'</td><td><button class="tab-btn" data-delc="'+c.id+'">Delete</button></td>';
+        tr.innerHTML = '<td>'+c.name+'</td><td>'+(c.phone||'')+'</td><td>'+(c.email||'')+'</td><td>'+(c.vehicle||'')+'</td><td><button class="tab-btn" data-delc="'+c.id+'" type="button">Delete</button></td>';
         tb.appendChild(tr);
       });
       $all('button[data-delc]').forEach(function(btn){
@@ -555,7 +557,7 @@ window.addEventListener('load', function(){
           '<td>'+j.id.slice(0,8)+'</td><td>'+(c?c.name:'—')+'</td><td>'+j.title+'</td>' +
           '<td><span class="badge '+badge+'">'+j.status+'</span></td>' +
           '<td>'+fmt(subtotal)+'</td><td>'+fmt(profit)+'</td>' +
-          '<td><button class="tab-btn" data-open="'+j.id+'">Open</button></td>';
+          '<td><button class="tab-btn" data-open="'+j.id+'" type="button">Open</button></td>';
         tb.appendChild(tr);
       });
       $all('button[data-open]').forEach(function(b){
@@ -657,38 +659,63 @@ window.addEventListener('load', function(){
 
     function makeRowDraggable(tr){
       var handle = tr.querySelector('.handle'); if(!handle) return;
-      handle.addEventListener('mousedown', function(ev){
-        ev.preventDefault();
-        var startY = ev.clientY;
+
+      function startDrag(clientY){
+        var startY = clientY;
         tr.classList.add('dragging');
+
         function onMove(e){
-          var dy = e.clientY - startY;
+          var y = e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || startY;
+          var dy = y - startY;
           tr.style.transform = 'translateY('+dy+'px)';
           var siblings = Array.prototype.slice.call(tr.parentNode.children).filter(function(x){ return x!==tr; });
           var insertBefore = null, i, sib, r, half;
           for(i=0;i<siblings.length;i++){
             sib = siblings[i]; r = sib.getBoundingClientRect(); half = r.top + r.height/2;
-            if(e.clientY < half){ insertBefore = sib; break; }
+            if(y < half){ insertBefore = sib; break; }
           }
           for(i=0;i<siblings.length;i++){ siblings[i].classList.toggle('drop-target', siblings[i]===insertBefore); }
         }
-        function onUp(e){
+        function endDrag(e){
           tr.classList.remove('dragging'); tr.style.transform='';
           $all('#lines tbody tr').forEach(function(s){ s.classList.remove('drop-target'); });
+          document.removeEventListener('pointermove', onMove);
+          document.removeEventListener('pointerup', endDrag);
           document.removeEventListener('mousemove', onMove);
-          document.removeEventListener('mouseup', onUp);
+          document.removeEventListener('mouseup', endDrag);
+
+          var y = (e && (e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY))) || startY;
           var siblings = Array.prototype.slice.call(tr.parentNode.children).filter(function(x){ return x!==tr; });
           var insertBefore = null, i, sib, r, half;
           for(i=0;i<siblings.length;i++){
             sib = siblings[i]; r = sib.getBoundingClientRect(); half = r.top + r.height/2;
-            if(e.clientY < half){ insertBefore = sib; break; }
+            if(y < half){ insertBefore = sib; break; }
           }
           if(insertBefore){ tr.parentNode.insertBefore(tr, insertBefore); }
           persistLines();
         }
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onUp);
-      });
+
+        if (window.PointerEvent) {
+          document.addEventListener('pointermove', onMove);
+          document.addEventListener('pointerup', endDrag);
+        } else {
+          document.addEventListener('mousemove', onMove);
+          document.addEventListener('mouseup', endDrag);
+        }
+      }
+
+      // Use pointer events when available; fallback to mouse
+      if (window.PointerEvent) {
+        handle.addEventListener('pointerdown', function(ev){
+          ev.preventDefault();
+          startDrag(ev.clientY);
+        });
+      } else {
+        handle.addEventListener('mousedown', function(ev){
+          ev.preventDefault();
+          startDrag(ev.clientY);
+        });
+      }
     }
 
     function addLine(type, desc, qty, unit, cost, note){
@@ -699,7 +726,7 @@ window.addEventListener('load', function(){
       var unitPH = type==='Labor' ? "$/hr (auto or manual)" : "sell price (e.g., 44.80)";
       tr.className = 'draggable-row';
       tr.innerHTML =
-        '<td class="drag-col"><button class="tab-btn handle" title="Drag to reorder">↕</button></td>' +
+        '<td class="drag-col"><button class="tab-btn handle" type="button" title="Drag to reorder">↕</button></td>' +
         '<td><select class="lType"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Part'?'selected':'')+'>Part</option></select></td>' +
         '<td><div class="desc-wrap"><input class="lDesc" value="'+(desc||'')+'" placeholder="'+descPH+'"/><textarea class="lNote" placeholder="Tech note for this line (prints)">'+(note||'')+'</textarea></div></td>' +
         '<td><input class="lQty" type="number" step="0.01" value="'+(qty||1)+'" placeholder="'+qtyPH+'"/></td>' +
@@ -871,7 +898,6 @@ window.addEventListener('load', function(){
       }
     }
 
-    // Buttons & listeners
     // Quick Estimate modal
     (function(){
       var modal = document.getElementById('qeModal');
@@ -1037,17 +1063,26 @@ window.addEventListener('load', function(){
     document.getElementById('overallNotes').addEventListener('input', persistLines);
     document.getElementById('photosOnPdf').addEventListener('change', function(){ persistLines(); updatePreview(); });
 
-    // Signature pad (mouse only for compat; touch events often map to mouse events)
+    // Signature pad (pointer events with fallback)
     (function(){
       var modal=document.getElementById('sigModal');
       document.getElementById('sign').addEventListener('click', function(){ modal.style.display='flex'; });
       document.getElementById('sigClose').addEventListener('click', function(){ modal.style.display='none'; });
       var canvas=document.getElementById('sigPad'); var ctx=canvas.getContext('2d'); var drawing=false, last=null;
+
       function pos(e){ var r=canvas.getBoundingClientRect(); return {x:(e.clientX)-r.left, y:(e.clientY)-r.top}; }
       function draw(p){ if(!last){ last=p; return; } ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.lineCap='round'; ctx.stroke(); last=p; }
-      canvas.addEventListener('mousedown', function(e){ drawing=true; last=pos(e); });
-      canvas.addEventListener('mousemove', function(e){ if(drawing) draw(pos(e)); });
-      document.addEventListener('mouseup', function(){ drawing=false; last=null; });
+
+      if (window.PointerEvent) {
+        canvas.addEventListener('pointerdown', function(e){ e.preventDefault(); drawing=true; last=pos(e); canvas.setPointerCapture(e.pointerId); });
+        canvas.addEventListener('pointermove', function(e){ if(drawing){ draw(pos(e)); } });
+        canvas.addEventListener('pointerup', function(e){ drawing=false; last=null; try{ canvas.releasePointerCapture(e.pointerId); }catch(_){ } });
+      } else {
+        canvas.addEventListener('mousedown', function(e){ drawing=true; last=pos(e); });
+        canvas.addEventListener('mousemove', function(e){ if(drawing) draw(pos(e)); });
+        document.addEventListener('mouseup', function(){ drawing=false; last=null; });
+      }
+
       document.getElementById('sigClear').addEventListener('click', function(){ ctx.clearRect(0,0,canvas.width,canvas.height); });
       document.getElementById('sigSave').addEventListener('click', function(){
         var role=document.getElementById('sigRole').value; var name=document.getElementById('sigName').value.trim(); var date=document.getElementById('sigDate').value; var dataUrl=canvas.toDataURL('image/png');
@@ -1066,7 +1101,7 @@ window.addEventListener('load', function(){
       function render(){ renderPhotoGrid(); updatePreview(); saveDB(); }
       function onFiles(files){ var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; } var i=0; (function next(){ if(i>=files.length){ render(); return; } readAsDataURL(files[i], function(data){ addPhotoToJob(j,data); i++; next(); }); })(); }
       if(input){ input.addEventListener('change', function(){ onFiles(input.files||[]); input.value=''; }); }
-      window.renderPhotoGrid=function(){ var j=currentJob(); var grid=document.getElementById('photoGrid'); grid.innerHTML=''; if(!j || !j.photos || !j.photos.length) return; j.photos.forEach(function(ph,idx){ var div=document.createElement('div'); div.className='photo-item'; div.innerHTML='<img src="'+ph.dataUrl+'" alt=""><button class="del">×</button><label><input type="checkbox" '+(ph.include!==false?'checked':'')+'> Include on PDF</label>'; div.querySelector('.del').addEventListener('click', function(){ j.photos.splice(idx,1); render(); }); div.querySelector('input[type=checkbox]').addEventListener('change', function(e){ ph.include = e.target.checked; render(); }); grid.appendChild(div); }); }
+      window.renderPhotoGrid=function(){ var j=currentJob(); var grid=document.getElementById('photoGrid'); grid.innerHTML=''; if(!j || !j.photos || !j.photos.length) return; j.photos.forEach(function(ph,idx){ var div=document.createElement('div'); div.className='photo-item'; div.innerHTML='<img src="'+ph.dataUrl+'" alt=""><button class="del" type="button">×</button><label><input type="checkbox" '+(ph.include!==false?'checked':'')+'> Include on PDF</label>'; div.querySelector('.del').addEventListener('click', function(){ j.photos.splice(idx,1); render(); }); div.querySelector('input[type=checkbox]').addEventListener('change', function(e){ ph.include = e.target.checked; render(); }); grid.appendChild(div); }); }
     })();
 
     // Templates
@@ -1078,7 +1113,7 @@ window.addEventListener('load', function(){
         var card = document.createElement('div'); card.className='card'; card.style.background='#fff'; card.style.color='#000'; card.style.borderColor='#b6b09f';
         var html = '<h4 style="color:#0e111a; margin:0 0 6px 0">'+tpl.platform+'</h4>';
         html += '<div class="small">'+tpl.items.length+' items</div>';
-        html += '<div class="actions" style="margin-top:8px"><button class="tab-btn" data-apply="'+ti+'">Apply</button></div>';
+        html += '<div class="actions" style="margin-top:8px"><button class="tab-btn" data-apply="'+ti+'" type="button">Apply</button></div>';
         card.innerHTML = html; list.appendChild(card);
       }
       $all('button[data-apply]').forEach(function(btn){
@@ -1155,5 +1190,3 @@ window.addEventListener('load', function(){
 </script>
 </body>
 </html>
-
-
