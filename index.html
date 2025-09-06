@@ -5,10 +5,11 @@
 <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
 <title>Poppe’s Diesel Co. — Shop Manager (v1.2.0 — COMPAT)</title>
 
+<!-- ===== Your original base styles (unchanged) ===== -->
 <style>
 :root{--bg:#e6cfae;--card:#13151c;--text:#0e111a;--muted:#3e463e;--border:#2e3226;--ink:#0e111a;--ink2:#161a24;--shadow:0 10px 20px rgba(0,0,0,.30);--info:#0a3d2e;--ok:#1f6b55;--warn:#f5c518;--danger:#962b2b;--font:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 *{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
-header{position:sticky;top:0;z-index:10;background:var(--ink);border-bottom:1px solid var(--border);padding:12px 16px;box-shadow:var(--shadow);color:#fff}
+header{position:sticky;top:0;z-index:10;background:var(--ink);border-bottom:1px solid #2e3226;padding:12px 16px;box-shadow:var(--shadow);color:#fff}
 h1{margin:0;font-size:20px;display:flex;gap:8px;align-items:center}
 .tag{background:var(--ink2);color:#c5c9d3;padding:2px 6px;border-radius:6px;font-size:12px;white-space:nowrap}
 nav.top{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
@@ -55,381 +56,325 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .noscript-overlay h2{margin:0 0 10px 0}
 </style>
 
-<!-- === Visual Polish Pack v1 (non-breaking; overrides only) === -->
+<!-- ===== Poppe's "Heritage" theme (parchment + black + deep red) ===== -->
 <style>
-:root{
-  --bg:#ece7de;
-  --surface:#ffffff;
-  --surface-2:#f6f3ee;
-  --ink:#0e111a;
-  --ink2:#1a1f2b;
-  --text:#0c0f16;
-  --muted:#57606a;
-  --border:#d6d0c4;
-  --ok:#1f6b55; --info:#0a3d2e; --warn:#b07a07; --danger:#962b2b;
-  --radius:14px;
-  --shadow-sm:0 1px 2px rgba(0,0,0,.05), 0 1px 1px rgba(0,0,0,.04);
-  --shadow-md:0 6px 14px rgba(0,0,0,.12);
-  --shadow-lg:0 14px 34px rgba(0,0,0,.18);
-}
+:root,
 html[data-theme="dark"]{
-  --bg:#0f1116;
-  --surface:#161a22;
-  --surface-2:#12151c;
-  --text:#e8edf4;
-  --muted:#97a3b6;
-  --border:#2a2f3b;
-  --ink:#0f1116;
-  --ink2:#1c2230;
+  --parchment:#E3D1B4;
+  --ink:#0E0F10;
+  --ink2:#171A1F;
+  --brand-red:#B13A33;
+
+  /* remap your existing tokens */
+  --bg:var(--parchment);
+  --surface:#F5E9D3;
+  --surface-2:#EFE1C8;
+  --text:#0B0D0F;
+  --muted:#6D6456;
+  --border:#C7B497;
+
+  --info:var(--ink); /* primary buttons use black */
+  --ok:#1F6B55;
+  --warn:#B07A07;
+  --danger:#962B2B;
 }
 
-/* Base + header */
+/* Theme application */
 body{ background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased; }
-header{ background:var(--ink); border-bottom:1px solid rgba(255,255,255,.06); box-shadow:var(--shadow-md); }
-h1{ letter-spacing:.2px }
+header{ background:var(--ink); border-bottom:1px solid rgba(255,255,255,.06); }
+.tag{ background:var(--ink2); color:#E8E0D2; }
 
-/* Cards */
-.card{
-  background:var(--surface);
-  color:var(--text);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow-sm);
-}
-.card h3{ letter-spacing:.1px }
+.card{ background:var(--surface); color:var(--text); border:1px solid var(--border); }
+.table-wrap{ background:var(--surface); border-color:var(--border); }
 
-/* Buttons & interactive elements */
-button, select, input, textarea{
-  transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .02s ease;
-  border-radius:12px;
-}
-.tab-btn{
-  background:#1d312a; border:1px solid #0e241c; color:#fff;
-  box-shadow:0 1px 0 rgba(255,255,255,.06) inset, 0 6px 14px rgba(0,0,0,.14);
-}
-.tab-btn:hover{ transform:translateY(-1px) }
-.tab-btn:active{ transform:translateY(0) scale(.99) }
-.primary{ background:var(--info); border-color:var(--info) }
-.success{ background:var(--ok); border-color:var(--ok) }
+/* Black band header like your DIESEL CO. block */
+.lines thead th{ background:var(--ink) !important; color:var(--parchment) !important; border-bottom-color:var(--ink) !important; }
+tbody tr:nth-child(odd) td{ background:var(--surface-2); }
 
-/* Focus visibility */
+/* Buttons */
+.tab-btn{ background:var(--ink); border:1px solid #0a0b0c; color:#F2E7D1; }
+.tab-btn:hover{ filter:brightness(1.06); }
+.primary{ background:var(--info); border-color:var(--info); color:#F2E7D1; }
+.success{ background:var(--ok); border-color:var(--ok); color:#fff; }
+
+/* Big CTA in brand red */
+#pdf{ background:var(--brand-red) !important; border:none; }
+#pdf:hover{ filter:brightness(1.06); }
+
+/* Focus ring in brand red tint */
 :where(button,[role="button"],a,input,select,textarea):focus-visible{
   outline:2px solid transparent;
-  box-shadow:0 0 0 3px rgba(16,185,129,.55);
+  box-shadow:0 0 0 3px rgba(177,58,51,.45);
 }
 
-/* Forms */
-input, select, textarea{
-  background:var(--surface);
-  border:1px solid var(--border);
-}
-input::placeholder, textarea::placeholder{ color:var(--muted) }
+/* Preview */
+.print-area{ background:var(--surface); color:var(--text); border:1px solid var(--border); }
+#wmFallback{ opacity:.10; }
+#wmImg{ opacity:.10; mix-blend-mode:multiply; }
 
-/* Tables */
-.table-wrap{ background:var(--surface); border-color:var(--border); box-shadow:var(--shadow-sm) }
-table{ border-collapse:separate; border-spacing:0 }
-th, td{ border-bottom:1px solid var(--border) }
-thead th{
-  position:sticky; top:0; z-index:2;
-  background:linear-gradient(to bottom, var(--surface-2), var(--surface));
-  color:var(--text);
-  text-transform:uppercase; font-size:.8rem; letter-spacing:.04em;
-}
-tbody tr:nth-child(odd) td{ background:var(--surface-2) }
-td:nth-last-child(3), td:nth-last-child(2){ text-align:right } /* money columns */
+/* Bottom nav */
+nav.bottom{ background:rgba(14,17,26,.90); backdrop-filter:saturate(160%) blur(8px); border-top:1px solid rgba(255,255,255,.06); }
 
-/* Badges */
-.badge{ border:1px solid var(--border); background:var(--surface); color:var(--text) }
-.badge-open{ background:#fff4; border-color:var(--border) }
-.badge-ip{ background:#fff1cc; border-color:#f1d284; color:#5a3b00 }
-.badge-done{ background:#d6f2e8; border-color:#a5decf; color:#0a3d2e }
-.badge.invoice{ background:#d6f2e8; color:#0a3d2e }
-.badge.estimate{ background:#fff3c8; color:#3b2b00 }
+/* Badges on parchment */
+.badge{ border:1px solid var(--border); background:var(--surface); color:var(--text); }
+.badge.estimate{ background:#F3E2BF; color:#3B2B00; }
+.badge.invoice{ background:#DCD3C0; color:#0E0F10; }
 
-/* Invoice preview refinements */
-.print-area{ background:var(--surface); color:var(--text); border:1px solid var(--border); box-shadow:var(--shadow-md) }
-.invoice-header{ border-bottom:1px solid var(--border) }
-.lines thead th{ background:var(--surface-2); color:var(--text); border-bottom-color:var(--border) }
-
-/* Bottom nav “glass” */
-nav.bottom{
-  background:rgba(14,17,26,.85);
-  backdrop-filter:saturate(160%) blur(8px);
-  border-top:1px solid rgba(255,255,255,.06);
-}
-
-/* Drag handle affordance */
-.handle{ border-radius:10px; background:rgba(0,0,0,.05) }
-html[data-theme="dark"] .handle{ background:rgba(255,255,255,.06) }
-
-/* Smooth modal show/hide */
-.modal{ transition: opacity .15s ease }
-.modal[style*="display: none"]{ opacity:0 }
-.modal[style*="display: flex"]{ opacity:1 }
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce){
-  *{ transition:none !important; animation:none !important }
-}
-
-/* Mobile tweaks */
-@media (max-width:700px){
-  th, td{ padding:8px }
-  .actions>*{ height:auto; min-height:44px }
-}
+/* Signature canvas: capture touch/pan so page doesn't scroll */
+#sigPad{ touch-action:none; }
 </style>
 </head>
 
 <body>
 <noscript>
 <div class="noscript-overlay">
-<div class="box">
-<h2>JavaScript is disabled or blocked</h2>
-<p>This app is 100% client-side. Please open the file in Chrome/Edge with JavaScript enabled, or whitelist local files if a security tool is blocking scripts.</p>
-<ul>
-<li>Download the file and open it so the address bar starts with <code>file:///</code></li>
-<li>Disable “Safe Mode / NoScript / Tracking Protection” just for this file</li>
-<li>Then reload</li>
-</ul>
-</div>
+  <div class="box">
+    <h2>JavaScript is disabled or blocked</h2>
+    <p>This app is 100% client-side. Please open the file in Chrome/Edge with JavaScript enabled, or whitelist local files if a security tool is blocking scripts.</p>
+    <ul>
+      <li>Download the file and open it so the address bar starts with <code>file:///</code></li>
+      <li>Disable “Safe Mode / NoScript / Tracking Protection” just for this file</li>
+      <li>Then reload</li>
+    </ul>
+  </div>
 </div>
 </noscript>
 
 <div id="error" style="display:none">JavaScript error detected. Tap to reload.</div>
 
 <header>
-<h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.2.0</span><span class="tag selftest" id="selftest">Self-test: …</span><span class="tag">COMPAT</span></h1>
-<nav class="top">
-<button class="tab-btn" data-tab="dashboard">Dashboard</button>
-<button class="tab-btn" data-tab="customers">Customers</button>
-<button class="tab-btn" data-tab="jobs">Jobs</button>
-<button class="tab-btn" data-tab="invoice">Estimate / Invoice</button>
-<button class="tab-btn" data-tab="settings">Settings</button>
-</nav>
+  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.2.0</span><span class="tag selftest" id="selftest">Self-test: …</span><span class="tag">COMPAT</span></h1>
+  <nav class="top">
+    <button class="tab-btn" data-tab="dashboard">Dashboard</button>
+    <button class="tab-btn" data-tab="customers">Customers</button>
+    <button class="tab-btn" data-tab="jobs">Jobs</button>
+    <button class="tab-btn" data-tab="invoice">Estimate / Invoice</button>
+    <button class="tab-btn" data-tab="settings">Settings</button>
+  </nav>
 </header>
 
 <main>
-<section class="tab active" id="dashboard">
-<h2>Dashboard</h2>
-<div class="cards">
-<div class="card"><h3>Open Jobs</h3><div id="openJobs">0</div></div>
-<div class="card"><h3>Unpaid Invoices</h3><div id="unpaid">0</div></div>
-<div class="card"><h3>Revenue (This Month)</h3><div id="revMonth">$0</div></div>
-<div class="card"><h3>Profit (This Month)</h3><div id="profitMonth">$0</div></div>
-</div>
-</section>
-
-<section class="tab" id="customers">
-<h2>Customers</h2>
-<form class="grid" id="custForm">
-<input id="custName" placeholder="Full name (e.g., Jane Smith)" required=""/>
-<input id="custPhone" inputmode="tel" placeholder="Phone (e.g., 555-123-4567)"/>
-<input id="custEmail" inputmode="email" placeholder="Email (e.g., name@shop.com)"/>
-<input id="custVehicle" placeholder="Vehicle (e.g., 2018 F-350 6.7L)"/>
-<button class="primary" type="submit">Add Customer</button>
-</form>
-<div class="table-wrap">
-<table id="custTable"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Vehicle</th><th></th></tr></thead><tbody></tbody></table>
-</div>
-</section>
-
-<section class="tab" id="jobs">
-<h2>Jobs</h2>
-<form class="grid" id="jobForm">
-<select id="jobCustomer" required=""></select>
-<input id="jobTitle" placeholder="Job title (e.g., Front brakes + rotors)" required=""/>
-<input id="jobVIN" placeholder="VIN (17 chars)"/>
-<button class="tab-btn" id="decodeVIN" type="button">Decode VIN</button>
-<div aria-live="polite" class="card" id="vinResult" style="display:none"></div>
-<div aria-live="polite" class="card" id="vinSuggest" style="display:none">
-<div><strong>Suggested parts &amp; labor</strong> (platform match)</div>
-<div class="actions" id="vinTags"></div>
-<button class="tab-btn primary" id="addAllSuggest" type="button">Add All</button>
-</div>
-<textarea id="jobNotes" placeholder="Notes (symptoms, codes, etc.)"></textarea>
-<select id="jobStatus"><option>Open</option><option>In Progress</option><option>Done</option></select>
-<button class="primary" type="submit">Create Job</button>
-</form>
-<div class="card" id="internalNotesWrap">
-<h3>Internal Staff Notes (won’t print)</h3>
-<textarea id="internalNotes" placeholder="For in-house eyes only — diagnostic rabbit holes, supplier rants, etc."></textarea>
-</div>
-<div class="table-wrap">
-<table id="jobsTable">
-<thead><tr><th>#</th><th>Customer</th><th>Title</th><th>Status</th><th>Total</th><th>Profit</th><th></th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-</section>
-
-<section class="tab" id="invoice">
-<h2>Estimate / Invoice<br/><small>Poppe’s Diesel Co. — Built in the Garage, Backed by Freedom</small></h2>
-<div class="grid" id="invFilters">
-<label>Filter by Customer <select id="invCustFilter"><option value="">All customers</option></select></label>
-<label>Search Jobs <input id="invJobSearch" placeholder="Type to filter jobs by customer/title…"/></label>
-<div><div class="small">Recent jobs</div><div class="actions" id="recentJobs"></div></div>
-</div>
-<form class="grid" id="invForm">
-<select id="invJob" required=""></select>
-<input id="invNo" placeholder="Document # (e.g., 2025-001)">
-<label>Type <select id="docType"><option>Estimate</option><option>Invoice</option></select></label>
-<label>Labor Rate ($/hr) <input id="laborRate" step="0.01" type="number" value="80"/></label>
-<label>Sales Tax (%) <input id="salesTax" step="0.01" type="number" value="7"/></label>
-<label>Payment Link <input id="payLink" placeholder="https://pay.yourprovider.com/invoice/123"/></label>
-<label>Email To <input id="emailTo" placeholder="customer@example.com"/></label>
-</input></form>
-<div class="actions">
-<button class="tab-btn" id="addLabor" type="button">+ Labor Line</button>
-<button class="tab-btn" id="addPart" type="button">+ Part Line</button>
-<button class="tab-btn" id="openTemplates" type="button">Maintenance Templates</button>
-<button class="tab-btn" id="applyMarkup" type="button">Apply Default Markup</button>
-<button class="tab-btn" id="quickEstimate" type="button">Quick Estimate</button>
-<button class="tab-btn" id="recalc" type="button">Recalculate</button>
-<button class="tab-btn success" id="markPaid" type="button">Mark Paid</button>
-<button class="tab-btn" id="approve" type="button">Approve Estimate</button>
-<button class="tab-btn" id="convert" type="button">Convert to Invoice</button>
-<button class="tab-btn" id="sign" type="button">Collect Signatures</button>
-<button class="tab-btn" id="email" type="button">Email</button>
-<button class="tab-btn primary" id="pdf" type="button">Generate PDF</button>
-</div>
-<div class="table-wrap" style="margin-top:10px">
-<table class="lines" id="lines">
-<thead><tr><th style="width:28px">↕</th><th>Type</th><th>Description</th><th>Qty/Hrs</th><th>Cost $</th><th>Unit $</th><th>Line $</th><th>Profit $</th><th></th></tr></thead>
-<tbody></tbody>
-</table>
-</div>
-<div class="totals">
-<div>Subtotal: <span id="sub">$0.00</span></div>
-<div>Tax: <span id="tax">$0.00</span></div>
-<div class="grand">Total: <span id="grand">$0.00</span></div>
-<div><strong>Total Profit:</strong> <span id="profit">$0.00</span></div>
-<div>Margin: <span class="badge estimate" id="margin">0%</span></div>
-</div>
-<div class="card" id="overallNotesWrap" style="background:#fff;color:#000;border-color:#b6b09f">
-<h3 style="color:#0e111a">Technician Overall Notes</h3>
-<textarea id="overallNotes" placeholder="Explain diagnostics, verified checks, advisories."></textarea>
-</div>
-<div class="card" id="photosWrap" style="background:#fff;color:#000;border-color:#b6b09f">
-<h3 style="color:#0e111a">Work Photos</h3>
-<div class="actions">
-<label style="display:inline-flex;align-items:center;gap:8px"><input accept="image/*" id="photoInput" multiple="" type="file"/>Add photos</label>
-<label style="display:inline-flex;align-items:center;gap:8px"><input checked="" id="photosOnPdf" type="checkbox"/> Include photos on PDF</label>
-</div>
-<div aria-live="polite" class="photo-grid" id="photoGrid"></div>
-</div>
-<div class="print-area" id="preview" style="margin-top:12px">
-<div class="watermark">
-<img alt="watermark" id="wmImg" style="display:none;max-width:90%;max-height:90%;opacity:.50;mix-blend-mode:multiply"/>
-<svg height="90%" id="wmFallback" style="filter:grayscale(100%);opacity:.12" viewbox="0 0 800 200" width="90%">
-<text dominant-baseline="middle" fill="#000" font-family="Impact,Haettenschweiler,'Arial Black',sans-serif" font-size="72" text-anchor="middle" x="50%" y="50%">Poppe’s Diesel Co.</text>
-</svg>
-</div>
-<div class="invoice-header">
-<div class="shop"><h3>Poppe’s Diesel Co.</h3><p>Columbus, IN</p><p>poppedieselco@gmail.com</p><p>(208) 243-7934</p></div>
-<div class="meta">
-<div><strong>Doc #</strong> <span id="pInvNo">—</span></div>
-<div><strong>Date</strong> <span id="pDate">—</span></div>
-<div><strong>Type</strong> <span class="badge estimate" id="pType">Estimate</span></div>
-<div><strong>Status</strong> <span id="pStatus">Unpaid</span></div>
-</div>
-</div>
-<div><strong>Bill To:</strong> <span id="pCust">—</span><div id="pVeh"></div></div>
-<table class="lines"><thead><tr><th>Description</th><th>Qty/Hrs</th><th>Unit</th><th>Line $</th></tr></thead><tbody id="pLines"></tbody></table>
-<div id="pOverallBlock"></div>
-<div class="totals"><div>Subtotal: <span id="pSub">$0.00</span></div><div>Tax: <span id="pTax">$0.00</span></div><div class="grand">Grand Total: <span id="pGrand">$0.00</span></div></div>
-<div class="signatures" id="signatures">
-<div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigCustomer" style="display:none"/></div><div class="sig-label">Customer Signature <span id="pSigCustomerName"></span> <span class="small" id="pSigCustomerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
-<div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigManager" style="display:none"/></div><div class="sig-label">Service Manager Signature <span id="pSigManagerName"></span> <span class="small" id="pSigManagerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
-</div>
-<div id="pPhotosBlock" style="margin-top:10px"></div>
-</div>
-</section>
-
-<section class="tab" id="settings">
-<h2>Settings</h2>
-<div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-<h3 style="color:#0e111a">Default Parts Markup</h3>
-<div class="grid"><label>Default Markup % <input id="defaultMarkup" step="1" type="number" value="40"/></label><div class="small">Used by “Apply Default Markup”.</div></div>
-</div>
-<div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-<h3 style="color:#0e111a">Email Presets</h3>
-<div class="grid">
-<label>From (Shop Name) <input id="shopFrom" placeholder="Poppe’s Diesel Co."/></label>
-<label>Reply-To Email <input id="shopReply" inputmode="email" placeholder="poppedieselco@gmail.com"/></label>
-<label>Subject Prefix <input id="shopSubj" placeholder="[Poppe’s Diesel Co.] "/></label>
-<label>Footer (email body) <input id="shopFooter" placeholder="Thank you for supporting local."/></label>
-</div>
-<div class="small">Tap Email to use these in a mailto draft.</div>
-</div>
-<div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-<h3 style="color:#0e111a">Branding (Watermark)</h3>
-<div class="grid"><label>Upload Logo <input accept="image/*" id="wmFile" type="file"/></label></div>
-<div class="small">Upload your logo here once; it will print faintly behind the invoice/estimate.</div>
-</div>
-
-<div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-  <h3 style="color:#0e111a">Backup & Restore</h3>
-  <div class="grid">
-    <div class="actions">
-      <button class="tab-btn" id="exportBtn" type="button">Export Data (JSON)</button>
-      <label style="display:inline-flex;align-items:center;gap:8px">
-        <input id="importFile" type="file" accept="application/json"/> Import JSON
-      </label>
-      <button class="tab-btn" id="importBtn" type="button">Import</button>
+  <section class="tab active" id="dashboard">
+    <h2>Dashboard</h2>
+    <div class="cards">
+      <div class="card"><h3>Open Jobs</h3><div id="openJobs">0</div></div>
+      <div class="card"><h3>Unpaid Invoices</h3><div id="unpaid">0</div></div>
+      <div class="card"><h3>Revenue (This Month)</h3><div id="revMonth">$0</div></div>
+      <div class="card"><h3>Profit (This Month)</h3><div id="profitMonth">$0</div></div>
     </div>
-    <div class="small">Exports customers, jobs, settings, UI state, and your watermark so you can restore after site updates.</div>
-  </div>
-</div>
-</section>
+  </section>
+
+  <section class="tab" id="customers">
+    <h2>Customers</h2>
+    <form class="grid" id="custForm">
+      <input id="custName" placeholder="Full name (e.g., Jane Smith)" required=""/>
+      <input id="custPhone" inputmode="tel" placeholder="Phone (e.g., 555-123-4567)"/>
+      <input id="custEmail" inputmode="email" placeholder="Email (e.g., name@shop.com)"/>
+      <input id="custVehicle" placeholder="Vehicle (e.g., 2018 F-350 6.7L)"/>
+      <button class="primary" type="submit">Add Customer</button>
+    </form>
+    <div class="table-wrap">
+      <table id="custTable"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Vehicle</th><th></th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <section class="tab" id="jobs">
+    <h2>Jobs</h2>
+    <form class="grid" id="jobForm">
+      <select id="jobCustomer" required=""></select>
+      <input id="jobTitle" placeholder="Job title (e.g., Front brakes + rotors)" required=""/>
+      <input id="jobVIN" placeholder="VIN (17 chars)"/>
+      <button class="tab-btn" id="decodeVIN" type="button">Decode VIN</button>
+      <div aria-live="polite" class="card" id="vinResult" style="display:none"></div>
+      <div aria-live="polite" class="card" id="vinSuggest" style="display:none">
+        <div><strong>Suggested parts &amp; labor</strong> (platform match)</div>
+        <div class="actions" id="vinTags"></div>
+        <button class="tab-btn primary" id="addAllSuggest" type="button">Add All</button>
+      </div>
+      <textarea id="jobNotes" placeholder="Notes (symptoms, codes, etc.)"></textarea>
+      <select id="jobStatus"><option>Open</option><option>In Progress</option><option>Done</option></select>
+      <button class="primary" type="submit">Create Job</button>
+    </form>
+    <div class="card" id="internalNotesWrap">
+      <h3>Internal Staff Notes (won’t print)</h3>
+      <textarea id="internalNotes" placeholder="For in-house eyes only — diagnostic rabbit holes, supplier rants, etc."></textarea>
+    </div>
+    <div class="table-wrap">
+      <table id="jobsTable">
+        <thead><tr><th>#</th><th>Customer</th><th>Title</th><th>Status</th><th>Total</th><th>Profit</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="tab" id="invoice">
+    <h2>Estimate / Invoice<br/><small>Poppe’s Diesel Co. — Built in the Garage, Backed by Freedom</small></h2>
+    <div class="grid" id="invFilters">
+      <label>Filter by Customer <select id="invCustFilter"><option value="">All customers</option></select></label>
+      <label>Search Jobs <input id="invJobSearch" placeholder="Type to filter jobs by customer/title…"/></label>
+      <div><div class="small">Recent jobs</div><div class="actions" id="recentJobs"></div></div>
+    </div>
+    <form class="grid" id="invForm">
+      <select id="invJob" required=""></select>
+      <input id="invNo" placeholder="Document # (e.g., 2025-001)">
+      <label>Type <select id="docType"><option>Estimate</option><option>Invoice</option></select></label>
+      <label>Labor Rate ($/hr) <input id="laborRate" step="0.01" type="number" value="80"/></label>
+      <label>Sales Tax (%) <input id="salesTax" step="0.01" type="number" value="7"/></label>
+      <label>Payment Link <input id="payLink" placeholder="https://pay.yourprovider.com/invoice/123"/></label>
+      <label>Email To <input id="emailTo" placeholder="customer@example.com"/></label>
+    </form>
+    <div class="actions">
+      <button class="tab-btn" id="addLabor" type="button">+ Labor Line</button>
+      <button class="tab-btn" id="addPart" type="button">+ Part Line</button>
+      <button class="tab-btn" id="openTemplates" type="button">Maintenance Templates</button>
+      <button class="tab-btn" id="applyMarkup" type="button">Apply Default Markup</button>
+      <button class="tab-btn" id="quickEstimate" type="button">Quick Estimate</button>
+      <button class="tab-btn" id="recalc" type="button">Recalculate</button>
+      <button class="tab-btn success" id="markPaid" type="button">Mark Paid</button>
+      <button class="tab-btn" id="approve" type="button">Approve Estimate</button>
+      <button class="tab-btn" id="convert" type="button">Convert to Invoice</button>
+      <button class="tab-btn" id="sign" type="button">Collect Signatures</button>
+      <button class="tab-btn" id="email" type="button">Email</button>
+      <button class="tab-btn primary" id="pdf" type="button">Generate PDF</button>
+    </div>
+    <div class="table-wrap" style="margin-top:10px">
+      <table class="lines" id="lines">
+        <thead><tr><th style="width:28px">↕</th><th>Type</th><th>Description</th><th>Qty/Hrs</th><th>Cost $</th><th>Unit $</th><th>Line $</th><th>Profit $</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="totals">
+      <div>Subtotal: <span id="sub">$0.00</span></div>
+      <div>Tax: <span id="tax">$0.00</span></div>
+      <div class="grand">Total: <span id="grand">$0.00</span></div>
+      <div><strong>Total Profit:</strong> <span id="profit">$0.00</span></div>
+      <div>Margin: <span class="badge estimate" id="margin">0%</span></div>
+    </div>
+    <div class="card" id="overallNotesWrap" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Technician Overall Notes</h3>
+      <textarea id="overallNotes" placeholder="Explain diagnostics, verified checks, advisories."></textarea>
+    </div>
+    <div class="card" id="photosWrap" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Work Photos</h3>
+      <div class="actions">
+        <label style="display:inline-flex;align-items:center;gap:8px"><input accept="image/*" id="photoInput" multiple="" type="file"/>Add photos</label>
+        <label style="display:inline-flex;align-items:center;gap:8px"><input checked="" id="photosOnPdf" type="checkbox"/> Include photos on PDF</label>
+      </div>
+      <div aria-live="polite" class="photo-grid" id="photoGrid"></div>
+    </div>
+    <div class="print-area" id="preview" style="margin-top:12px">
+      <div class="watermark">
+        <img alt="watermark" id="wmImg" style="display:none;max-width:90%;max-height:90%;opacity:.50;mix-blend-mode:multiply"/>
+        <svg height="90%" id="wmFallback" style="filter:grayscale(100%);opacity:.12" viewBox="0 0 800 200" width="90%">
+          <text dominant-baseline="middle" fill="#000" font-family="Impact,Haettenschweiler,'Arial Black',sans-serif" font-size="72" text-anchor="middle" x="50%" y="50%">Poppe’s Diesel Co.</text>
+        </svg>
+      </div>
+      <div class="invoice-header">
+        <div class="shop"><h3>Poppe’s Diesel Co.</h3><p>Columbus, IN</p><p>poppedieselco@gmail.com</p><p>(208) 243-7934</p></div>
+        <div class="meta">
+          <div><strong>Doc #</strong> <span id="pInvNo">—</span></div>
+          <div><strong>Date</strong> <span id="pDate">—</span></div>
+          <div><strong>Type</strong> <span class="badge estimate" id="pType">Estimate</span></div>
+          <div><strong>Status</strong> <span id="pStatus">Unpaid</span></div>
+        </div>
+      </div>
+      <div><strong>Bill To:</strong> <span id="pCust">—</span><div id="pVeh"></div></div>
+      <table class="lines"><thead><tr><th>Description</th><th>Qty/Hrs</th><th>Unit</th><th>Line $</th></tr></thead><tbody id="pLines"></tbody></table>
+      <div id="pOverallBlock"></div>
+      <div class="totals"><div>Subtotal: <span id="pSub">$0.00</span></div><div>Tax: <span id="pTax">$0.00</span></div><div class="grand">Grand Total: <span id="pGrand">$0.00</span></div></div>
+      <div class="signatures" id="signatures">
+        <div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigCustomer" style="display:none"/></div><div class="sig-label">Customer Signature <span id="pSigCustomerName"></span> <span class="small" id="pSigCustomerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
+        <div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigManager" style="display:none"/></div><div class="sig-label">Service Manager Signature <span id="pSigManagerName"></span> <span class="small" id="pSigManagerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
+      </div>
+      <div id="pPhotosBlock" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section class="tab" id="settings">
+    <h2>Settings</h2>
+    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Default Parts Markup</h3>
+      <div class="grid"><label>Default Markup % <input id="defaultMarkup" step="1" type="number" value="40"/></label><div class="small">Used by “Apply Default Markup”.</div></div>
+    </div>
+    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Email Presets</h3>
+      <div class="grid">
+        <label>From (Shop Name) <input id="shopFrom" placeholder="Poppe’s Diesel Co."/></label>
+        <label>Reply-To Email <input id="shopReply" inputmode="email" placeholder="poppedieselco@gmail.com"/></label>
+        <label>Subject Prefix <input id="shopSubj" placeholder="[Poppe’s Diesel Co.] "/></label>
+        <label>Footer (email body) <input id="shopFooter" placeholder="Thank you for supporting local."/></label>
+      </div>
+      <div class="small">Tap Email to use these in a mailto draft.</div>
+    </div>
+    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Branding (Watermark)</h3>
+      <div class="grid"><label>Upload Logo <input accept="image/*" id="wmFile" type="file"/></label></div>
+      <div class="small">Upload your logo here once; it will print faintly behind the invoice/estimate.</div>
+    </div>
+
+    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
+      <h3 style="color:#0e111a">Backup & Restore</h3>
+      <div class="grid">
+        <div class="actions">
+          <button class="tab-btn" id="exportBtn" type="button">Export Data (JSON)</button>
+          <label style="display:inline-flex;align-items:center;gap:8px">
+            <input id="importFile" type="file" accept="application/json"/> Import JSON
+          </label>
+          <button class="tab-btn" id="importBtn" type="button">Import</button>
+        </div>
+        <div class="small">Exports customers, jobs, settings, UI state, and your watermark so you can restore after site updates.</div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <button id="toTop" title="Back to top">↑ Top</button>
 
 <nav class="bottom" style="position:fixed;bottom:0;left:0;right:0;background:#0e111a;border-top:1px solid var(--border);display:flex;justify-content:space-between;padding:10px 10px;align-items:center;color:#fff">
-<div><button class="tab-btn" data-tab="dashboard">🏠</button><button class="tab-btn" data-tab="customers">👤</button><button class="tab-btn" data-tab="jobs">🧰</button><button class="tab-btn" data-tab="invoice">🧾</button><button class="tab-btn" data-tab="settings">⚙️</button></div>
-<button id="debugToggle" title="Debug">🪲</button>
+  <div><button class="tab-btn" data-tab="dashboard">🏠</button><button class="tab-btn" data-tab="customers">👤</button><button class="tab-btn" data-tab="jobs">🧰</button><button class="tab-btn" data-tab="invoice">🧾</button><button class="tab-btn" data-tab="settings">⚙️</button></div>
+  <button id="debugToggle" title="Debug">🪲</button>
 </nav>
 
 <div id="debug"><div class="meta" id="debugMeta"></div><pre id="debugLog"></pre></div>
 
 <!-- Templates modal -->
 <div class="modal" id="tplModal" style="display:none">
-<div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f">
-<header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-<h3 style="color:#0e111a;margin:0">Maintenance Templates</h3>
-<button class="tab-btn" id="tplClose">Close</button>
-</header>
-<div id="tplList"></div>
-</div>
+  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h3 style="color:#0e111a;margin:0">Maintenance Templates</h3>
+      <button class="tab-btn" id="tplClose">Close</button>
+    </header>
+    <div id="tplList"></div>
+  </div>
 </div>
 
 <!-- Signature modal -->
 <div class="modal" id="sigModal" style="display:none">
-<div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
-<header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 id="sigTitle" style="color:#0e111a;margin:0">Collect Signature</h3><button class="tab-btn" id="sigClose">Close</button></header>
-<div class="grid">
-<label>Signer Name <input id="sigName" placeholder="Printed name"/></label>
-<label>Date <input id="sigDate" type="date"/></label>
-<label>Role <select id="sigRole"><option value="customer">Customer</option><option value="manager">Service Manager</option></select></label>
-</div>
-<div style="margin-top:8px"><canvas height="220" id="sigPad" style="width:100%;background:#fff;border:1px dashed #b6b09f;border-radius:8px" width="640"></canvas></div>
-<div class="actions" style="margin-top:8px"><button class="tab-btn" id="sigClear">Clear</button><button class="tab-btn primary" id="sigSave">Save Signature</button></div>
-</div>
+  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 id="sigTitle" style="color:#0e111a;margin:0">Collect Signature</h3><button class="tab-btn" id="sigClose">Close</button></header>
+    <div class="grid">
+      <label>Signer Name <input id="sigName" placeholder="Printed name"/></label>
+      <label>Date <input id="sigDate" type="date"/></label>
+      <label>Role <select id="sigRole"><option value="customer">Customer</option><option value="manager">Service Manager</option></select></label>
+    </div>
+    <div style="margin-top:8px"><canvas height="220" id="sigPad" style="width:100%;background:#fff;border:1px dashed #b6b09f;border-radius:8px" width="640"></canvas></div>
+    <div class="actions" style="margin-top:8px"><button class="tab-btn" id="sigClear">Clear</button><button class="tab-btn primary" id="sigSave">Save Signature</button></div>
+  </div>
 </div>
 
 <!-- Quick estimate modal -->
 <div class="modal" id="qeModal" style="display:none">
-<div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
-<header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="color:#0e111a;margin:0">Quick Estimate Builder</h3><button class="tab-btn" id="qeClose">Close</button></header>
-<div class="grid">
-<label>Title/Concern <input id="qeTitle" placeholder="e.g., Front brakes: pads+rotors"/></label>
-<label>Parts Cost ($) <input id="qePartsCost" step="0.01" type="number" value="0"/></label>
-<label>Markup % <input id="qeMarkup" step="1" type="number" value="40"/></label>
-<label>Labor Hours <input id="qeHours" step="0.1" type="number" value="1.5"/></label>
-<div class="small">Uses current labor rate &amp; tax.</div>
-</div>
-<div class="actions"><button class="tab-btn" id="qeApplyAppend">Append Lines</button><button class="tab-btn danger" id="qeApplyReplace" style="background:#962b2b">Replace Lines</button></div>
-</div>
+  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="color:#0e111a;margin:0">Quick Estimate Builder</h3><button class="tab-btn" id="qeClose">Close</button></header>
+    <div class="grid">
+      <label>Title/Concern <input id="qeTitle" placeholder="e.g., Front brakes: pads+rotors"/></label>
+      <label>Parts Cost ($) <input id="qePartsCost" step="0.01" type="number" value="0"/></label>
+      <label>Markup % <input id="qeMarkup" step="1" type="number" value="40"/></label>
+      <label>Labor Hours <input id="qeHours" step="0.1" type="number" value="1.5"/></label>
+      <div class="small">Uses current labor rate &amp; tax.</div>
+    </div>
+    <div class="actions"><button class="tab-btn" id="qeApplyAppend">Append Lines</button><button class="tab-btn danger" id="qeApplyReplace" style="background:#962b2b">Replace Lines</button></div>
+  </div>
 </div>
 
 <script>
@@ -1010,7 +955,6 @@ window.addEventListener('load', function(){
       }
     }
 
-    // Buttons & listeners
     // Quick Estimate modal
     (function(){
       var modal = document.getElementById('qeModal');
@@ -1097,7 +1041,6 @@ window.addEventListener('load', function(){
               localStorage.setItem(EXKEY, JSON.stringify(newDB));
               if(data.ui){ try{ localStorage.setItem(UIKEY, JSON.stringify(data.ui)); }catch(_){} }
               if(data.wm){ try{ localStorage.setItem(WMKEY, data.wm); }catch(_){} }
-              // reload in-memory structures
               DB = newDB;
               UI = data.ui || UI;
               renderAll();
@@ -1176,24 +1119,53 @@ window.addEventListener('load', function(){
     document.getElementById('overallNotes').addEventListener('input', persistLines);
     document.getElementById('photosOnPdf').addEventListener('change', function(){ persistLines(); updatePreview(); });
 
-    // Signature pad (mouse only for compat; touch events often map to mouse events)
+    /* === Signature pad — pointer events (mouse/finger/stylus), scroll lock, crisp lines === */
     (function(){
       var modal=document.getElementById('sigModal');
-      document.getElementById('sign').addEventListener('click', function(){ modal.style.display='flex'; });
-      document.getElementById('sigClose').addEventListener('click', function(){ modal.style.display='none'; });
-      var canvas=document.getElementById('sigPad'); var ctx=canvas.getContext('2d'); var drawing=false, last=null;
-      function pos(e){ var r=canvas.getBoundingClientRect(); return {x:(e.clientX)-r.left, y:(e.clientY)-r.top}; }
-      function draw(p){ if(!last){ last=p; return; } ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.lineCap='round'; ctx.stroke(); last=p; }
-      canvas.addEventListener('mousedown', function(e){ drawing=true; last=pos(e); });
-      canvas.addEventListener('mousemove', function(e){ if(drawing) draw(pos(e)); });
-      document.addEventListener('mouseup', function(){ drawing=false; last=null; });
+      var openBtn=document.getElementById('sign');
+      var closeBtn=document.getElementById('sigClose');
+      var canvas=document.getElementById('sigPad');
+      var ctx=canvas.getContext('2d');
+      var drawing=false, last=null;
+
+      function openModal(){ modal.style.display='flex'; document.body.style.overflow='hidden'; resizeForDPR(); }
+      function closeModal(){ modal.style.display='none'; document.body.style.overflow=''; }
+      if(openBtn){ openBtn.addEventListener('click', openModal); }
+      if(closeBtn){ closeBtn.addEventListener('click', closeModal); }
+
+      function resizeForDPR(){
+        var ratio=Math.max(window.devicePixelRatio||1,1);
+        var w=canvas.clientWidth||640, h=canvas.clientHeight||220;
+        canvas.width=Math.floor(w*ratio); canvas.height=Math.floor(h*ratio);
+        ctx.setTransform(1,0,0,1,0,0);
+        ctx.scale(ratio,ratio);
+        ctx.lineWidth=2; ctx.lineCap='round'; ctx.strokeStyle='#000';
+      }
+      resizeForDPR(); window.addEventListener('resize', resizeForDPR);
+
+      function pos(e){ var r=canvas.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
+      function start(e){ e.preventDefault(); try{canvas.setPointerCapture(e.pointerId);}catch(_){} drawing=true; last=pos(e); }
+      function move(e){ if(!drawing) return; e.preventDefault(); var p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; }
+      function end(e){ drawing=false; last=null; try{canvas.releasePointerCapture(e.pointerId);}catch(_){} }
+
+      canvas.addEventListener('pointerdown', start);
+      canvas.addEventListener('pointermove', move);
+      canvas.addEventListener('pointerup', end);
+      canvas.addEventListener('pointercancel', end);
+      canvas.addEventListener('pointerleave', end);
+
       document.getElementById('sigClear').addEventListener('click', function(){ ctx.clearRect(0,0,canvas.width,canvas.height); });
+
       document.getElementById('sigSave').addEventListener('click', function(){
-        var role=document.getElementById('sigRole').value; var name=document.getElementById('sigName').value.trim(); var date=document.getElementById('sigDate').value; var dataUrl=canvas.toDataURL('image/png');
+        var role=document.getElementById('sigRole').value;
+        var name=document.getElementById('sigName').value.trim();
+        var date=document.getElementById('sigDate').value;
+        var dataUrl=canvas.toDataURL('image/png');
         var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; }
         if(!j.signatures) j.signatures={customer:null,manager:null};
         j.signatures[role]={ dataUrl:dataUrl, name:name, date:date };
-        saveDB(); updatePreview(); modal.style.display='none';
+        try{ localStorage.setItem('poppe_shop_db_v112', JSON.stringify(DB)); }catch(_){}
+        updatePreview(); closeModal();
       });
     })();
 
