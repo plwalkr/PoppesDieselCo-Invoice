@@ -5,7 +5,10 @@
 <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
 <title>Poppe’s Diesel Co. — Shop Manager (v1.2.0 — COMPAT)</title>
 
-<!-- ===== Your original base styles (unchanged) ===== -->
+<!-- Readable, on-brand type: display for headings, Inter for UI -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+<!-- ===== Base styles (kept intact) ===== -->
 <style>
 :root{--bg:#e6cfae;--card:#13151c;--text:#0e111a;--muted:#3e463e;--border:#2e3226;--ink:#0e111a;--ink2:#161a24;--shadow:0 10px 20px rgba(0,0,0,.30);--info:#0a3d2e;--ok:#1f6b55;--warn:#f5c518;--danger:#962b2b;--font:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 *{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
@@ -56,7 +59,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .noscript-overlay h2{margin:0 0 10px 0}
 </style>
 
-<!-- ===== Poppe's "Heritage" theme (parchment + black + deep red) ===== -->
+<!-- ===== Heritage theme (palette match) ===== -->
 <style>
 :root,
 html[data-theme="dark"]{
@@ -65,7 +68,6 @@ html[data-theme="dark"]{
   --ink2:#171A1F;
   --brand-red:#B13A33;
 
-  /* remap your existing tokens */
   --bg:var(--parchment);
   --surface:#F5E9D3;
   --surface-2:#EFE1C8;
@@ -73,55 +75,146 @@ html[data-theme="dark"]{
   --muted:#6D6456;
   --border:#C7B497;
 
-  --info:var(--ink); /* primary buttons use black */
+  --info:var(--ink);
   --ok:#1F6B55;
   --warn:#B07A07;
   --danger:#962B2B;
 }
 
-/* Theme application */
-body{ background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased; }
+/* Readability defaults */
+body{ background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased; font-size:16.5px; line-height:1.5; }
 header{ background:var(--ink); border-bottom:1px solid rgba(255,255,255,.06); }
 .tag{ background:var(--ink2); color:#E8E0D2; }
 
 .card{ background:var(--surface); color:var(--text); border:1px solid var(--border); }
 .table-wrap{ background:var(--surface); border-color:var(--border); }
 
-/* Black band header like your DIESEL CO. block */
 .lines thead th{ background:var(--ink) !important; color:var(--parchment) !important; border-bottom-color:var(--ink) !important; }
 tbody tr:nth-child(odd) td{ background:var(--surface-2); }
 
-/* Buttons */
 .tab-btn{ background:var(--ink); border:1px solid #0a0b0c; color:#F2E7D1; }
 .tab-btn:hover{ filter:brightness(1.06); }
 .primary{ background:var(--info); border-color:var(--info); color:#F2E7D1; }
 .success{ background:var(--ok); border-color:var(--ok); color:#fff; }
 
-/* Big CTA in brand red */
 #pdf{ background:var(--brand-red) !important; border:none; }
 #pdf:hover{ filter:brightness(1.06); }
 
-/* Focus ring in brand red tint */
 :where(button,[role="button"],a,input,select,textarea):focus-visible{
   outline:2px solid transparent;
   box-shadow:0 0 0 3px rgba(177,58,51,.45);
 }
 
-/* Preview */
 .print-area{ background:var(--surface); color:var(--text); border:1px solid var(--border); }
 #wmFallback{ opacity:.10; }
 #wmImg{ opacity:.10; mix-blend-mode:multiply; }
 
-/* Bottom nav */
 nav.bottom{ background:rgba(14,17,26,.90); backdrop-filter:saturate(160%) blur(8px); border-top:1px solid rgba(255,255,255,.06); }
 
-/* Badges on parchment */
 .badge{ border:1px solid var(--border); background:var(--surface); color:var(--text); }
 .badge.estimate{ background:#F3E2BF; color:#3B2B00; }
 .badge.invoice{ background:#DCD3C0; color:#0E0F10; }
 
-/* Signature canvas: capture touch/pan so page doesn't scroll */
+/* Signature canvas: disable browser panning/zoom on touch */
 #sigPad{ touch-action:none; }
+</style>
+
+<!-- ===== Character Pack (adds modern/vintage flavor, preserves readability) ===== -->
+<style>
+:root{ --display:"Cinzel", ui-serif, Georgia, "Times New Roman", serif; }
+h1,h2,h3{ font-family:var(--display); letter-spacing:.02em; }
+h2{ font-weight:700; text-transform:uppercase; }
+
+/* Parchment grain + vignette (subtle, non-distracting) */
+body{
+  background:
+    radial-gradient(120% 70% at 50% -20%, rgba(255,255,255,.55) 0%, rgba(0,0,0,0) 65%),
+    linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,0)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+  background-color:var(--bg);
+  background-attachment:fixed, fixed, fixed;
+  background-blend-mode:multiply, normal, normal;
+}
+
+/* Header: black band + subtle brand-red stripe */
+header{ position:sticky; top:0; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+header::after{
+  content:""; position:absolute; left:0; right:0; bottom:-1px; height:6px;
+  background:repeating-linear-gradient(90deg,
+    transparent 0 28px, var(--brand-red) 28px 44px, transparent 44px 72px);
+  opacity:.55; pointer-events:none;
+}
+
+/* Section title star */
+main h2::before{
+  content:"★"; color:var(--brand-red); margin-right:.5rem; font-size:.9em; vertical-align:.02em;
+}
+
+/* Cards with soft raised paper look */
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,0)) , var(--surface);
+  border:1px solid var(--border);
+  box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 10px 24px rgba(0,0,0,.10);
+  border-radius:16px;
+}
+
+/* Inputs: clear focus + inner shadow for readability */
+input,select,textarea{
+  background:#fff;
+  border:1px solid var(--border);
+  box-shadow: 0 1px 0 rgba(0,0,0,.04) inset;
+}
+:where(input,select,textarea)::placeholder{ color:#756b5c; }
+:where(input,select,textarea):focus{
+  outline:0;
+  border-color:rgba(177,58,51,.55);
+  box-shadow:0 0 0 3px rgba(177,58,51,.20);
+}
+
+/* Buttons: pill style + gentle motion */
+.tab-btn{
+  border-radius:9999px;
+  padding:10px 16px;
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.10)) , var(--ink);
+  color:#F2E7D1; border:1px solid #0a0b0c;
+  transition:transform .08s ease, box-shadow .2s ease, filter .15s ease;
+  box-shadow:0 2px 0 rgba(0,0,0,.25), 0 8px 18px rgba(0,0,0,.10);
+}
+.tab-btn:hover{ filter:brightness(1.06); }
+.tab-btn:active{ transform:translateY(1px); box-shadow:0 1px 0 rgba(0,0,0,.3), 0 6px 14px rgba(0,0,0,.12); }
+.primary{ background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.10)) , var(--info); border-color:var(--info); }
+.success{ background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.08)) , var(--ok); border-color:var(--ok); }
+
+/* Big CTA (PDF) in brand red with bold legibility */
+#pdf{
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.12)), var(--brand-red) !important;
+  border:none; color:#fff; font-weight:700; letter-spacing:.02em;
+}
+
+/* Tables: sticky header (readable when scrolling), warm row hover */
+.table-wrap{ border-radius:16px; overflow:auto; -webkit-overflow-scrolling:touch; }
+.lines thead th{ position:sticky; top:0; z-index:1; }
+tbody tr:hover td{ background:#EAD9BC; }
+
+/* Preview “paper” polish */
+.print-area{
+  background:linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,0)), var(--surface);
+  border:1px solid var(--border);
+}
+#wmFallback{ opacity:.08; }
+#wmImg{ opacity:.10; mix-blend-mode:multiply; }
+
+/* Stamp-like badges (still readable) */
+.badge{ text-transform:uppercase; letter-spacing:.04em; background:#F0E4CC; border:1px solid #BFAE91; color:#1A1A1A; }
+.badge.invoice{ background:#E6DAC2; }
+.badge.estimate{ background:#F3E2BF; color:#3B2B00; }
+
+/* Bottom nav glass */
+nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(10px); }
+
+/* Subtle contrast boosts */
+.small{ color:#5f584d; }
+tbody td, th{ border-bottom-color:rgba(0,0,0,.12); }
 </style>
 </head>
 
@@ -412,7 +505,7 @@ if (!window.crypto.randomUUID){
 }
 
 (function(){
-  /* Watermark upload/cache (no modern syntax) */
+  /* Watermark upload/cache */
   var KEY = 'pdc_wm_dataurl';
   var imgEl = document.getElementById('wmImg');
   var fallback = document.getElementById('wmFallback');
@@ -1119,7 +1212,7 @@ window.addEventListener('load', function(){
     document.getElementById('overallNotes').addEventListener('input', persistLines);
     document.getElementById('photosOnPdf').addEventListener('change', function(){ persistLines(); updatePreview(); });
 
-    /* === Signature pad — pointer events (mouse/finger/stylus), scroll lock, crisp lines === */
+    /* Signature pad — pointer events + DPR scaling + scroll lock */
     (function(){
       var modal=document.getElementById('sigModal');
       var openBtn=document.getElementById('sign');
