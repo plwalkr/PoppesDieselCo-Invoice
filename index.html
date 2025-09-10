@@ -414,6 +414,10 @@ tbody td, th{ border-bottom-color:rgba(0,0,0,.12); }
             <input id="importFile" type="file" accept="application/json"/> Import JSON
           </label>
           <button class="tab-btn" id="importBtn" type="button">Import</button>
+
+          <!-- NEW: Flash-drive file save controls -->
+          <button class="tab-btn" id="fsChoose" type="button">Choose Save File (Flash Drive)</button>
+          <button class="tab-btn" id="fsQuickSave" type="button" title="Save to the chosen file">Quick Save</button>
         </div>
         <div class="small">Exports customers, jobs, settings, UI state, and your watermark so you can restore after site updates.</div>
       </div>
@@ -596,6 +600,7 @@ window.addEventListener('load', function(){
         if(!j.photos) j.photos=[];
         if(!j.signatures) j.signatures={customer:null, manager:null};
         for(l=0;l<(j.lines||[]).length;l++){ if(typeof j.lines[l].note==='undefined') j.lines[l].note=''; }
+        // keep laborRate / salesTaxPct as-is if present; no forced defaults here
       }
       saveDB();
     }
@@ -612,9 +617,10 @@ window.addEventListener('load', function(){
 
     function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); renderTemplates(); saveDB(); }
 
-    // Tabs
+    // Tabs — save current edits before switching
     $all('.tab-btn[data-tab]').forEach(function(b){
       b.addEventListener('click', function(){
+        try{ persistLines(); }catch(_){}
         var id = b.getAttribute('data-tab');
         $all('.tab').forEach(function(t){ t.classList.remove('active'); });
         document.getElementById(id).classList.add('active');
@@ -737,6 +743,7 @@ window.addEventListener('load', function(){
       });
       $all('button[data-open]').forEach(function(b){
         b.addEventListener('click', function(){
+          try{ persistLines(); }catch(_){}
           var id = b.getAttribute('data-open');
           document.querySelector('[data-tab="invoice"]').click();
           $('#invJob').value = id; loadInvoice(id); UI.lastJobId=id; saveUI(UI);
@@ -785,17 +792,24 @@ window.addEventListener('load', function(){
         var c = findCustomer(j.customerId);
         var b = document.createElement('button'); b.type='button'; b.className='tab-btn';
         b.textContent = (c?c.name:'—')+': '+j.title;
-        b.addEventListener('click', function(){ $('#invJob').value=j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); });
+        b.addEventListener('click', function(){
+          try{ persistLines(); }catch(_){}
+          $('#invJob').value=j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI);
+        });
         box.appendChild(b);
       });
     }
     $('#invCustFilter').addEventListener('change', function(){
+      try{ persistLines(); }catch(_){}
       var cur = $('#invJob').value;
       renderInvJobOptions();
-      if(!$('#invJob').querySelector('option[value="'+cur+'"]')){ $('#invJob').value=''; $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals(); }
+      if(!$('#invJob').querySelector('option[value="'+cur+'"]')){
+        $('#invJob').value=''; $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals();
+      }
     });
     $('#invJobSearch').addEventListener('input', renderInvJobOptions);
     $('#invJob').addEventListener('change', function(){
+      try{ persistLines(); }catch(_){}
       var id = this.value;
       if(!id){ $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals(); return; }
       loadInvoice(id); UI.lastJobId=id; saveUI(UI);
@@ -819,12 +833,23 @@ window.addEventListener('load', function(){
     function loadInvoice(id){
       var j = currentJob(); if(!j) j = DB.jobs.filter(function(x){ return x.id===id; })[0];
       if(!j) return;
+
+      // Per-job fields (defaults if missing)
+      $('#laborRate').value = (j.laborRate != null) ? j.laborRate : 80;
+      $('#salesTax').value  = (j.salesTaxPct != null) ? j.salesTaxPct : 7;
+
       $('#lines tbody').innerHTML='';
       for(var i=0;i<(j.lines||[]).length;i++){
         var l=j.lines[i]; addLine(l.type,l.desc,l.qty,l.unit,l.cost,l.note);
       }
       $('#invNo').value = j.invNo||''; $('#docType').value = j.docType||'Estimate'; $('#payLink').value = j.paymentLink||'';
-      var c = findCustomer(j.customerId); $('#emailTo').value = (c && c.email) ? c.email : '';
+      var c = findCustomer(j.customerId);
+
+      // Prefer per-job email; fall back to customer email
+      $('#emailTo').value = (j.emailTo && j.emailTo.trim())
+        ? j.emailTo
+        : ((c && c.email) ? c.email : '');
+
       $('#overallNotes').value = j.overallNotes||'';
       $('#internalNotes').value = j.internalNotes||'';
       renderPhotoGrid();
@@ -919,6 +944,11 @@ window.addEventListener('load', function(){
       j.overallNotes = $('#overallNotes').value || '';
       j.internalNotes = $('#internalNotes').value || '';
       j.photosOnPdf = $('#photosOnPdf').checked;
+
+      // NEW: per-job values
+      j.laborRate = Number($('#laborRate').value || 80);
+      j.salesTaxPct = Number($('#salesTax').value || 0);
+
       recalcTotals(); updatePreview(); renderJobs(); saveDB();
     }
 
@@ -1147,6 +1177,120 @@ window.addEventListener('load', function(){
           reader.readAsText(f);
         });
       }
+
+      // ---- File System Access API (Chrome/Edge) ----
+      (function(){
+        var hasFS = !!(window.showSaveFilePicker && window.FileSystemFileHandle);
+        var btnChoose = document.getElementById('fsChoose');
+        var btnQuick  = document.getElementById('fsQuickSave');
+
+        if (!hasFS) {
+          if (btnChoose) btnChoose.style.display = 'none';
+          if (btnQuick)  btnQuick.style.display  = 'none';
+          return;
+        }
+
+        // Minimal IndexedDB KV store
+        var DB_NAME = 'pdc_fs_store';
+        var STORE   = 'kvs';
+        function idbOpen(){
+          return new Promise(function(resolve, reject){
+            var req = indexedDB.open(DB_NAME, 1);
+            req.onupgradeneeded = function(){ var db = req.result; if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE); };
+            req.onsuccess = function(){ resolve(req.result); };
+            req.onerror   = function(){ reject(req.error); };
+          });
+        }
+        function idbGet(key){
+          return idbOpen().then(function(db){
+            return new Promise(function(resolve, reject){
+              var tx = db.transaction(STORE, 'readonly');
+              var st = tx.objectStore(STORE);
+              var rq = st.get(key);
+              rq.onsuccess = function(){ resolve(rq.result); };
+              rq.onerror   = function(){ reject(rq.error); };
+            });
+          });
+        }
+        function idbSet(key, val){
+          return idbOpen().then(function(db){
+            return new Promise(function(resolve, reject){
+              var tx = db.transaction(STORE, 'readwrite');
+              var st = tx.objectStore(STORE);
+              var rq = st.put(val, key);
+              rq.onsuccess = function(){ resolve(); };
+              rq.onerror   = function(){ reject(rq.error); };
+            });
+          });
+        }
+        function idbDel(key){
+          return idbOpen().then(function(db){
+            return new Promise(function(resolve, reject){
+              var tx = db.transaction(STORE, 'readwrite');
+              var st = tx.objectStore(STORE);
+              var rq = st.delete(key);
+              rq.onsuccess = function(){ resolve(); };
+              rq.onerror   = function(){ reject(rq.error); };
+            });
+          });
+        }
+
+        var HANDLE_KEY = 'pdc_file_handle';
+        var fileHandle = null;
+
+        idbGet(HANDLE_KEY).then(function(h){ fileHandle = h || null; }).catch(function(){});
+
+        function buildBackupPayload(){
+          return {
+            _note: 'Poppe’s Diesel Co. Shop Manager backup',
+            version: 'v1.2.0',
+            exportedAt: new Date().toISOString(),
+            db: DB,
+            ui: UI,
+            wm: (function(){ try{ return localStorage.getItem('pdc_wm_dataurl')||null; }catch(_){ return null; } })()
+          };
+        }
+
+        async function chooseSaveFile(){
+          try{
+            var suggestedName = 'poppes_shop_backup.json';
+            fileHandle = await window.showSaveFilePicker({
+              suggestedName: suggestedName,
+              types: [{ description: 'JSON', accept: {'application/json': ['.json']} }]
+            });
+            await idbSet(HANDLE_KEY, fileHandle);
+            alert('Save location set. Use "Quick Save" next time.');
+          }catch(err){
+            if (err && err.name === 'AbortError') return;
+            alert('Could not set save file: ' + (err.message || err));
+          }
+        }
+
+        async function quickSave(){
+          try{
+            if (!fileHandle) { alert('Pick a save file first (Choose Save File).'); return; }
+            var perm = await fileHandle.queryPermission({mode:'readwrite'});
+            if (perm !== 'granted') {
+              perm = await fileHandle.requestPermission({mode:'readwrite'});
+              if (perm !== 'granted') { alert('Permission to write was denied.'); return; }
+            }
+            var writable = await fileHandle.createWritable();
+            var data = JSON.stringify(buildBackupPayload(), null, 2);
+            await writable.write(new Blob([data], {type:'application/json'}));
+            await writable.close();
+            alert('Saved to: ' + (fileHandle.name || 'selected file'));
+          }catch(err){
+            if (String(err||'').includes('No such file') || String(err||'').includes('Permission')) {
+              try{ await idbDel(HANDLE_KEY); }catch(_){}
+              fileHandle = null;
+            }
+            alert('Quick Save failed: ' + (err.message || err));
+          }
+        }
+
+        if (btnChoose) btnChoose.addEventListener('click', chooseSaveFile);
+        if (btnQuick)  btnQuick.addEventListener('click', quickSave);
+      })();
     })();
 
     document.getElementById('addLabor').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Labor','',1, Number(document.getElementById('laborRate').value||80), 0, ''); });
@@ -1353,7 +1497,12 @@ window.addEventListener('load', function(){
     })();
 
     upgradeDB(); renderAll();
-    if(UI.lastJobId && currentJob()) { /* already set */ }
+
+    // Restore last opened job on load
+    if (UI.lastJobId && DB.jobs.some(function(x){return x.id===UI.lastJobId;})) {
+      $('#invJob').value = UI.lastJobId;
+      loadInvoice(UI.lastJobId);
+    }
   });
 });
 </script>
