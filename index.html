@@ -3,12 +3,10 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Poppe’s Diesel Co. — Shop Manager (v1.2.0 — COMPAT)</title>
+<title>Poppe’s Diesel Co. — Shop Manager (v1.2.1 — PARTS-ONLY TAX)</title>
 
-<!-- Readable, on-brand type: display for headings, Inter for UI -->
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
-<!-- ===== Base styles (kept intact) ===== -->
 <style>
 :root{--bg:#e6cfae;--card:#13151c;--text:#0e111a;--muted:#3e463e;--border:#2e3226;--ink:#0e111a;--ink2:#161a24;--shadow:0 10px 20px rgba(0,0,0,.30);--info:#0a3d2e;--ok:#1f6b55;--warn:#f5c518;--danger:#962b2b;--font:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 *{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
@@ -52,129 +50,69 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .badge-open{background:#fff;border-color:#b6b09f}.badge-ip{background:#fff7d6;border-color:#caa52a}.badge-done{background:#d9efe7;border-color:#1f6b55;color:#0a3d2e}
 .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4);z-index:80}
 .modal .panel{max-width:800px;width:min(96vw,800px)}
-
 /* Big noscript overlay */
 .noscript-overlay{position:fixed;inset:0;background:#18040a;color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;z-index:9999}
 .noscript-overlay .box{max-width:720px;background:#2b0c15;border:2px solid #8a1b27;border-radius:12px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .noscript-overlay h2{margin:0 0 10px 0}
 </style>
 
-<!-- ===== Heritage theme (palette match) ===== -->
 <style>
-:root,
-html[data-theme="dark"]{
-  --parchment:#E3D1B4;
-  --ink:#0E0F10;
-  --ink2:#171A1F;
-  --brand-red:#B13A33;
-
-  --bg:var(--parchment);
-  --surface:#F5E9D3;
-  --surface-2:#EFE1C8;
-  --text:#0B0D0F;
-  --muted:#6D6456;
-  --border:#C7B497;
-
-  --info:var(--ink);
-  --ok:#1F6B55;
-  --warn:#B07A07;
-  --danger:#962B2B;
+:root, html[data-theme="dark"]{
+  --parchment:#E3D1B4; --ink:#0E0F10; --ink2:#171A1F; --brand-red:#B13A33;
+  --bg:var(--parchment); --surface:#F5E9D3; --surface-2:#EFE1C8; --text:#0B0D0F; --muted:#6D6456; --border:#C7B497;
+  --info:var(--ink); --ok:#1F6B55; --warn:#B07A07; --danger:#962B2B;
 }
-
-/* Readability defaults */
 body{ background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased; font-size:16.5px; line-height:1.5; }
 header{ background:var(--ink); border-bottom:1px solid rgba(255,255,255,.06); }
 .tag{ background:var(--ink2); color:#E8E0D2; }
-
 .card{ background:var(--surface); color:var(--text); border:1px solid var(--border); }
 .table-wrap{ background:var(--surface); border-color:var(--border); }
-
-.lines thead th{ background:var(--ink) !important; color:var(--parchment) !important; border-bottom-color:var(--ink) !important; }
+.lines thead th{ background:var(--ink)!important; color:var(--parchment)!important; border-bottom-color:var(--ink)!important; }
 tbody tr:nth-child(odd) td{ background:var(--surface-2); }
-
 .tab-btn{ background:var(--ink); border:1px solid #0a0b0c; color:#F2E7D1; }
 .tab-btn:hover{ filter:brightness(1.06); }
 .primary{ background:var(--info); border-color:var(--info); color:#F2E7D1; }
 .success{ background:var(--ok); border-color:var(--ok); color:#fff; }
-
-#pdf{ background:var(--brand-red) !important; border:none; }
+#pdf{ background:var(--brand-red)!important; border:none; }
 #pdf:hover{ filter:brightness(1.06); }
-
-:where(button,[role="button"],a,input,select,textarea):focus-visible{
-  outline:2px solid transparent;
-  box-shadow:0 0 0 3px rgba(177,58,51,.45);
-}
-
+:where(button,[role="button"],a,input,select,textarea):focus-visible{ outline:2px solid transparent; box-shadow:0 0 0 3px rgba(177,58,51,.45); }
 .print-area{ background:var(--surface); color:var(--text); border:1px solid var(--border); }
-#wmFallback{ opacity:.10; }
-#wmImg{ opacity:.10; mix-blend-mode:multiply; }
-
+#wmFallback{ opacity:.10 } #wmImg{ opacity:.10; mix-blend-mode:multiply }
 nav.bottom{ background:rgba(14,17,26,.90); backdrop-filter:saturate(160%) blur(8px); border-top:1px solid rgba(255,255,255,.06); }
-
 .badge{ border:1px solid var(--border); background:var(--surface); color:var(--text); }
 .badge.estimate{ background:#F3E2BF; color:#3B2B00; }
 .badge.invoice{ background:#DCD3C0; color:#0E0F10; }
-
-/* Signature canvas: disable browser panning/zoom on touch */
 #sigPad{ touch-action:none; }
 </style>
 
-<!-- ===== Character Pack (adds modern/vintage flavor, preserves readability) ===== -->
 <style>
 :root{ --display:"Cinzel", ui-serif, Georgia, "Times New Roman", serif; }
 h1,h2,h3{ font-family:var(--display); letter-spacing:.02em; }
 h2{ font-weight:700; text-transform:uppercase; }
-
-/* Parchment grain + vignette (subtle, non-distracting) */
 body{
   background:
     radial-gradient(120% 70% at 50% -20%, rgba(255,255,255,.55) 0%, rgba(0,0,0,0) 65%),
     linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,0)),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
-  background-color:var(--bg);
-  background-attachment:fixed, fixed, fixed;
-  background-blend-mode:multiply, normal, normal;
+  background-color:var(--bg); background-attachment:fixed,fixed,fixed; background-blend-mode:multiply,normal,normal;
 }
-
-/* Header: black band + subtle brand-red stripe */
 header{ position:sticky; top:0; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
-header::after{
-  content:""; position:absolute; left:0; right:0; bottom:-1px; height:6px;
-  background:repeating-linear-gradient(90deg,
-    transparent 0 28px, var(--brand-red) 28px 44px, transparent 44px 72px);
+header::after{ content:""; position:absolute; left:0; right:0; bottom:-1px; height:6px;
+  background:repeating-linear-gradient(90deg,transparent 0 28px, var(--brand-red) 28px 44px,transparent 44px 72px);
   opacity:.55; pointer-events:none;
 }
-
-/* Section title star */
-main h2::before{
-  content:"★"; color:var(--brand-red); margin-right:.5rem; font-size:.9em; vertical-align:.02em;
-}
-
-/* Cards with soft raised paper look */
+main h2::before{ content:"★"; color:var(--brand-red); margin-right:.5rem; font-size:.9em; vertical-align:.02em; }
 .card{
   background:linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,0)) , var(--surface);
   border:1px solid var(--border);
   box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 10px 24px rgba(0,0,0,.10);
   border-radius:16px;
 }
-
-/* Inputs: clear focus + inner shadow for readability */
-input,select,textarea{
-  background:#fff;
-  border:1px solid var(--border);
-  box-shadow: 0 1px 0 rgba(0,0,0,.04) inset;
-}
+input,select,textarea{ background:#fff; border:1px solid var(--border); box-shadow:0 1px 0 rgba(0,0,0,.04) inset; }
 :where(input,select,textarea)::placeholder{ color:#756b5c; }
-:where(input,select,textarea):focus{
-  outline:0;
-  border-color:rgba(177,58,51,.55);
-  box-shadow:0 0 0 3px rgba(177,58,51,.20);
-}
-
-/* Buttons: pill style + gentle motion */
+:where(input,select,textarea):focus{ outline:0; border-color:rgba(177,58,51,.55); box-shadow:0 0 0 3px rgba(177,58,51,.20); }
 .tab-btn{
-  border-radius:9999px;
-  padding:10px 16px;
+  border-radius:9999px; padding:10px 16px;
   background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.10)) , var(--ink);
   color:#F2E7D1; border:1px solid #0a0b0c;
   transition:transform .08s ease, box-shadow .2s ease, filter .15s ease;
@@ -184,59 +122,38 @@ input,select,textarea{
 .tab-btn:active{ transform:translateY(1px); box-shadow:0 1px 0 rgba(0,0,0,.3), 0 6px 14px rgba(0,0,0,.12); }
 .primary{ background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.10)) , var(--info); border-color:var(--info); }
 .success{ background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.08)) , var(--ok); border-color:var(--ok); }
-
-/* Big CTA (PDF) in brand red with bold legibility */
 #pdf{
-  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.12)), var(--brand-red) !important;
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.12)), var(--brand-red)!important;
   border:none; color:#fff; font-weight:700; letter-spacing:.02em;
 }
-
-/* Tables: sticky header (readable when scrolling), warm row hover */
 .table-wrap{ border-radius:16px; overflow:auto; -webkit-overflow-scrolling:touch; }
 .lines thead th{ position:sticky; top:0; z-index:1; }
 tbody tr:hover td{ background:#EAD9BC; }
-
-/* Preview “paper” polish */
 .print-area{
   background:linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,0)), var(--surface);
   border:1px solid var(--border);
 }
-#wmFallback{ opacity:.08; }
-#wmImg{ opacity:.10; mix-blend-mode:multiply; }
-
-/* Stamp-like badges (still readable) */
+#wmFallback{ opacity:.08 } #wmImg{ opacity:.10; mix-blend-mode:multiply }
 .badge{ text-transform:uppercase; letter-spacing:.04em; background:#F0E4CC; border:1px solid #BFAE91; color:#1A1A1A; }
-.badge.invoice{ background:#E6DAC2; }
-.badge.estimate{ background:#F3E2BF; color:#3B2B00; }
-
-/* Bottom nav glass */
+.badge.invoice{ background:#E6DAC2 } .badge.estimate{ background:#F3E2BF; color:#3B2B00 }
 nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(10px); }
-
-/* Subtle contrast boosts */
-.small{ color:#5f584d; }
-tbody td, th{ border-bottom-color:rgba(0,0,0,.12); }
+.small{ color:#5f584d } tbody td, th{ border-bottom-color:rgba(0,0,0,.12) }
 </style>
 </head>
 
 <body>
 <noscript>
-<div class="noscript-overlay">
-  <div class="box">
-    <h2>JavaScript is disabled or blocked</h2>
-    <p>This app is 100% client-side. Please open the file in Chrome/Edge with JavaScript enabled, or whitelist local files if a security tool is blocking scripts.</p>
-    <ul>
-      <li>Download the file and open it so the address bar starts with <code>file:///</code></li>
-      <li>Disable “Safe Mode / NoScript / Tracking Protection” just for this file</li>
-      <li>Then reload</li>
-    </ul>
-  </div>
-</div>
+<div class="noscript-overlay"><div class="box">
+  <h2>JavaScript is disabled or blocked</h2>
+  <p>This app is 100% client-side. Please open the file in Chrome/Edge with JavaScript enabled.</p>
+  <ul><li>Download the file and open it so the address bar starts with <code>file:///</code></li><li>Disable blockers for this file</li></ul>
+</div></div>
 </noscript>
 
 <div id="error" style="display:none">JavaScript error detected. Tap to reload.</div>
 
 <header>
-  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.2.0</span><span class="tag selftest" id="selftest">Self-test: …</span><span class="tag">COMPAT</span></h1>
+  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.2.1</span><span class="tag selftest" id="selftest">Self-test: …</span><span class="tag">COMPAT</span></h1>
   <nav class="top">
     <button class="tab-btn" data-tab="dashboard">Dashboard</button>
     <button class="tab-btn" data-tab="customers">Customers</button>
@@ -338,7 +255,7 @@ tbody td, th{ border-bottom-color:rgba(0,0,0,.12); }
     </div>
     <div class="totals">
       <div>Subtotal: <span id="sub">$0.00</span></div>
-      <div>Tax: <span id="tax">$0.00</span></div>
+      <div>Tax (Parts only): <span id="tax">$0.00</span></div>
       <div class="grand">Total: <span id="grand">$0.00</span></div>
       <div><strong>Total Profit:</strong> <span id="profit">$0.00</span></div>
       <div>Margin: <span class="badge estimate" id="margin">0%</span></div>
@@ -414,8 +331,6 @@ tbody td, th{ border-bottom-color:rgba(0,0,0,.12); }
             <input id="importFile" type="file" accept="application/json"/> Import JSON
           </label>
           <button class="tab-btn" id="importBtn" type="button">Import</button>
-
-          <!-- NEW: Flash-drive file save controls -->
           <button class="tab-btn" id="fsChoose" type="button">Choose Save File (Flash Drive)</button>
           <button class="tab-btn" id="fsQuickSave" type="button" title="Save to the chosen file">Quick Save</button>
         </div>
@@ -434,7 +349,7 @@ tbody td, th{ border-bottom-color:rgba(0,0,0,.12); }
 
 <div id="debug"><div class="meta" id="debugMeta"></div><pre id="debugLog"></pre></div>
 
-<!-- Templates modal -->
+<!-- Templates Modal -->
 <div class="modal" id="tplModal" style="display:none">
   <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f">
     <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -445,7 +360,7 @@ tbody td, th{ border-bottom-color:rgba(0,0,0,.12); }
   </div>
 </div>
 
-<!-- Signature modal -->
+<!-- Signature Modal -->
 <div class="modal" id="sigModal" style="display:none">
   <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
     <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 id="sigTitle" style="color:#0e111a;margin:0">Collect Signature</h3><button class="tab-btn" id="sigClose">Close</button></header>
@@ -459,7 +374,7 @@ tbody td, th{ border-bottom-color:rgba(0,0,0,.12); }
   </div>
 </div>
 
-<!-- Quick estimate modal -->
+<!-- Quick Estimate Modal -->
 <div class="modal" id="qeModal" style="display:none">
   <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
     <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="color:#0e111a;margin:0">Quick Estimate Builder</h3><button class="tab-btn" id="qeClose">Close</button></header>
@@ -508,43 +423,16 @@ if (!window.crypto.randomUUID){
   window.crypto.randomUUID = function(){ return 'id-' + Math.random().toString(16).slice(2) + '-' + Date.now(); };
 }
 
+/* Watermark cache */
 (function(){
-  /* Watermark upload/cache */
   var KEY = 'pdc_wm_dataurl';
   var imgEl = document.getElementById('wmImg');
   var fallback = document.getElementById('wmFallback');
-  function setWM(src){
-    if(!imgEl) return;
-    imgEl.src = src; imgEl.style.display = 'block';
-    if(fallback) fallback.style.display = 'none';
-  }
-  try {
-    var cached = localStorage.getItem(KEY);
-    if(cached){ setWM(cached); }
-  } catch(_){}
+  function setWM(src){ if(!imgEl) return; imgEl.src = src; imgEl.style.display = 'block'; if(fallback) fallback.style.display = 'none'; }
+  try { var cached = localStorage.getItem(KEY); if(cached){ setWM(cached); } } catch(_){}
   var up = document.getElementById('wmFile');
-  var clr = document.getElementById('wmClear');
-  function readAsDataURL(file, cb, eb){
-    var r = new FileReader();
-    r.onload = function(){ cb(r.result); };
-    r.onerror = function(){ if(eb) eb(r.error); };
-    r.readAsDataURL(file);
-  }
-  if(up) up.addEventListener('change', function(e){
-    var f = up.files && up.files[0];
-    if(!f) return;
-    readAsDataURL(f, function(data){
-      try{ localStorage.setItem(KEY, data); }catch(_){}
-      setWM(data); alert('Watermark updated.');
-      up.value = '';
-    });
-  });
-  if(clr) clr.addEventListener('click', function(){
-    try{ localStorage.removeItem(KEY); }catch(_){}
-    if(imgEl) imgEl.style.display='none';
-    if(fallback) fallback.style.display='block';
-    alert('Watermark cleared.');
-  });
+  function readAsDataURL(file, cb, eb){ var r = new FileReader(); r.onload=function(){cb(r.result)}; r.onerror=function(){ if(eb) eb(r.error) }; r.readAsDataURL(file); }
+  if(up) up.addEventListener('change', function(){ var f = up.files && up.files[0]; if(!f) return; readAsDataURL(f, function(data){ try{ localStorage.setItem(KEY, data); }catch(_){ } setWM(data); alert('Watermark updated.'); up.value=''; }); });
 })();
 
 window.addEventListener('load', function(){
@@ -600,7 +488,6 @@ window.addEventListener('load', function(){
         if(!j.photos) j.photos=[];
         if(!j.signatures) j.signatures={customer:null, manager:null};
         for(l=0;l<(j.lines||[]).length;l++){ if(typeof j.lines[l].note==='undefined') j.lines[l].note=''; }
-        // keep laborRate / salesTaxPct as-is if present; no forced defaults here
       }
       saveDB();
     }
@@ -617,7 +504,7 @@ window.addEventListener('load', function(){
 
     function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); renderTemplates(); saveDB(); }
 
-    // Tabs — save current edits before switching
+    // Tabs — save edits before switching
     $all('.tab-btn[data-tab]').forEach(function(b){
       b.addEventListener('click', function(){
         try{ persistLines(); }catch(_){}
@@ -664,10 +551,7 @@ window.addEventListener('load', function(){
       var opts = ['<option value="">Select...</option>'];
       DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+c.name+'</option>'); });
       sel.innerHTML = opts.join('');
-
-      renderInvFilters();
-      renderInvJobOptions();
-      renderRecentJobs();
+      renderInvFilters(); renderInvJobOptions(); renderRecentJobs();
     }
 
     $('#jobForm').addEventListener('submit', function(e){
@@ -684,7 +568,7 @@ window.addEventListener('load', function(){
       if(DB.jobs.length===1){ $('#invJob').value = j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); }
     });
 
-    // VIN decode (XMLHttpRequest for compat)
+    // VIN decode
     $('#decodeVIN').addEventListener('click', function(){
       var vin = $('#jobVIN').value.trim();
       var box = $('#vinResult'); var sug = $('#vinSuggest'); var tags = $('#vinTags');
@@ -718,9 +602,7 @@ window.addEventListener('load', function(){
               document.getElementById('addAllSuggest').onclick = function(){ for(var k=0;k<matched.length;k++){ applyTemplate(matched[k]); } };
               sug.style.display='block'; saveDB();
             }catch(e){ box.textContent='VIN parse failed.'; }
-          } else {
-            box.textContent='VIN decode failed.';
-          }
+          } else { box.textContent='VIN decode failed.'; }
         }
       };
       xhr.send(null);
@@ -751,7 +633,6 @@ window.addEventListener('load', function(){
       });
     }
 
-    // Internal notes save
     $('#internalNotes').addEventListener('input', function(){
       var j = currentJob(); if(!j) return;
       j.internalNotes = this.value; saveDB();
@@ -844,12 +725,7 @@ window.addEventListener('load', function(){
       }
       $('#invNo').value = j.invNo||''; $('#docType').value = j.docType||'Estimate'; $('#payLink').value = j.paymentLink||'';
       var c = findCustomer(j.customerId);
-
-      // Prefer per-job email; fall back to customer email
-      $('#emailTo').value = (j.emailTo && j.emailTo.trim())
-        ? j.emailTo
-        : ((c && c.email) ? c.email : '');
-
+      $('#emailTo').value = (j.emailTo && j.emailTo.trim()) ? j.emailTo : ((c && c.email) ? c.email : '');
       $('#overallNotes').value = j.overallNotes||'';
       $('#internalNotes').value = j.internalNotes||'';
       renderPhotoGrid();
@@ -936,7 +812,23 @@ window.addEventListener('load', function(){
 
     function persistLines(){
       var j = currentJob(); if(!j) return;
-      j.lines = rowsToLines();
+
+      var lines = rowsToLines();
+
+      // Ensure labor unit is not left at 0 — default to current laborRate AND write it back to the DOM so it persists
+      var laborRateNow = Number($('#laborRate').value || 80);
+      var trs = $all('#lines tbody tr');
+      for (var i=0;i<lines.length;i++){
+        if (lines[i].type==='Labor' && (!lines[i].unit || lines[i].unit===0)){
+          lines[i].unit = laborRateNow;
+          if (trs[i]) {
+            var unitEl = trs[i].querySelector('.lUnit');
+            if (unitEl) unitEl.value = laborRateNow.toFixed(2);
+          }
+        }
+      }
+
+      j.lines = lines;
       j.invNo = $('#invNo').value.trim();
       j.docType = $('#docType').value;
       j.paymentLink = $('#payLink').value.trim();
@@ -944,8 +836,7 @@ window.addEventListener('load', function(){
       j.overallNotes = $('#overallNotes').value || '';
       j.internalNotes = $('#internalNotes').value || '';
       j.photosOnPdf = $('#photosOnPdf').checked;
-
-      // NEW: per-job values
+      // Per-job settings
       j.laborRate = Number($('#laborRate').value || 80);
       j.salesTaxPct = Number($('#salesTax').value || 0);
 
@@ -977,14 +868,21 @@ window.addEventListener('load', function(){
     }
 
     function recalcTotals(){
-      var rows = rowsToLines(); var subtotal=0, profit=0;
+      var rows = rowsToLines(); var subtotal=0, profit=0, partsSubtotal=0;
       var laborRate = Number($('#laborRate').value||80);
       var muDefault = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
       var trs = $all('#lines tbody tr');
       for(var i=0;i<rows.length;i++){
         var r = rows[i];
-        if(r.type==='Labor' && (!r.unit || r.unit===0)) r.unit = laborRate;
+        if(r.type==='Labor' && (!r.unit || r.unit===0)) {
+          r.unit = laborRate; // show calc w/ laborRate
+          if (trs[i]) {
+            var uEl = trs[i].querySelector('.lUnit');
+            if (uEl) uEl.value = r.unit.toFixed(2); // keep UI consistent if it was 0
+          }
+        }
         var line = r.qty*r.unit; subtotal+=line;
+        if (r.type==='Part') partsSubtotal += line;
         var lineProfit = r.qty*(r.unit - (r.cost||0));
         r.profit = lineProfit; profit += lineProfit;
 
@@ -1003,7 +901,10 @@ window.addEventListener('load', function(){
           hint.textContent = dollars + ' ' + perTxt;
         }
       }
-      var taxPct = Number($('#salesTax').value||0); var tax = subtotal*(taxPct/100); var grand = subtotal+tax;
+      var taxPct = Number($('#salesTax').value||0);
+      var tax = partsSubtotal * (taxPct/100); // >>> TAX ON PARTS ONLY <<<
+      var grand = subtotal + tax;
+
       document.getElementById('sub').textContent = fmt(subtotal);
       document.getElementById('tax').textContent = fmt(tax);
       document.getElementById('grand').textContent = fmt(grand);
@@ -1012,7 +913,10 @@ window.addEventListener('load', function(){
       var badge = document.getElementById('margin');
       badge.textContent = margin + '%';
       badge.className='badge ' + (margin>=25?'invoice': (margin>=15?'badge-open':'estimate'));
-      document.getElementById('pSub').textContent = fmt(subtotal); document.getElementById('pTax').textContent = fmt(tax); document.getElementById('pGrand').textContent = fmt(grand);
+      // Print preview totals
+      document.getElementById('pSub').textContent = fmt(subtotal);
+      document.getElementById('pTax').textContent = fmt(tax);
+      document.getElementById('pGrand').textContent = fmt(grand);
     }
 
     function updatePreview(){
@@ -1114,14 +1018,12 @@ window.addEventListener('load', function(){
       var btn = document.getElementById('toTop');
       if(!btn) return;
       window.addEventListener('scroll', function(){
-        try{
-          btn.style.display = (window.scrollY > 200 ? 'block' : 'none');
-        }catch(_){}
+        try{ btn.style.display = (window.scrollY > 200 ? 'block' : 'none'); }catch(_){}
       });
       btn.addEventListener('click', function(){ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(_){ window.scrollTo(0,0); } });
     })();
 
-    // Backup & Restore handlers
+    // Backup & Restore + Flash-drive save
     (function(){
       var EXKEY = 'poppe_shop_db_v112';
       var UIKEY = 'pdc_ui_state';
@@ -1139,10 +1041,9 @@ window.addEventListener('load', function(){
         exportBtn.addEventListener('click', function(){
           var backup = {
             _note: 'Poppe’s Diesel Co. Shop Manager backup',
-            version: 'v1.2.0',
+            version: 'v1.2.1',
             exportedAt: new Date().toISOString(),
-            db: DB,
-            ui: UI,
+            db: DB, ui: UI,
             wm: null
           };
           try{ backup.wm = localStorage.getItem(WMKEY)||null; }catch(_){}
@@ -1164,116 +1065,47 @@ window.addEventListener('load', function(){
               localStorage.setItem(EXKEY, JSON.stringify(newDB));
               if(data.ui){ try{ localStorage.setItem(UIKEY, JSON.stringify(data.ui)); }catch(_){} }
               if(data.wm){ try{ localStorage.setItem(WMKEY, data.wm); }catch(_){} }
-              DB = newDB;
-              UI = data.ui || UI;
+              DB = newDB; UI = data.ui || UI;
               renderAll();
-              alert('Backup imported. Reloading the UI.');
-              location.reload();
-            }catch(e){
-              alert('Import failed: '+(e.message||e));
-            }
+              alert('Backup imported. Reloading the UI.'); location.reload();
+            }catch(e){ alert('Import failed: '+(e.message||e)); }
           };
           reader.onerror = function(){ alert('Could not read file.'); };
           reader.readAsText(f);
         });
       }
 
-      // ---- File System Access API (Chrome/Edge) ----
+      // File System Access API (Chrome/Edge)
       (function(){
         var hasFS = !!(window.showSaveFilePicker && window.FileSystemFileHandle);
         var btnChoose = document.getElementById('fsChoose');
         var btnQuick  = document.getElementById('fsQuickSave');
 
-        if (!hasFS) {
-          if (btnChoose) btnChoose.style.display = 'none';
-          if (btnQuick)  btnQuick.style.display  = 'none';
-          return;
-        }
+        if (!hasFS) { if (btnChoose) btnChoose.style.display='none'; if (btnQuick) btnQuick.style.display='none'; return; }
 
-        // Minimal IndexedDB KV store
-        var DB_NAME = 'pdc_fs_store';
-        var STORE   = 'kvs';
-        function idbOpen(){
-          return new Promise(function(resolve, reject){
-            var req = indexedDB.open(DB_NAME, 1);
-            req.onupgradeneeded = function(){ var db = req.result; if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE); };
-            req.onsuccess = function(){ resolve(req.result); };
-            req.onerror   = function(){ reject(req.error); };
-          });
-        }
-        function idbGet(key){
-          return idbOpen().then(function(db){
-            return new Promise(function(resolve, reject){
-              var tx = db.transaction(STORE, 'readonly');
-              var st = tx.objectStore(STORE);
-              var rq = st.get(key);
-              rq.onsuccess = function(){ resolve(rq.result); };
-              rq.onerror   = function(){ reject(rq.error); };
-            });
-          });
-        }
-        function idbSet(key, val){
-          return idbOpen().then(function(db){
-            return new Promise(function(resolve, reject){
-              var tx = db.transaction(STORE, 'readwrite');
-              var st = tx.objectStore(STORE);
-              var rq = st.put(val, key);
-              rq.onsuccess = function(){ resolve(); };
-              rq.onerror   = function(){ reject(rq.error); };
-            });
-          });
-        }
-        function idbDel(key){
-          return idbOpen().then(function(db){
-            return new Promise(function(resolve, reject){
-              var tx = db.transaction(STORE, 'readwrite');
-              var st = tx.objectStore(STORE);
-              var rq = st.delete(key);
-              rq.onsuccess = function(){ resolve(); };
-              rq.onerror   = function(){ reject(rq.error); };
-            });
-          });
-        }
-
-        var HANDLE_KEY = 'pdc_file_handle';
-        var fileHandle = null;
-
-        idbGet(HANDLE_KEY).then(function(h){ fileHandle = h || null; }).catch(function(){});
-
+        // Minimal IndexedDB KV
+        var DB_NAME='pdc_fs_store', STORE='kvs';
+        function idbOpen(){ return new Promise(function(res,rej){ var req=indexedDB.open(DB_NAME,1); req.onupgradeneeded=function(){ var db=req.result; if(!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE); }; req.onsuccess=function(){res(req.result)}; req.onerror=function(){rej(req.error)}; });}
+        function idbGet(k){ return idbOpen().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction(STORE,'readonly'); var st=tx.objectStore(STORE); var rq=st.get(k); rq.onsuccess=function(){res(rq.result)}; rq.onerror=function(){rej(rq.error)}; });});}
+        function idbSet(k,v){ return idbOpen().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction(STORE,'readwrite'); var st=tx.objectStore(STORE); var rq=st.put(v,k); rq.onsuccess=function(){res()}; rq.onerror=function(){rej(rq.error)}; });});}
+        function idbDel(k){ return idbOpen().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction(STORE,'readwrite'); var st=tx.objectStore(STORE); var rq=st.delete(k); rq.onsuccess=function(){res()}; rq.onerror=function(){rej(rq.error)}; });});}
+        var HANDLE_KEY='pdc_file_handle'; var fileHandle=null;
+        idbGet(HANDLE_KEY).then(function(h){ fileHandle=h||null; }).catch(function(){});
         function buildBackupPayload(){
-          return {
-            _note: 'Poppe’s Diesel Co. Shop Manager backup',
-            version: 'v1.2.0',
-            exportedAt: new Date().toISOString(),
-            db: DB,
-            ui: UI,
-            wm: (function(){ try{ return localStorage.getItem('pdc_wm_dataurl')||null; }catch(_){ return null; } })()
-          };
+          return {_note:'Poppe’s Diesel Co. Shop Manager backup', version:'v1.2.1', exportedAt:new Date().toISOString(), db:DB, ui:UI, wm:(function(){try{return localStorage.getItem('pdc_wm_dataurl')||null}catch(_){return null}})()};
         }
-
         async function chooseSaveFile(){
           try{
-            var suggestedName = 'poppes_shop_backup.json';
-            fileHandle = await window.showSaveFilePicker({
-              suggestedName: suggestedName,
-              types: [{ description: 'JSON', accept: {'application/json': ['.json']} }]
-            });
+            fileHandle = await window.showSaveFilePicker({ suggestedName:'poppes_shop_backup.json', types:[{ description:'JSON', accept:{'application/json':['.json']} }] });
             await idbSet(HANDLE_KEY, fileHandle);
             alert('Save location set. Use "Quick Save" next time.');
-          }catch(err){
-            if (err && err.name === 'AbortError') return;
-            alert('Could not set save file: ' + (err.message || err));
-          }
+          }catch(err){ if (err && err.name==='AbortError') return; alert('Could not set save file: '+(err.message||err)); }
         }
-
         async function quickSave(){
           try{
             if (!fileHandle) { alert('Pick a save file first (Choose Save File).'); return; }
             var perm = await fileHandle.queryPermission({mode:'readwrite'});
-            if (perm !== 'granted') {
-              perm = await fileHandle.requestPermission({mode:'readwrite'});
-              if (perm !== 'granted') { alert('Permission to write was denied.'); return; }
-            }
+            if (perm!=='granted'){ perm = await fileHandle.requestPermission({mode:'readwrite'}); if (perm!=='granted'){ alert('Permission to write was denied.'); return; } }
             var writable = await fileHandle.createWritable();
             var data = JSON.stringify(buildBackupPayload(), null, 2);
             await writable.write(new Blob([data], {type:'application/json'}));
@@ -1287,7 +1119,6 @@ window.addEventListener('load', function(){
             alert('Quick Save failed: ' + (err.message || err));
           }
         }
-
         if (btnChoose) btnChoose.addEventListener('click', chooseSaveFile);
         if (btnQuick)  btnQuick.addEventListener('click', quickSave);
       })();
@@ -1346,150 +1177,6 @@ window.addEventListener('load', function(){
       try{ w.focus(); w.print(); }catch(_){}
     });
 
-    // Header field listeners
-    document.getElementById('invNo').addEventListener('input', persistLines);
-    document.getElementById('docType').addEventListener('change', persistLines);
-    document.getElementById('payLink').addEventListener('input', persistLines);
-    document.getElementById('emailTo').addEventListener('input', persistLines);
-    document.getElementById('laborRate').addEventListener('input', function(){ recalcTotals(); persistLines(); });
-    document.getElementById('salesTax').addEventListener('input', function(){ recalcTotals(); persistLines(); });
-    document.getElementById('overallNotes').addEventListener('input', persistLines);
-    document.getElementById('photosOnPdf').addEventListener('change', function(){ persistLines(); updatePreview(); });
-
-    /* Signature pad — pointer events + DPR scaling + scroll lock */
-    (function(){
-      var modal=document.getElementById('sigModal');
-      var openBtn=document.getElementById('sign');
-      var closeBtn=document.getElementById('sigClose');
-      var canvas=document.getElementById('sigPad');
-      var ctx=canvas.getContext('2d');
-      var drawing=false, last=null;
-
-      function openModal(){ modal.style.display='flex'; document.body.style.overflow='hidden'; resizeForDPR(); }
-      function closeModal(){ modal.style.display='none'; document.body.style.overflow=''; }
-      if(openBtn){ openBtn.addEventListener('click', openModal); }
-      if(closeBtn){ closeBtn.addEventListener('click', closeModal); }
-
-      function resizeForDPR(){
-        var ratio=Math.max(window.devicePixelRatio||1,1);
-        var w=canvas.clientWidth||640, h=canvas.clientHeight||220;
-        canvas.width=Math.floor(w*ratio); canvas.height=Math.floor(h*ratio);
-        ctx.setTransform(1,0,0,1,0,0);
-        ctx.scale(ratio,ratio);
-        ctx.lineWidth=2; ctx.lineCap='round'; ctx.strokeStyle='#000';
-      }
-      resizeForDPR(); window.addEventListener('resize', resizeForDPR);
-
-      function pos(e){ var r=canvas.getBoundingClientRect(); return {x:e.clientX-r.left,y:e.clientY-r.top}; }
-      function start(e){ e.preventDefault(); try{canvas.setPointerCapture(e.pointerId);}catch(_){} drawing=true; last=pos(e); }
-      function move(e){ if(!drawing) return; e.preventDefault(); var p=pos(e); ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; }
-      function end(e){ drawing=false; last=null; try{canvas.releasePointerCapture(e.pointerId);}catch(_){} }
-
-      canvas.addEventListener('pointerdown', start);
-      canvas.addEventListener('pointermove', move);
-      canvas.addEventListener('pointerup', end);
-      canvas.addEventListener('pointercancel', end);
-      canvas.addEventListener('pointerleave', end);
-
-      document.getElementById('sigClear').addEventListener('click', function(){ ctx.clearRect(0,0,canvas.width,canvas.height); });
-
-      document.getElementById('sigSave').addEventListener('click', function(){
-        var role=document.getElementById('sigRole').value;
-        var name=document.getElementById('sigName').value.trim();
-        var date=document.getElementById('sigDate').value;
-        var dataUrl=canvas.toDataURL('image/png');
-        var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; }
-        if(!j.signatures) j.signatures={customer:null,manager:null};
-        j.signatures[role]={ dataUrl:dataUrl, name:name, date:date };
-        try{ localStorage.setItem('poppe_shop_db_v112', JSON.stringify(DB)); }catch(_){}
-        updatePreview(); closeModal();
-      });
-    })();
-
-    // Photos
-    (function(){
-      var input=document.getElementById('photoInput');
-      function readAsDataURL(file, cb, eb){ var r=new FileReader(); r.onload=function(){cb(r.result)}; r.onerror=function(){if(eb)eb(r.error)}; r.readAsDataURL(file); }
-      function addPhotoToJob(job, dataUrl){ if(!job.photos) job.photos=[]; job.photos.push({ dataUrl:dataUrl, include:true }); }
-      function render(){ renderPhotoGrid(); updatePreview(); saveDB(); }
-      function onFiles(files){ var j=currentJob(); if(!j){ alert('Select or create a job first.'); return; } var i=0; (function next(){ if(i>=files.length){ render(); return; } readAsDataURL(files[i], function(data){ addPhotoToJob(j,data); i++; next(); }); })(); }
-      if(input){ input.addEventListener('change', function(){ onFiles(input.files||[]); input.value=''; }); }
-      window.renderPhotoGrid=function(){ var j=currentJob(); var grid=document.getElementById('photoGrid'); grid.innerHTML=''; if(!j || !j.photos || !j.photos.length) return; j.photos.forEach(function(ph,idx){ var div=document.createElement('div'); div.className='photo-item'; div.innerHTML='<img src="'+ph.dataUrl+'" alt=""><button class="del">×</button><label><input type="checkbox" '+(ph.include!==false?'checked':'')+'> Include on PDF</label>'; div.querySelector('.del').addEventListener('click', function(){ j.photos.splice(idx,1); render(); }); div.querySelector('input[type=checkbox]').addEventListener('change', function(e){ ph.include = e.target.checked; render(); }); grid.appendChild(div); }); }
-    })();
-
-    // Templates
-    function renderTemplates(){
-      var list = document.getElementById('tplList'); if(!list) return;
-      list.innerHTML = '';
-      for(var ti=0; ti<(DB.templates||[]).length; ti++){
-        var tpl = DB.templates[ti];
-        var card = document.createElement('div'); card.className='card'; card.style.background='#fff'; card.style.color='#000'; card.style.borderColor='#b6b09f';
-        var html = '<h4 style="color:#0e111a; margin:0 0 6px 0">'+tpl.platform+'</h4>';
-        html += '<div class="small">'+tpl.items.length+' items</div>';
-        html += '<div class="actions" style="margin-top:8px"><button class="tab-btn" data-apply="'+ti+'">Apply</button></div>';
-        card.innerHTML = html; list.appendChild(card);
-      }
-      $all('button[data-apply]').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          var idx = Number(btn.getAttribute('data-apply')||0);
-          var tpl = DB.templates[idx]; if(!tpl) return;
-          applyTemplate(tpl);
-          alert('Template applied: '+tpl.platform);
-        });
-      });
-    }
-    function openTemplatesModal(){ var m=document.getElementById('tplModal'); renderTemplates(); m.style.display='flex'; }
-    document.getElementById('openTemplates').addEventListener('click', function(){ openTemplatesModal(); });
-    document.getElementById('tplClose').addEventListener('click', function(){ document.getElementById('tplModal').style.display='none'; });
-
-    function applyTemplate(tpl){
-      var j = ensureJobSelected(true); if(!j) return;
-      var i, it, sell, desc;
-      for(i=0;i<(tpl.items||[]).length;i++){
-        it = tpl.items[i];
-        if(it.type==='Labor'){
-          addLine('Labor', it.desc, it.qty||1, Number(document.getElementById('laborRate').value||80), 0, '');
-        } else {
-          sell = (it.cost||0) * (1 + (Number(it.markup||0)/100));
-          desc = (it.desc||'') + (it.part?(' ('+it.part+')'):'') + (it.vendor?(' — '+it.vendor):'');
-          addLine('Part', desc, 1, Number(sell.toFixed(2)), Number(it.cost||0), '');
-        }
-      }
-      persistLines();
-    }
-
-    function renderSettings(){
-      document.getElementById('defaultMarkup').value=DB.settings.defaultMarkup||40;
-      document.getElementById('shopFrom').value=DB.settings.shopFrom||'Poppe’s Diesel Co.';
-      document.getElementById('shopReply').value=DB.settings.shopReply||'poppedieselco@gmail.com';
-      document.getElementById('shopSubj').value=DB.settings.shopSubj||'[Poppe’s Diesel Co.] ';
-      document.getElementById('shopFooter').value=DB.settings.shopFooter||'Thank you for supporting local.';
-      ['defaultMarkup','shopFrom','shopReply','shopSubj','shopFooter'].forEach(function(id){
-        var el=document.getElementById(id); if(!el) return;
-        el.addEventListener('input', function(){
-          DB.settings[id] = (id==='defaultMarkup') ? Number(el.value||40) : el.value; saveDB();
-        });
-      });
-    }
-
-    function renderDashboard(){
-      var open=0, unpaid=0, rev=0, prof=0, now=new Date(), ym=now.toISOString().slice(0,7);
-      DB.jobs.forEach(function(j){
-        if(j.status!=='Done') open++;
-        if(j.docType==='Invoice' && !j.paid) unpaid++;
-        var createdMonth=(j.paidAt||j.createdAt||'').slice(0,7);
-        if(createdMonth===ym){
-          var subtotal=sumLines(j.lines,'subtotal');
-          var profit=sumLines(j.lines,'profit');
-          rev+=subtotal; prof+=profit;
-        }
-      });
-      document.getElementById('openJobs').textContent=open;
-      document.getElementById('unpaid').textContent=unpaid;
-      document.getElementById('revMonth').textContent=fmt(rev);
-      document.getElementById('profitMonth').textContent=fmt(prof);
-    }
-
     (function selftest(){
       var ok = !!(window.localStorage && document.querySelector && document.createElement);
       var tag=document.getElementById('selftest');
@@ -1498,7 +1185,7 @@ window.addEventListener('load', function(){
 
     upgradeDB(); renderAll();
 
-    // Restore last opened job on load
+    // Restore last opened job
     if (UI.lastJobId && DB.jobs.some(function(x){return x.id===UI.lastJobId;})) {
       $('#invJob').value = UI.lastJobId;
       loadInvoice(UI.lastJobId);
