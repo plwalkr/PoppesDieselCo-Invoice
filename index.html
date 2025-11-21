@@ -291,7 +291,11 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
       <div><strong>Bill To:</strong> <span id="pCust">—</span><div id="pVeh"></div></div>
       <table class="lines"><thead><tr><th>Description</th><th>Qty/Hrs</th><th>Unit</th><th>Line $</th></tr></thead><tbody id="pLines"></tbody></table>
       <div id="pOverallBlock"></div>
-      <div class="totals"><div>Subtotal: <span id="pSub">$0.00</span></div><div>Tax: <span id="pTax">$0.00</span></div><div class="grand">Grand Total: <span id="pGrand">$0.00</span></div></div>
+      <div class="totals">
+        <div>Subtotal: <span id="pSub">$0.00</span></div>
+        <div>Tax (Parts only): <span id="pTax">$0.00</span></div> <!-- CHANGED -->
+        <div class="grand">Grand Total: <span id="pGrand">$0.00</span></div>
+      </div>
       <div class="signatures" id="signatures">
         <div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigCustomer" style="display:none"/></div><div class="sig-label">Customer Signature <span id="pSigCustomerName"></span> <span class="small" id="pSigCustomerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
         <div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigManager" style="display:none"/></div><div class="sig-label">Service Manager Signature <span id="pSigManagerName"></span> <span class="small" id="pSigManagerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
@@ -390,6 +394,11 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
 </div>
 
 <script>
+// ADDED: Supabase config placeholders (safe to leave blank if unused)
+var SUPABASE_URL = ''; // e.g. 'https://your-project.supabase.co'
+var SUPABASE_KEY = ''; // e.g. 'your-public-anon-key'
+var supaClient = null;
+
 /* --- Minimal ES5 helpers + diagnostics --- */
 var __JS_STARTED = true;
 (function(){
@@ -440,6 +449,16 @@ window.addEventListener('load', function(){
     var STORAGE_KEY = 'poppe_shop_db_v112';
     var DB = loadDB() || defaultDB();
 
+    // ADDED: optional Supabase client (no effect unless URL/key provided & library loaded)
+    if (typeof window.supabase !== 'undefined' && SUPABASE_URL && SUPABASE_KEY){
+      try{
+        supaClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        AppLog.info('Supabase client initialised');
+      } catch(e){
+        AppLog.error('Supabase init failed', e);
+      }
+    }
+
     var UIKEY = 'pdc_ui_state';
     function loadUI(){ try{ return JSON.parse(localStorage.getItem(UIKEY)||'{}'); }catch(_){ return {}; } }
     function saveUI(u){ try{ localStorage.setItem(UIKEY, JSON.stringify(u)); }catch(_ ){} }
@@ -476,7 +495,34 @@ window.addEventListener('load', function(){
         ]}
       ];
     }
-    function saveDB(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(e){ AppLog.error('localStorage save failed', e); } }
+
+    // ADDED: Supabase sync helper (safe if supaClient is null)
+    async function syncToSupabase(){
+      if (!supaClient) return;
+      try{
+        var payload = {
+          id: 'main',
+          data: DB,
+          updated_at: new Date().toISOString()
+        };
+        var res = await supaClient
+          .from('shop_snapshots')
+          .upsert(payload, { onConflict: 'id' });
+        if (res.error) throw res.error;
+        AppLog.info('Supabase sync OK');
+      } catch(e){
+        AppLog.error('Supabase sync failed', e);
+      }
+    }
+
+    function saveDB(){
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+      } catch(e){
+        AppLog.error('localStorage save failed', e);
+      }
+      if (supaClient) { syncToSupabase(); } // ADDED
+    }
     function loadDB(){ try { var s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; } catch(e){ AppLog.error('localStorage load failed', e); return null; } }
     function upgradeDB(){
       var i, j, l;
@@ -636,6 +682,14 @@ window.addEventListener('load', function(){
     $('#internalNotes').addEventListener('input', function(){
       var j = currentJob(); if(!j) return;
       j.internalNotes = this.value; saveDB();
+    });
+
+    // ADDED: keep Technician Overall Notes synced with DB + preview/PDF
+    $('#overallNotes').addEventListener('input', function(){
+      var j = currentJob(); if(!j) return;
+      j.overallNotes = this.value;
+      saveDB();
+      updatePreview();
     });
 
     /* Filters + job picker */
@@ -902,7 +956,7 @@ window.addEventListener('load', function(){
         }
       }
       var taxPct = Number($('#salesTax').value||0);
-      var tax = partsSubtotal * (taxPct/100); // >>> TAX ON PARTS ONLY <<<
+      var tax = partsSubtotal * (taxPct/100); // TAX ON PARTS ONLY
       var grand = subtotal + tax;
 
       document.getElementById('sub').textContent = fmt(subtotal);
@@ -933,7 +987,25 @@ window.addEventListener('load', function(){
         for(var i=0;i<j.lines.length;i++){
           var l=j.lines[i]; var line=(Number(l.qty)||0)*(Number(l.unit)||0);
           var tr=document.createElement('tr');
-          tr.innerHTML='<td>'+l.type+': '+escapeHtml(l.desc||"")+'</td><td>'+(l.qty||0)+'</td><td>'+fmt(l.unit||0)+'</td><td>'+fmt(line)+'</td>';
+
+          // ADDED: show store/list vs customer price for parts on the PDF
+          var descHtml = escapeHtml(l.desc||"");
+          if (l.type === 'Part') {
+            var base = Number(l.cost||0);
+            var sell = Number(l.unit||0);
+            if (base>0 || sell>0) {
+              descHtml += '<div style="font-size:0.85em;color:#555;margin-top:2px;">';
+              if (base>0) descHtml += 'Store/List: '+fmt(base);
+              if (sell>0) descHtml += (base>0?' | ':'')+'You Pay: '+fmt(sell);
+              descHtml += '</div>';
+            }
+          }
+
+          tr.innerHTML =
+            '<td>'+l.type+': '+descHtml+'</td>' +
+            '<td>'+(l.qty||0)+'</td>' +
+            '<td>'+fmt(l.unit||0)+'</td>' +
+            '<td>'+fmt(line)+'</td>';
           tbody.appendChild(tr);
           if(l.note && l.note.trim()){
             var trn=document.createElement('tr');
