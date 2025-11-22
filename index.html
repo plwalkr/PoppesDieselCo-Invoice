@@ -54,34 +54,6 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .noscript-overlay{position:fixed;inset:0;background:#18040a;color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;z-index:9999}
 .noscript-overlay .box{max-width:720px;background:#2b0c15;border:2px solid #8a1b27;border-radius:12px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .noscript-overlay h2{margin:0 0 10px 0}
-
-/* New Recent Jobs styles */
-#recentJobsWrap{margin-top:4px}
-.recent-jobs-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-  gap:6px;
-}
-.recent-job{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-  justify-content:space-between;
-  border-radius:12px;
-  border:1px solid var(--border);
-  padding:8px 10px;
-  background:#fff;
-  color:var(--text);
-  cursor:pointer;
-  text-align:left;
-  box-shadow:0 1px 3px rgba(0,0,0,.12);
-}
-.recent-job-main{margin-bottom:4px}
-.recent-job-title{font-weight:600;font-size:.95rem}
-.recent-job-sub{font-size:.8rem;color:var(--muted)}
-.recent-job-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.75rem}
-.recent-job-amount{font-weight:600}
-.recent-job-margin{color:var(--muted)}
 </style>
 
 <style>
@@ -109,7 +81,7 @@ tbody tr:nth-child(odd) td{ background:var(--surface-2); }
 nav.bottom{ background:rgba(14,17,26,.90); backdrop-filter:saturate(160%) blur(8px); border-top:1px solid rgba(255,255,255,.06); }
 .badge{ border:1px solid var(--border); background:var(--surface); color:var(--text); }
 .badge.estimate{ background:#F3E2BF; color:#3B2B00; }
-.badge.invoice{ background:#E6DAC2; color:#0E0F10; }
+.badge.invoice{ background:#DCD3C0; color:#0E0F10; }
 #sigPad{ touch-action:none; }
 </style>
 
@@ -143,7 +115,7 @@ input,select,textarea{ background:#fff; border:1px solid var(--border); box-shad
   border-radius:9999px; padding:10px 16px;
   background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.10)) , var(--ink);
   color:#F2E7D1; border:1px solid #0a0b0c;
-  transition:transform .08s.ease, box-shadow .2s.ease, filter .15s.ease;
+  transition:transform .08s ease, box-shadow .2s ease, filter .15s ease;
   box-shadow:0 2px 0 rgba(0,0,0,.25), 0 8px 18px rgba(0,0,0,.10);
 }
 .tab-btn:hover{ filter:brightness(1.06); }
@@ -166,6 +138,63 @@ tbody tr:hover td{ background:#EAD9BC; }
 .badge.invoice{ background:#E6DAC2 } .badge.estimate{ background:#F3E2BF; color:#3B2B00 }
 nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(10px); }
 .small{ color:#5f584d } tbody td, th{ border-bottom-color:rgba(0,0,0,.12) }
+
+/* Recent jobs dropdown */
+#recentJobsWrap{
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  padding:6px;
+}
+.recent-jobs-header{
+  width:100%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:transparent;
+  border:none;
+  color:var(--text);
+  padding:6px 8px;
+  cursor:pointer;
+  font-size:.9rem;
+}
+.recent-jobs-header .chevron{
+  transition:transform .15s ease;
+}
+#recentJobsWrap.collapsed .recent-jobs-panel{
+  display:none;
+}
+#recentJobsWrap.collapsed .recent-jobs-header .chevron{
+  transform:rotate(-90deg);
+}
+.recent-jobs-panel{
+  margin-top:4px;
+}
+.recent-jobs-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(180px,1fr));
+  gap:6px;
+  margin-top:4px;
+}
+.recent-job-card{
+  border-radius:10px;
+  border:1px solid var(--border);
+  padding:6px 8px;
+  background:#fff;
+  cursor:pointer;
+  font-size:.8rem;
+  text-align:left;
+}
+.recent-job-card:hover{
+  filter:brightness(1.03);
+}
+.recent-job-title{
+  font-weight:600;
+}
+.recent-job-meta{
+  font-size:.75rem;
+  color:var(--muted);
+}
 </style>
 </head>
 
@@ -250,9 +279,15 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
     <div class="grid" id="invFilters">
       <label>Filter by Customer <select id="invCustFilter"><option value="">All customers</option></select></label>
       <label>Search Jobs <input id="invJobSearch" placeholder="Type to filter jobs by customer/title…"/></label>
-      <div id="recentJobsWrap">
-        <div class="small">Recent Jobs (click to load)</div>
-        <div class="recent-jobs-grid" id="recentJobs"></div>
+      <div id="recentJobsWrap" class="collapsed">
+        <button type="button" class="recent-jobs-header" id="recentJobsToggle">
+          <span>Recent Jobs (click to load)</span>
+          <span class="chevron">▾</span>
+        </button>
+        <div class="recent-jobs-panel">
+          <div class="small">Click a job card below to load it into the invoice.</div>
+          <div class="recent-jobs-grid" id="recentJobs"></div>
+        </div>
       </div>
     </div>
     <form class="grid" id="invForm">
@@ -267,7 +302,7 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
     <div class="actions">
       <button class="tab-btn" id="addLabor" type="button">+ Labor Line</button>
       <button class="tab-btn" id="addPart" type="button">+ Part Line</button>
-      <button class="tab-btn" id="openTemplates" type="button">Maintenance Templates</button>
+      <!-- Maintenance Templates button removed -->
       <button class="tab-btn" id="applyMarkup" type="button">Apply Default Markup</button>
       <button class="tab-btn" id="quickEstimate" type="button">Quick Estimate</button>
       <button class="tab-btn" id="recalc" type="button">Recalculate</button>
@@ -281,18 +316,18 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
     <div class="table-wrap" style="margin-top:10px">
       <table class="lines" id="lines">
         <thead>
-        <tr>
-          <th style="width:28px">↕</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Qty/Hrs</th>
-          <th>List $</th>
-          <th>Cost $</th>
-          <th>Customer $</th>
-          <th>Line $</th>
-          <th>Profit $</th>
-          <th></th>
-        </tr>
+          <tr>
+            <th style="width:28px">↕</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Qty/Hrs</th>
+            <th>List $</th>
+            <th>Cost $</th>
+            <th>Unit $</th>
+            <th>Line $</th>
+            <th>Profit $</th>
+            <th></th>
+          </tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -301,7 +336,7 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
       <div>Subtotal: <span id="sub">$0.00</span></div>
       <div>Tax (Parts only): <span id="tax">$0.00</span></div>
       <div class="grand">Total: <span id="grand">$0.00</span></div>
-      <div>Savings vs List: <span id="savings">$0.00</span></div>
+      <div>Total Savings vs List: <span id="save">$0.00</span></div>
       <div><strong>Total Profit:</strong> <span id="profit">$0.00</span></div>
       <div>Margin: <span class="badge estimate" id="margin">0%</span></div>
     </div>
@@ -336,13 +371,12 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
       <div><strong>Bill To:</strong> <span id="pCust">—</span><div id="pVeh"></div></div>
       <table class="lines">
         <thead>
-        <tr>
-          <th>Description</th>
-          <th>Qty/Hrs</th>
-          <th>List $</th>
-          <th>Customer $</th>
-          <th>Line $</th>
-        </tr>
+          <tr>
+            <th>Description</th>
+            <th>Qty/Hrs</th>
+            <th>Customer $</th>
+            <th>Line $</th>
+          </tr>
         </thead>
         <tbody id="pLines"></tbody>
       </table>
@@ -350,7 +384,7 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
       <div class="totals">
         <div>Subtotal: <span id="pSub">$0.00</span></div>
         <div>Tax (Parts only): <span id="pTax">$0.00</span></div>
-        <div>Savings vs List: <span id="pSavings">$0.00</span></div>
+        <div>Total Savings vs List: <span id="pSave">$0.00</span></div>
         <div class="grand">Grand Total: <span id="pGrand">$0.00</span></div>
       </div>
       <div class="signatures" id="signatures">
@@ -409,17 +443,6 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
 </nav>
 
 <div id="debug"><div class="meta" id="debugMeta"></div><pre id="debugLog"></pre></div>
-
-<!-- Templates Modal -->
-<div class="modal" id="tplModal" style="display:none">
-  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f">
-    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h3 style="color:#0e111a;margin:0">Maintenance Templates</h3>
-      <button class="tab-btn" id="tplClose">Close</button>
-    </header>
-    <div id="tplList"></div>
-  </div>
-</div>
 
 <!-- Signature Modal -->
 <div class="modal" id="sigModal" style="display:none">
@@ -566,7 +589,7 @@ window.addEventListener('load', function(){
       return true;
     }
 
-    function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); renderTemplates(); saveDB(); }
+    function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); saveDB(); }
 
     // Tabs — save edits before switching
     $all('.tab-btn[data-tab]').forEach(function(b){
@@ -672,6 +695,27 @@ window.addEventListener('load', function(){
       xhr.send(null);
     });
 
+    function applyTemplate(tpl){
+      if(!tpl || !tpl.items) return;
+      ensureJobSelected(true);
+      for(var i=0;i<tpl.items.length;i++){
+        var it = tpl.items[i];
+        if(it.type === 'Labor'){
+          addLine('Labor', it.desc || '', it.qty || 1, 0, 0, Number($('#laborRate').value || 80), '');
+        } else {
+          var cost = Number(it.cost || 0);
+          var mu = typeof it.markup === 'number' ? (it.markup/100) : (Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100);
+          var unit = cost * (1+mu);
+          var desc = it.desc || '';
+          if(it.vendor || it.part){
+            desc += ' — ' + [it.vendor, it.part].filter(Boolean).join(' ');
+          }
+          addLine('Part', desc, 1, 0, cost, unit, '');
+        }
+      }
+      persistLines();
+    }
+
     function renderJobs(){
       var tb = $('#jobsTable tbody'); tb.innerHTML='';
       DB.jobs.forEach(function(j){
@@ -702,11 +746,6 @@ window.addEventListener('load', function(){
       j.internalNotes = this.value; saveDB();
     });
 
-    $('#overallNotes').addEventListener('input', function(){
-      // make sure overall notes immediately hit DB and preview
-      persistLines();
-    });
-
     /* Filters + job picker */
     function renderInvFilters(){
       var sel = $('#invCustFilter');
@@ -735,64 +774,32 @@ window.addEventListener('load', function(){
       invSel.innerHTML = opts.join('');
     }
     function renderRecentJobs(){
-      var box = $('#recentJobs');
-      var wrap = $('#recentJobsWrap');
-      if(!box) return;
-      box.innerHTML = '';
-
+      var box = $('#recentJobs'); if(!box) return;
+      box.innerHTML='';
       var jobs = DB.jobs.slice(0);
       jobs.sort(function(a,b){ return new Date(b.createdAt) - new Date(a.createdAt); });
-
-      if(!jobs.length){
-        if(wrap) wrap.style.display='none';
-        return;
-      }
-      if(wrap) wrap.style.display='block';
-
-      function esc(s){
-        return String(s||'').replace(/[&<>"']/g,function(c){
-          return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
-        });
-      }
-
       jobs.slice(0,6).forEach(function(j){
         var c = findCustomer(j.customerId);
-        var subtotal = sumLines(j.lines,'subtotal');
-        var profit   = sumLines(j.lines,'profit');
-        var margin   = subtotal>0 ? Math.round((profit/subtotal)*100) : 0;
-
-        var statusLabel;
-        if(j.docType === 'Invoice'){
-          statusLabel = j.paid ? 'Paid Invoice' : 'Unpaid Invoice';
-        } else {
-          statusLabel = j.approved ? 'Approved Estimate' : 'Estimate';
-        }
-
-        var badgeClass = j.status==='Open' ? 'badge-open' : (j.status==='In Progress'?'badge-ip':'badge-done');
-
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'recent-job';
-        btn.innerHTML =
-          '<div class="recent-job-main">' +
-            '<div class="recent-job-title">'+esc(c?c.name:'—')+'</div>' +
-            '<div class="recent-job-sub">'+esc(j.title||'')+'</div>' +
-          '</div>' +
-          '<div class="recent-job-meta">' +
-            '<span class="badge '+badgeClass+'">'+esc(statusLabel)+'</span>' +
-            '<span class="recent-job-amount">'+fmt(subtotal)+'</span>' +
-            '<span class="recent-job-margin">'+margin+'% margin</span>' +
-          '</div>';
-
-        btn.addEventListener('click', function(){
+        var card = document.createElement('button');
+        card.type='button';
+        card.className='recent-job-card';
+        var custName = c?c.name:'—';
+        var created = j.createdAt ? new Date(j.createdAt).toLocaleDateString() : '';
+        var status = j.status || 'Open';
+        var total = fmt(sumLines(j.lines,'subtotal'));
+        card.innerHTML =
+          '<div class="recent-job-title">'+custName+'</div>'+
+          '<div class="recent-job-meta">'+j.title+'</div>'+
+          '<div class="recent-job-meta">'+created+' • '+status+' • '+total+'</div>';
+        card.addEventListener('click', function(){
           try{ persistLines(); }catch(_){}
           $('#invJob').value = j.id;
           loadInvoice(j.id);
-          UI.lastJobId = j.id;
-          saveUI(UI);
+          UI.lastJobId=j.id; saveUI(UI);
+          var wrap = $('#recentJobsWrap');
+          if(wrap){ wrap.classList.add('collapsed'); }
         });
-
-        box.appendChild(btn);
+        box.appendChild(card);
       });
     }
     $('#invCustFilter').addEventListener('change', function(){
@@ -830,14 +837,12 @@ window.addEventListener('load', function(){
       var j = currentJob(); if(!j) j = DB.jobs.filter(function(x){ return x.id===id; })[0];
       if(!j) return;
 
-      // Per-job fields (defaults if missing)
       $('#laborRate').value = (j.laborRate != null) ? j.laborRate : 80;
       $('#salesTax').value  = (j.salesTaxPct != null) ? j.salesTaxPct : 7;
 
       $('#lines tbody').innerHTML='';
       for(var i=0;i<(j.lines||[]).length;i++){
-        var l=j.lines[i];
-        addLine(l.type,l.desc,l.qty,l.list,l.cost,l.unit,l.note);
+        var l=j.lines[i]; addLine(l.type,l.desc,l.qty,l.list,l.cost,l.unit,l.note);
       }
       $('#invNo').value = j.invNo||''; $('#docType').value = j.docType||'Estimate'; $('#payLink').value = j.paymentLink||'';
       var c = findCustomer(j.customerId);
@@ -889,18 +894,18 @@ window.addEventListener('load', function(){
       var tr = document.createElement('tr');
       var descPH = type==='Labor' ? "e.g., Diagnostics / R&R" : "e.g., Fuel Filter (FF63009) — Fleetguard";
       var qtyPH  = type==='Labor' ? "hrs (e.g., 1.5)" : "qty (e.g., 1)";
-      var costPH = "Your cost (e.g., 70.00)";
-      var unitPH = type==='Labor' ? "Customer $/hr (auto or manual)" : "Customer price (e.g., 90.00)";
-      var listPH = "List / MSRP (e.g., 100.00)";
+      var listPH = type==='Labor' ? "optional list/MSRP" : "store list MSRP";
+      var costPH = type==='Labor' ? "shop cost (optional)" : "your cost (e.g., 32.00)";
+      var unitPH = type==='Labor' ? "$/hr (auto or manual)" : "customer price";
       tr.className = 'draggable-row';
       tr.innerHTML =
         '<td class="drag-col"><button class="tab-btn handle" title="Drag to reorder">↕</button></td>' +
         '<td><select class="lType"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Part'?'selected':'')+'>Part</option></select></td>' +
         '<td><div class="desc-wrap"><input class="lDesc" value="'+(desc||'')+'" placeholder="'+descPH+'"/><textarea class="lNote" placeholder="Tech note for this line (prints)">'+(note||'')+'</textarea></div></td>' +
-        '<td><input class="lQty" type="number" step="0.01" value="'+(qty!=null?qty:1)+'" placeholder="'+qtyPH+'"/></td>' +
-        '<td><input class="lList" type="number" step="0.01" value="'+(list!=null?list:0)+'" placeholder="'+listPH+'"/></td>' +
-        '<td><input class="lCost" type="number" step="0.01" value="'+(cost!=null?cost:0)+'" placeholder="'+costPH+'"/></td>' +
-        '<td><input class="lUnit" type="number" step="0.01" value="'+(unit!=null?unit:0)+'" placeholder="'+unitPH+'"/><div class="calc-hint">—</div></td>' +
+        '<td><input class="lQty" type="number" step="0.01" value="'+(qty||1)+'" placeholder="'+qtyPH+'"/></td>' +
+        '<td><input class="lList" type="number" step="0.01" value="'+(((list!=null)?list:0))+'" placeholder="'+listPH+'"/></td>' +
+        '<td><input class="lCost" type="number" step="0.01" value="'+(((cost!=null)?cost:0))+'" placeholder="'+costPH+'"/></td>' +
+        '<td><input class="lUnit" type="number" step="0.01" value="'+(unit||0)+'" placeholder="'+unitPH+'"/><div class="calc-hint">—</div></td>' +
         '<td class="lLine">$0.00</td><td class="lProfit">$0.00</td><td><button type="button" class="tab-btn lDel">X</button></td>';
       document.querySelector('#lines tbody').appendChild(tr);
       makeRowDraggable(tr);
@@ -966,10 +971,8 @@ window.addEventListener('load', function(){
         var type = tr.querySelector('.lType').value;
         if(type==='Part'){
           var cost = Number(tr.querySelector('.lCost').value||0);
-          if(cost>0){
-            var newUnit = cost * (1+mu);
-            tr.querySelector('.lUnit').value = newUnit.toFixed(2);
-          }
+          var newUnit = cost * (1+mu);
+          if(newUnit>0) tr.querySelector('.lUnit').value = newUnit.toFixed(2);
         }
       });
       persistLines();
@@ -987,84 +990,63 @@ window.addEventListener('load', function(){
     }
 
     function recalcTotals(){
-      var rows = rowsToLines();
-      var subtotal = 0;
-      var profit = 0;
-      var partsSubtotal = 0;
-      var totalSavings = 0;
-
-      var laborRate = Number($('#laborRate').value || 80);
-      var muDefault = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40) / 100;
+      var rows = rowsToLines(); var subtotal=0, profit=0, partsSubtotal=0, savingsTotal=0;
+      var laborRate = Number($('#laborRate').value||80);
+      var muDefault = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
       var trs = $all('#lines tbody tr');
-
-      for (var i = 0; i < rows.length; i++) {
+      for(var i=0;i<rows.length;i++){
         var r = rows[i];
-
-        if (r.type === 'Labor' && (!r.unit || r.unit === 0)) {
+        if(r.type==='Labor' && (!r.unit || r.unit===0)) {
           r.unit = laborRate;
           if (trs[i]) {
             var uEl = trs[i].querySelector('.lUnit');
             if (uEl) uEl.value = r.unit.toFixed(2);
           }
         }
-
-        var qty  = r.qty  || 0;
-        var unit = r.unit || 0;
-        var cost = r.cost || 0;
-        var list = r.list || 0;
-
-        var line = qty * unit;
-        subtotal += line;
-        if (r.type === 'Part') partsSubtotal += line;
-
-        var lineProfit = qty * (unit - cost);
-        r.profit = lineProfit;
-        profit += lineProfit;
-
-        var savedTotal = 0;
-        if (list > 0 && list > unit && qty > 0) {
-          savedTotal = (list - unit) * qty;
-          totalSavings += savedTotal;
+        var line = r.qty*r.unit; subtotal+=line;
+        if (r.type==='Part') {
+          partsSubtotal += line;
+          var list = Number(r.list || 0);
+          if(list > r.unit){
+            savingsTotal += (list - r.unit) * (r.qty || 1);
+          }
         }
+        var lineProfit = r.qty*(r.unit - (r.cost||0));
+        r.profit = lineProfit; profit += lineProfit;
 
-        var tr = trs[i];
-        if (!tr) continue;
-
-        tr.querySelector('.lLine').textContent   = fmt(line);
+        var tr = trs[i]; if(!tr) continue;
+        tr.querySelector('.lLine').textContent = fmt(line);
         tr.querySelector('.lProfit').textContent = fmt(lineProfit);
 
         var hint = tr.querySelector('.calc-hint');
-        if (hint) {
-          var up  = unit - cost;
-          var per = cost > 0 ? Math.round((up / cost) * 100) : 0;
-          var cls = (cost > 0 && (up / cost) >= muDefault) ? 'ok' : (cost > 0 ? 'warn' : 'ok');
-          var dollars = fmt(up * qty);
-          var perTxt  = cost > 0 ? '(+' + per + '% over cost)' : '(set cost for %)';
-          var savedTxt = savedTotal > 0 ? ' — Customer saved ' + fmt(savedTotal) + ' vs list' : '';
+        if(hint){
+          var up = (r.unit - (r.cost||0));
+          var per = (r.cost>0) ? Math.round((up / r.cost)*100) : 100;
+          var cls = (r.cost>0 && (up / r.cost) >= muDefault) ? 'ok' : (r.cost>0 ? 'warn' : 'ok');
           hint.className = 'calc-hint ' + cls;
-          hint.textContent = dollars + ' ' + perTxt + savedTxt;
+          var dollars = fmt(up * (r.qty||1));
+          var perTxt = r.cost>0 ? '(+'+per+'%)' : '(set cost for %)';
+          hint.textContent = dollars + ' ' + perTxt;
         }
       }
-
-      var taxPct = Number($('#salesTax').value || 0);
-      var tax = partsSubtotal * (taxPct / 100);
+      var taxPct = Number($('#salesTax').value||0);
+      var tax = partsSubtotal * (taxPct/100); // parts-only tax
       var grand = subtotal + tax;
 
-      $('#sub').textContent      = fmt(subtotal);
-      $('#tax').textContent      = fmt(tax);
-      $('#grand').textContent    = fmt(grand);
-      $('#profit').textContent   = fmt(profit);
-      $('#savings').textContent  = fmt(totalSavings);
-
-      var margin = grand > 0 ? Math.round((profit / grand) * 100) : 0;
+      document.getElementById('sub').textContent = fmt(subtotal);
+      document.getElementById('tax').textContent = fmt(tax);
+      document.getElementById('grand').textContent = fmt(grand);
+      document.getElementById('profit').textContent = fmt(profit);
+      document.getElementById('save').textContent = fmt(savingsTotal);
+      var margin = grand>0 ? Math.round((profit/grand)*100) : 0;
       var badge = document.getElementById('margin');
       badge.textContent = margin + '%';
-      badge.className = 'badge ' + (margin >= 25 ? 'invoice' : (margin >= 15 ? 'badge-open' : 'estimate'));
-
-      $('#pSub').textContent     = fmt(subtotal);
-      $('#pTax').textContent     = fmt(tax);
-      $('#pSavings').textContent = fmt(totalSavings);
-      $('#pGrand').textContent   = fmt(grand);
+      badge.className='badge ' + (margin>=25?'invoice': (margin>=15?'badge-open':'estimate'));
+      // Print preview totals
+      document.getElementById('pSub').textContent = fmt(subtotal);
+      document.getElementById('pTax').textContent = fmt(tax);
+      document.getElementById('pGrand').textContent = fmt(grand);
+      document.getElementById('pSave').textContent = fmt(savingsTotal);
     }
 
     function updatePreview(){
@@ -1076,42 +1058,38 @@ window.addEventListener('load', function(){
       var c = j ? findCustomer(j.customerId) : null;
       document.getElementById('pCust').textContent = c?c.name:'—'; document.getElementById('pVeh').textContent = c?(c.vehicle||''):'';
 
-      var tbody = document.getElementById('pLines'); 
-      tbody.innerHTML = '';
-      if (j) {
-        for (var i = 0; i < j.lines.length; i++) {
-          var l = j.lines[i];
-          var qty  = Number(l.qty)  || 0;
-          var unit = Number(l.unit) || 0;
-          var list = Number(l.list) || 0;
+      var tbody = document.getElementById('pLines'); tbody.innerHTML='';
+      if(j){
+        for(var i=0;i<j.lines.length;i++){
+          var l=j.lines[i];
+          var unit = Number(l.unit || 0);
+          var list = Number(l.list || 0);
+          var qty = Number(l.qty || 0);
           var line = qty * unit;
-
-          var savedTotal = 0;
-          if (list > 0 && list > unit && qty > 0) {
-            savedTotal = (list - unit) * qty;
+          var perUnitSave = 0;
+          if(list > unit && l.type === 'Part'){
+            perUnitSave = list - unit;
           }
 
-          var savingsHtml = savedTotal > 0
-            ? '<div style="font-size:9pt;font-style:italic;color:#555;margin-top:2px;">' +
-              'Customer saved ' + fmt(savedTotal) + ' vs list' +
-              '</div>'
-            : '';
+          var priceHtml = fmt(unit);
+          if(list > 0){
+            priceHtml += '<div style="font-size:9pt;font-style:italic;color:#444;">List: '+fmt(list);
+            if(perUnitSave > 0){
+              priceHtml += ' — Saved '+fmt(perUnitSave)+'/ea';
+            }
+            priceHtml += '</div>';
+          }
 
-          var tr = document.createElement('tr');
-          tr.innerHTML =
-            '<td>' + l.type + ': ' + escapeHtml(l.desc || "") + '</td>' +
-            '<td>' + qty + '</td>' +
-            '<td>' + fmt(list || 0) + '</td>' +
-            '<td>' + fmt(unit || 0) + '</td>' +
-            '<td>' + fmt(line) + savingsHtml + '</td>';
+          var tr=document.createElement('tr');
+          tr.innerHTML=
+            '<td>'+l.type+': '+escapeHtml(l.desc||"")+'</td>'+
+            '<td>'+qty+'</td>'+
+            '<td>'+priceHtml+'</td>'+
+            '<td>'+fmt(line)+'</td>';
           tbody.appendChild(tr);
-
-          if (l.note && l.note.trim()) {
-            var trn = document.createElement('tr');
-            trn.innerHTML =
-              '<td colspan="5" style="font-style:italic; color:#333; padding-top:4px;">' +
-              'Note: ' + escapeHtml(l.note.trim()) +
-              '</td>';
+          if(l.note && l.note.trim()){
+            var trn=document.createElement('tr');
+            trn.innerHTML = '<td colspan="4" style="font-style:italic; color:#333; padding-top:4px;">Note: '+escapeHtml(l.note.trim())+'</td>';
             tbody.appendChild(trn);
           }
         }
@@ -1156,25 +1134,6 @@ window.addEventListener('load', function(){
       }
     }
 
-    // apply template helper (uses new list/cost/unit layout)
-    function applyTemplate(tpl){
-      var j = ensureJobSelected(true); if(!j) return;
-      var laborRate = Number($('#laborRate').value || 80);
-      for (var i=0;i<(tpl.items||[]).length;i++){
-        var it = tpl.items[i];
-        if(it.type === 'Labor'){
-          addLine('Labor', it.desc || '', it.qty != null ? it.qty : 1, 0, 0, laborRate, '');
-        } else if(it.type === 'Part'){
-          var cost = it.cost || 0;
-          var mu = (it.markup != null ? it.markup : DB.settings.defaultMarkup || 40) / 100;
-          var unit = cost * (1+mu);
-          var list = unit; // you can bump this higher if you want baked-in "savings"
-          addLine('Part', it.desc || '', 1, list, cost, unit, '');
-        }
-      }
-      persistLines();
-    }
-
     // Quick Estimate modal
     (function(){
       var modal = document.getElementById('qeModal');
@@ -1196,9 +1155,8 @@ window.addEventListener('load', function(){
         if(mode==='replace'){ document.querySelector('#lines tbody').innerHTML=''; j.lines=[]; }
         addLine('Labor', title?('Diagnose/Repair — '+title):'Diagnose/Repair', hours, 0, 0, laborRate, '');
         if(partsCost>0){
-          var unit = partsCost*(1+mu);
-          var list = unit; // again, you can set list higher if you want baked-in "savings"
-          addLine('Part', title?('Parts — '+title):'Parts', 1, list, partsCost, unit, '');
+          var sell = partsCost*(1+mu);
+          addLine('Part', title?('Parts — '+title):'Parts', 1, sell, partsCost, sell, '');
         }
         persistLines();
         close();
@@ -1318,14 +1276,8 @@ window.addEventListener('load', function(){
       })();
     })();
 
-    document.getElementById('addLabor').addEventListener('click', function(){
-      if(!ensureJobSelected(true)) return;
-      addLine('Labor','',1,0,0, Number(document.getElementById('laborRate').value||80), '');
-    });
-    document.getElementById('addPart').addEventListener('click', function(){
-      if(!ensureJobSelected(true)) return;
-      addLine('Part','',1,0,0,0,'');
-    });
+    document.getElementById('addLabor').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Labor','',1,0,0, Number(document.getElementById('laborRate').value||80), ''); });
+    document.getElementById('addPart').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Part','',1,0,0,0,''); });
     document.getElementById('applyMarkup').addEventListener('click', applyDefaultMarkup);
     document.getElementById('recalc').addEventListener('click', recalcTotals);
     document.getElementById('markPaid').addEventListener('click', function(){
@@ -1342,84 +1294,31 @@ window.addEventListener('load', function(){
       var to=encodeURIComponent(document.getElementById('emailTo').value.trim()||'');
       var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim());
       var body=encodeURIComponent('Hello,\n\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+'.\nPayment link: '+(j.paymentLink||'')+'\n\n'+(DB.settings.shopFooter||'')+'\n\n— '+(DB.settings.shopFrom||''));
-      location.href='mailto:'+to+'?subject='+subj+' &body='+body;
+      location.href='mailto:'+to+'?subject='+subj+'&body='+body;
     });
-
-    // Photos
-    function renderPhotoGrid(){
-      var j=currentJob(); if(!j) return;
-      var grid=document.getElementById('photoGrid');
-      grid.innerHTML='';
-      j.photos.forEach(function(ph,idx){
-        var item=document.createElement('div');
-        item.className='photo-item';
-        item.innerHTML=
-          '<button class="del" data-i="'+idx+'">X</button>'+
-          '<img src="'+ph.dataUrl+'" alt="">'+
-          '<label><input type="checkbox" data-i="'+idx+'" '+(ph.include===false?'':'checked')+'> On PDF</label>';
-        grid.appendChild(item);
-      });
-      $all('.photo-item .del',grid).forEach(function(btn){
-        btn.addEventListener('click',function(){
-          var i=Number(btn.getAttribute('data-i'));
-          j.photos.splice(i,1); saveDB(); renderPhotoGrid(); updatePreview();
-        });
-      });
-      $all('.photo-item input[type="checkbox"]',grid).forEach(function(ch){
-        ch.addEventListener('change',function(){
-          var i=Number(ch.getAttribute('data-i'));
-          if(j.photos[i]) j.photos[i].include = ch.checked;
-          saveDB(); updatePreview();
-        });
-      });
-    }
-    (function(){
-      var input=document.getElementById('photoInput');
-      if(!input) return;
-      input.addEventListener('change',function(){
-        var j=currentJob(); if(!j){ alert('Select a job first.'); input.value=''; return; }
-        var files=Array.prototype.slice.call(input.files||[]);
-        if(!files.length){ return; }
-        var remaining=files.length;
-        files.forEach(function(f){
-          var r=new FileReader();
-          r.onload=function(){
-            j.photos.push({dataUrl:r.result, include:true});
-            remaining--; if(remaining===0){ saveDB(); renderPhotoGrid(); updatePreview(); input.value=''; }
-          };
-          r.onerror=function(){ remaining--; if(remaining===0){ saveDB(); renderPhotoGrid(); updatePreview(); input.value=''; } };
-          r.readAsDataURL(f);
-        });
-      });
-    })();
 
     // PDF
     document.getElementById('pdf').addEventListener('click', function(){
-      persistLines(); // make sure everything is up to date
       var css =
-        '@page{size:auto;margin:0.4in;}' +
-        'html,body{margin:0;padding:0}' +
-        'body{font-family:' +
-          (document.body && getComputedStyle(document.body).fontFamily || 'sans-serif') +
-          ';font-size:9pt;line-height:1.3;color:#000}' +
-        '.print-area{padding:4px 6px 8px;border-radius:0;position:relative}' +
-        '.invoice-header{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #000;padding-bottom:3px;margin-bottom:5px}' +
-        '.invoice-header h3{margin:0;font-size:13pt}' +
-        'table{width:100%;border-collapse:collapse;margin-top:4px}' +
-        'th,td{border-bottom:1px solid #000;padding:4px;text-align:left;vertical-align:top;font-size:8pt}' +
-        '.totals{display:grid;gap:3px;justify-items:end;margin-top:6px}.grand{font-weight:700}' +
-        '.badge{border:1px solid #000;border-radius:9999px;padding:1px 5px;font-size:8pt}' +
-        '.signatures{margin-top:10px;display:grid;gap:8px}' +
-        '.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:10px;align-items:end}' +
-        '.sig-line{border-bottom:1px solid #000;height:24px;display:flex;align-items:flex-end}' +
-        '.sig-label{font-size:8pt;color:#333;margin-top:3px}' +
-        '.sig-img{max-height:50px;}' +
+        'html,body{margin:0;padding:0}body{font-family:'+ (document.body && getComputedStyle(document.body).fontFamily || 'sans-serif') +';font-size:11pt;line-height:1.35;color:#000}' +
+        '.print-area{padding:8px 12px 12px;border-radius:0;position:relative}' +
+        '.invoice-header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:6px}' +
+        '.invoice-header h3{margin:0;font-size:14pt}' +
+        'table{width:100%;border-collapse:collapse;margin-top:6px}' +
+        'th,td{border-bottom:1px solid #000;padding:6px;text-align:left;vertical-align:top;font-size:10pt}' +
+        '.totals{display:grid;gap:4px;justify-items:end;margin-top:8px}.grand{font-weight:700}' +
+        '.badge{border:1px solid #000;border-radius:9999px;padding:2px 6px;font-size:9pt}' +
+        '.signatures{margin-top:16px;display:grid;gap:10px}' +
+        '.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}' +
+        '.sig-line{border-bottom:1px solid #000;height:28px;display:flex;align-items:flex-end}' +
+        '.sig-label{font-size:9pt;color:#333;margin-top:4px}' +
+        '.sig-img{max-height:60px;}' +
         '.watermark{position:absolute;inset:0;z-index:0;opacity:.08}' +
         '#wmImg{max-width:90%;max-height:90%;opacity:.12}' +
         '#wmFallback{opacity:.12}' +
-        '.p-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:4px}' +
-        '.p-photo{border:1px solid #000;padding:3px;border-radius:4px;break-inside:avoid;page-break-inside:avoid}' +
-        '.p-photo img{width:100%;height:1.6in;object-fit:cover;border-radius:3px;display:block}' +
+        '.p-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}' +
+        '.p-photo{border:1px solid #000;padding:4px;border-radius:6px;break-inside:avoid;page-break-inside:avoid}' +
+        '.p-photo img{width:100%;height:1.8in;object-fit:cover;border-radius:4px;display:block}' +
         '#pPhotosBlock{page-break-before:always}';
       var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>'
                   + document.getElementById('preview').outerHTML
@@ -1430,72 +1329,78 @@ window.addEventListener('load', function(){
       try{ w.focus(); w.print(); }catch(_){}
     });
 
+    // Signature modal (unchanged behavior from your prior version)
+    ;(function(){
+      var modal = document.getElementById('sigModal');
+      var openBtn = document.getElementById('sign');
+      var closeBtn = document.getElementById('sigClose');
+      var saveBtn = document.getElementById('sigSave');
+      var clearBtn = document.getElementById('sigClear');
+      var pad = document.getElementById('sigPad');
+      if(!modal || !openBtn || !pad) return;
+      var ctx = pad.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0,0,pad.width,pad.height);
+      var drawing=false, lastX=0,lastY=0;
+      function startDraw(x,y){ drawing=true; lastX=x; lastY=y; }
+      function moveDraw(x,y){
+        if(!drawing) return;
+        ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.lineCap='round';
+        ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(x,y); ctx.stroke();
+        lastX=x; lastY=y;
+      }
+      function endDraw(){ drawing=false; }
+      pad.addEventListener('mousedown', function(e){ var r=pad.getBoundingClientRect(); startDraw(e.clientX-r.left,e.clientY-r.top); });
+      pad.addEventListener('mousemove', function(e){ var r=pad.getBoundingClientRect(); moveDraw(e.clientX-r.left,e.clientY-r.top); });
+      pad.addEventListener('mouseup', endDraw);
+      pad.addEventListener('mouseleave', endDraw);
+      pad.addEventListener('touchstart', function(e){ e.preventDefault(); var t=e.touches[0], r=pad.getBoundingClientRect(); startDraw(t.clientX-r.left,t.clientY-r.top); }, {passive:false});
+      pad.addEventListener('touchmove', function(e){ e.preventDefault(); var t=e.touches[0], r=pad.getBoundingClientRect(); moveDraw(t.clientX-r.left,t.clientY-r.top); }, {passive:false});
+      pad.addEventListener('touchend', function(e){ e.preventDefault(); endDraw(); }, {passive:false});
+
+      function open(){ modal.style.display='flex'; }
+      function close(){ modal.style.display='none'; }
+      openBtn.addEventListener('click', function(){ if(!ensureJobSelected()) return; open(); });
+      closeBtn.addEventListener('click', close);
+      clearBtn.addEventListener('click', function(){
+        ctx.fillStyle='#fff'; ctx.fillRect(0,0,pad.width,pad.height);
+      });
+      saveBtn.addEventListener('click', function(){
+        var j=currentJob(); if(!j) return;
+        var role=document.getElementById('sigRole').value;
+        var name=document.getElementById('sigName').value.trim();
+        var date=document.getElementById('sigDate').value;
+        var dataUrl = pad.toDataURL('image/png');
+        if(!j.signatures) j.signatures={customer:null, manager:null};
+        j.signatures[role]={name:name, date:date, dataUrl:dataUrl};
+        saveDB(); updatePreview(); close();
+      });
+    })();
+
+    // Recent jobs dropdown toggle
+    (function(){
+      var toggle = document.getElementById('recentJobsToggle');
+      var wrap = document.getElementById('recentJobsWrap');
+      if(!toggle || !wrap) return;
+      toggle.addEventListener('click', function(){
+        wrap.classList.toggle('collapsed');
+      });
+    })();
+
+    // Keep overall notes in sync without having to touch parts notes first
+    (function(){
+      var on = document.getElementById('overallNotes');
+      if(on){
+        on.addEventListener('input', function(){
+          persistLines();
+        });
+      }
+    })();
+
     (function selftest(){
       var ok = !!(window.localStorage && document.querySelector && document.createElement);
       var tag=document.getElementById('selftest');
       if(tag){ tag.textContent='Self-test: '+(ok?'OK':'Limited'); tag.className='tag selftest '+(ok?'ok':'warn'); }
     })();
-
-    function renderDashboard(){
-      var open=0, unpaid=0, rev=0, profit=0;
-      var now = new Date(); var month = now.getMonth(), year = now.getFullYear();
-      (DB.jobs||[]).forEach(function(j){
-        if(j.status==='Open') open++;
-        if(!j.paid && j.docType==='Invoice') unpaid++;
-        var subtotal = sumLines(j.lines,'subtotal');
-        var p = sumLines(j.lines,'profit');
-        var d = new Date(j.createdAt||now);
-        if(d.getMonth()===month && d.getFullYear()===year){
-          rev+=subtotal; profit+=p;
-        }
-      });
-      $('#openJobs').textContent=open;
-      $('#unpaid').textContent=unpaid;
-      $('#revMonth').textContent=fmt(rev);
-      $('#profitMonth').textContent=fmt(profit);
-    }
-
-    function renderSettings(){
-      $('#defaultMarkup').value = DB.settings.defaultMarkup || 40;
-      $('#shopFrom').value = DB.settings.shopFrom || 'Poppe’s Diesel Co.';
-      $('#shopReply').value = DB.settings.shopReply || 'poppedieselco@gmail.com';
-      $('#shopSubj').value = DB.settings.shopSubj || '[Poppe’s Diesel Co.] ';
-      $('#shopFooter').value = DB.settings.shopFooter || 'Thank you for supporting local.';
-      ['defaultMarkup','shopFrom','shopReply','shopSubj','shopFooter'].forEach(function(id){
-        var el = document.getElementById(id);
-        el.addEventListener('change',function(){
-          DB.settings.defaultMarkup = Number($('#defaultMarkup').value||40);
-          DB.settings.shopFrom = $('#shopFrom').value;
-          DB.settings.shopReply = $('#shopReply').value;
-          DB.settings.shopSubj = $('#shopSubj').value;
-          DB.settings.shopFooter = $('#shopFooter').value;
-          saveDB();
-        });
-      });
-    }
-
-    function renderTemplates(){
-      var list = document.getElementById('tplList');
-      var modal = document.getElementById('tplModal');
-      var openBtn = document.getElementById('openTemplates');
-      var closeBtn = document.getElementById('tplClose');
-      function close(){ modal.style.display='none'; }
-      function open(){ modal.style.display='flex'; }
-      if(openBtn){ openBtn.addEventListener('click', open); }
-      if(closeBtn){ closeBtn.addEventListener('click', close); }
-      list.innerHTML='';
-      DB.templates.forEach(function(tpl){
-        var card = document.createElement('div');
-        card.style.padding='8px 0';
-        var btn = document.createElement('button');
-        btn.className='tab-btn';
-        btn.type='button';
-        btn.textContent=tpl.platform;
-        btn.addEventListener('click',function(){ applyTemplate(tpl); close(); });
-        card.appendChild(btn);
-        list.appendChild(card);
-      });
-    }
 
     upgradeDB(); renderAll();
 
@@ -1509,4 +1414,3 @@ window.addEventListener('load', function(){
 </script>
 </body>
 </html>
-
