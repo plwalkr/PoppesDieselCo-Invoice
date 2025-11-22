@@ -249,7 +249,20 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
     </div>
     <div class="table-wrap" style="margin-top:10px">
       <table class="lines" id="lines">
-        <thead><tr><th style="width:28px">↕</th><th>Type</th><th>Description</th><th>Qty/Hrs</th><th>Cost $</th><th>Unit $</th><th>Line $</th><th>Profit $</th><th></th></tr></thead>
+        <thead>
+          <tr>
+            <th style="width:28px">↕</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Qty/Hrs</th>
+            <th>Cost $</th>
+            <th>List $</th>
+            <th>Customer $</th>
+            <th>Line $</th>
+            <th>Profit $</th>
+            <th></th>
+          </tr>
+        </thead>
         <tbody></tbody>
       </table>
     </div>
@@ -259,6 +272,8 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
       <div class="grand">Total: <span id="grand">$0.00</span></div>
       <div><strong>Total Profit:</strong> <span id="profit">$0.00</span></div>
       <div>Margin: <span class="badge estimate" id="margin">0%</span></div>
+      <div>Parts List Total: <span id="partsList">$0.00</span></div>
+      <div>Customer Savings vs List: <span id="partsSavings">$0.00</span></div>
     </div>
     <div class="card" id="overallNotesWrap" style="background:#fff;color:#000;border-color:#b6b09f">
       <h3 style="color:#0e111a">Technician Overall Notes</h3>
@@ -293,8 +308,10 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
       <div id="pOverallBlock"></div>
       <div class="totals">
         <div>Subtotal: <span id="pSub">$0.00</span></div>
-        <div>Tax (Parts only): <span id="pTax">$0.00</span></div> <!-- CHANGED -->
+        <div>Tax: <span id="pTax">$0.00</span></div>
         <div class="grand">Grand Total: <span id="pGrand">$0.00</span></div>
+        <div>Parts List Total: <span id="pPartsList">$0.00</span></div>
+        <div>Customer Savings vs List: <span id="pPartsSavings">$0.00</span></div>
       </div>
       <div class="signatures" id="signatures">
         <div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigCustomer" style="display:none"/></div><div class="sig-label">Customer Signature <span id="pSigCustomerName"></span> <span class="small" id="pSigCustomerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
@@ -394,11 +411,6 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
 </div>
 
 <script>
-// ADDED: Supabase config placeholders (safe to leave blank if unused)
-var SUPABASE_URL = ''; // e.g. 'https://your-project.supabase.co'
-var SUPABASE_KEY = ''; // e.g. 'your-public-anon-key'
-var supaClient = null;
-
 /* --- Minimal ES5 helpers + diagnostics --- */
 var __JS_STARTED = true;
 (function(){
@@ -449,16 +461,6 @@ window.addEventListener('load', function(){
     var STORAGE_KEY = 'poppe_shop_db_v112';
     var DB = loadDB() || defaultDB();
 
-    // ADDED: optional Supabase client (no effect unless URL/key provided & library loaded)
-    if (typeof window.supabase !== 'undefined' && SUPABASE_URL && SUPABASE_KEY){
-      try{
-        supaClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        AppLog.info('Supabase client initialised');
-      } catch(e){
-        AppLog.error('Supabase init failed', e);
-      }
-    }
-
     var UIKEY = 'pdc_ui_state';
     function loadUI(){ try{ return JSON.parse(localStorage.getItem(UIKEY)||'{}'); }catch(_){ return {}; } }
     function saveUI(u){ try{ localStorage.setItem(UIKEY, JSON.stringify(u)); }catch(_ ){} }
@@ -495,34 +497,7 @@ window.addEventListener('load', function(){
         ]}
       ];
     }
-
-    // ADDED: Supabase sync helper (safe if supaClient is null)
-    async function syncToSupabase(){
-      if (!supaClient) return;
-      try{
-        var payload = {
-          id: 'main',
-          data: DB,
-          updated_at: new Date().toISOString()
-        };
-        var res = await supaClient
-          .from('shop_snapshots')
-          .upsert(payload, { onConflict: 'id' });
-        if (res.error) throw res.error;
-        AppLog.info('Supabase sync OK');
-      } catch(e){
-        AppLog.error('Supabase sync failed', e);
-      }
-    }
-
-    function saveDB(){
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
-      } catch(e){
-        AppLog.error('localStorage save failed', e);
-      }
-      if (supaClient) { syncToSupabase(); } // ADDED
-    }
+    function saveDB(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(e){ AppLog.error('localStorage save failed', e); } }
     function loadDB(){ try { var s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; } catch(e){ AppLog.error('localStorage load failed', e); return null; } }
     function upgradeDB(){
       var i, j, l;
@@ -533,7 +508,10 @@ window.addEventListener('load', function(){
         if(typeof j.internalNotes==='undefined') j.internalNotes='';
         if(!j.photos) j.photos=[];
         if(!j.signatures) j.signatures={customer:null, manager:null};
-        for(l=0;l<(j.lines||[]).length;l++){ if(typeof j.lines[l].note==='undefined') j.lines[l].note=''; }
+        for(l=0;l<(j.lines||[]).length;l++){
+          if(typeof j.lines[l].note==='undefined') j.lines[l].note='';
+          if(typeof j.lines[l].list==='undefined') j.lines[l].list=0;
+        }
       }
       saveDB();
     }
@@ -684,14 +662,6 @@ window.addEventListener('load', function(){
       j.internalNotes = this.value; saveDB();
     });
 
-    // ADDED: keep Technician Overall Notes synced with DB + preview/PDF
-    $('#overallNotes').addEventListener('input', function(){
-      var j = currentJob(); if(!j) return;
-      j.overallNotes = this.value;
-      saveDB();
-      updatePreview();
-    });
-
     /* Filters + job picker */
     function renderInvFilters(){
       var sel = $('#invCustFilter');
@@ -775,7 +745,7 @@ window.addEventListener('load', function(){
 
       $('#lines tbody').innerHTML='';
       for(var i=0;i<(j.lines||[]).length;i++){
-        var l=j.lines[i]; addLine(l.type,l.desc,l.qty,l.unit,l.cost,l.note);
+        var l=j.lines[i]; addLine(l.type,l.desc,l.qty,l.unit,l.cost,l.note,l.list);
       }
       $('#invNo').value = j.invNo||''; $('#docType').value = j.docType||'Estimate'; $('#payLink').value = j.paymentLink||'';
       var c = findCustomer(j.customerId);
@@ -823,41 +793,58 @@ window.addEventListener('load', function(){
       });
     }
 
-    function addLine(type, desc, qty, unit, cost, note){
+    function addLine(type, desc, qty, unit, cost, note, list) {
+      if (typeof list === 'undefined') list = 0;
+
       var tr = document.createElement('tr');
-      var descPH = type==='Labor' ? "e.g., Diagnostics / R&R" : "e.g., Fuel Filter (FF63009) — Fleetguard";
-      var qtyPH  = type==='Labor' ? "hrs (e.g., 1.5)" : "qty (e.g., 1)";
-      var costPH = type==='Labor' ? "shop cost (optional)" : "shop cost (e.g., 32.00)";
-      var unitPH = type==='Labor' ? "$/hr (auto or manual)" : "sell price (e.g., 44.80)";
+      var descPH = type === 'Labor' ? "e.g., Diagnostics / R&R" : "e.g., Fuel Filter (FF63009) — Fleetguard";
+      var qtyPH  = type === 'Labor' ? "hrs (e.g., 1.5)" : "qty (e.g., 1)";
+      var costPH = type === 'Labor' ? "shop cost (optional)" : "shop cost (e.g., 32.00)";
+      var unitPH = type === 'Labor' ? "$/hr (auto or manual)" : "customer price (e.g., 44.80)";
+      var listPH = type === 'Labor' ? "—" : "list/MSRP (e.g., 65.00)";
+
       tr.className = 'draggable-row';
       tr.innerHTML =
         '<td class="drag-col"><button class="tab-btn handle" title="Drag to reorder">↕</button></td>' +
-        '<td><select class="lType"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Part'?'selected':'')+'>Part</option></select></td>' +
-        '<td><div class="desc-wrap"><input class="lDesc" value="'+(desc||'')+'" placeholder="'+descPH+'"/><textarea class="lNote" placeholder="Tech note for this line (prints)">'+(note||'')+'</textarea></div></td>' +
-        '<td><input class="lQty" type="number" step="0.01" value="'+(qty||1)+'" placeholder="'+qtyPH+'"/></td>' +
-        '<td><input class="lCost" type="number" step="0.01" value="'+(((cost!=null)?cost:0))+'" placeholder="'+costPH+'"/></td>' +
-        '<td><input class="lUnit" type="number" step="0.01" value="'+(unit||0)+'" placeholder="'+unitPH+'"/><div class="calc-hint">—</div></td>' +
-        '<td class="lLine">$0.00</td><td class="lProfit">$0.00</td><td><button type="button" class="tab-btn lDel">X</button></td>';
+        '<td><select class="lType"><option ' + (type === 'Labor' ? 'selected' : '') + '>Labor</option><option ' + (type === 'Part' ? 'selected' : '') + '>Part</option></select></td>' +
+        '<td><div class="desc-wrap"><input class="lDesc" value="' + (desc || '') + '" placeholder="' + descPH + '"/>' +
+          '<textarea class="lNote" placeholder="Tech note for this line (prints)">' + (note || '') + '</textarea></div></td>' +
+        '<td><input class="lQty" type="number" step="0.01" value="' + (qty || 1) + '" placeholder="' + qtyPH + '"/></td>' +
+        '<td><input class="lCost" type="number" step="0.01" value="' + (((cost != null) ? cost : 0)) + '" placeholder="' + costPH + '"/></td>' +
+        '<td><input class="lList" type="number" step="0.01" value="' + (list || 0) + '" placeholder="' + listPH + '"/></td>' +
+        '<td><input class="lUnit" type="number" step="0.01" value="' + (unit || 0) + '" placeholder="' + unitPH + '"/>' +
+          '<div class="calc-hint">—</div></td>' +
+        '<td class="lLine">$0.00</td>' +
+        '<td class="lProfit">$0.00</td>' +
+        '<td><button type="button" class="tab-btn lDel">X</button></td>';
+
       document.querySelector('#lines tbody').appendChild(tr);
       makeRowDraggable(tr);
-      tr.querySelector('.lDel').addEventListener('click', function(){ tr.remove(); persistLines(); });
-      ['change','input'].forEach(function(evt){
-        ['.lType','.lDesc','.lQty','.lCost','.lUnit','.lNote'].forEach(function(sel){
+
+      tr.querySelector('.lDel').addEventListener('click', function () {
+        tr.remove();
+        persistLines();
+      });
+
+      ['change', 'input'].forEach(function (evt) {
+        ['.lType', '.lDesc', '.lQty', '.lCost', '.lList', '.lUnit', '.lNote'].forEach(function (sel) {
           tr.querySelector(sel).addEventListener(evt, persistLines);
         });
       });
+
       persistLines();
     }
 
-    function rowsToLines(){
+    function rowsToLines() {
       var out = [];
-      $all('#lines tbody tr').forEach(function(tr){
+      $all('#lines tbody tr').forEach(function (tr) {
         out.push({
           type: tr.querySelector('.lType').value,
           desc: tr.querySelector('.lDesc').value,
-          qty: Number(tr.querySelector('.lQty').value||0),
-          cost: Number(tr.querySelector('.lCost').value||0),
-          unit: Number(tr.querySelector('.lUnit').value||0),
+          qty: Number(tr.querySelector('.lQty').value || 0),
+          cost: Number(tr.querySelector('.lCost').value || 0),
+          list: Number(tr.querySelector('.lList').value || 0),
+          unit: Number(tr.querySelector('.lUnit').value || 0),
           note: (tr.querySelector('.lNote') ? tr.querySelector('.lNote').value : '').trim()
         });
       });
@@ -921,52 +908,101 @@ window.addEventListener('load', function(){
       return mode==='profit'?profit:subtotal;
     }
 
-    function recalcTotals(){
-      var rows = rowsToLines(); var subtotal=0, profit=0, partsSubtotal=0;
-      var laborRate = Number($('#laborRate').value||80);
-      var muDefault = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
+    function recalcTotals() {
+      var rows = rowsToLines();
+      var subtotal = 0,
+          profit = 0,
+          partsSubtotal = 0,
+          partsListTotal = 0,
+          partsCustomerTotal = 0;
+
+      var laborRate = Number($('#laborRate').value || 80);
+      var muDefault = Number($('#defaultMarkup').value || DB.settings.defaultMarkup || 40) / 100;
       var trs = $all('#lines tbody tr');
-      for(var i=0;i<rows.length;i++){
+
+      for (var i = 0; i < rows.length; i++) {
         var r = rows[i];
-        if(r.type==='Labor' && (!r.unit || r.unit===0)) {
-          r.unit = laborRate; // show calc w/ laborRate
+
+        // For labor, default missing unit to current labor rate
+        if (r.type === 'Labor' && (!r.unit || r.unit === 0)) {
+          r.unit = laborRate;
           if (trs[i]) {
             var uEl = trs[i].querySelector('.lUnit');
-            if (uEl) uEl.value = r.unit.toFixed(2); // keep UI consistent if it was 0
+            if (uEl) uEl.value = r.unit.toFixed(2);
           }
         }
-        var line = r.qty*r.unit; subtotal+=line;
-        if (r.type==='Part') partsSubtotal += line;
-        var lineProfit = r.qty*(r.unit - (r.cost||0));
-        r.profit = lineProfit; profit += lineProfit;
 
-        var tr = trs[i]; if(!tr) continue;
+        var line = r.qty * r.unit;
+        subtotal += line;
+
+        if (r.type === 'Part') {
+          partsSubtotal += line;
+          partsListTotal += (r.list || 0) * (r.qty || 0);
+          partsCustomerTotal += line;
+        }
+
+        var lineProfit = r.qty * (r.unit - (r.cost || 0));
+        r.profit = lineProfit;
+        profit += lineProfit;
+
+        var tr = trs[i];
+        if (!tr) continue;
+
         tr.querySelector('.lLine').textContent = fmt(line);
         tr.querySelector('.lProfit').textContent = fmt(lineProfit);
 
         var hint = tr.querySelector('.calc-hint');
-        if(hint){
-          var up = (r.unit - (r.cost||0));
-          var per = (r.cost>0) ? Math.round((up / r.cost)*100) : 100;
-          var cls = (r.cost>0 && (up / r.cost) >= muDefault) ? 'ok' : (r.cost>0 ? 'warn' : 'ok');
+        if (hint) {
+          var up = (r.unit - (r.cost || 0));
+          var per = (r.cost > 0) ? Math.round((up / r.cost) * 100) : 100;
+          var cls = (r.cost > 0 && (up / r.cost) >= muDefault) ? 'ok' : (r.cost > 0 ? 'warn' : 'ok');
+
           hint.className = 'calc-hint ' + cls;
-          var dollars = fmt(up * (r.qty||1));
-          var perTxt = r.cost>0 ? '(+'+per+'%)' : '(set cost for %)';
-          hint.textContent = dollars + ' ' + perTxt;
+
+          var dollars = fmt(up * (r.qty || 1));
+          var perTxt = r.cost > 0 ? '(+' + per + '%)' : '(set cost for %)';
+          var extra = '';
+
+          // Optional sanity hints: ensure cost <= customer <= list (when list is set)
+          if (r.type === 'Part' && r.list > 0) {
+            if (r.unit > r.list) {
+              extra = ' • ⚠ customer > list';
+            } else if (r.unit < r.cost) {
+              extra = ' • ⚠ customer < cost';
+            }
+          }
+
+          hint.textContent = dollars + ' ' + perTxt + extra;
         }
       }
-      var taxPct = Number($('#salesTax').value||0);
-      var tax = partsSubtotal * (taxPct/100); // TAX ON PARTS ONLY
+
+      var taxPct = Number($('#salesTax').value || 0);
+      var tax = partsSubtotal * (taxPct / 100); // TAX ON PARTS ONLY
       var grand = subtotal + tax;
 
       document.getElementById('sub').textContent = fmt(subtotal);
       document.getElementById('tax').textContent = fmt(tax);
       document.getElementById('grand').textContent = fmt(grand);
       document.getElementById('profit').textContent = fmt(profit);
-      var margin = grand>0 ? Math.round((profit/grand)*100) : 0;
+
+      var margin = grand > 0 ? Math.round((profit / grand) * 100) : 0;
       var badge = document.getElementById('margin');
       badge.textContent = margin + '%';
-      badge.className='badge ' + (margin>=25?'invoice': (margin>=15?'badge-open':'estimate'));
+      badge.className = 'badge ' + (margin >= 25 ? 'invoice' : (margin >= 15 ? 'badge-open' : 'estimate'));
+
+      // Parts list vs customer savings
+      var savings = (partsListTotal > partsCustomerTotal) ? (partsListTotal - partsCustomerTotal) : 0;
+
+      var partsListEl = document.getElementById('partsList');
+      var partsSavingsEl = document.getElementById('partsSavings');
+      var pPartsListEl = document.getElementById('pPartsList');
+      var pPartsSavingsEl = document.getElementById('pPartsSavings');
+
+      if (partsListEl) partsListEl.textContent = fmt(partsListTotal);
+      if (partsSavingsEl) partsSavingsEl.textContent = fmt(savings);
+      if (pPartsListEl) pPartsListEl.textContent = fmt(partsListTotal);
+      if (pPartsSavingsEl) pPartsSavingsEl.textContent = fmt(savings);
+
       // Print preview totals
       document.getElementById('pSub').textContent = fmt(subtotal);
       document.getElementById('pTax').textContent = fmt(tax);
@@ -986,27 +1022,28 @@ window.addEventListener('load', function(){
       if(j){
         for(var i=0;i<j.lines.length;i++){
           var l=j.lines[i]; var line=(Number(l.qty)||0)*(Number(l.unit)||0);
-          var tr=document.createElement('tr');
+          var tr = document.createElement('tr');
+          tr.innerHTML = '<td>' + l.type + ': ' + escapeHtml(l.desc || "") + '</td>' +
+                         '<td>' + (l.qty || 0) + '</td>' +
+                         '<td>' + fmt(l.unit || 0) + '</td>' +
+                         '<td>' + fmt(line) + '</td>';
+          tbody.appendChild(tr);
 
-          // ADDED: show store/list vs customer price for parts on the PDF
-          var descHtml = escapeHtml(l.desc||"");
-          if (l.type === 'Part') {
-            var base = Number(l.cost||0);
-            var sell = Number(l.unit||0);
-            if (base>0 || sell>0) {
-              descHtml += '<div style="font-size:0.85em;color:#555;margin-top:2px;">';
-              if (base>0) descHtml += 'Store/List: '+fmt(base);
-              if (sell>0) descHtml += (base>0?' | ':'')+'You Pay: '+fmt(sell);
-              descHtml += '</div>';
+          // For PART lines, show list vs customer on a separate row if list is set
+          if (l.type === 'Part' && l.list && l.list > 0) {
+            var savingsLine = (l.list - (l.unit || 0)) * (l.qty || 1);
+            var msg = 'List: ' + fmt(l.list) + ' — You pay: ' + fmt(l.unit || 0);
+            if (savingsLine > 0) {
+              msg += ' (You save ' + fmt(savingsLine) + ')';
             }
+            var trPrice = document.createElement('tr');
+            trPrice.innerHTML =
+              '<td colspan="4" style="font-size:0.85em;color:#333;padding-top:2px;font-style:italic;">' +
+                msg +
+              '</td>';
+            tbody.appendChild(trPrice);
           }
 
-          tr.innerHTML =
-            '<td>'+l.type+': '+descHtml+'</td>' +
-            '<td>'+(l.qty||0)+'</td>' +
-            '<td>'+fmt(l.unit||0)+'</td>' +
-            '<td>'+fmt(line)+'</td>';
-          tbody.appendChild(tr);
           if(l.note && l.note.trim()){
             var trn=document.createElement('tr');
             trn.innerHTML = '<td colspan="4" style="font-style:italic; color:#333; padding-top:4px;">Note: '+escapeHtml(l.note.trim())+'</td>';
