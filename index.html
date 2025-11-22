@@ -255,8 +255,8 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
             <th>Type</th>
             <th>Description</th>
             <th>Qty/Hrs</th>
-            <th>Cost $</th>
             <th>List $</th>
+            <th>Cost $</th>
             <th>Unit $</th>
             <th>Line $</th>
             <th>Profit $</th>
@@ -304,7 +304,14 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
       <div><strong>Bill To:</strong> <span id="pCust">—</span><div id="pVeh"></div></div>
       <table class="lines">
         <thead>
-          <tr><th>Description</th><th>Qty/Hrs</th><th>Unit</th><th>Line $</th></tr>
+          <tr>
+            <th>Description</th>
+            <th>Qty/Hrs</th>
+            <th>List $</th>
+            <th>Customer $</th>
+            <th>Line $</th>
+            <th>Savings $</th>
+          </tr>
         </thead>
         <tbody id="pLines"></tbody>
       </table>
@@ -315,20 +322,8 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
         <div class="grand">Grand Total: <span id="pGrand">$0.00</span></div>
       </div>
       <div class="signatures" id="signatures">
-        <div class="sig-row">
-          <div class="sig">
-            <div class="sig-line"><img alt="" class="sig-img" id="pSigCustomer" style="display:none"/></div>
-            <div class="sig-label">Customer Signature <span id="pSigCustomerName"></span> <span class="small" id="pSigCustomerDate"></span></div>
-          </div>
-          <div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div>
-        </div>
-        <div class="sig-row">
-          <div class="sig">
-            <div class="sig-line"><img alt="" class="sig-img" id="pSigManager" style="display:none"/></div>
-            <div class="sig-label">Service Manager Signature <span id="pSigManagerName"></span> <span class="small" id="pSigManagerDate"></span></div>
-          </div>
-          <div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div>
-        </div>
+        <div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigCustomer" style="display:none"/></div><div class="sig-label">Customer Signature <span id="pSigCustomerName"></span> <span class="small" id="pSigCustomerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
+        <div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigManager" style="display:none"/></div><div class="sig-label">Service Manager Signature <span id="pSigManagerName"></span> <span class="small" id="pSigManagerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
       </div>
       <div id="pPhotosBlock" style="margin-top:10px"></div>
     </div>
@@ -539,6 +534,85 @@ window.addEventListener('load', function(){
       return true;
     }
 
+    function sumLines(lines, mode){
+      var subtotal=0, profit=0, i, l;
+      for(i=0;i<(lines||[]).length;i++){
+        l = lines[i];
+        var line = Number(l.qty||0)*Number(l.unit||0);
+        subtotal += line;
+        profit += Number(l.qty||0)*(Number(l.unit||0) - Number(l.cost||0));
+      }
+      return mode==='profit'?profit:subtotal;
+    }
+
+    function renderDashboard(){
+      var open=0, unpaid=0, revMonth=0, profitMonth=0;
+      var now = new Date();
+      var m = now.getMonth(), y = now.getFullYear();
+      (DB.jobs||[]).forEach(function(j){
+        if(j.status!=='Done') open++;
+        if(j.docType==='Invoice' && !j.paid) unpaid++;
+        if(j.createdAt){
+          var d = new Date(j.createdAt);
+          if(d.getFullYear()===y && d.getMonth()===m){
+            revMonth += sumLines(j.lines,'subtotal');
+            profitMonth += sumLines(j.lines,'profit');
+          }
+        }
+      });
+      var el;
+      if((el = $('#openJobs'))) el.textContent=open;
+      if((el = $('#unpaid'))) el.textContent=unpaid;
+      if((el = $('#revMonth'))) el.textContent=fmt(revMonth);
+      if((el = $('#profitMonth'))) el.textContent=fmt(profitMonth);
+    }
+
+    function renderSettings(){
+      $('#defaultMarkup').value = DB.settings.defaultMarkup != null ? DB.settings.defaultMarkup : 40;
+      $('#shopFrom').value = DB.settings.shopFrom || '';
+      $('#shopReply').value = DB.settings.shopReply || '';
+      $('#shopSubj').value = DB.settings.shopSubj || '';
+      $('#shopFooter').value = DB.settings.shopFooter || '';
+
+      function saveSettings(){
+        DB.settings.defaultMarkup = Number($('#defaultMarkup').value || 40);
+        DB.settings.shopFrom = $('#shopFrom').value.trim();
+        DB.settings.shopReply = $('#shopReply').value.trim();
+        DB.settings.shopSubj = $('#shopSubj').value;
+        DB.settings.shopFooter = $('#shopFooter').value;
+        saveDB();
+      }
+      ['defaultMarkup','shopFrom','shopReply','shopSubj','shopFooter'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el && !el._pdcBound){
+          el.addEventListener('change', saveSettings);
+          el._pdcBound = true;
+        }
+      });
+    }
+
+    function renderTemplates(){
+      var listEl = $('#tplList');
+      if(!listEl) return;
+      listEl.innerHTML='';
+      (DB.templates||[]).forEach(function(tpl, idx){
+        var card = document.createElement('div');
+        card.style.marginBottom='8px';
+        var html = '<div><strong>'+tpl.platform+'</strong></div>';
+        html += '<button type="button" class="tab-btn" data-applytpl="'+idx+'">Add to current job</button>';
+        card.innerHTML = html;
+        listEl.appendChild(card);
+      });
+      $all('[data-applytpl]', listEl).forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var idx = Number(btn.getAttribute('data-applytpl'));
+          var tpl = DB.templates[idx];
+          applyTemplate(tpl);
+          $('#tplModal').style.display='none';
+        });
+      });
+    }
+
     function renderAll(){ renderCustomers(); renderJobs(); renderJobCustomer(); renderDashboard(); renderSettings(); renderTemplates(); saveDB(); }
 
     // Tabs — save edits before switching
@@ -604,6 +678,8 @@ window.addEventListener('load', function(){
       document.getElementById('jobForm').reset(); $('#vinResult').style.display='none'; $('#vinSuggest').style.display='none'; saveDB();
       if(DB.jobs.length===1){ $('#invJob').value = j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI); }
     });
+
+    function findCustomer(id){ var i; for(i=0;i<DB.customers.length;i++){ if(DB.customers[i].id===id) return DB.customers[i]; } return null; }
 
     // VIN decode
     $('#decodeVIN').addEventListener('click', function(){
@@ -675,13 +751,28 @@ window.addEventListener('load', function(){
       j.internalNotes = this.value; saveDB();
     });
 
-    // Ensure overall notes always persist + hit PDF
     $('#overallNotes').addEventListener('input', function(){
       var j = currentJob(); if(!j) return;
-      j.overallNotes = this.value;
-      saveDB();
-      updatePreview();
+      j.overallNotes = this.value; saveDB(); updatePreview();
     });
+
+    function applyTemplate(tpl){
+      if(!tpl || !tpl.items) return;
+      var j = ensureJobSelected(true); if(!j) return;
+      for(var i=0;i<tpl.items.length;i++){
+        var it = tpl.items[i];
+        if(it.type === 'Labor'){
+          addLine('Labor', it.desc || '', it.qty || 1, 0, 0, Number($('#laborRate').value||80), '');
+        } else {
+          var cost = Number(it.cost || 0);
+          var mu = (typeof it.markup === 'number' ? it.markup : (DB.settings.defaultMarkup || 40))/100;
+          var unit = cost * (1+mu);
+          var list = (typeof it.list === 'number') ? it.list : unit;
+          addLine('Part', (it.desc || '') + (it.part ? (' ('+it.part+')') : ''), it.qty || 1, cost, list, unit, '');
+        }
+      }
+      persistLines();
+    }
 
     /* Filters + job picker */
     function renderInvFilters(){
@@ -754,20 +845,18 @@ window.addEventListener('load', function(){
       return j;
     }
     function currentJob(){ var id = $('#invJob').value; var i; for(i=0;i<DB.jobs.length;i++){ if(DB.jobs[i].id===id) return DB.jobs[i]; } return null; }
-    function findCustomer(id){ var i; for(i=0;i<DB.customers.length;i++){ if(DB.customers[i].id===id) return DB.customers[i]; } return null; }
 
     function loadInvoice(id){
       var j = currentJob(); if(!j) j = DB.jobs.filter(function(x){ return x.id===id; })[0];
       if(!j) return;
 
-      // Per-job fields (defaults if missing)
       $('#laborRate').value = (j.laborRate != null) ? j.laborRate : 80;
       $('#salesTax').value  = (j.salesTaxPct != null) ? j.salesTaxPct : 7;
 
       $('#lines tbody').innerHTML='';
       for(var i=0;i<(j.lines||[]).length;i++){
-        var l=j.lines[i];
-        addLine(l.type,l.desc,l.qty,l.unit,l.cost,l.note,l.list);
+        var l=j.lines[i]; 
+        addLine(l.type,l.desc,l.qty,l.cost,l.list,l.unit,l.note);
       }
       $('#invNo').value = j.invNo||''; $('#docType').value = j.docType||'Estimate'; $('#payLink').value = j.paymentLink||'';
       var c = findCustomer(j.customerId);
@@ -815,29 +904,31 @@ window.addEventListener('load', function(){
       });
     }
 
-    function addLine(type, desc, qty, unit, cost, note, list){
+    function addLine(type, desc, qty, cost, list, unit, note){
       var tr = document.createElement('tr');
-      var descPH = type==='Labor' ? "e.g., Diagnostics / R&R" : "e.g., Fuel Filter (FF63009) — Fleetguard";
-      var qtyPH  = type==='Labor' ? "hrs (e.g., 1.5)" : "qty (e.g., 1)";
-      var costPH = type==='Labor' ? "shop cost (optional)" : "shop cost (e.g., 32.00)";
-      var listPH = type==='Labor' ? "" : "store price / MSRP";
-      var unitPH = type==='Labor' ? "$/hr (auto or manual)" : "customer price (e.g., 44.80)";
+      var isLabor = (type === 'Labor');
+      var descPH = isLabor ? "e.g., Diagnostics / R&R" : "e.g., Fuel Filter (FF63009) — Fleetguard";
+      var qtyPH  = isLabor ? "hrs (e.g., 1.5)" : "qty (e.g., 1)";
+      var costPH = isLabor ? "shop cost (optional)" : "your cost from store";
+      var listPH = isLabor ? "list/MSRP (optional)" : "MSRP / store list";
+      var unitPH = isLabor ? "$/hr (auto or manual)" : "customer price (e.g., 44.80)";
       tr.className = 'draggable-row';
       tr.innerHTML =
         '<td class="drag-col"><button class="tab-btn handle" title="Drag to reorder">↕</button></td>' +
         '<td><select class="lType"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Part'?'selected':'')+'>Part</option></select></td>' +
         '<td><div class="desc-wrap"><input class="lDesc" value="'+(desc||'')+'" placeholder="'+descPH+'"/><textarea class="lNote" placeholder="Tech note for this line (prints)">'+(note||'')+'</textarea></div></td>' +
         '<td><input class="lQty" type="number" step="0.01" value="'+(qty||1)+'" placeholder="'+qtyPH+'"/></td>' +
-        '<td><input class="lCost" type="number" step="0.01" value="'+(((cost!=null)?cost:0))+'" placeholder="'+costPH+'"/></td>' +
-        '<td><input class="lList" type="number" step="0.01" value="'+(((list!=null)?list:0))+'" placeholder="'+listPH+'"/></td>' +
-        '<td><input class="lUnit" type="number" step="0.01" value="'+(unit||0)+'" placeholder="'+unitPH+'"/><div class="calc-hint">—</div></td>' +
+        '<td><input class="lList" type="number" step="0.01" value="'+(list!=null ? list : 0)+'" placeholder="'+listPH+'"/></td>' +
+        '<td><input class="lCost" type="number" step="0.01" value="'+(cost!=null ? cost : 0)+'" placeholder="'+costPH+'"/></td>' +
+        '<td><input class="lUnit" type="number" step="0.01" value="'+(unit!=null ? unit : 0)+'" placeholder="'+unitPH+'"/><div class="calc-hint">—</div></td>' +
         '<td class="lLine">$0.00</td><td class="lProfit">$0.00</td><td><button type="button" class="tab-btn lDel">X</button></td>';
       document.querySelector('#lines tbody').appendChild(tr);
       makeRowDraggable(tr);
       tr.querySelector('.lDel').addEventListener('click', function(){ tr.remove(); persistLines(); });
       ['change','input'].forEach(function(evt){
-        ['.lType','.lDesc','.lQty','.lCost','.lList','.lUnit','.lNote'].forEach(function(sel){
-          tr.querySelector(sel).addEventListener(evt, persistLines);
+        ['.lType','.lDesc','.lQty','.lList','.lCost','.lUnit','.lNote'].forEach(function(sel){
+          var el = tr.querySelector(sel);
+          if(el) el.addEventListener(evt, persistLines);
         });
       });
       persistLines();
@@ -850,9 +941,9 @@ window.addEventListener('load', function(){
           type: tr.querySelector('.lType').value,
           desc: tr.querySelector('.lDesc').value,
           qty: Number(tr.querySelector('.lQty').value||0),
-          cost: Number(tr.querySelector('.lCost').value||0),
-          list: Number(tr.querySelector('.lList').value||0),
-          unit: Number(tr.querySelector('.lUnit').value||0),
+          list: Number((tr.querySelector('.lList') && tr.querySelector('.lList').value) || 0),
+          cost: Number((tr.querySelector('.lCost') && tr.querySelector('.lCost').value) || 0),
+          unit: Number((tr.querySelector('.lUnit') && tr.querySelector('.lUnit').value) || 0),
           note: (tr.querySelector('.lNote') ? tr.querySelector('.lNote').value : '').trim()
         });
       });
@@ -864,7 +955,6 @@ window.addEventListener('load', function(){
 
       var lines = rowsToLines();
 
-      // Ensure labor unit is not left at 0 — default to current laborRate AND write it back to the DOM so it persists
       var laborRateNow = Number($('#laborRate').value || 80);
       var trs = $all('#lines tbody tr');
       for (var i=0;i<lines.length;i++){
@@ -885,38 +975,23 @@ window.addEventListener('load', function(){
       j.overallNotes = $('#overallNotes').value || '';
       j.internalNotes = $('#internalNotes').value || '';
       j.photosOnPdf = $('#photosOnPdf').checked;
-      // Per-job settings
       j.laborRate = Number($('#laborRate').value || 80);
       j.salesTaxPct = Number($('#salesTax').value || 0);
 
       recalcTotals(); updatePreview(); renderJobs(); saveDB();
     }
 
-    // Markup: based on COST only
     function applyDefaultMarkup(){
       var mu = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
       $all('#lines tbody tr').forEach(function(tr){
         var type = tr.querySelector('.lType').value;
         if(type==='Part'){
           var cost = Number(tr.querySelector('.lCost').value||0);
-          if(!cost) return;
-          // Customer price = cost + (cost * markup%)
-          var newUnit = cost + (cost * mu);
-          tr.querySelector('.lUnit').value = newUnit.toFixed(2);
+          var newUnit = cost * (1+mu);
+          if(newUnit>0) tr.querySelector('.lUnit').value = newUnit.toFixed(2);
         }
       });
       persistLines();
-    }
-
-    function sumLines(lines, mode){
-      var subtotal=0, profit=0, i, l;
-      for(i=0;i<(lines||[]).length;i++){
-        l = lines[i];
-        var line = Number(l.qty||0)*Number(l.unit||0);
-        subtotal += line;
-        profit += Number(l.qty||0)*(Number(l.unit||0) - Number(l.cost||0));
-      }
-      return mode==='profit'?profit:subtotal;
     }
 
     function recalcTotals(){
@@ -927,15 +1002,20 @@ window.addEventListener('load', function(){
       for(var i=0;i<rows.length;i++){
         var r = rows[i];
         if(r.type==='Labor' && (!r.unit || r.unit===0)) {
-          r.unit = laborRate; // show calc w/ laborRate
+          r.unit = laborRate;
           if (trs[i]) {
             var uEl = trs[i].querySelector('.lUnit');
-            if (uEl) uEl.value = r.unit.toFixed(2); // keep UI consistent if it was 0
+            if (uEl) uEl.value = r.unit.toFixed(2);
           }
         }
-        var line = r.qty*r.unit; subtotal+=line;
+        var qty = r.qty || 0;
+        var unit = r.unit || 0;
+        var cost = r.cost || 0;
+        var list = r.list || 0;
+
+        var line = qty*unit; subtotal+=line;
         if (r.type==='Part') partsSubtotal += line;
-        var lineProfit = r.qty*(r.unit - (r.cost||0));
+        var lineProfit = qty*(unit - cost);
         r.profit = lineProfit; profit += lineProfit;
 
         var tr = trs[i]; if(!tr) continue;
@@ -944,26 +1024,22 @@ window.addEventListener('load', function(){
 
         var hint = tr.querySelector('.calc-hint');
         if(hint){
-          var up = (r.unit - (r.cost||0));
-          var per = (r.cost>0) ? Math.round((up / r.cost)*100) : 100;
-          var dollars = fmt(up * (r.qty||1));
-          var cls, text;
-          if (r.cost>0 && r.unit < r.cost){
-            cls = 'warn';
-            text = dollars + ' (Below cost!)';
-          } else if (r.cost>0){
-            cls = (up / r.cost) >= muDefault ? 'ok' : 'warn';
-            text = dollars + ' (+'+per+'%)';
-          } else {
-            cls = 'ok';
-            text = dollars + ' (set cost for %)';
+          var up = unit - cost;
+          var per = cost>0 ? Math.round((up / cost)*100) : 0;
+          var cls = (cost>0 && (up / cost) >= muDefault) ? 'ok' : (cost>0 ? 'warn' : 'ok');
+          var dollars = fmt(up * qty);
+          var perTxt = cost>0 ? '(+'+per+'% over cost)' : '(set cost for %)';
+          var savedTotal = 0;
+          if(list>0 && list>unit && qty>0){
+            savedTotal = (list - unit)*qty;
           }
+          var savedTxt = savedTotal>0 ? ' — Customer saved '+fmt(savedTotal)+' vs list' : '';
           hint.className = 'calc-hint ' + cls;
-          hint.textContent = text;
+          hint.textContent = dollars + ' ' + perTxt + savedTxt;
         }
       }
       var taxPct = Number($('#salesTax').value||0);
-      var tax = partsSubtotal * (taxPct/100); // TAX ON PARTS ONLY
+      var tax = partsSubtotal * (taxPct/100); // parts-only tax
       var grand = subtotal + tax;
 
       document.getElementById('sub').textContent = fmt(subtotal);
@@ -974,7 +1050,7 @@ window.addEventListener('load', function(){
       var badge = document.getElementById('margin');
       badge.textContent = margin + '%';
       badge.className='badge ' + (margin>=25?'invoice': (margin>=15?'badge-open':'estimate'));
-      // Print preview totals
+
       document.getElementById('pSub').textContent = fmt(subtotal);
       document.getElementById('pTax').textContent = fmt(tax);
       document.getElementById('pGrand').textContent = fmt(grand);
@@ -992,34 +1068,28 @@ window.addEventListener('load', function(){
       var tbody = document.getElementById('pLines'); tbody.innerHTML='';
       if(j){
         for(var i=0;i<j.lines.length;i++){
-          var l=j.lines[i]; var line=(Number(l.qty)||0)*(Number(l.unit)||0);
+          var l=j.lines[i];
+          var qty = Number(l.qty)||0;
+          var unit = Number(l.unit)||0;
+          var list = Number(l.list)||0;
+          var line = qty*unit;
+          var savedTotal = 0;
+          if(list>0 && list>unit && qty>0){
+            savedTotal = (list - unit)*qty;
+          }
           var tr=document.createElement('tr');
-          tr.innerHTML='<td>'+l.type+': '+escapeHtml(l.desc||"")+'</td><td>'+(l.qty||0)+'</td><td>'+fmt(l.unit||0)+'</td><td>'+fmt(line)+'</td>';
+          tr.innerHTML =
+            '<td>'+l.type+': '+escapeHtml(l.desc||"")+'</td>'+
+            '<td>'+qty+'</td>'+
+            '<td>'+fmt(list||0)+'</td>'+
+            '<td>'+fmt(unit||0)+'</td>'+
+            '<td>'+fmt(line)+'</td>'+
+            '<td>'+(savedTotal>0 ? fmt(savedTotal) : '—')+'</td>';
           tbody.appendChild(tr);
-
-          // Line note
           if(l.note && l.note.trim()){
             var trn=document.createElement('tr');
-            trn.innerHTML = '<td colspan="4" style="font-style:italic; color:#333; padding-top:4px;">Note: '+escapeHtml(l.note.trim())+'</td>';
+            trn.innerHTML = '<td colspan="6" style="font-style:italic; color:#333; padding-top:4px;">Note: '+escapeHtml(l.note.trim())+'</td>';
             tbody.appendChild(trn);
-          }
-
-          // Per-part savings: Store price vs Your price
-          if (l.type === 'Part' && l.list && Number(l.list) > 0) {
-            var store = Number(l.list)||0;
-            var cust = Number(l.unit)||0;
-            var qty = Number(l.qty)||0;
-            var totalSavings = (store - cust) * qty;
-            var msg = 'Store price: ' + fmt(store) + ' — Your price: ' + fmt(cust);
-            if (totalSavings > 0) {
-              msg += ' (You save ' + fmt(totalSavings) + ')';
-            }
-            var trPrice = document.createElement('tr');
-            trPrice.innerHTML =
-              '<td colspan="4" style="font-size:0.85em;color:#333;padding-top:2px;font-style:italic;">' +
-                msg +
-              '</td>';
-            tbody.appendChild(trPrice);
           }
         }
       }
@@ -1063,6 +1133,27 @@ window.addEventListener('load', function(){
       }
     }
 
+    // Maintenance Templates modal
+    (function(){
+      var modal = document.getElementById('tplModal');
+      if(!modal) return;
+      var btnOpen = document.getElementById('openTemplates');
+      var btnClose = document.getElementById('tplClose');
+      if(btnOpen){
+        btnOpen.addEventListener('click', function(){
+          if(!ensureJobSelected(true)) return;
+          renderTemplates();
+          modal.style.display='flex';
+        });
+      }
+      if(btnClose){
+        btnClose.addEventListener('click', function(){ modal.style.display='none'; });
+      }
+      modal.addEventListener('click', function(e){
+        if(e.target === modal) modal.style.display='none';
+      });
+    })();
+
     // Quick Estimate modal
     (function(){
       var modal = document.getElementById('qeModal');
@@ -1082,10 +1173,11 @@ window.addEventListener('load', function(){
         var hours = Number(document.getElementById('qeHours').value||1.5);
         var laborRate = Number(document.getElementById('laborRate').value||80);
         if(mode==='replace'){ document.querySelector('#lines tbody').innerHTML=''; j.lines=[]; }
-        addLine('Labor', title?('Diagnose/Repair — '+title):'Diagnose/Repair', hours, laborRate, 0, '');
+        addLine('Labor', title?('Diagnose/Repair — '+title):'Diagnose/Repair', hours, 0, 0, laborRate, '');
         if(partsCost>0){
-          var sell = partsCost * (1+mu); // cost-based markup
-          addLine('Part', title?('Parts — '+title):'Parts', 1, sell, partsCost, '');
+          var unit = partsCost*(1+mu);
+          var list = unit;
+          addLine('Part', title?('Parts — '+title):'Parts', 1, partsCost, list, unit, '');
         }
         persistLines();
         close();
@@ -1164,7 +1256,6 @@ window.addEventListener('load', function(){
 
         if (!hasFS) { if (btnChoose) btnChoose.style.display='none'; if (btnQuick) btnQuick.style.display='none'; return; }
 
-        // Minimal IndexedDB KV
         var DB_NAME='pdc_fs_store', STORE='kvs';
         function idbOpen(){ return new Promise(function(res,rej){ var req=indexedDB.open(DB_NAME,1); req.onupgradeneeded=function(){ var db=req.result; if(!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE); }; req.onsuccess=function(){res(req.result)}; req.onerror=function(){rej(req.error)}; });}
         function idbGet(k){ return idbOpen().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction(STORE,'readonly'); var st=tx.objectStore(STORE); var rq=st.get(k); rq.onsuccess=function(){res(rq.result)}; rq.onerror=function(){rej(rq.error)}; });});}
@@ -1193,8 +1284,10 @@ window.addEventListener('load', function(){
             await writable.close();
             alert('Saved to: ' + (fileHandle.name || 'selected file'));
           }catch(err){
-            try{ await idbDel(HANDLE_KEY); }catch(_){}
-            fileHandle = null;
+            if (String(err||'').includes('No such file') || String(err||'').includes('Permission')) {
+              try{ await idbDel(HANDLE_KEY); }catch(_){}
+              fileHandle = null;
+            }
             alert('Quick Save failed: ' + (err.message || err));
           }
         }
@@ -1203,8 +1296,8 @@ window.addEventListener('load', function(){
       })();
     })();
 
-    document.getElementById('addLabor').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Labor','',1, Number(document.getElementById('laborRate').value||80), 0, ''); });
-    document.getElementById('addPart').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Part','',1, 0, 0, ''); });
+    document.getElementById('addLabor').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Labor','',1, 0, 0, Number(document.getElementById('laborRate').value||80), ''); });
+    document.getElementById('addPart').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Part','',1, 0, 0, 0, ''); });
     document.getElementById('applyMarkup').addEventListener('click', applyDefaultMarkup);
     document.getElementById('recalc').addEventListener('click', recalcTotals);
     document.getElementById('markPaid').addEventListener('click', function(){
@@ -1224,12 +1317,51 @@ window.addEventListener('load', function(){
       location.href='mailto:'+to+'?subject='+subj+'&body='+body;
     });
 
+    // photos
+    function renderPhotoGrid(){
+      var j=currentJob(); if(!j) return;
+      var grid=document.getElementById('photoGrid'); grid.innerHTML='';
+      (j.photos||[]).forEach(function(p, idx){
+        var item=document.createElement('div'); item.className='photo-item';
+        item.innerHTML='<button class="del" data-delp="'+idx+'">X</button><img src="'+p.dataUrl+'" alt=""><label><input type="checkbox" data-include="'+idx+'" '+(p.include===false?'':'checked')+'> On PDF</label>';
+        grid.appendChild(item);
+      });
+      $all('button[data-delp]',grid).forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var idx=Number(btn.getAttribute('data-delp'));
+          j.photos.splice(idx,1); saveDB(); renderPhotoGrid(); updatePreview();
+        });
+      });
+      $all('input[data-include]',grid).forEach(function(chk){
+        chk.addEventListener('change', function(){
+          var idx=Number(chk.getAttribute('data-include'));
+          if(j.photos[idx]) j.photos[idx].include = chk.checked;
+          saveDB(); updatePreview();
+        });
+      });
+    }
+    var photoInput=document.getElementById('photoInput');
+    if(photoInput){
+      photoInput.addEventListener('change', function(){
+        var j=currentJob(); if(!j){ alert('Pick a job first.'); photoInput.value=''; return; }
+        var files=Array.prototype.slice.call(photoInput.files||[]);
+        if(!files.length) return;
+        var pending=files.length;
+        files.forEach(function(f){
+          var r=new FileReader();
+          r.onload=function(){
+            j.photos.push({dataUrl:r.result, include:true});
+            pending--; if(pending===0){ saveDB(); renderPhotoGrid(); updatePreview(); photoInput.value=''; }
+          };
+          r.onerror=function(){ pending--; if(pending===0){ saveDB(); renderPhotoGrid(); updatePreview(); photoInput.value=''; } };
+          r.readAsDataURL(f);
+        });
+      });
+    }
+
     // PDF
     document.getElementById('pdf').addEventListener('click', function(){
-      // Make sure latest notes / lines are saved & preview up to date
-      persistLines();
-      updatePreview();
-
+      persistLines(); // make sure everything is up to date
       var css =
         'html,body{margin:0;padding:0}body{font-family:'+ (document.body && getComputedStyle(document.body).fontFamily || 'sans-serif') +';font-size:11pt;line-height:1.35;color:#000}' +
         '.print-area{padding:8px 12px 12px;border-radius:0;position:relative}' +
