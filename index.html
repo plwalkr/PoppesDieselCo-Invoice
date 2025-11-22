@@ -427,8 +427,11 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
             <input id="importFile" type="file" accept="application/json"/> Import JSON
           </label>
           <button class="tab-btn" id="importBtn" type="button">Import</button>
-          <button class="tab-btn" id="fsChoose" type="button">Choose Save File (Flash Drive)</button>
+          <button class="tab-btn" id="fsChoose" type="button" title="Choose save file on flash drive">Choose Save File (Flash Drive)</button>
           <button class="tab-btn" id="fsQuickSave" type="button" title="Save to the chosen file">Quick Save</button>
+          <!-- New Supabase cloud buttons -->
+          <button class="tab-btn" id="cloudSaveBtn" type="button">Cloud Save (Supabase)</button>
+          <button class="tab-btn" id="cloudLoadBtn" type="button">Cloud Load (Supabase)</button>
         </div>
         <div class="small">Exports customers, jobs, settings, UI state, and your watermark so you can restore after site updates.</div>
       </div>
@@ -476,8 +479,8 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
 
 <script>
 // --- Supabase cloud sync config ---
-var SUPABASE_URL = 'https://hhbrbkyfryjidworupvf.supabase.co'; // <-- change this
-var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoYnJia3lmcnlqaWR3b3J1cHZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0MzI3NTEsImV4cCI6MjA3OTAwODc1MX0.NCU-_2RlP8-5w5_x0g10Q5HrFgPW9hyfyN7D87s_BWw';                   // <-- change this
+var SUPABASE_URL = 'https://hhbrbkyfryjidworupvf.supabase.co'; // your project URL
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoYnJia3lmcnlqaWR3b3J1cHZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0MzI3NTEsImV4cCI6MjA3OTAwODc1MX0.NCU-_2RlP8-5w5_x0g10Q5HrFgPW9hyfyN7D87s_BWw'; // your anon key
 
 var supabaseClient = null;
 var SHOP_STATE_ID = 'main'; // we just use one record
@@ -492,6 +495,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 } else {
   console.warn('Supabase not configured (no URL/key or script not loaded).');
 }
+
 /* --- Minimal ES5 helpers + diagnostics --- */
 var __JS_STARTED = true;
 (function(){
@@ -580,6 +584,7 @@ window.addEventListener('load', function(){
     }
     function saveDB(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(e){ AppLog.error('localStorage save failed', e); } }
     function loadDB(){ try { var s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; } catch(e){ AppLog.error('localStorage load failed', e); return null; } }
+
     function upgradeDB(){
       var i, j, l;
       for(i=0;i<(DB.jobs||[]).length;i++){
@@ -595,6 +600,92 @@ window.addEventListener('load', function(){
         }
       }
       saveDB();
+    }
+
+    // --- Build snapshot for backup / cloud (Supabase version) ---
+    async function buildBackupPayload() {
+      var payload = {
+        _note: 'Poppe’s Diesel Co. Shop Manager backup',
+        version: 'v1.2.1',
+        exportedAt: new Date().toISOString(),
+        db: DB,
+        ui: UI,
+        wm: null
+      };
+      try {
+        payload.wm = localStorage.getItem('pdc_wm_dataurl') || null;
+      } catch (_) {}
+      return payload;
+    }
+
+    // --- Cloud Save to Supabase ---
+    async function cloudSave() {
+      if (!supabaseClient) {
+        alert('Supabase is not configured in this file.');
+        return;
+      }
+      try {
+        var payload = await buildBackupPayload();
+        var result = await supabaseClient
+          .from('shop_state')
+          .upsert({
+            id: SHOP_STATE_ID,
+            data: payload,
+            updated_at: new Date().toISOString()
+          });
+
+        if (result.error) {
+          console.error('cloudSave error', result.error);
+          alert('Cloud save failed: ' + result.error.message);
+          return;
+        }
+        alert('Cloud save complete.');
+      } catch (e) {
+        console.error('cloudSave threw', e);
+        alert('Cloud save crashed: ' + (e.message || e));
+      }
+    }
+
+    // --- Cloud Load from Supabase ---
+    async function cloudLoad() {
+      if (!supabaseClient) {
+        alert('Supabase is not configured in this file.');
+        return;
+      }
+      try {
+        var result = await supabaseClient
+          .from('shop_state')
+          .select('data')
+          .eq('id', SHOP_STATE_ID)
+          .single();
+
+        if (result.error) {
+          console.error('cloudLoad error', result.error);
+          alert('Cloud load failed: ' + result.error.message);
+          return;
+        }
+
+        if (!result.data || !result.data.data) {
+          alert('No cloud snapshot found yet.');
+          return;
+        }
+
+        var snap = result.data.data;
+        if (snap.db) DB = snap.db;
+        if (snap.ui) UI = snap.ui;
+
+        try {
+          if (snap.wm) localStorage.setItem('pdc_wm_dataurl', snap.wm);
+        } catch (_) {}
+
+        upgradeDB();
+        renderAll();
+
+        alert('Cloud data loaded.');
+      } catch (e) {
+        console.error('cloudLoad threw', e);
+        alert('Cloud load crashed: ' + (e.message || e));
+      }
     }
 
     function $(sel, root){ return (root||document).querySelector(sel); }
@@ -1261,7 +1352,7 @@ window.addEventListener('load', function(){
         function idbDel(k){ return idbOpen().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction(STORE,'readwrite'); var st=tx.objectStore(STORE); var rq=st.delete(k); rq.onsuccess=function(){res()}; rq.onerror=function(){rej(rq.error)}; });});}
         var HANDLE_KEY='pdc_file_handle'; var fileHandle=null;
         idbGet(HANDLE_KEY).then(function(h){ fileHandle=h||null; }).catch(function(){});
-        function buildBackupPayload(){
+        function buildBackupPayloadFS(){
           return {_note:'Poppe’s Diesel Co. Shop Manager backup', version:'v1.2.1', exportedAt:new Date().toISOString(), db:DB, ui:UI, wm:(function(){try{return localStorage.getItem('pdc_wm_dataurl')||null}catch(_){return null}})()};
         }
         async function chooseSaveFile(){
@@ -1277,7 +1368,7 @@ window.addEventListener('load', function(){
             var perm = await fileHandle.queryPermission({mode:'readwrite'});
             if (perm!=='granted'){ perm = await fileHandle.requestPermission({mode:'readwrite'}); if (perm!=='granted'){ alert('Permission to write was denied.'); return; } }
             var writable = await fileHandle.createWritable();
-            var data = JSON.stringify(buildBackupPayload(), null, 2);
+            var data = JSON.stringify(buildBackupPayloadFS(), null, 2);
             await writable.write(new Blob([data], {type:'application/json'}));
             await writable.close();
             alert('Saved to: ' + (fileHandle.name || 'selected file'));
@@ -1293,6 +1384,16 @@ window.addEventListener('load', function(){
         if (btnQuick)  btnQuick.addEventListener('click', quickSave);
       })();
     })();
+
+    // Cloud buttons wiring (Step 6)
+    var cloudSaveBtn = document.getElementById('cloudSaveBtn');
+    var cloudLoadBtn = document.getElementById('cloudLoadBtn');
+    if (cloudSaveBtn) {
+      cloudSaveBtn.addEventListener('click', function(){ cloudSave(); });
+    }
+    if (cloudLoadBtn) {
+      cloudLoadBtn.addEventListener('click', function(){ cloudLoad(); });
+    }
 
     document.getElementById('addLabor').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Labor','',1,0,0, Number(document.getElementById('laborRate').value||80), ''); });
     document.getElementById('addPart').addEventListener('click', function(){ if(!ensureJobSelected(true)) return; addLine('Part','',1,0,0,0,''); });
@@ -1347,8 +1448,8 @@ window.addEventListener('load', function(){
       try{ w.focus(); w.print(); }catch(_){}
     });
 
-    // Signature modal (unchanged behavior from your prior version)
-    ;(function(){
+    // Signature modal
+    (function(){
       var modal = document.getElementById('sigModal');
       var openBtn = document.getElementById('sign');
       var closeBtn = document.getElementById('sigClose');
@@ -1404,7 +1505,7 @@ window.addEventListener('load', function(){
       });
     })();
 
-    // Keep overall notes in sync without having to touch parts notes first
+    // Keep overall notes in sync
     (function(){
       var on = document.getElementById('overallNotes');
       if(on){
@@ -1424,7 +1525,7 @@ window.addEventListener('load', function(){
 
     // Restore last opened job
     if (UI.lastJobId && DB.jobs.some(function(x){return x.id===UI.lastJobId;})) {
-      $('#invJob').value = UI.lastJobId;
+      document.getElementById('invJob').value = UI.lastJobId;
       loadInvoice(UI.lastJobId);
     }
   });
@@ -1432,5 +1533,3 @@ window.addEventListener('load', function(){
 </script>
 </body>
 </html>
-
-
