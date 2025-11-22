@@ -475,6 +475,23 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
 </div>
 
 <script>
+// --- Supabase cloud sync config ---
+var SUPABASE_URL = 'https://hhbrbkyfryjidworupvf.supabase.co'; // <-- change this
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoYnJia3lmcnlqaWR3b3J1cHZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0MzI3NTEsImV4cCI6MjA3OTAwODc1MX0.NCU-_2RlP8-5w5_x0g10Q5HrFgPW9hyfyN7D87s_BWw';                   // <-- change this
+
+var supabaseClient = null;
+var SHOP_STATE_ID = 'main'; // we just use one record
+
+if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
+  try {
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log('Supabase client initialized');
+  } catch (e) {
+    console.error('Failed to init Supabase', e);
+  }
+} else {
+  console.warn('Supabase not configured (no URL/key or script not loaded).');
+}
 /* --- Minimal ES5 helpers + diagnostics --- */
 var __JS_STARTED = true;
 (function(){
@@ -1415,4 +1432,5 @@ window.addEventListener('load', function(){
 </script>
 </body>
 </html>
+
 
