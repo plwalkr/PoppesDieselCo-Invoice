@@ -54,6 +54,34 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .noscript-overlay{position:fixed;inset:0;background:#18040a;color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;z-index:9999}
 .noscript-overlay .box{max-width:720px;background:#2b0c15;border:2px solid #8a1b27;border-radius:12px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .noscript-overlay h2{margin:0 0 10px 0}
+
+/* New Recent Jobs styles */
+#recentJobsWrap{margin-top:4px}
+.recent-jobs-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:6px;
+}
+.recent-job{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:space-between;
+  border-radius:12px;
+  border:1px solid var(--border);
+  padding:8px 10px;
+  background:#fff;
+  color:var(--text);
+  cursor:pointer;
+  text-align:left;
+  box-shadow:0 1px 3px rgba(0,0,0,.12);
+}
+.recent-job-main{margin-bottom:4px}
+.recent-job-title{font-weight:600;font-size:.95rem}
+.recent-job-sub{font-size:.8rem;color:var(--muted)}
+.recent-job-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.75rem}
+.recent-job-amount{font-weight:600}
+.recent-job-margin{color:var(--muted)}
 </style>
 
 <style>
@@ -81,7 +109,7 @@ tbody tr:nth-child(odd) td{ background:var(--surface-2); }
 nav.bottom{ background:rgba(14,17,26,.90); backdrop-filter:saturate(160%) blur(8px); border-top:1px solid rgba(255,255,255,.06); }
 .badge{ border:1px solid var(--border); background:var(--surface); color:var(--text); }
 .badge.estimate{ background:#F3E2BF; color:#3B2B00; }
-.badge.invoice{ background:#DCD3C0; color:#0E0F10; }
+.badge.invoice{ background:#E6DAC2; color:#0E0F10; }
 #sigPad{ touch-action:none; }
 </style>
 
@@ -115,7 +143,7 @@ input,select,textarea{ background:#fff; border:1px solid var(--border); box-shad
   border-radius:9999px; padding:10px 16px;
   background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.10)) , var(--ink);
   color:#F2E7D1; border:1px solid #0a0b0c;
-  transition:transform .08s ease, box-shadow .2s ease, filter .15s ease;
+  transition:transform .08s.ease, box-shadow .2s.ease, filter .15s.ease;
   box-shadow:0 2px 0 rgba(0,0,0,.25), 0 8px 18px rgba(0,0,0,.10);
 }
 .tab-btn:hover{ filter:brightness(1.06); }
@@ -222,7 +250,10 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
     <div class="grid" id="invFilters">
       <label>Filter by Customer <select id="invCustFilter"><option value="">All customers</option></select></label>
       <label>Search Jobs <input id="invJobSearch" placeholder="Type to filter jobs by customer/title…"/></label>
-      <div><div class="small">Recent jobs</div><div class="actions" id="recentJobs"></div></div>
+      <div id="recentJobsWrap">
+        <div class="small">Recent Jobs (click to load)</div>
+        <div class="recent-jobs-grid" id="recentJobs"></div>
+      </div>
     </div>
     <form class="grid" id="invForm">
       <select id="invJob" required=""></select>
@@ -704,18 +735,64 @@ window.addEventListener('load', function(){
       invSel.innerHTML = opts.join('');
     }
     function renderRecentJobs(){
-      var box = $('#recentJobs'); box.innerHTML='';
+      var box = $('#recentJobs');
+      var wrap = $('#recentJobsWrap');
+      if(!box) return;
+      box.innerHTML = '';
+
       var jobs = DB.jobs.slice(0);
       jobs.sort(function(a,b){ return new Date(b.createdAt) - new Date(a.createdAt); });
+
+      if(!jobs.length){
+        if(wrap) wrap.style.display='none';
+        return;
+      }
+      if(wrap) wrap.style.display='block';
+
+      function esc(s){
+        return String(s||'').replace(/[&<>"']/g,function(c){
+          return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
+        });
+      }
+
       jobs.slice(0,6).forEach(function(j){
         var c = findCustomer(j.customerId);
-        var b = document.createElement('button'); b.type='button'; b.className='tab-btn';
-        b.textContent = (c?c.name:'—')+': '+j.title;
-        b.addEventListener('click', function(){
+        var subtotal = sumLines(j.lines,'subtotal');
+        var profit   = sumLines(j.lines,'profit');
+        var margin   = subtotal>0 ? Math.round((profit/subtotal)*100) : 0;
+
+        var statusLabel;
+        if(j.docType === 'Invoice'){
+          statusLabel = j.paid ? 'Paid Invoice' : 'Unpaid Invoice';
+        } else {
+          statusLabel = j.approved ? 'Approved Estimate' : 'Estimate';
+        }
+
+        var badgeClass = j.status==='Open' ? 'badge-open' : (j.status==='In Progress'?'badge-ip':'badge-done');
+
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'recent-job';
+        btn.innerHTML =
+          '<div class="recent-job-main">' +
+            '<div class="recent-job-title">'+esc(c?c.name:'—')+'</div>' +
+            '<div class="recent-job-sub">'+esc(j.title||'')+'</div>' +
+          '</div>' +
+          '<div class="recent-job-meta">' +
+            '<span class="badge '+badgeClass+'">'+esc(statusLabel)+'</span>' +
+            '<span class="recent-job-amount">'+fmt(subtotal)+'</span>' +
+            '<span class="recent-job-margin">'+margin+'% margin</span>' +
+          '</div>';
+
+        btn.addEventListener('click', function(){
           try{ persistLines(); }catch(_){}
-          $('#invJob').value=j.id; loadInvoice(j.id); UI.lastJobId=j.id; saveUI(UI);
+          $('#invJob').value = j.id;
+          loadInvoice(j.id);
+          UI.lastJobId = j.id;
+          saveUI(UI);
         });
-        box.appendChild(b);
+
+        box.appendChild(btn);
       });
     }
     $('#invCustFilter').addEventListener('change', function(){
@@ -1265,10 +1342,10 @@ window.addEventListener('load', function(){
       var to=encodeURIComponent(document.getElementById('emailTo').value.trim()||'');
       var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim());
       var body=encodeURIComponent('Hello,\n\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+'.\nPayment link: '+(j.paymentLink||'')+'\n\n'+(DB.settings.shopFooter||'')+'\n\n— '+(DB.settings.shopFrom||''));
-      location.href='mailto:'+to+'?subject='+subj+'&body='+body;
+      location.href='mailto:'+to+'?subject='+subj+' &body='+body;
     });
 
-    // TODO: signatures + photos functions are same as before (not edited, omitted for brevity in your mental diff)
+    // Photos
     function renderPhotoGrid(){
       var j=currentJob(); if(!j) return;
       var grid=document.getElementById('photoGrid');
