@@ -1,217 +1,271 @@
 <!DOCTYPE html>
 <html data-theme="dark" lang="en">
 <head>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Poppe’s Diesel Co. — Shop Manager (v1.2.1 — PARTS-ONLY TAX)</title>
+  <!-- Supabase client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
+  <title>Poppe’s Diesel Co. — Shop Manager (v1.2.1 — PARTS-ONLY TAX)</title>
 
-<style>
-:root{--bg:#e6cfae;--card:#13151c;--text:#0e111a;--muted:#3e463e;--border:#2e3226;--ink:#0e111a;--ink2:#161a24;--shadow:0 10px 20px rgba(0,0,0,.30);--info:#0a3d2e;--ok:#1f6b55;--warn:#f5c518;--danger:#962b2b;--font:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
-header{position:sticky;top:0;z-index:10;background:var(--ink);border-bottom:1px solid #2e3226;padding:12px 16px;box-shadow:var(--shadow);color:#fff}
-h1{margin:0;font-size:20px;display:flex;gap:8px;align-items:center}
-.tag{background:var(--ink2);color:#c5c9d3;padding:2px 6px;border-radius:6px;font-size:12px;white-space:nowrap}
-nav.top{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-button,select,input,textarea{background:#fff;border:1px solid #b6b09f;color:#0e111a;padding:12px 14px;border-radius:12px;font-size:17px;touch-action:manipulation}
-button{cursor:pointer}.tab-btn{background:#1d312a;color:#fff;border:1px solid #0e241c}.tab-btn:hover{filter:brightness(1.05)}
-.primary{background:#0a3d2e;color:#fff;border-color:#0a3d2e}.success{background:#1f6b55;color:#fff;border-color:#1f6b55}
-main{padding:16px 16px 110px}.tab{display:none}.tab.active{display:block}
-.table-wrap{overflow:auto;border:1px solid #b6b09f;border-radius:14px;background:#fff}
-table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #b6b09f;text-align:left;vertical-align:top}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-.card{background:#1d312a;color:#fff;border:1px solid #0e241c;border-radius:14px;padding:20px;box-shadow:var(--shadow)}
-.card h3{margin:0 0 8px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0}
-.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}.actions>*{height:48px}
-.print-area{background:#fff;color:#000;border-radius:14px;padding:16px;position:relative;overflow:hidden}
-.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:.08;z-index:0}
-.invoice-header{position:relative;z-index:1;display:flex;justify-content:space-between;gap:16px;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:8px}
-.lines thead th{background:#203229;color:#eaf5f0;border-bottom-color:#2f463a}
-.totals{display:grid;gap:6px;justify-items:end;margin-top:8px;position:relative;z-index:1}
-.badge{padding:.25rem .5rem;border-radius:999px;border:1px solid #000;font-size:.9em;background:#fff;color:#000}
-.badge.estimate{background:#fdf1c4;color:#2b2100}.badge.invoice{background:#d9efe7;color:#0a3d2e}
-.small{font-size:.85em;color:var(--muted)}.calc-hint{font-size:.8em;line-height:1.2;margin-top:6px;opacity:.9}
-.calc-hint.ok{color:#0a7f63}.calc-hint.warn{color:#b48802}
-#debugToggle{position:fixed;right:12px;bottom:72px;z-index:60;background:#1e2030;border:1px solid #3a3f58;border-radius:999px;padding:10px 12px;color:#fff}
-#debug{position:fixed;right:12px;bottom:12px;left:12px;max-height:50vh;overflow:auto;background:#0f111a;border:1px solid #30364a;border-radius:12px;padding:10px 12px;z-index:60;display:none;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#d7e1ff}
-#debug pre{white-space:pre-wrap;margin:0}#debug .meta{font-size:12px;color:#9fb3d1;margin-bottom:6px}
-#error{display:none;position:sticky;top:0;z-index:20;background:#ff5566;color:#18040a;padding:10px 14px;border-bottom:2px solid #8a1b27}
-.selftest{display:none;margin-left:8px}.selftest.ok{display:inline-block;background:#10331f;border:1px solid #1f6440;color:#a5ffd8}.selftest.warn{display:inline-block;background:#3a2f00;border:1px solid #7a5f00;color:#ffeaa3}
-#toTop{position:fixed;right:20px;bottom:140px;z-index:60;background:#1d312a;color:#fff;border:1px solid #0e241c;border-radius:999px;padding:10px 14px;display:none;box-shadow:var(--shadow)}#toTop:hover{filter:brightness(1.08)}
-@media print{body{background:#fff;color:#000}header,nav.bottom,nav.top,.actions,.modal,#debug,#debugToggle,#invFilters,#internalNotesWrap,#photosWrap{display:none!important}.tab{display:block!important}#invoice{display:block!important}.print-area{box-shadow:none;margin:0;padding:0}}
-#pdf{position:fixed;bottom:128px;right:20px;z-index:1000;min-width:160px;height:50px;background:var(--info);color:#fff;border:none;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
-#pdf:hover{filter:brightness(1.05)}
-.drag-col{width:28px;text-align:center}.handle{min-width:32px;height:36px;padding:4px 6px;cursor:grab}.handle:active{cursor:grabbing}.draggable-row.dragging{opacity:.5}.drop-target{outline:2px dashed var(--info);outline-offset:-2px}
-.desc-wrap{display:flex;flex-direction:column;gap:6px}.lNote{width:100%;min-height:64px;resize:vertical;background:#fff;color:#0e111a;border:1px solid #b6b09f;border-radius:10px;padding:8px 10px;font-size:.95rem}
-#overallNotesWrap{margin-top:12px}#overallNotes{width:100%;min-height:110px;resize:vertical}
-.signatures{margin-top:16px;display:grid;gap:10px}.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}.sig{display:flex;flex-direction:column;justify-content:flex-end}.sig-line{border-bottom:1px solid #000;height:32px;display:flex;align-items:flex-end}.sig-label{font-size:.9em;color:#333;margin-top:4px}.sig-img{max-height:60px;max-width:100%;object-fit:contain}
-.photo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}.photo-item{position:relative;background:#fff;border:1px solid #b6b09f;border-radius:8px;padding:6px}.photo-item img{width:100%;height:90px;object-fit:cover;border-radius:6px}.photo-item .del{position:absolute;top:4px;right:4px;background:#962b2b;color:#fff;border:none;border-radius:8px;padding:2px 6px;font-size:12px;cursor:pointer}.photo-item label{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px}
-.badge-open{background:#fff;border-color:#b6b09f}.badge-ip{background:#fff7d6;border-color:#caa52a}.badge-done{background:#d9efe7;border-color:#1f6b55;color:#0a3d2e}
-.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4);z-index:80}
-.modal .panel{max-width:800px;width:min(96vw,800px)}
-/* Big noscript overlay */
-.noscript-overlay{position:fixed;inset:0;background:#18040a;color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;z-index:9999}
-.noscript-overlay .box{max-width:720px;background:#2b0c15;border:2px solid #8a1b27;border-radius:12px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
-.noscript-overlay h2{margin:0 0 10px 0}
-</style>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
-<style>
-:root, html[data-theme="dark"]{
-  --parchment:#E3D1B4; --ink:#0E0F10; --ink2:#171A1F; --brand-red:#B13A33;
-  --bg:var(--parchment); --surface:#F5E9D3; --surface-2:#EFE1C8; --text:#0B0D0F; --muted:#6D6456; --border:#C7B497;
-  --info:var(--ink); --ok:#1F6B55; --warn:#B07A07; --danger:#962B2B;
-}
-body{ background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased; font-size:16.5px; line-height:1.5; }
-header{ background:var(--ink); border-bottom:1px solid rgba(255,255,255,.06); }
-.tag{ background:var(--ink2); color:#E8E0D2; }
-.card{ background:var(--surface); color:var(--text); border:1px solid var(--border); }
-.table-wrap{ background:var(--surface); border-color:var(--border); }
-.lines thead th{ background:var(--ink)!important; color:var(--parchment)!important; border-bottom-color:var(--ink)!important; }
-tbody tr:nth-child(odd) td{ background:var(--surface-2); }
-.tab-btn{ background:var(--ink); border:1px solid #0a0b0c; color:#F2E7D1; }
-.tab-btn:hover{ filter:brightness(1.06); }
-.primary{ background:var(--info); border-color:var(--info); color:#F2E7D1; }
-.success{ background:var(--ok); border-color:var(--ok); color:#fff; }
-#pdf{ background:var(--brand-red)!important; border:none; }
-#pdf:hover{ filter:brightness(1.06); }
-:where(button,[role="button"],a,input,select,textarea):focus-visible{ outline:2px solid transparent; box-shadow:0 0 0 3px rgba(177,58,51,.45); }
-.print-area{ background:var(--surface); color:var(--text); border:1px solid var(--border); }
-#wmFallback{ opacity:.10 } #wmImg{ opacity:.10; mix-blend-mode:multiply }
-nav.bottom{ background:rgba(14,17,26,.90); backdrop-filter:saturate(160%) blur(8px); border-top:1px solid rgba(255,255,255,.06); }
-.badge{ border:1px solid var(--border); background:var(--surface); color:var(--text); }
-.badge.estimate{ background:#F3E2BF; color:#3B2B00; }
-.badge.invoice{ background:#DCD3C0; color:#0E0F10; }
-#sigPad{ touch-action:none; }
-</style>
+  <!-- Base layout + components -->
+  <style>
+  :root{--bg:#e6cfae;--card:#13151c;--text:#0e111a;--muted:#3e463e;--border:#2e3226;--ink:#0e111a;--ink2:#161a24;--shadow:0 10px 20px rgba(0,0,0,.30);--info:#0a3d2e;--ok:#1f6b55;--warn:#f5c518;--danger:#962b2b;--font:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  *{box-sizing:border-box}html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
+  header{position:sticky;top:0;z-index:10;background:var(--ink);border-bottom:1px solid #2e3226;padding:12px 16px;box-shadow:var(--shadow);color:#fff}
+  h1{margin:0;font-size:20px;display:flex;gap:8px;align-items:center}
+  .tag{background:var(--ink2);color:#c5c9d3;padding:2px 6px;border-radius:6px;font-size:12px;white-space:nowrap}
+  nav.top{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  button,select,input,textarea{background:#fff;border:1px solid #b6b09f;color:#0e111a;padding:12px 14px;border-radius:12px;font-size:17px;touch-action:manipulation}
+  button{cursor:pointer}
+  .tab-btn{background:#1d312a;color:#fff;border:1px solid #0e241c}
+  .tab-btn:hover{filter:brightness(1.05)}
+  .primary{background:#0a3d2e;color:#fff;border-color:#0a3d2e}
+  .success{background:#1f6b55;color:#fff;border-color:#1f6b55}
+  main{padding:16px 16px 110px}
+  .tab{display:none}
+  .tab.active{display:block}
+  .table-wrap{overflow:auto;border:1px solid #b6b09f;border-radius:14px;background:#fff}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:10px;border-bottom:1px solid #b6b09f;text-align:left;vertical-align:top}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .card{background:#1d312a;color:#fff;border:1px solid #0e241c;border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+  .card h3{margin:0 0 8px 0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+  .actions>*{height:48px}
+  .print-area{background:#fff;color:#000;border-radius:14px;padding:16px;position:relative;overflow:hidden}
+  .watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:.08;z-index:0}
+  .invoice-header{position:relative;z-index:1;display:flex;justify-content:space-between;gap:16px;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:8px}
+  .lines thead th{background:#203229;color:#eaf5f0;border-bottom-color:#2f463a}
+  .totals{display:grid;gap:6px;justify-items:end;margin-top:8px;position:relative;z-index:1}
+  .badge{padding:.25rem .5rem;border-radius:999px;border:1px solid #000;font-size:.9em;background:#fff;color:#000}
+  .badge.estimate{background:#fdf1c4;color:#2b2100}
+  .badge.invoice{background:#d9efe7;color:#0a3d2e}
+  .small{font-size:.85em;color:var(--muted)}
+  .calc-hint{font-size:.8em;line-height:1.2;margin-top:6px;opacity:.9}
+  .calc-hint.ok{color:#0a7f63}
+  .calc-hint.warn{color:#b48802}
+  #debugToggle{position:fixed;right:12px;bottom:72px;z-index:60;background:#1e2030;border:1px solid #3a3f58;border-radius:999px;padding:10px 12px;color:#fff}
+  #debug{position:fixed;right:12px;bottom:12px;left:12px;max-height:50vh;overflow:auto;background:#0f111a;border:1px solid #30364a;border-radius:12px;padding:10px 12px;z-index:60;display:none;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#d7e1ff}
+  #debug pre{white-space:pre-wrap;margin:0}
+  #debug .meta{font-size:12px;color:#9fb3d1;margin-bottom:6px}
+  #error{display:none;position:sticky;top:0;z-index:20;background:#ff5566;color:#18040a;padding:10px 14px;border-bottom:2px solid #8a1b27}
+  .selftest{display:none;margin-left:8px}
+  .selftest.ok{display:inline-block;background:#10331f;border:1px solid #1f6440;color:#a5ffd8}
+  .selftest.warn{display:inline-block;background:#3a2f00;border:1px solid #7a5f00;color:#ffeaa3}
+  #toTop{position:fixed;right:20px;bottom:140px;z-index:60;background:#1d312a;color:#fff;border:1px solid #0e241c;border-radius:999px;padding:10px 14px;display:none;box-shadow:var(--shadow)}
+  #toTop:hover{filter:brightness(1.08)}
+  @media print{
+    body{background:#fff;color:#000}
+    header,nav.bottom,nav.top,.actions,.modal,#debug,#debugToggle,#invFilters,#internalNotesWrap,#photosWrap{display:none!important}
+    .tab{display:block!important}
+    #invoice{display:block!important}
+    .print-area{box-shadow:none;margin:0;padding:0}
+  }
+  #pdf{position:fixed;bottom:128px;right:20px;z-index:1000;min-width:160px;height:50px;background:var(--info);color:#fff;border:none;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+  #pdf:hover{filter:brightness(1.05)}
+  .drag-col{width:28px;text-align:center}
+  .handle{min-width:32px;height:36px;padding:4px 6px;cursor:grab}
+  .handle:active{cursor:grabbing}
+  .draggable-row.dragging{opacity:.5}
+  .drop-target{outline:2px dashed var(--info);outline-offset:-2px}
+  .desc-wrap{display:flex;flex-direction:column;gap:6px}
+  .lNote{width:100%;min-height:64px;resize:vertical;background:#fff;color:#0e111a;border:1px solid #b6b09f;border-radius:10px;padding:8px 10px;font-size:.95rem}
+  #overallNotesWrap{margin-top:12px}
+  #overallNotes{width:100%;min-height:110px;resize:vertical}
+  .signatures{margin-top:16px;display:grid;gap:10px}
+  .sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}
+  .sig{display:flex;flex-direction:column;justify-content:flex-end}
+  .sig-line{border-bottom:1px solid #000;height:32px;display:flex;align-items:flex-end}
+  .sig-label{font-size:.9em;color:#333;margin-top:4px}
+  .sig-img{max-height:60px;max-width:100%;object-fit:contain}
+  .photo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+  .photo-item{position:relative;background:#fff;border:1px solid #b6b09f;border-radius:8px;padding:6px}
+  .photo-item img{width:100%;height:90px;object-fit:cover;border-radius:6px}
+  .photo-item .del{position:absolute;top:4px;right:4px;background:#962b2b;color:#fff;border:none;border-radius:8px;padding:2px 6px;font-size:12px;cursor:pointer}
+  .photo-item label{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px}
+  .badge-open{background:#fff;border-color:#b6b09f}
+  .badge-ip{background:#fff7d6;border-color:#caa52a}
+  .badge-done{background:#d9efe7;border-color:#1f6b55;color:#0a3d2e}
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4);z-index:80}
+  .modal .panel{max-width:800px;width:min(96vw,800px)}
+  .noscript-overlay{position:fixed;inset:0;background:#18040a;color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;z-index:9999}
+  .noscript-overlay .box{max-width:720px;background:#2b0c15;border:2px solid #8a1b27;border-radius:12px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+  .noscript-overlay h2{margin:0 0 10px 0}
+  </style>
 
-<style>
-:root{ --display:"Cinzel", ui-serif, Georgia, "Times New Roman", serif; }
-h1,h2,h3{ font-family:var(--display); letter-spacing:.02em; }
-h2{ font-weight:700; text-transform:uppercase; }
-body{
-  background:
-    radial-gradient(120% 70% at 50% -20%, rgba(255,255,255,.55) 0%, rgba(0,0,0,0) 65%),
-    linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,0)),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
-  background-color:var(--bg); background-attachment:fixed,fixed,fixed; background-blend-mode:multiply,normal,normal;
-}
-header{ position:sticky; top:0; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
-header::after{ content:""; position:absolute; left:0; right:0; bottom:-1px; height:6px;
-  background:repeating-linear-gradient(90deg,transparent 0 28px, var(--brand-red) 28px 44px,transparent 44px 72px);
-  opacity:.55; pointer-events:none;
-}
-main h2::before{ content:"★"; color:var(--brand-red); margin-right:.5rem; font-size:.9em; vertical-align:.02em; }
-.card{
-  background:linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,0)) , var(--surface);
-  border:1px solid var(--border);
-  box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 10px 24px rgba(0,0,0,.10);
-  border-radius:16px;
-}
-input,select,textarea{ background:#fff; border:1px solid var(--border); box-shadow:0 1px 0 rgba(0,0,0,.04) inset; }
-:where(input,select,textarea)::placeholder{ color:#756b5c; }
-:where(input,select,textarea):focus{ outline:0; border-color:rgba(177,58,51,.55); box-shadow:0 0 0 3px rgba(177,58,51,.20); }
-.tab-btn{
-  border-radius:9999px; padding:10px 16px;
-  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.10)) , var(--ink);
-  color:#F2E7D1; border:1px solid #0a0b0c;
-  transition:transform .08s ease, box-shadow .2s ease, filter .15s ease;
-  box-shadow:0 2px 0 rgba(0,0,0,.25), 0 8px 18px rgba(0,0,0,.10);
-}
-.tab-btn:hover{ filter:brightness(1.06); }
-.tab-btn:active{ transform:translateY(1px); box-shadow:0 1px 0 rgba(0,0,0,.3), 0 6px 14px rgba(0,0,0,.12); }
-.primary{ background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.10)) , var(--info); border-color:var(--info); }
-.success{ background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.08)) , var(--ok); border-color:var(--ok); }
-#pdf{
-  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.12)), var(--brand-red)!important;
-  border:none; color:#fff; font-weight:700; letter-spacing:.02em;
-}
-.table-wrap{ border-radius:16px; overflow:auto; -webkit-overflow-scrolling:touch; }
-.lines thead th{ position:sticky; top:0; z-index:1; }
-tbody tr:hover td{ background:#EAD9BC; }
-.print-area{
-  background:linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,0)), var(--surface);
-  border:1px solid var(--border);
-}
-#wmFallback{ opacity:.08 } #wmImg{ opacity:.10; mix-blend-mode:multiply }
-.badge{ text-transform:uppercase; letter-spacing:.04em; background:#F0E4CC; border:1px solid #BFAE91; color:#1A1A1A; }
-.badge.invoice{ background:#E6DAC2 } .badge.estimate{ background:#F3E2BF; color:#3B2B00 }
-nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(10px); }
-.small{ color:#5f584d } tbody td, th{ border-bottom-color:rgba(0,0,0,.12) }
+  <!-- Theme / color tweaks -->
+  <style>
+  :root, html[data-theme="dark"]{
+    --parchment:#E3D1B4; --ink:#0E0F10; --ink2:#171A1F; --brand-red:#B13A33;
+    --bg:var(--parchment); --surface:#F5E9D3; --surface-2:#EFE1C8; --text:#0B0D0F; --muted:#6D6456; --border:#C7B497;
+    --info:var(--ink); --ok:#1F6B55; --warn:#B07A07; --danger:#962B2B;
+  }
+  body{ background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased; font-size:16.5px; line-height:1.5; }
+  header{ background:var(--ink); border-bottom:1px solid rgba(255,255,255,.06); }
+  .tag{ background:var(--ink2); color:#E8E0D2; }
+  .card{ background:var(--surface); color:var(--text); border:1px solid var(--border); }
+  .table-wrap{ background:var(--surface); border-color:var(--border); }
+  .lines thead th{ background:var(--ink)!important; color:var(--parchment)!important; border-bottom-color:var(--ink)!important; }
+  tbody tr:nth-child(odd) td{ background:var(--surface-2); }
+  .tab-btn{ background:var(--ink); border:1px solid #0a0b0c; color:#F2E7D1; }
+  .tab-btn:hover{ filter:brightness(1.06); }
+  .primary{ background:var(--info); border-color:var(--info); color:#F2E7D1; }
+  .success{ background:var(--ok); border-color:var(--ok); color:#fff; }
+  #pdf{ background:var(--brand-red)!important; border:none; }
+  #pdf:hover{ filter:brightness(1.06); }
+  :where(button,[role="button"],a,input,select,textarea):focus-visible{ outline:2px solid transparent; box-shadow:0 0 0 3px rgba(177,58,51,.45); }
+  .print-area{ background:var(--surface); color:var(--text); border:1px solid var(--border); }
+  #wmFallback{ opacity:.10 } #wmImg{ opacity:.10; mix-blend-mode:multiply }
+  nav.bottom{ background:rgba(14,17,26,.90); backdrop-filter:saturate(160%) blur(8px); border-top:1px solid rgba(255,255,255,.06); }
+  .badge{ border:1px solid var(--border); background:var(--surface); color:var(--text); }
+  .badge.estimate{ background:#F3E2BF; color:#3B2B00; }
+  .badge.invoice{ background:#DCD3C0; color:#0E0F10; }
+  #sigPad{ touch-action:none; }
+  </style>
 
-/* Recent jobs dropdown */
-#recentJobsWrap{
-  border-radius:14px;
-  border:1px solid var(--border);
-  background:var(--surface);
-  padding:6px;
-}
-.recent-jobs-header{
-  width:100%;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  background:transparent;
-  border:none;
-  color:var(--text);
-  padding:6px 8px;
-  cursor:pointer;
-  font-size:.9rem;
-}
-.recent-jobs-header .chevron{
-  transition:transform .15s ease;
-}
-#recentJobsWrap.collapsed .recent-jobs-panel{
-  display:none;
-}
-#recentJobsWrap.collapsed .recent-jobs-header .chevron{
-  transform:rotate(-90deg);
-}
-.recent-jobs-panel{
-  margin-top:4px;
-}
-.recent-jobs-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(180px,1fr));
-  gap:6px;
-  margin-top:4px;
-}
-.recent-job-card{
-  border-radius:10px;
-  border:1px solid var(--border);
-  padding:6px 8px;
-  background:#fff;
-  cursor:pointer;
-  font-size:.8rem;
-  text-align:left;
-}
-.recent-job-card:hover{
-  filter:brightness(1.03);
-}
-.recent-job-title{
-  font-weight:600;
-}
-.recent-job-meta{
-  font-size:.75rem;
-  color:var(--muted);
-}
-</style>
+  <!-- LOTR aesthetic sugar -->
+  <style>
+  :root{ --display:"Cinzel", ui-serif, Georgia, "Times New Roman", serif; }
+  h1,h2,h3{ font-family:var(--display); letter-spacing:.02em; }
+  h2{ font-weight:700; text-transform:uppercase; }
+  body{
+    background:
+      radial-gradient(120% 70% at 50% -20%, rgba(255,255,255,.55) 0%, rgba(0,0,0,0) 65%),
+      linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,0)),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
+    background-color:var(--bg); background-attachment:fixed,fixed,fixed; background-blend-mode:multiply,normal,normal;
+  }
+  header{ position:sticky; top:0; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+  header::after{
+    content:""; position:absolute; left:0; right:0; bottom:-1px; height:6px;
+    background:repeating-linear-gradient(90deg,transparent 0 28px, var(--brand-red) 28px 44px,transparent 44px 72px);
+    opacity:.55; pointer-events:none;
+  }
+  main h2::before{ content:"★"; color:var(--brand-red); margin-right:.5rem; font-size:.9em; vertical-align:.02em; }
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,0)) , var(--surface);
+    border:1px solid var(--border);
+    box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 10px 24px rgba(0,0,0,.10);
+    border-radius:16px;
+  }
+  input,select,textarea{ background:#fff; border:1px solid var(--border); box-shadow:0 1px 0 rgba(0,0,0,.04) inset; }
+  :where(input,select,textarea)::placeholder{ color:#756b5c; }
+  :where(input,select,textarea):focus{ outline:0; border-color:rgba(177,58,51,.55); box-shadow:0 0 0 3px rgba(177,58,51,.20); }
+  .tab-btn{
+    border-radius:9999px; padding:10px 16px;
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.10)) , var(--ink);
+    color:#F2E7D1; border:1px solid #0a0b0c;
+    transition:transform .08s ease, box-shadow .2s ease, filter .15s ease;
+    box-shadow:0 2px 0 rgba(0,0,0,.25), 0 8px 18px rgba(0,0,0,.10);
+  }
+  .tab-btn:hover{ filter:brightness(1.06); }
+  .tab-btn:active{ transform:translateY(1px); box-shadow:0 1px 0 rgba(0,0,0,.3), 0 6px 14px rgba(0,0,0,.12); }
+  .primary{ background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.10)) , var(--info); border-color:var(--info); }
+  .success{ background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.08)) , var(--ok); border-color:var(--ok); }
+  #pdf{
+    background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.12)), var(--brand-red)!important;
+    border:none; color:#fff; font-weight:700; letter-spacing:.02em;
+  }
+  .table-wrap{ border-radius:16px; overflow:auto; -webkit-overflow-scrolling:touch; }
+  .lines thead th{ position:sticky; top:0; z-index:1; }
+  tbody tr:hover td{ background:#EAD9BC; }
+  .print-area{
+    background:linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,0)), var(--surface);
+    border:1px solid var(--border);
+  }
+  #wmFallback{ opacity:.08 } #wmImg{ opacity:.10; mix-blend-mode:multiply }
+  .badge{ text-transform:uppercase; letter-spacing:.04em; background:#F0E4CC; border:1px solid #BFAE91; color:#1A1A1A; }
+  .badge.invoice{ background:#E6DAC2 } .badge.estimate{ background:#F3E2BF; color:#3B2B00 }
+  nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(10px); }
+  .small{ color:#5f584d } tbody td, th{ border-bottom-color:rgba(0,0,0,.12) }
+
+  /* Recent jobs dropdown */
+  #recentJobsWrap{
+    border-radius:14px;
+    border:1px solid var(--border);
+    background:var(--surface);
+    padding:6px;
+  }
+  .recent-jobs-header{
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:transparent;
+    border:none;
+    color:var(--text);
+    padding:6px 8px;
+    cursor:pointer;
+    font-size:.9rem;
+  }
+  .recent-jobs-header .chevron{
+    transition:transform .15s ease;
+  }
+  #recentJobsWrap.collapsed .recent-jobs-panel{
+    display:none;
+  }
+  #recentJobsWrap.collapsed .recent-jobs-header .chevron{
+    transform:rotate(-90deg);
+  }
+  .recent-jobs-panel{
+    margin-top:4px;
+  }
+  .recent-jobs-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(180px,1fr));
+    gap:6px;
+    margin-top:4px;
+  }
+  .recent-job-card{
+    border-radius:10px;
+    border:1px solid var(--border);
+    padding:6px 8px;
+    background:#fff;
+    cursor:pointer;
+    font-size:.8rem;
+    text-align:left;
+  }
+  .recent-job-card:hover{
+    filter:brightness(1.03);
+  }
+  .recent-job-title{
+    font-weight:600;
+  }
+  .recent-job-meta{
+    font-size:.75rem;
+    color:var(--muted);
+  }
+  </style>
 </head>
 
 <body>
 <noscript>
-<div class="noscript-overlay"><div class="box">
-  <h2>JavaScript is disabled or blocked</h2>
-  <p>This app is 100% client-side. Please open the file in Chrome/Edge with JavaScript enabled.</p>
-  <ul><li>Download the file and open it so the address bar starts with <code>file:///</code></li><li>Disable blockers for this file</li></ul>
-</div></div>
+  <div class="noscript-overlay">
+    <div class="box">
+      <h2>JavaScript is disabled or blocked</h2>
+      <p>This app is 100% client-side. Please open the file in Chrome/Edge with JavaScript enabled.</p>
+      <ul>
+        <li>Download the file and open it so the address bar starts with <code>file:///</code></li>
+        <li>Disable blockers for this file</li>
+      </ul>
+    </div>
+  </div>
 </noscript>
 
 <div id="error" style="display:none">JavaScript error detected. Tap to reload.</div>
 
 <header>
-  <h1>Poppe’s Diesel Co. — Shop Manager <span class="tag">v1.2.1</span><span class="tag selftest" id="selftest">Self-test: …</span><span class="tag">COMPAT</span></h1>
+  <h1>
+    Poppe’s Diesel Co. — Shop Manager
+    <span class="tag">v1.2.1</span>
+    <span class="tag selftest" id="selftest">Self-test: …</span>
+    <span class="tag">COMPAT</span>
+  </h1>
   <nav class="top">
     <button class="tab-btn" data-tab="dashboard">Dashboard</button>
     <button class="tab-btn" data-tab="customers">Customers</button>
@@ -222,6 +276,7 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
 </header>
 
 <main>
+  <!-- Dashboard -->
   <section class="tab active" id="dashboard">
     <h2>Dashboard</h2>
     <div class="cards">
@@ -232,6 +287,7 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
     </div>
   </section>
 
+  <!-- Customers -->
   <section class="tab" id="customers">
     <h2>Customers</h2>
     <form class="grid" id="custForm">
@@ -242,10 +298,16 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
       <button class="primary" type="submit">Add Customer</button>
     </form>
     <div class="table-wrap">
-      <table id="custTable"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Vehicle</th><th></th></tr></thead><tbody></tbody></table>
+      <table id="custTable">
+        <thead>
+          <tr><th>Name</th><th>Phone</th><th>Email</th><th>Vehicle</th><th></th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
   </section>
 
+  <!-- Jobs -->
   <section class="tab" id="jobs">
     <h2>Jobs</h2>
     <form class="grid" id="jobForm">
@@ -263,23 +325,34 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
       <select id="jobStatus"><option>Open</option><option>In Progress</option><option>Done</option></select>
       <button class="primary" type="submit">Create Job</button>
     </form>
+
     <div class="card" id="internalNotesWrap">
       <h3>Internal Staff Notes (won’t print)</h3>
       <textarea id="internalNotes" placeholder="For in-house eyes only — diagnostic rabbit holes, supplier rants, etc."></textarea>
     </div>
+
     <div class="table-wrap">
       <table id="jobsTable">
-        <thead><tr><th>#</th><th>Customer</th><th>Title</th><th>Status</th><th>Total</th><th>Profit</th><th></th></tr></thead>
+        <thead>
+          <tr><th>#</th><th>Customer</th><th>Title</th><th>Status</th><th>Total</th><th>Profit</th><th></th></tr>
+        </thead>
         <tbody></tbody>
       </table>
     </div>
   </section>
 
+  <!-- Invoice -->
   <section class="tab" id="invoice">
     <h2>Estimate / Invoice<br/><small>Poppe’s Diesel Co. — Built in the Garage, Backed by Freedom</small></h2>
+
     <div class="grid" id="invFilters">
-      <label>Filter by Customer <select id="invCustFilter"><option value="">All customers</option></select></label>
-      <label>Search Jobs <input id="invJobSearch" placeholder="Type to filter jobs by customer/title…"/></label>
+      <label>Filter by Customer
+        <select id="invCustFilter"><option value="">All customers</option></select>
+      </label>
+      <label>Search Jobs
+        <input id="invJobSearch" placeholder="Type to filter jobs by customer/title…"/>
+      </label>
+
       <div id="recentJobsWrap" class="collapsed">
         <button type="button" class="recent-jobs-header" id="recentJobsToggle">
           <span>Recent Jobs (click to load)</span>
@@ -291,29 +364,41 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
         </div>
       </div>
     </div>
+
     <form class="grid" id="invForm">
       <select id="invJob" required=""></select>
       <input id="invNo" placeholder="Document # (e.g., 2025-001)">
-      <label>Type <select id="docType"><option>Estimate</option><option>Invoice</option></select></label>
-      <label>Labor Rate ($/hr) <input id="laborRate" step="0.01" type="number" value="80"/></label>
-      <label>Sales Tax (%) <input id="salesTax" step="0.01" type="number" value="7"/></label>
-      <label>Payment Link <input id="payLink" placeholder="https://pay.yourprovider.com/invoice/123"/></label>
-      <label>Email To <input id="emailTo" placeholder="customer@example.com"/></label>
+      <label>Type
+        <select id="docType"><option>Estimate</option><option>Invoice</option></select>
+      </label>
+      <label>Labor Rate ($/hr)
+        <input id="laborRate" step="0.01" type="number" value="80"/>
+      </label>
+      <label>Sales Tax (%)
+        <input id="salesTax" step="0.01" type="number" value="7"/>
+      </label>
+      <label>Payment Link
+        <input id="payLink" placeholder="https://pay.yourprovider.com/invoice/123"/>
+      </label>
+      <label>Email To
+        <input id="emailTo" placeholder="customer@example.com"/>
+      </label>
     </form>
+
     <div class="actions">
       <button class="tab-btn" id="addLabor" type="button">+ Labor Line</button>
       <button class="tab-btn" id="addPart" type="button">+ Part Line</button>
-      <!-- Maintenance Templates button removed -->
       <button class="tab-btn" id="applyMarkup" type="button">Apply Default Markup</button>
       <button class="tab-btn" id="quickEstimate" type="button">Quick Estimate</button>
       <button class="tab-btn" id="recalc" type="button">Recalculate</button>
-      <button class="tab-btn" id="markPaid" type="button">Mark Paid</button>
+      <button class="tab-btn success" id="markPaid" type="button">Mark Paid</button>
       <button class="tab-btn" id="approve" type="button">Approve Estimate</button>
       <button class="tab-btn" id="convert" type="button">Convert to Invoice</button>
       <button class="tab-btn" id="sign" type="button">Collect Signatures</button>
       <button class="tab-btn" id="email" type="button">Email</button>
       <button class="tab-btn primary" id="pdf" type="button">Generate PDF</button>
     </div>
+
     <div class="table-wrap" style="margin-top:10px">
       <table class="lines" id="lines">
         <thead>
@@ -333,6 +418,7 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
         <tbody></tbody>
       </table>
     </div>
+
     <div class="totals">
       <div>Subtotal: <span id="sub">$0.00</span></div>
       <div>Tax (Parts only): <span id="tax">$0.00</span></div>
@@ -341,18 +427,26 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
       <div><strong>Total Profit:</strong> <span id="profit">$0.00</span></div>
       <div>Margin: <span class="badge estimate" id="margin">0%</span></div>
     </div>
+
     <div class="card" id="overallNotesWrap" style="background:#fff;color:#000;border-color:#b6b09f">
       <h3 style="color:#0e111a">Technician Overall Notes</h3>
       <textarea id="overallNotes" placeholder="Explain diagnostics, verified checks, advisories."></textarea>
     </div>
+
     <div class="card" id="photosWrap" style="background:#fff;color:#000;border-color:#b6b09f">
       <h3 style="color:#0e111a">Work Photos</h3>
       <div class="actions">
-        <label style="display:inline-flex;align-items:center;gap:8px"><input accept="image/*" id="photoInput" multiple="" type="file"/>Add photos</label>
-        <label style="display:inline-flex;align-items:center;gap:8px"><input checked="" id="photosOnPdf" type="checkbox"/> Include photos on PDF</label>
+        <label style="display:inline-flex;align-items:center;gap:8px">
+          <input accept="image/*" id="photoInput" multiple="" type="file"/>Add photos
+        </label>
+        <label style="display:inline-flex;align-items:center;gap:8px">
+          <input checked="" id="photosOnPdf" type="checkbox"/> Include photos on PDF
+        </label>
       </div>
       <div aria-live="polite" class="photo-grid" id="photoGrid"></div>
     </div>
+
+    <!-- Print preview -->
     <div class="print-area" id="preview" style="margin-top:12px">
       <div class="watermark">
         <img alt="watermark" id="wmImg" style="display:none;max-width:90%;max-height:90%;opacity:.50;mix-blend-mode:multiply"/>
@@ -361,7 +455,12 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
         </svg>
       </div>
       <div class="invoice-header">
-        <div class="shop"><h3>Poppe’s Diesel Co.</h3><p>Columbus, IN</p><p>poppedieselco@gmail.com</p><p>(208) 243-7934</p></div>
+        <div class="shop">
+          <h3>Poppe’s Diesel Co.</h3>
+          <p>Columbus, IN</p>
+          <p>poppedieselco@gmail.com</p>
+          <p>(208) 243-7934</p>
+        </div>
         <div class="meta">
           <div><strong>Doc #</strong> <span id="pInvNo">—</span></div>
           <div><strong>Date</strong> <span id="pDate">—</span></div>
@@ -389,19 +488,45 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
         <div class="grand">Grand Total: <span id="pGrand">$0.00</span></div>
       </div>
       <div class="signatures" id="signatures">
-        <div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigCustomer" style="display:none"/></div><div class="sig-label">Customer Signature <span id="pSigCustomerName"></span> <span class="small" id="pSigCustomerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
-        <div class="sig-row"><div class="sig"><div class="sig-line"><img alt="" class="sig-img" id="pSigManager" style="display:none"/></div><div class="sig-label">Service Manager Signature <span id="pSigManagerName"></span> <span class="small" id="pSigManagerDate"></span></div></div><div class="sig"><div class="sig-line"></div><div class="sig-label">Date</div></div></div>
+        <div class="sig-row">
+          <div class="sig">
+            <div class="sig-line"><img alt="" class="sig-img" id="pSigCustomer" style="display:none"/></div>
+            <div class="sig-label">Customer Signature <span id="pSigCustomerName"></span> <span class="small" id="pSigCustomerDate"></span></div>
+          </div>
+          <div class="sig">
+            <div class="sig-line"></div>
+            <div class="sig-label">Date</div>
+          </div>
+        </div>
+        <div class="sig-row">
+          <div class="sig">
+            <div class="sig-line"><img alt="" class="sig-img" id="pSigManager" style="display:none"/></div>
+            <div class="sig-label">Service Manager Signature <span id="pSigManagerName"></span> <span class="small" id="pSigManagerDate"></span></div>
+          </div>
+          <div class="sig">
+            <div class="sig-line"></div>
+            <div class="sig-label">Date</div>
+          </div>
+        </div>
       </div>
       <div id="pPhotosBlock" style="margin-top:10px"></div>
     </div>
   </section>
 
+  <!-- Settings -->
   <section class="tab" id="settings">
     <h2>Settings</h2>
+
     <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
       <h3 style="color:#0e111a">Default Parts Markup</h3>
-      <div class="grid"><label>Default Markup % <input id="defaultMarkup" step="1" type="number" value="40"/></label><div class="small">Used by “Apply Default Markup”.</div></div>
+      <div class="grid">
+        <label>Default Markup %
+          <input id="defaultMarkup" step="1" type="number" value="40"/>
+        </label>
+        <div class="small">Used by “Apply Default Markup”.</div>
+      </div>
     </div>
+
     <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
       <h3 style="color:#0e111a">Email Presets</h3>
       <div class="grid">
@@ -412,14 +537,17 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
       </div>
       <div class="small">Tap Email to use these in a mailto draft.</div>
     </div>
+
     <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
       <h3 style="color:#0e111a">Branding (Watermark)</h3>
-      <div class="grid"><label>Upload Logo <input accept="image/*" id="wmFile" type="file"/></label></div>
+      <div class="grid">
+        <label>Upload Logo <input accept="image/*" id="wmFile" type="file"/></label>
+      </div>
       <div class="small">Upload your logo here once; it will print faintly behind the invoice/estimate.</div>
     </div>
 
     <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-      <h3 style="color:#0e111a">Backup & Restore</h3>
+      <h3 style="color:#0e111a">Backup &amp; Restore</h3>
       <div class="grid">
         <div class="actions">
           <button class="tab-btn" id="exportBtn" type="button">Export Data (JSON)</button>
@@ -429,12 +557,14 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
           <button class="tab-btn" id="importBtn" type="button">Import</button>
           <button class="tab-btn" id="fsChoose" type="button">Choose Save File (Flash Drive)</button>
           <button class="tab-btn" id="fsQuickSave" type="button" title="Save to the chosen file">Quick Save</button>
-
-          <!-- NEW: Supabase cloud sync -->
+          <!-- Cloud buttons -->
           <button class="tab-btn" id="cloudSaveBtn" type="button">Cloud Save (Supabase)</button>
           <button class="tab-btn" id="cloudLoadBtn" type="button">Cloud Load (Supabase)</button>
         </div>
-        <div class="small">Exports customers, jobs, settings, UI state, and your watermark so you can restore after site updates.</div>
+        <div class="small">
+          Exports customers, jobs, settings, UI state, and your watermark so you can restore after site updates.
+          Cloud Save / Load uses your Supabase project (backed up off your laptop).
+        </div>
       </div>
     </div>
   </section>
@@ -443,30 +573,55 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
 <button id="toTop" title="Back to top">↑ Top</button>
 
 <nav class="bottom" style="position:fixed;bottom:0;left:0;right:0;background:#0e111a;border-top:1px solid var(--border);display:flex;justify-content:space-between;padding:10px 10px;align-items:center;color:#fff">
-  <div><button class="tab-btn" data-tab="dashboard">🏠</button><button class="tab-btn" data-tab="customers">👤</button><button class="tab-btn" data-tab="jobs">🧰</button><button class="tab-btn" data-tab="invoice">🧾</button><button class="tab-btn" data-tab="settings">⚙️</button></div>
+  <div>
+    <button class="tab-btn" data-tab="dashboard">🏠</button>
+    <button class="tab-btn" data-tab="customers">👤</button>
+    <button class="tab-btn" data-tab="jobs">🧰</button>
+    <button class="tab-btn" data-tab="invoice">🧾</button>
+    <button class="tab-btn" data-tab="settings">⚙️</button>
+  </div>
   <button id="debugToggle" title="Debug">🪲</button>
 </nav>
 
-<div id="debug"><div class="meta" id="debugMeta"></div><pre id="debugLog"></pre></div>
+<div id="debug">
+  <div class="meta" id="debugMeta"></div>
+  <pre id="debugLog"></pre>
+</div>
 
 <!-- Signature Modal -->
 <div class="modal" id="sigModal" style="display:none">
   <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
-    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 id="sigTitle" style="color:#0e111a;margin:0">Collect Signature</h3><button class="tab-btn" id="sigClose">Close</button></header>
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h3 id="sigTitle" style="color:#0e111a;margin:0">Collect Signature</h3>
+      <button class="tab-btn" id="sigClose">Close</button>
+    </header>
     <div class="grid">
       <label>Signer Name <input id="sigName" placeholder="Printed name"/></label>
       <label>Date <input id="sigDate" type="date"/></label>
-      <label>Role <select id="sigRole"><option value="customer">Customer</option><option value="manager">Service Manager</option></select></label>
+      <label>Role
+        <select id="sigRole">
+          <option value="customer">Customer</option>
+          <option value="manager">Service Manager</option>
+        </select>
+      </label>
     </div>
-    <div style="margin-top:8px"><canvas height="220" id="sigPad" style="width:100%;background:#fff;border:1px dashed #b6b09f;border-radius:8px" width="640"></canvas></div>
-    <div class="actions" style="margin-top:8px"><button class="tab-btn" id="sigClear">Clear</button><button class="tab-btn primary" id="sigSave">Save Signature</button></div>
+    <div style="margin-top:8px">
+      <canvas height="220" id="sigPad" style="width:100%;background:#fff;border:1px dashed #b6b09f;border-radius:8px" width="640"></canvas>
+    </div>
+    <div class="actions" style="margin-top:8px">
+      <button class="tab-btn" id="sigClear">Clear</button>
+      <button class="tab-btn primary" id="sigSave">Save Signature</button>
+    </div>
   </div>
 </div>
 
 <!-- Quick Estimate Modal -->
 <div class="modal" id="qeModal" style="display:none">
   <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
-    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="color:#0e111a;margin:0">Quick Estimate Builder</h3><button class="tab-btn" id="qeClose">Close</button></header>
+    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <h3 style="color:#0e111a;margin:0">Quick Estimate Builder</h3>
+      <button class="tab-btn" id="qeClose">Close</button>
+    </header>
     <div class="grid">
       <label>Title/Concern <input id="qeTitle" placeholder="e.g., Front brakes: pads+rotors"/></label>
       <label>Parts Cost ($) <input id="qePartsCost" step="0.01" type="number" value="0"/></label>
@@ -474,12 +629,15 @@ nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(1
       <label>Labor Hours <input id="qeHours" step="0.1" type="number" value="1.5"/></label>
       <div class="small">Uses current labor rate &amp; tax.</div>
     </div>
-    <div class="actions"><button class="tab-btn" id="qeApplyAppend">Append Lines</button><button class="tab-btn danger" id="qeApplyReplace" style="background:#962b2b">Replace Lines</button></div>
+    <div class="actions">
+      <button class="tab-btn" id="qeApplyAppend">Append Lines</button>
+      <button class="tab-btn danger" id="qeApplyReplace" style="background:#962b2b">Replace Lines</button>
+    </div>
   </div>
 </div>
 
 <script>
-// --- Supabase cloud sync config ---
+/* ---------------- Supabase Cloud Config ---------------- */
 var SUPABASE_URL = 'https://hhbrbkyfryjidworupvf.supabase.co';
 var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoYnJia3lmcnlqaWR3b3J1cHZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0MzI3NTEsImV4cCI6MjA3OTAwODc1MX0.NCU-_2RlP8-5w5_x0g10Q5HrFgPW9hyfyN7D87s_BWw';
 
@@ -488,7 +646,7 @@ var SHOP_STATE_ID = 'main';
 
 if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
   try {
-    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     console.log('Supabase client initialized');
   } catch (e) {
     console.error('Failed to init Supabase', e);
@@ -497,89 +655,12 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
   console.warn('Supabase not configured (no URL/key or script not loaded).');
 }
 
-// --- Global cloud helper: build snapshot ---
-async function buildBackupPayload(DB, UI) {
-  var payload = {
-    _note: 'Poppe’s Diesel Co. Shop Manager backup',
-    version: 'v1.2.1',
-    exportedAt: new Date().toISOString(),
-    db: DB,
-    ui: UI,
-    wm: null
-  };
-  try {
-    payload.wm = localStorage.getItem('pdc_wm_dataurl') || null;
-  } catch (_) {}
-  return payload;
-}
-
-// --- Global cloud save (no direct UI calls) ---
-async function cloudSave(DB, UI) {
-  if (!supabaseClient) {
-    alert('Supabase is not configured in this file.');
-    return;
-  }
-  try {
-    var payload = await buildBackupPayload(DB, UI);
-    var result = await supabaseClient
-      .from('shop_state')
-      .upsert({
-        id: SHOP_STATE_ID,
-        data: payload,
-        updated_at: new Date().toISOString()
-      });
-
-    if (result.error) {
-      console.error('cloudSave error', result.error);
-      alert('Cloud save failed: ' + result.error.message);
-      return;
-    }
-    alert('Cloud save complete.');
-  } catch (e) {
-    console.error('cloudSave threw', e);
-    alert('Cloud save crashed: ' + (e.message || e));
-  }
-}
-
-// --- Global cloud load: just returns snapshot ---
-async function cloudLoadRaw() {
-  if (!supabaseClient) {
-    alert('Supabase is not configured in this file.');
-    return null;
-  }
-  try {
-    var result = await supabaseClient
-      .from('shop_state')
-      .select('data')
-      .eq('id', SHOP_STATE_ID)
-      .single();
-
-    if (result.error) {
-      console.error('cloudLoad error', result.error);
-      alert('Cloud load failed: ' + result.error.message);
-      return null;
-    }
-
-    if (!result.data || !result.data.data) {
-      alert('No cloud snapshot found yet.');
-      return null;
-    }
-
-    return result.data.data;
-  } catch (e) {
-    console.error('cloudLoad threw', e);
-    alert('Cloud load crashed: ' + (e.message || e));
-    return null;
-  }
-}
-
-/* --- Minimal ES5 helpers + diagnostics --- */
-var __JS_STARTED = true;
+/* -------------- Minimal debug harness -------------- */
 (function(){
   var logEl = document.getElementById('debugLog');
   var metaEl = document.getElementById('debugMeta');
   var buf = [];
-  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\n'); } }
+  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\\n'); } }
   window.AppLog = {
     info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
     warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
@@ -601,6 +682,7 @@ function guard(name, fn){
   try { fn(); AppLog.info(name + ' ✅'); }
   catch(e){ AppLog.error(name + ' ❌', e); }
 }
+
 if (!window.crypto) window.crypto = {};
 if (!window.crypto.randomUUID){
   window.crypto.randomUUID = function(){ return 'id-' + Math.random().toString(16).slice(2) + '-' + Date.now(); };
@@ -612,15 +694,52 @@ if (!window.crypto.randomUUID){
   var imgEl = document.getElementById('wmImg');
   var fallback = document.getElementById('wmFallback');
   function setWM(src){ if(!imgEl) return; imgEl.src = src; imgEl.style.display = 'block'; if(fallback) fallback.style.display = 'none'; }
-  try { var cached = localStorage.getItem(KEY); if(cached){ setWM(cached); } } catch(_){}
+  try {
+    var cached = localStorage.getItem(KEY);
+    if(cached){ setWM(cached); }
+  } catch(_){}
   var up = document.getElementById('wmFile');
-  function readAsDataURL(file, cb, eb){ var r = new FileReader(); r.onload=function(){cb(r.result)}; r.onerror=function(){ if(eb) eb(r.error) }; r.readAsDataURL(file); }
-  if(up) up.addEventListener('change', function(){ var f = up.files && up.files[0]; if(!f) return; readAsDataURL(f, function(data){ try{ localStorage.setItem(KEY, data); }catch(_){ } setWM(data); alert('Watermark updated.'); up.value=''; }); });
+  function readAsDataURL(file, cb, eb){
+    var r = new FileReader();
+    r.onload=function(){cb(r.result)};
+    r.onerror=function(){ if(eb) eb(r.error); };
+    r.readAsDataURL(file);
+  }
+  if(up) up.addEventListener('change', function(){
+    var f = up.files && up.files[0];
+    if(!f) return;
+    readAsDataURL(f, function(data){
+      try{ localStorage.setItem(KEY, data); }catch(_){}
+      setWM(data);
+      alert('Watermark updated.');
+      up.value='';
+    });
+  });
 })();
 
+/* -------------- App init -------------- */
 window.addEventListener('load', function(){
   guard('init', function(){
+
     var STORAGE_KEY = 'poppe_shop_db_v112';
+
+    function loadDB(){
+      try {
+        var s = localStorage.getItem(STORAGE_KEY);
+        return s ? JSON.parse(s) : null;
+      } catch(e){
+        AppLog.error('localStorage load failed', e);
+        return null;
+      }
+    }
+
+    function saveDB(){
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+      } catch(e){
+        AppLog.error('localStorage save failed', e);
+      }
+    }
 
     function defaultDB(){
       return {
@@ -661,20 +780,18 @@ window.addEventListener('load', function(){
       ];
     }
 
-    function saveDB(){
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }
-      catch(e){ AppLog.error('localStorage save failed', e); }
-    }
+    var DB = loadDB() || defaultDB();
 
-    function loadDB(){
-      try {
-        var s = localStorage.getItem(STORAGE_KEY);
-        return s ? JSON.parse(s) : null;
-      } catch(e){
-        AppLog.error('localStorage load failed', e);
-        return null;
-      }
+    var UIKEY = 'pdc_ui_state';
+    function loadUI(){
+      try { return JSON.parse(localStorage.getItem(UIKEY)||'{}'); }
+      catch(_){ return {}; }
     }
+    function saveUI(u){
+      try { localStorage.setItem(UIKEY, JSON.stringify(u)); }
+      catch(_){}
+    }
+    var UI = loadUI();
 
     function upgradeDB(){
       var i, j, l;
@@ -685,80 +802,77 @@ window.addEventListener('load', function(){
         if(typeof j.internalNotes==='undefined') j.internalNotes='';
         if(!j.photos) j.photos=[];
         if(!j.signatures) j.signatures={customer:null, manager:null};
+        if(!j.docType) j.docType='Estimate';
+        if(typeof j.paid==='undefined') j.paid=false;
         if(!j.lines) j.lines=[];
-        for(l=0;l<j.lines.length;l++){
+        for(l=0;l<(j.lines||[]).length;l++){
           if(typeof j.lines[l].note==='undefined') j.lines[l].note='';
           if(typeof j.lines[l].list==='undefined') j.lines[l].list=0;
           if(typeof j.lines[l].cost==='undefined') j.lines[l].cost=0;
           if(typeof j.lines[l].unit==='undefined') j.lines[l].unit=0;
         }
       }
-      if(!DB.settings) DB.settings={};
-      if(typeof DB.settings.defaultMarkup==='undefined') DB.settings.defaultMarkup=40;
-      if(typeof DB.settings.shopFrom==='undefined') DB.settings.shopFrom='Poppe’s Diesel Co.';
-      if(typeof DB.settings.shopReply==='undefined') DB.settings.shopReply='poppedieselco@gmail.com';
-      if(typeof DB.settings.shopSubj==='undefined') DB.settings.shopSubj='[Poppe’s Diesel Co.] ';
-      if(typeof DB.settings.shopFooter==='undefined') DB.settings.shopFooter='Thank you for supporting local.';
+      if(!DB.settings) DB.settings = defaultDB().settings;
       saveDB();
     }
 
-    var DB = loadDB() || defaultDB();
-
-    var UIKEY = 'pdc_ui_state';
-    function loadUI(){ try{ return JSON.parse(localStorage.getItem(UIKEY)||'{}'); }catch(_){ return {}; } }
-    function saveUI(u){ try{ localStorage.setItem(UIKEY, JSON.stringify(u)); }catch(_ ){} }
-    var UI = loadUI();
-
+    /* ------ Global helpers ------ */
     function $(sel, root){ return (root||document).querySelector(sel); }
     function $all(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
     function fmt(n){ return "$"+Number(n||0).toFixed(2); }
     function matchesAllTokens(hay, q){
-      var tokens = (q||'').replace(/\s+/g,' ').toLowerCase().split(' ');
+      var tokens = (q||'').replace(/\\s+/g,' ').toLowerCase().split(' ');
       var text = String(hay||'').toLowerCase();
       for(var i=0;i<tokens.length;i++){ if(tokens[i] && text.indexOf(tokens[i])===-1) return false; }
       return true;
     }
 
-    function renderDashboard(){
-      var now = new Date();
-      var month = now.getMonth();
-      var year = now.getFullYear();
-      var openJobs = 0, unpaid = 0, revMonth = 0, profitMonth = 0;
-      (DB.jobs||[]).forEach(function(j){
-        if(j.status!=='Done') openJobs++;
-        var subtotal = sumLines(j.lines||[], 'subtotal');
-        var profit = sumLines(j.lines||[], 'profit');
+    /* ------ Backup payload (used by export, FS, Supabase) ------ */
+    function buildBackupPayload(){
+      var payload = {
+        _note: 'Poppe’s Diesel Co. Shop Manager backup',
+        version: 'v1.2.1',
+        exportedAt: new Date().toISOString(),
+        db: DB,
+        ui: UI,
+        wm: null
+      };
+      try {
+        payload.wm = localStorage.getItem('pdc_wm_dataurl') || null;
+      } catch(_){}
+      return payload;
+    }
 
-        var created = j.createdAt ? new Date(j.createdAt) : null;
-        if(created && created.getMonth()===month && created.getFullYear()===year){
+    /* ------ Render helpers ------ */
+    function renderDashboard(){
+      var openJobs = 0, unpaid = 0, revMonth = 0, profitMonth = 0;
+      var now = new Date();
+      var ym = now.getFullYear() + '-' + (now.getMonth()+1);
+      for(var i=0;i<DB.jobs.length;i++){
+        var j = DB.jobs[i];
+        if(j.status==='Open') openJobs++;
+        if(j.docType==='Invoice' && !j.paid) unpaid++;
+        var subtotal = sumLines(j.lines, 'subtotal');
+        var profit = sumLines(j.lines, 'profit');
+        var d = j.createdAt ? new Date(j.createdAt) : now;
+        var key = d.getFullYear() + '-' + (d.getMonth()+1);
+        if(key===ym){
           revMonth += subtotal;
           profitMonth += profit;
         }
-        if(j.docType==='Invoice' && !j.paid){
-          unpaid += subtotal;
-        }
-      });
+      }
       $('#openJobs').textContent = openJobs;
-      $('#unpaid').textContent = fmt(unpaid);
+      $('#unpaid').textContent = unpaid;
       $('#revMonth').textContent = fmt(revMonth);
       $('#profitMonth').textContent = fmt(profitMonth);
     }
 
     function renderSettings(){
-      $('#defaultMarkup').value = DB.settings.defaultMarkup||40;
-      $('#shopFrom').value = DB.settings.shopFrom||'Poppe’s Diesel Co.';
-      $('#shopReply').value = DB.settings.shopReply||'poppedieselco@gmail.com';
-      $('#shopSubj').value = DB.settings.shopSubj||'[Poppe’s Diesel Co.] ';
-      $('#shopFooter').value = DB.settings.shopFooter||'Thank you for supporting local.';
-
-      $('#defaultMarkup').addEventListener('input', function(){
-        DB.settings.defaultMarkup = Number(this.value||40);
-        saveDB();
-      });
-      $('#shopFrom').addEventListener('input', function(){ DB.settings.shopFrom=this.value; saveDB(); });
-      $('#shopReply').addEventListener('input', function(){ DB.settings.shopReply=this.value; saveDB(); });
-      $('#shopSubj').addEventListener('input', function(){ DB.settings.shopSubj=this.value; saveDB(); });
-      $('#shopFooter').addEventListener('input', function(){ DB.settings.shopFooter=this.value; saveDB(); });
+      $('#defaultMarkup').value = DB.settings.defaultMarkup != null ? DB.settings.defaultMarkup : 40;
+      $('#shopFrom').value   = DB.settings.shopFrom   || '';
+      $('#shopReply').value  = DB.settings.shopReply  || '';
+      $('#shopSubj').value   = DB.settings.shopSubj   || '';
+      $('#shopFooter').value = DB.settings.shopFooter || '';
     }
 
     function renderAll(){
@@ -770,14 +884,15 @@ window.addEventListener('load', function(){
       saveDB();
     }
 
-    // Tabs
+    /* ------ Tabs (and save lines when switching) ------ */
     $all('.tab-btn[data-tab]').forEach(function(b){
       b.addEventListener('click', function(){
         try{ persistLines(); }catch(_){}
         var id = b.getAttribute('data-tab');
         $all('.tab').forEach(function(t){ t.classList.remove('active'); });
         document.getElementById(id).classList.add('active');
-        UI.activeTab = id; saveUI(UI);
+        UI.activeTab = id;
+        saveUI(UI);
         try{ window.scrollTo(0,0); }catch(_){}
       });
     });
@@ -786,7 +901,7 @@ window.addEventListener('load', function(){
       document.getElementById(UI.activeTab).classList.add('active');
     }
 
-    /* Customers */
+    /* ------ Customers ------ */
     $('#custForm').addEventListener('submit', function(e){
       e.preventDefault();
       var c = {
@@ -808,7 +923,12 @@ window.addEventListener('load', function(){
       var tb = $('#custTable tbody'); tb.innerHTML='';
       DB.customers.forEach(function(c){
         var tr = document.createElement('tr');
-        tr.innerHTML = '<td>'+c.name+'</td><td>'+(c.phone||'')+'</td><td>'+(c.email||'')+'</td><td>'+(c.vehicle||'')+'</td><td><button class="tab-btn" data-delc="'+c.id+'">Delete</button></td>';
+        tr.innerHTML =
+          '<td>'+c.name+'</td>'+
+          '<td>'+(c.phone||'')+'</td>'+
+          '<td>'+(c.email||'')+'</td>'+
+          '<td>'+(c.vehicle||'')+'</td>'+
+          '<td><button class="tab-btn" data-delc="'+c.id+'">Delete</button></td>';
         tb.appendChild(tr);
       });
       $all('button[data-delc]').forEach(function(btn){
@@ -822,13 +942,23 @@ window.addEventListener('load', function(){
       });
     }
 
-    /* Jobs */
+    /* ------ Jobs ------ */
+    function findCustomer(id){
+      var i;
+      for(i=0;i<DB.customers.length;i++){
+        if(DB.customers[i].id===id) return DB.customers[i];
+      }
+      return null;
+    }
+
     function renderJobCustomer(){
       var sel = $('#jobCustomer');
       var opts = ['<option value="">Select...</option>'];
       DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+c.name+'</option>'); });
       sel.innerHTML = opts.join('');
-      renderInvFilters(); renderInvJobOptions(); renderRecentJobs();
+      renderInvFilters();
+      renderInvJobOptions();
+      renderRecentJobs();
     }
 
     $('#jobForm').addEventListener('submit', function(e){
@@ -853,21 +983,35 @@ window.addEventListener('load', function(){
         createdAt:new Date().toISOString()
       };
       if(!j.customerId || !j.title) return;
-      DB.jobs.push(j); renderJobs(); renderJobCustomer();
-      document.getElementById('jobForm').reset(); $('#vinResult').style.display='none'; $('#vinSuggest').style.display='none'; saveDB();
+      DB.jobs.push(j);
+      renderJobs();
+      renderJobCustomer();
+      document.getElementById('jobForm').reset();
+      $('#vinResult').style.display='none';
+      $('#vinSuggest').style.display='none';
+      saveDB();
       if(DB.jobs.length===1){
         $('#invJob').value = j.id;
         loadInvoice(j.id);
-        UI.lastJobId=j.id; saveUI(UI);
+        UI.lastJobId = j.id;
+        saveUI(UI);
       }
     });
 
     // VIN decode
     $('#decodeVIN').addEventListener('click', function(){
       var vin = $('#jobVIN').value.trim();
-      var box = $('#vinResult'); var sug = $('#vinSuggest'); var tags = $('#vinTags');
-      box.style.display='block'; box.textContent = 'Decoding…'; sug.style.display='none'; tags.innerHTML='';
-      if(!vin || vin.length<11){ box.textContent='Enter a valid VIN (17 preferred).'; return; }
+      var box = $('#vinResult');
+      var sug = $('#vinSuggest');
+      var tags = $('#vinTags');
+      box.style.display='block';
+      box.textContent = 'Decoding…';
+      sug.style.display='none';
+      tags.innerHTML='';
+      if(!vin || vin.length<11){
+        box.textContent='Enter a valid VIN (17 preferred).';
+        return;
+      }
       var xhr = new XMLHttpRequest();
       xhr.open('GET', 'https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/'+encodeURIComponent(vin)+'?format=json', true);
       xhr.onreadystatechange = function(){
@@ -876,7 +1020,10 @@ window.addEventListener('load', function(){
             try{
               var data = JSON.parse(xhr.responseText||'{}');
               var map={}, i, r;
-              for(i=0;i<(data.Results||[]).length;i++){ r=data.Results[i]; if(r.Variable && r.Value) map[r.Variable]=r.Value; }
+              for(i=0;i<(data.Results||[]).length;i++){
+                r=data.Results[i];
+                if(r.Variable && r.Value) map[r.Variable]=r.Value;
+              }
               var summary = (map['Model Year']||'-')+' '+(map['Make']||'-')+' '+(map['Model']||'-');
               box.innerHTML = '<strong>'+summary+'</strong>';
               var platformText = (summary+' '+(map['Engine Model']||'')+' '+(map['Engine Manufacturer']||'')).toLowerCase();
@@ -889,14 +1036,24 @@ window.addEventListener('load', function(){
               if(!matched.length) matched = DB.templates.slice(0);
               tags.innerHTML='';
               matched.forEach(function(tpl){
-                var b=document.createElement('button'); b.className='tab-btn'; b.type='button'; b.textContent=tpl.platform;
+                var b=document.createElement('button');
+                b.className='tab-btn';
+                b.type='button';
+                b.textContent=tpl.platform;
                 b.addEventListener('click', function(){ applyTemplate(tpl); });
                 tags.appendChild(b);
               });
-              document.getElementById('addAllSuggest').onclick = function(){ for(var k=0;k<matched.length;k++){ applyTemplate(matched[k]); } };
-              sug.style.display='block'; saveDB();
-            }catch(e){ box.textContent='VIN parse failed.'; }
-          } else { box.textContent='VIN decode failed.'; }
+              document.getElementById('addAllSuggest').onclick = function(){
+                for(var k=0;k<matched.length;k++){ applyTemplate(matched[k]); }
+              };
+              sug.style.display='block';
+              saveDB();
+            }catch(e){
+              box.textContent='VIN parse failed.';
+            }
+          } else {
+            box.textContent='VIN decode failed.';
+          }
         }
       };
       xhr.send(null);
@@ -911,7 +1068,9 @@ window.addEventListener('load', function(){
           addLine('Labor', it.desc || '', it.qty || 1, 0, 0, Number($('#laborRate').value || 80), '');
         } else {
           var cost = Number(it.cost || 0);
-          var mu = typeof it.markup === 'number' ? (it.markup/100) : (Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100);
+          var mu = typeof it.markup === 'number'
+            ? (it.markup/100)
+            : (Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100);
           var unit = cost * (1+mu);
           var desc = it.desc || '';
           if(it.vendor || it.part){
@@ -923,18 +1082,32 @@ window.addEventListener('load', function(){
       persistLines();
     }
 
+    function sumLines(lines, mode){
+      var subtotal=0, profit=0, i, l;
+      for(i=0;i<(lines||[]).length;i++){
+        l = lines[i];
+        var line = Number(l.qty||0)*Number(l.unit||0);
+        subtotal += line;
+        profit   += Number(l.qty||0)*(Number(l.unit||0) - Number(l.cost||0));
+      }
+      return mode==='profit'?profit:subtotal;
+    }
+
     function renderJobs(){
       var tb = $('#jobsTable tbody'); tb.innerHTML='';
       DB.jobs.forEach(function(j){
         var c = findCustomer(j.customerId);
         var subtotal = sumLines(j.lines, 'subtotal');
-        var profit = sumLines(j.lines, 'profit');
+        var profit   = sumLines(j.lines, 'profit');
         var badge = j.status==='Open' ? 'badge-open' : (j.status==='In Progress'?'badge-ip':'badge-done');
         var tr = document.createElement('tr');
         tr.innerHTML =
-          '<td>'+j.id.slice(0,8)+'</td><td>'+(c?c.name:'—')+'</td><td>'+j.title+'</td>' +
-          '<td><span class="badge '+badge+'">'+j.status+'</span></td>' +
-          '<td>'+fmt(subtotal)+'</td><td>'+fmt(profit)+'</td>' +
+          '<td>'+j.id.slice(0,8)+'</td>'+
+          '<td>'+(c?c.name:'—')+'</td>'+
+          '<td>'+j.title+'</td>'+
+          '<td><span class="badge '+badge+'">'+j.status+'</span></td>'+
+          '<td>'+fmt(subtotal)+'</td>'+
+          '<td>'+fmt(profit)+'</td>'+
           '<td><button class="tab-btn" data-open="'+j.id+'">Open</button></td>';
         tb.appendChild(tr);
       });
@@ -943,17 +1116,21 @@ window.addEventListener('load', function(){
           try{ persistLines(); }catch(_){}
           var id = b.getAttribute('data-open');
           document.querySelector('[data-tab="invoice"]').click();
-          $('#invJob').value = id; loadInvoice(id); UI.lastJobId=id; saveUI(UI);
+          $('#invJob').value = id;
+          loadInvoice(id);
+          UI.lastJobId=id;
+          saveUI(UI);
         });
       });
     }
 
     $('#internalNotes').addEventListener('input', function(){
       var j = currentJob(); if(!j) return;
-      j.internalNotes = this.value; saveDB();
+      j.internalNotes = this.value;
+      saveDB();
     });
 
-    /* Filters + job picker */
+    /* ------ Invoice filters & selectors ------ */
     function renderInvFilters(){
       var sel = $('#invCustFilter');
       var opts = ['<option value="">All customers</option>'];
@@ -965,7 +1142,6 @@ window.addEventListener('load', function(){
       var invSel = $('#invJob');
       var cid = $('#invCustFilter').value || '';
       var q = ($('#invJobSearch').value || '').trim().toLowerCase();
-
       var jobs = DB.jobs.filter(function(j){
         if(cid && j.customerId!==cid) return false;
         if(!q) return true;
@@ -973,7 +1149,6 @@ window.addEventListener('load', function(){
         var fields = [(cust?cust.name:''), (j.title||''), (j.vin||''), (j.notes||''), (j.overallNotes||'')].join(' | ');
         return matchesAllTokens(fields, q);
       });
-
       var opts = ['<option value="">Select job…</option>'];
       jobs.forEach(function(j){
         var c = findCustomer(j.customerId);
@@ -1004,7 +1179,8 @@ window.addEventListener('load', function(){
           try{ persistLines(); }catch(_){}
           $('#invJob').value = j.id;
           loadInvoice(j.id);
-          UI.lastJobId=j.id; saveUI(UI);
+          UI.lastJobId=j.id;
+          saveUI(UI);
           var wrap = $('#recentJobsWrap');
           if(wrap){ wrap.classList.add('collapsed'); }
         });
@@ -1017,31 +1193,43 @@ window.addEventListener('load', function(){
       var cur = $('#invJob').value;
       renderInvJobOptions();
       if(!$('#invJob').querySelector('option[value="'+cur+'"]')){
-        $('#invJob').value=''; $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals();
+        $('#invJob').value='';
+        $('#lines tbody').innerHTML='';
+        updatePreview();
+        recalcTotals();
       }
     });
     $('#invJobSearch').addEventListener('input', renderInvJobOptions);
     $('#invJob').addEventListener('change', function(){
       try{ persistLines(); }catch(_){}
       var id = this.value;
-      if(!id){ $('#lines tbody').innerHTML=''; updatePreview(); recalcTotals(); return; }
-      loadInvoice(id); UI.lastJobId=id; saveUI(UI);
+      if(!id){
+        $('#lines tbody').innerHTML='';
+        updatePreview();
+        recalcTotals();
+        return;
+      }
+      loadInvoice(id);
+      UI.lastJobId=id;
+      saveUI(UI);
     });
 
-    /* Invoice core */
+    /* ------ Invoice core ------ */
     function ensureJobSelected(createIfMissing){
       var j = currentJob();
       if(!j && createIfMissing){
         var cust = DB.customers[0];
         if(!cust){
           cust={id:crypto.randomUUID(), name:'Walk-in Customer', phone:'', email:'', vehicle:''};
-          DB.customers.push(cust); renderCustomers();
+          DB.customers.push(cust);
+          renderCustomers();
         }
         j={
           id:crypto.randomUUID(),
           customerId:cust.id,
           title:'Quick Estimate',
-          vin:'', notes:'',
+          vin:'',
+          notes:'',
           status:'Open',
           lines:[],
           paid:false, paidAt:null,
@@ -1055,26 +1243,30 @@ window.addEventListener('load', function(){
           signatures:{customer:null, manager:null},
           createdAt:new Date().toISOString()
         };
-        DB.jobs.push(j); saveDB(); renderJobs(); renderJobCustomer();
-        $('#invJob').value=j.id; UI.lastJobId=j.id; saveUI(UI);
+        DB.jobs.push(j);
+        saveDB();
+        renderJobs();
+        renderJobCustomer();
+        $('#invJob').value=j.id;
+        UI.lastJobId=j.id;
+        saveUI(UI);
       }
       if(!j) alert('Pick a job in the "Select job…" dropdown first.');
       return j;
     }
 
     function currentJob(){
-      var id = $('#invJob').value; var i;
-      for(i=0;i<DB.jobs.length;i++){ if(DB.jobs[i].id===id) return DB.jobs[i]; }
-      return null;
-    }
-
-    function findCustomer(id){
-      var i; for(i=0;i<DB.customers.length;i++){ if(DB.customers[i].id===id) return DB.customers[i]; }
+      var id = $('#invJob').value;
+      var i;
+      for(i=0;i<DB.jobs.length;i++){
+        if(DB.jobs[i].id===id) return DB.jobs[i];
+      }
       return null;
     }
 
     function loadInvoice(id){
-      var j = currentJob(); if(!j) j = DB.jobs.filter(function(x){ return x.id===id; })[0];
+      var j = currentJob();
+      if(!j) j = DB.jobs.filter(function(x){ return x.id===id; })[0];
       if(!j) return;
 
       $('#laborRate').value = (j.laborRate != null) ? j.laborRate : 80;
@@ -1082,20 +1274,27 @@ window.addEventListener('load', function(){
 
       $('#lines tbody').innerHTML='';
       for(var i=0;i<(j.lines||[]).length;i++){
-        var l=j.lines[i]; addLine(l.type,l.desc,l.qty,l.list,l.cost,l.unit,l.note);
+        var l=j.lines[i];
+        addLine(l.type,l.desc,l.qty,l.list,l.cost,l.unit,l.note);
       }
-      $('#invNo').value = j.invNo||''; $('#docType').value = j.docType||'Estimate'; $('#payLink').value = j.paymentLink||'';
+      $('#invNo').value = j.invNo||'';
+      $('#docType').value = j.docType||'Estimate';
+      $('#payLink').value = j.paymentLink||'';
       var c = findCustomer(j.customerId);
-      $('#emailTo').value = (j.emailTo && j.emailTo.trim()) ? j.emailTo : ((c && c.email) ? c.email : '');
+      $('#emailTo').value = (j.emailTo && j.emailTo.trim())
+        ? j.emailTo
+        : ((c && c.email) ? c.email : '');
       $('#overallNotes').value = j.overallNotes||'';
       $('#internalNotes').value = j.internalNotes||'';
       renderPhotoGrid();
       $('#photosOnPdf').checked = j.photosOnPdf!==false;
-      updatePreview(); recalcTotals();
+      updatePreview();
+      recalcTotals();
     }
 
     function makeRowDraggable(tr){
-      var handle = tr.querySelector('.handle'); if(!handle) return;
+      var handle = tr.querySelector('.handle');
+      if(!handle) return;
       handle.addEventListener('mousedown', function(ev){
         ev.preventDefault();
         var startY = ev.clientY;
@@ -1112,7 +1311,8 @@ window.addEventListener('load', function(){
           for(i=0;i<siblings.length;i++){ siblings[i].classList.toggle('drop-target', siblings[i]===insertBefore); }
         }
         function onUp(e){
-          tr.classList.remove('dragging'); tr.style.transform='';
+          tr.classList.remove('dragging');
+          tr.style.transform='';
           $all('#lines tbody tr').forEach(function(s){ s.classList.remove('drop-target'); });
           document.removeEventListener('mousemove', onMove);
           document.removeEventListener('mouseup', onUp);
@@ -1133,10 +1333,11 @@ window.addEventListener('load', function(){
     function addLine(type, desc, qty, list, cost, unit, note){
       var tr = document.createElement('tr');
       var descPH = type==='Labor' ? "e.g., Diagnostics / R&R" : "e.g., Fuel Filter (FF63009) — Fleetguard";
-      var qtyPH  = type==='Labor' ? "hrs (e.g., 1.5)" : "qty (e.g., 1)";
-      var listPH = type==='Labor' ? "optional list/MSRP" : "store list MSRP";
-      var costPH = type==='Labor' ? "shop cost (optional)" : "your cost (e.g., 32.00)";
+      var qtyPH  = type==='Labor' ? "hrs (e.g., 1.5)"       : "qty (e.g., 1)";
+      var listPH = type==='Labor' ? "optional list/MSRP"    : "store list MSRP";
+      var costPH = type==='Labor' ? "shop cost (optional)"  : "your cost (e.g., 32.00)";
       var unitPH = type==='Labor' ? "$/hr (auto or manual)" : "customer price";
+
       tr.className = 'draggable-row';
       tr.innerHTML =
         '<td class="drag-col"><button class="tab-btn handle" title="Drag to reorder">↕</button></td>' +
@@ -1146,10 +1347,15 @@ window.addEventListener('load', function(){
         '<td><input class="lList" type="number" step="0.01" value="'+(((list!=null)?list:0))+'" placeholder="'+listPH+'"/></td>' +
         '<td><input class="lCost" type="number" step="0.01" value="'+(((cost!=null)?cost:0))+'" placeholder="'+costPH+'"/></td>' +
         '<td><input class="lUnit" type="number" step="0.01" value="'+(unit||0)+'" placeholder="'+unitPH+'"/><div class="calc-hint">—</div></td>' +
-        '<td class="lLine">$0.00</td><td class="lProfit">$0.00</td><td><button type="button" class="tab-btn lDel">X</button></td>';
+        '<td class="lLine">$0.00</td>' +
+        '<td class="lProfit">$0.00</td>' +
+        '<td><button type="button" class="tab-btn lDel">X</button></td>';
       document.querySelector('#lines tbody').appendChild(tr);
       makeRowDraggable(tr);
-      tr.querySelector('.lDel').addEventListener('click', function(){ tr.remove(); persistLines(); });
+      tr.querySelector('.lDel').addEventListener('click', function(){
+        tr.remove();
+        persistLines();
+      });
       ['change','input'].forEach(function(evt){
         ['.lType','.lDesc','.lQty','.lList','.lCost','.lUnit','.lNote'].forEach(function(sel){
           tr.querySelector(sel).addEventListener(evt, persistLines);
@@ -1164,7 +1370,7 @@ window.addEventListener('load', function(){
         out.push({
           type: tr.querySelector('.lType').value,
           desc: tr.querySelector('.lDesc').value,
-          qty: Number(tr.querySelector('.lQty').value||0),
+          qty:  Number(tr.querySelector('.lQty').value||0),
           list: Number(tr.querySelector('.lList').value||0),
           cost: Number(tr.querySelector('.lCost').value||0),
           unit: Number(tr.querySelector('.lUnit').value||0),
@@ -1178,7 +1384,6 @@ window.addEventListener('load', function(){
       var j = currentJob(); if(!j) return;
 
       var lines = rowsToLines();
-
       var laborRateNow = Number($('#laborRate').value || 80);
       var trs = $all('#lines tbody tr');
       for (var i=0;i<lines.length;i++){
@@ -1202,7 +1407,11 @@ window.addEventListener('load', function(){
       j.laborRate = Number($('#laborRate').value || 80);
       j.salesTaxPct = Number($('#salesTax').value || 0);
 
-      recalcTotals(); updatePreview(); renderJobs(); renderDashboard(); saveDB();
+      recalcTotals();
+      updatePreview();
+      renderJobs();
+      renderDashboard();
+      saveDB();
     }
 
     function applyDefaultMarkup(){
@@ -1218,22 +1427,13 @@ window.addEventListener('load', function(){
       persistLines();
     }
 
-    function sumLines(lines, mode){
-      var subtotal=0, profit=0, i, l;
-      for(i=0;i<(lines||[]).length;i++){
-        l = lines[i];
-        var line = Number(l.qty||0)*Number(l.unit||0);
-        subtotal += line;
-        profit += Number(l.qty||0)*(Number(l.unit||0) - Number(l.cost||0));
-      }
-      return mode==='profit'?profit:subtotal;
-    }
-
     function recalcTotals(){
-      var rows = rowsToLines(); var subtotal=0, profit=0, partsSubtotal=0, savingsTotal=0;
+      var rows = rowsToLines();
+      var subtotal=0, profit=0, partsSubtotal=0, savingsTotal=0;
       var laborRate = Number($('#laborRate').value||80);
       var muDefault = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
       var trs = $all('#lines tbody tr');
+
       for(var i=0;i<rows.length;i++){
         var r = rows[i];
         if(r.type==='Labor' && (!r.unit || r.unit===0)) {
@@ -1243,7 +1443,9 @@ window.addEventListener('load', function(){
             if (uEl) uEl.value = r.unit.toFixed(2);
           }
         }
-        var line = r.qty*r.unit; subtotal+=line;
+        var line = r.qty*r.unit;
+        subtotal+=line;
+
         if (r.type==='Part') {
           partsSubtotal += line;
           var list = Number(r.list || 0);
@@ -1252,7 +1454,8 @@ window.addEventListener('load', function(){
           }
         }
         var lineProfit = r.qty*(r.unit - (r.cost||0));
-        r.profit = lineProfit; profit += lineProfit;
+        r.profit = lineProfit;
+        profit += lineProfit;
 
         var tr = trs[i]; if(!tr) continue;
         tr.querySelector('.lLine').textContent = fmt(line);
@@ -1269,8 +1472,9 @@ window.addEventListener('load', function(){
           hint.textContent = dollars + ' ' + perTxt;
         }
       }
+
       var taxPct = Number($('#salesTax').value||0);
-      var tax = partsSubtotal * (taxPct/100);
+      var tax = partsSubtotal * (taxPct/100); // parts-only tax
       var grand = subtotal + tax;
 
       document.getElementById('sub').textContent = fmt(subtotal);
@@ -1289,14 +1493,26 @@ window.addEventListener('load', function(){
       document.getElementById('pSave').textContent = fmt(savingsTotal);
     }
 
+    function escapeHtml(s){
+      return String(s||'').replace(/[&<>"']/g, function(c){
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
+      });
+    }
+
     function updatePreview(){
       var j = currentJob();
-      document.getElementById('pInvNo').textContent = (document.getElementById('invNo').value.trim() || 'DRAFT');
+      document.getElementById('pInvNo').textContent = ($('#invNo').value.trim() || 'DRAFT');
       document.getElementById('pDate').textContent = new Date().toLocaleDateString();
-      var t = document.getElementById('docType').value; var badge = document.getElementById('pType'); badge.textContent=t; badge.className='badge ' + (t==='Invoice'?'invoice':'estimate');
-      document.getElementById('pStatus').textContent = j && j.paid ? 'Paid' : (t==='Estimate' ? (j && j.approved ? 'Approved':'Pending Approval') : 'Unpaid');
+      var t = $('#docType').value;
+      var badge = document.getElementById('pType');
+      badge.textContent=t;
+      badge.className='badge ' + (t==='Invoice'?'invoice':'estimate');
+      document.getElementById('pStatus').textContent = j && j.paid
+        ? 'Paid'
+        : (t==='Estimate' ? (j && j.approved ? 'Approved':'Pending Approval') : 'Unpaid');
       var c = j ? findCustomer(j.customerId) : null;
-      document.getElementById('pCust').textContent = c?c.name:'—'; document.getElementById('pVeh').textContent = c?(c.vehicle||''):'';
+      document.getElementById('pCust').textContent = c?c.name:'—';
+      document.getElementById('pVeh').textContent = c?(c.vehicle||''):'';
 
       var tbody = document.getElementById('pLines'); tbody.innerHTML='';
       if(j){
@@ -1304,7 +1520,7 @@ window.addEventListener('load', function(){
           var l=j.lines[i];
           var unit = Number(l.unit || 0);
           var list = Number(l.list || 0);
-          var qty = Number(l.qty || 0);
+          var qty  = Number(l.qty  || 0);
           var line = qty * unit;
           var perUnitSave = 0;
           if(list > unit && l.type === 'Part'){
@@ -1327,6 +1543,7 @@ window.addEventListener('load', function(){
             '<td>'+priceHtml+'</td>'+
             '<td>'+fmt(line)+'</td>';
           tbody.appendChild(tr);
+
           if(l.note && l.note.trim()){
             var trn=document.createElement('tr');
             trn.innerHTML = '<td colspan="4" style="font-style:italic; color:#333; padding-top:4px;">Note: '+escapeHtml(l.note.trim())+'</td>';
@@ -1354,37 +1571,96 @@ window.addEventListener('load', function(){
           img.src=''; img.style.display='none'; nameEl.textContent=''; dateEl.textContent='';
         }
       }
-      setSig('customer'); setSig('manager');
+      setSig('customer');
+      setSig('manager');
 
       var pPhotos = document.getElementById('pPhotosBlock'); pPhotos.innerHTML='';
       if(j && j.photosOnPdf && j.photos && j.photos.length){
         var html = '<h4 style="margin:8px 0 4px 0;">Work Photos</h4><div class="p-photos">';
         for(var pi=0;pi<j.photos.length;pi++){
-          var ph=j.photos[pi]; if(!ph || !ph.dataUrl || ph.include === false) continue;
+          var ph=j.photos[pi];
+          if(!ph || !ph.dataUrl || ph.include === false) continue;
           html += '<div class="p-photo"><img src="'+ph.dataUrl+'" alt=""></div>';
         }
         html += '</div>';
         pPhotos.innerHTML = html;
       }
+    }
 
-      function escapeHtml(s){
-        return String(s||'').replace(/[&<>"']/g, function(c){
-          return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
-        });
+    /* ------ Photos grid ------ */
+    function renderPhotoGrid(){
+      var j=currentJob(); if(!j) return;
+      var grid = document.getElementById('photoGrid');
+      grid.innerHTML='';
+      for(var i=0;i<j.photos.length;i++){
+        (function(idx){
+          var ph=j.photos[idx];
+          var item = document.createElement('div');
+          item.className='photo-item';
+          item.innerHTML =
+            '<img src="'+ph.dataUrl+'" alt=""/>' +
+            '<button type="button" class="del">X</button>' +
+            '<label><input type="checkbox" '+(ph.include!==false?'checked':'')+'> Include on PDF</label>';
+          item.querySelector('.del').addEventListener('click', function(){
+            j.photos.splice(idx,1);
+            saveDB();
+            renderPhotoGrid();
+            updatePreview();
+          });
+          item.querySelector('input[type="checkbox"]').addEventListener('change', function(){
+            ph.include = this.checked;
+            saveDB();
+            updatePreview();
+          });
+          grid.appendChild(item);
+        })(i);
       }
     }
 
-    // Quick Estimate modal
+    document.getElementById('photoInput').addEventListener('change', function(){
+      var j=currentJob(); if(!j) return;
+      var files = this.files || [];
+      if(!files.length) return;
+      var remaining = files.length;
+      for(var i=0;i<files.length;i++){
+        (function(file){
+          var r = new FileReader();
+          r.onload = function(){
+            j.photos.push({ dataUrl:r.result, include:true });
+            remaining--;
+            if(remaining===0){
+              saveDB();
+              renderPhotoGrid();
+              updatePreview();
+            }
+          };
+          r.readAsDataURL(file);
+        })(files[i]);
+      }
+      this.value='';
+    });
+
+    document.getElementById('photosOnPdf').addEventListener('change', function(){
+      var j=currentJob(); if(!j) return;
+      j.photosOnPdf = this.checked;
+      saveDB();
+      updatePreview();
+    });
+
+    /* ------ Quick Estimate modal ------ */
     (function(){
       var modal = document.getElementById('qeModal');
       var open = document.getElementById('quickEstimate');
       var closeBtn = document.getElementById('qeClose');
       var applyAppend = document.getElementById('qeApplyAppend');
       var applyReplace = document.getElementById('qeApplyReplace');
+
       function close(){ if(modal) modal.style.display='none'; }
       function openModal(){ if(modal) modal.style.display='flex'; }
+
       if(open){ open.addEventListener('click', openModal); }
       if(closeBtn){ closeBtn.addEventListener('click', close); }
+
       function buildLines(mode){
         var j = ensureJobSelected(true); if(!j) return;
         var title = (document.getElementById('qeTitle').value||'').trim();
@@ -1392,33 +1668,56 @@ window.addEventListener('load', function(){
         var mu = Number(document.getElementById('qeMarkup').value||40)/100;
         var hours = Number(document.getElementById('qeHours').value||1.5);
         var laborRate = Number(document.getElementById('laborRate').value||80);
-        if(mode==='replace'){ document.querySelector('#lines tbody').innerHTML=''; j.lines=[]; }
+
+        if(mode==='replace'){
+          document.querySelector('#lines tbody').innerHTML='';
+          j.lines=[];
+        }
+
         addLine('Labor', title?('Diagnose/Repair — '+title):'Diagnose/Repair', hours, 0, 0, laborRate, '');
+
         if(partsCost>0){
           var sell = partsCost*(1+mu);
-          addLine('Part', title?('Parts — '+title):'Parts', 1, sell, partsCost, sell, '');
+          addLine('Part', title?('Parts — '+title):'Parts', 1, 0, partsCost, sell, '');
         }
         persistLines();
         close();
       }
-      if(applyAppend){ applyAppend.addEventListener('click', function(){ buildLines('append'); }); }
-      if(applyReplace){ applyReplace.addEventListener('click', function(){ buildLines('replace'); }); }
+
+      if(applyAppend){
+        applyAppend.addEventListener('click', function(){ buildLines('append'); });
+      }
+      if(applyReplace){
+        applyReplace.addEventListener('click', function(){ buildLines('replace'); });
+      }
     })();
 
-    // Back to Top button
+    /* ------ Back to Top ------ */
     (function(){
       var btn = document.getElementById('toTop');
       if(!btn) return;
       window.addEventListener('scroll', function(){
         try{ btn.style.display = (window.scrollY > 200 ? 'block' : 'none'); }catch(_){}
       });
-      btn.addEventListener('click', function(){ try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(_){ window.scrollTo(0,0); } });
+      btn.addEventListener('click', function(){
+        try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(_){ window.scrollTo(0,0); }
+      });
     })();
 
-    // Backup & Restore + Flash-drive save
+    /* ------ Settings bindings ------ */
+    document.getElementById('defaultMarkup').addEventListener('input', function(){
+      DB.settings.defaultMarkup = Number(this.value||40);
+      saveDB();
+      recalcTotals();
+    });
+    document.getElementById('shopFrom').addEventListener('input', function(){ DB.settings.shopFrom=this.value; saveDB(); });
+    document.getElementById('shopReply').addEventListener('input', function(){ DB.settings.shopReply=this.value; saveDB(); });
+    document.getElementById('shopSubj').addEventListener('input', function(){ DB.settings.shopSubj=this.value; saveDB(); });
+    document.getElementById('shopFooter').addEventListener('input', function(){ DB.settings.shopFooter=this.value; saveDB(); });
+
+    /* ------ Backup & Restore + Flash-drive FS ------ */
     (function(){
-      var EXKEY = 'poppe_shop_db_v112';
-      var UIKEY = 'pdc_ui_state';
+      var EXKEY = STORAGE_KEY;
       var WMKEY = 'pdc_wm_dataurl';
 
       function downloadText(filename, text){
@@ -1430,21 +1729,10 @@ window.addEventListener('load', function(){
         setTimeout(function(){ URL.revokeObjectURL(url); }, 500);
       }
 
-      function buildBackupPayloadLocal(){
-        return {
-          _note: 'Poppe’s Diesel Co. Shop Manager backup',
-          version: 'v1.2.1',
-          exportedAt: new Date().toISOString(),
-          db: DB,
-          ui: UI,
-          wm: (function(){ try{ return localStorage.getItem(WMKEY)||null; }catch(_){ return null; } })()
-        };
-      }
-
       var exportBtn = document.getElementById('exportBtn');
       if(exportBtn){
         exportBtn.addEventListener('click', function(){
-          var backup = buildBackupPayloadLocal();
+          var backup = buildBackupPayload();
           downloadText('poppes_shop_backup_'+Date.now()+'.json', JSON.stringify(backup, null, 2));
         });
       }
@@ -1460,42 +1748,93 @@ window.addEventListener('load', function(){
             try{
               var data = JSON.parse(reader.result||'{}');
               var newDB = data.db || data || null;
-              if(!newDB || !newDB.customers || !newDB.jobs){ alert('Invalid backup format.'); return; }
+              if(!newDB || !newDB.customers || !newDB.jobs){
+                alert('Invalid backup format.');
+                return;
+              }
               localStorage.setItem(EXKEY, JSON.stringify(newDB));
-              if(data.ui){ try{ localStorage.setItem(UIKEY, JSON.stringify(data.ui)); }catch(_){} }
-              if(data.wm){ try{ localStorage.setItem(WMKEY, data.wm); }catch(_){} }
-              DB = newDB; UI = data.ui || UI;
+              if(data.ui){
+                try{ localStorage.setItem(UIKEY, JSON.stringify(data.ui)); }catch(_){}
+              }
+              if(data.wm){
+                try{ localStorage.setItem(WMKEY, data.wm); }catch(_){}
+              }
+              DB = newDB;
+              UI = data.ui || UI;
               upgradeDB();
               renderAll();
               alert('Backup imported. Reloading the UI.');
               location.reload();
-            }catch(e){ alert('Import failed: '+(e.message||e)); }
+            }catch(e){
+              alert('Import failed: '+(e.message||e));
+            }
           };
           reader.onerror = function(){ alert('Could not read file.'); };
           reader.readAsText(f);
         });
       }
 
-      // File System Access API (Chrome/Edge)
+      // File System Access API
       (function(){
         var hasFS = !!(window.showSaveFilePicker && window.FileSystemFileHandle);
         var btnChoose = document.getElementById('fsChoose');
         var btnQuick  = document.getElementById('fsQuickSave');
 
-        if (!hasFS) { if (btnChoose) btnChoose.style.display='none'; if (btnQuick) btnQuick.style.display='none'; return; }
-
-        // Minimal IndexedDB KV
-        var DB_NAME='pdc_fs_store', STORE='kvs';
-        function idbOpen(){ return new Promise(function(res,rej){ var req=indexedDB.open(DB_NAME,1); req.onupgradeneeded=function(){ var db=req.result; if(!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE); }; req.onsuccess=function(){res(req.result)}; req.onerror=function(){rej(req.error)}; });}
-        function idbGet(k){ return idbOpen().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction(STORE,'readonly'); var st=tx.objectStore(STORE); var rq=st.get(k); rq.onsuccess=function(){res(rq.result)}; rq.onerror=function(){rej(rq.error)}; });});}
-        function idbSet(k,v){ return idbOpen().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction(STORE,'readwrite'); var st=tx.objectStore(STORE); var rq=st.put(v,k); rq.onsuccess=function(){res()}; rq.onerror=function(){rej(rq.error)}; });});}
-        function idbDel(k){ return idbOpen().then(function(db){ return new Promise(function(res,rej){ var tx=db.transaction(STORE,'readwrite'); var st=tx.objectStore(STORE); var rq=st.delete(k); rq.onsuccess=function(){res()}; rq.onerror=function(){rej(rq.error)}; });});}
-        var HANDLE_KEY='pdc_file_handle'; var fileHandle=null;
-        idbGet(HANDLE_KEY).then(function(h){ fileHandle=h||null; }).catch(function(){});
-
-        function buildBackupPayloadFS(){
-          return buildBackupPayloadLocal();
+        if (!hasFS) {
+          if (btnChoose) btnChoose.style.display='none';
+          if (btnQuick)  btnQuick.style.display='none';
+          return;
         }
+
+        var DB_NAME='pdc_fs_store', STORE='kvs';
+        function idbOpen(){
+          return new Promise(function(res,rej){
+            var req=indexedDB.open(DB_NAME,1);
+            req.onupgradeneeded=function(){
+              var db=req.result;
+              if(!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE);
+            };
+            req.onsuccess=function(){res(req.result)};
+            req.onerror=function(){rej(req.error)};
+          });
+        }
+        function idbGet(k){
+          return idbOpen().then(function(db){
+            return new Promise(function(res,rej){
+              var tx=db.transaction(STORE,'readonly');
+              var st=tx.objectStore(STORE);
+              var rq=st.get(k);
+              rq.onsuccess=function(){res(rq.result)};
+              rq.onerror=function(){rej(rq.error)};
+            });
+          });
+        }
+        function idbSet(k,v){
+          return idbOpen().then(function(db){
+            return new Promise(function(res,rej){
+              var tx=db.transaction(STORE,'readwrite');
+              var st=tx.objectStore(STORE);
+              var rq=st.put(v,k);
+              rq.onsuccess=function(){res()};
+              rq.onerror=function(){rej(rq.error)};
+            });
+          });
+        }
+        function idbDel(k){
+          return idbOpen().then(function(db){
+            return new Promise(function(res,rej){
+              var tx=db.transaction(STORE,'readwrite');
+              var st=tx.objectStore(STORE);
+              var rq=st.delete(k);
+              rq.onsuccess=function(){res()};
+              rq.onerror=function(){rej(rq.error)};
+            });
+          });
+        }
+
+        var HANDLE_KEY='pdc_file_handle';
+        var fileHandle=null;
+        idbGet(HANDLE_KEY).then(function(h){ fileHandle=h||null; }).catch(function(){});
 
         async function chooseSaveFile(){
           try{
@@ -1513,19 +1852,25 @@ window.addEventListener('load', function(){
 
         async function quickSave(){
           try{
-            if (!fileHandle) { alert('Pick a save file first (Choose Save File).'); return; }
+            if (!fileHandle) {
+              alert('Pick a save file first (Choose Save File).');
+              return;
+            }
             var perm = await fileHandle.queryPermission({mode:'readwrite'});
             if (perm!=='granted'){
               perm = await fileHandle.requestPermission({mode:'readwrite'});
-              if (perm!=='granted'){ alert('Permission to write was denied.'); return; }
+              if (perm!=='granted'){
+                alert('Permission to write was denied.');
+                return;
+              }
             }
             var writable = await fileHandle.createWritable();
-            var data = JSON.stringify(buildBackupPayloadFS(), null, 2);
+            var data = JSON.stringify(buildBackupPayload(), null, 2);
             await writable.write(new Blob([data], {type:'application/json'}));
             await writable.close();
             alert('Saved to: ' + (fileHandle.name || 'selected file'));
           }catch(err){
-            if (String(err||'').includes('No such file') || String(err||'').includes('Permission')) {
+            if (String(err||'').indexOf('No such file')>-1 || String(err||'').indexOf('Permission')>-1) {
               try{ await idbDel(HANDLE_KEY); }catch(_){}
               fileHandle = null;
             }
@@ -1537,16 +1882,79 @@ window.addEventListener('load', function(){
         if (btnQuick)  btnQuick.addEventListener('click', quickSave);
       })();
 
-      // --- Supabase Cloud Save/Load buttons ---
+      /* ---- Supabase Cloud Save/Load buttons ---- */
       var cloudSaveBtn = document.getElementById('cloudSaveBtn');
       var cloudLoadBtn = document.getElementById('cloudLoadBtn');
 
+      async function cloudSave(){
+        if (!supabaseClient) {
+          alert('Supabase is not configured in this file.');
+          return;
+        }
+        try {
+          var payload = buildBackupPayload();
+          var totalJobs = (payload.db && payload.db.jobs) ? payload.db.jobs.length : 0;
+          var totalLines = 0;
+          if (payload.db && payload.db.jobs) {
+            for (var i = 0; i < payload.db.jobs.length; i++) {
+              var jj = payload.db.jobs[i];
+              if (jj.lines && jj.lines.length) totalLines += jj.lines.length;
+            }
+          }
+
+          var result = await supabaseClient
+            .from('shop_state')
+            .upsert({
+              id: SHOP_STATE_ID,
+              data: payload,
+              updated_at: new Date().toISOString()
+            });
+
+          if (result.error) {
+            console.error('cloudSave error', result.error);
+            alert('Cloud save failed: ' + result.error.message);
+            return;
+          }
+          alert('Cloud save complete.\\nJobs: ' + totalJobs + '\\nTotal lines across all jobs: ' + totalLines);
+        } catch (e) {
+          console.error('cloudSave threw', e);
+          alert('Cloud save crashed: ' + (e.message || e));
+        }
+      }
+
+      async function cloudLoadRaw(){
+        if (!supabaseClient) {
+          alert('Supabase is not configured in this file.');
+          return null;
+        }
+        try {
+          var result = await supabaseClient
+            .from('shop_state')
+            .select('data')
+            .eq('id', SHOP_STATE_ID)
+            .single();
+
+          if (result.error) {
+            console.error('cloudLoad error', result.error);
+            alert('Cloud load failed: ' + result.error.message);
+            return null;
+          }
+          if (!result.data || !result.data.data) {
+            alert('No cloud snapshot found yet.');
+            return null;
+          }
+          return result.data.data;
+        } catch (e) {
+          console.error('cloudLoad threw', e);
+          alert('Cloud load crashed: ' + (e.message || e));
+          return null;
+        }
+      }
+
       if (cloudSaveBtn) {
         cloudSaveBtn.addEventListener('click', async function () {
-          try {
-            if (typeof persistLines === 'function') persistLines();
-          } catch (_) {}
-          await cloudSave(DB, UI);
+          try { if (typeof persistLines === 'function') persistLines(); } catch(_){}
+          await cloudSave();
         });
       }
 
@@ -1555,12 +1963,21 @@ window.addEventListener('load', function(){
           var snap = await cloudLoadRaw();
           if (!snap) return;
 
+          var totalJobs = (snap.db && snap.db.jobs) ? snap.db.jobs.length : 0;
+          var totalLines = 0;
+          if (snap.db && snap.db.jobs) {
+            for (var i = 0; i < snap.db.jobs.length; i++) {
+              var jj = snap.db.jobs[i];
+              if (jj.lines && jj.lines.length) totalLines += jj.lines.length;
+            }
+          }
+          alert('Cloud loaded.\\nJobs in snapshot: ' + totalJobs + '\\nTotal lines in snapshot: ' + totalLines);
+
           if (snap.db) DB = snap.db;
           if (snap.ui) UI = snap.ui;
-
           try {
-            if (snap.wm) localStorage.setItem('pdc_wm_dataurl', snap.wm);
-          } catch (_) {}
+            if (snap.wm) localStorage.setItem(WMKEY, snap.wm);
+          } catch(_) {}
 
           upgradeDB();
           renderAll();
@@ -1568,13 +1985,24 @@ window.addEventListener('load', function(){
           if (UI.lastJobId && DB.jobs.some(function (j) { return j.id === UI.lastJobId; })) {
             document.getElementById('invJob').value = UI.lastJobId;
             loadInvoice(UI.lastJobId);
+          } else if (DB.jobs.length) {
+            var latest = DB.jobs[0];
+            for (var k = 1; k < DB.jobs.length; k++) {
+              if ((DB.jobs[k].createdAt || '') > (latest.createdAt || '')) latest = DB.jobs[k];
+            }
+            document.getElementById('invJob').value = latest.id;
+            loadInvoice(latest.id);
+            UI.lastJobId = latest.id;
+            saveUI(UI);
           }
 
-          alert('Cloud data loaded.');
+          alert('Cloud data applied. Check the Invoice tab for your parts + notes.');
         });
       }
-    })();
 
+    })(); // end backup/restore block
+
+    /* ------ Invoice actions buttons ------ */
     document.getElementById('addLabor').addEventListener('click', function(){
       if(!ensureJobSelected(true)) return;
       addLine('Labor','',1,0,0, Number(document.getElementById('laborRate').value||80), '');
@@ -1585,76 +2013,54 @@ window.addEventListener('load', function(){
     });
     document.getElementById('applyMarkup').addEventListener('click', applyDefaultMarkup);
     document.getElementById('recalc').addEventListener('click', recalcTotals);
+
     document.getElementById('markPaid').addEventListener('click', function(){
       var j=ensureJobSelected(); if(!j) return;
       j.paid=!j.paid;
       j.paidAt=j.paid?new Date().toISOString():null;
       if(j.paid){ j.taxPercentAtSale = Number(document.getElementById('salesTax').value||0); }
-      updatePreview(); renderJobs(); renderDashboard(); saveDB(); alert(j.paid?'Marked Paid':'Marked Unpaid');
+      updatePreview();
+      renderJobs();
+      saveDB();
+      alert(j.paid?'Marked Paid':'Marked Unpaid');
     });
+
     document.getElementById('approve').addEventListener('click', function(){
       var j=ensureJobSelected(); if(!j) return;
-      if(document.getElementById('docType').value!=='Estimate'){ alert('Approvals apply to Estimates.'); return; }
-      j.approved=true; j.approvedAt=new Date().toISOString();
-      updatePreview(); saveDB(); alert('Estimate approved.');
+      if(document.getElementById('docType').value!=='Estimate'){
+        alert('Approvals apply to Estimates.');
+        return;
+      }
+      j.approved=true;
+      j.approvedAt=new Date().toISOString();
+      updatePreview();
+      saveDB();
+      alert('Estimate approved.');
     });
+
     document.getElementById('convert').addEventListener('click', function(){
       var j=ensureJobSelected(); if(!j) return;
-      j.docType='Invoice'; document.getElementById('docType').value='Invoice';
-      updatePreview(); saveDB(); alert('Converted to Invoice.');
+      j.docType='Invoice';
+      document.getElementById('docType').value='Invoice';
+      updatePreview();
+      saveDB();
+      alert('Converted to Invoice.');
     });
+
     document.getElementById('email').addEventListener('click', function(){
       var j=ensureJobSelected(); if(!j) return;
       var to=encodeURIComponent(document.getElementById('emailTo').value.trim()||'');
       var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim());
-      var body=encodeURIComponent('Hello,\n\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+'.\nPayment link: '+(j.paymentLink||'')+'\n\n'+(DB.settings.shopFooter||'')+'\n\n— '+(DB.settings.shopFrom||''));
+      var body=encodeURIComponent(
+        'Hello,\\n\\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+
+        '.\\nPayment link: '+(j.paymentLink||'')+
+        '\\n\\n'+(DB.settings.shopFooter||'')+
+        '\\n\\n— '+(DB.settings.shopFrom||'')
+      );
       location.href='mailto:'+to+'?subject='+subj+'&body='+body;
     });
 
-    // Photos
-    function renderPhotoGrid(){
-      var j=currentJob(); if(!j) return;
-      var grid=document.getElementById('photoGrid'); grid.innerHTML='';
-      (j.photos||[]).forEach(function(ph, idx){
-        if(!ph || !ph.dataUrl) return;
-        var wrap=document.createElement('div'); wrap.className='photo-item';
-        wrap.innerHTML =
-          '<button class="del" type="button">X</button>'+
-          '<img src="'+ph.dataUrl+'" alt="">'+
-          '<label><input type="checkbox" class="phToggle" '+(ph.include!==false?'checked':'')+'> On PDF</label>';
-        grid.appendChild(wrap);
-        wrap.querySelector('.del').addEventListener('click', function(){
-          j.photos.splice(idx,1); saveDB(); renderPhotoGrid(); updatePreview();
-        });
-        wrap.querySelector('.phToggle').addEventListener('change', function(){
-          ph.include = this.checked; saveDB(); updatePreview();
-        });
-      });
-    }
-
-    var photoInput=document.getElementById('photoInput');
-    if(photoInput){
-      photoInput.addEventListener('change', function(){
-        var j=currentJob(); if(!j){ alert('Pick a job first.'); photoInput.value=''; return; }
-        var files=Array.prototype.slice.call(photoInput.files||[]);
-        if(!files.length) return;
-        var remaining=files.length;
-        files.forEach(function(f){
-          var reader=new FileReader();
-          reader.onload=function(){
-            j.photos=j.photos||[];
-            j.photos.push({dataUrl:reader.result, include:true});
-            remaining--; if(!remaining){ saveDB(); renderPhotoGrid(); updatePreview(); photoInput.value=''; }
-          };
-          reader.onerror=function(){
-            remaining--; if(!remaining){ alert('Some photos failed to load.'); }
-          };
-          reader.readAsDataURL(f);
-        });
-      });
-    }
-
-    // PDF
+    /* ------ PDF (print) ------ */
     document.getElementById('pdf').addEventListener('click', function(){
       var css =
         'html,body{margin:0;padding:0}body{font-family:'+ (document.body && getComputedStyle(document.body).fontFamily || 'sans-serif') +';font-size:11pt;line-height:1.35;color:#000}' +
@@ -1681,12 +2087,17 @@ window.addEventListener('load', function(){
                   + document.getElementById('preview').outerHTML
                   + '</body></html>';
       var w = window.open('', '_blank');
-      if(!w){ alert('Please allow pop-ups to print.'); return; }
-      w.document.open(); w.document.write(htmlDoc); w.document.close();
+      if(!w){
+        alert('Please allow pop-ups to print.');
+        return;
+      }
+      w.document.open();
+      w.document.write(htmlDoc);
+      w.document.close();
       try{ w.focus(); w.print(); }catch(_){}
     });
 
-    // Signature modal
+    /* ------ Signature modal ------ */
     (function(){
       var modal = document.getElementById('sigModal');
       var openBtn = document.getElementById('sign');
@@ -1696,30 +2107,59 @@ window.addEventListener('load', function(){
       var pad = document.getElementById('sigPad');
       if(!modal || !openBtn || !pad) return;
       var ctx = pad.getContext('2d');
-      ctx.fillStyle = '#fff'; ctx.fillRect(0,0,pad.width,pad.height);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0,0,pad.width,pad.height);
       var drawing=false, lastX=0,lastY=0;
       function startDraw(x,y){ drawing=true; lastX=x; lastY=y; }
       function moveDraw(x,y){
         if(!drawing) return;
-        ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.lineCap='round';
-        ctx.beginPath(); ctx.moveTo(lastX,lastY); ctx.lineTo(x,y); ctx.stroke();
+        ctx.strokeStyle='#000';
+        ctx.lineWidth=2;
+        ctx.lineCap='round';
+        ctx.beginPath();
+        ctx.moveTo(lastX,lastY);
+        ctx.lineTo(x,y);
+        ctx.stroke();
         lastX=x; lastY=y;
       }
       function endDraw(){ drawing=false; }
-      pad.addEventListener('mousedown', function(e){ var r=pad.getBoundingClientRect(); startDraw(e.clientX-r.left,e.clientY-r.top); });
-      pad.addEventListener('mousemove', function(e){ var r=pad.getBoundingClientRect(); moveDraw(e.clientX-r.left,e.clientY-r.top); });
+
+      pad.addEventListener('mousedown', function(e){
+        var r=pad.getBoundingClientRect();
+        startDraw(e.clientX-r.left,e.clientY-r.top);
+      });
+      pad.addEventListener('mousemove', function(e){
+        var r=pad.getBoundingClientRect();
+        moveDraw(e.clientX-r.left,e.clientY-r.top);
+      });
       pad.addEventListener('mouseup', endDraw);
       pad.addEventListener('mouseleave', endDraw);
-      pad.addEventListener('touchstart', function(e){ e.preventDefault(); var t=e.touches[0], r=pad.getBoundingClientRect(); startDraw(t.clientX-r.left,t.clientY-r.top); }, {passive:false});
-      pad.addEventListener('touchmove', function(e){ e.preventDefault(); var t=e.touches[0], r=pad.getBoundingClientRect(); moveDraw(t.clientX-r.left,t.clientY-r.top); }, {passive:false});
-      pad.addEventListener('touchend', function(e){ e.preventDefault(); endDraw(); }, {passive:false});
+      pad.addEventListener('touchstart', function(e){
+        e.preventDefault();
+        var t=e.touches[0], r=pad.getBoundingClientRect();
+        startDraw(t.clientX-r.left,t.clientY-r.top);
+      }, {passive:false});
+      pad.addEventListener('touchmove', function(e){
+        e.preventDefault();
+        var t=e.touches[0], r=pad.getBoundingClientRect();
+        moveDraw(t.clientX-r.left,t.clientY-r.top);
+      }, {passive:false});
+      pad.addEventListener('touchend', function(e){
+        e.preventDefault();
+        endDraw();
+      }, {passive:false});
 
       function open(){ modal.style.display='flex'; }
       function close(){ modal.style.display='none'; }
-      openBtn.addEventListener('click', function(){ if(!ensureJobSelected()) return; open(); });
+
+      openBtn.addEventListener('click', function(){
+        if(!ensureJobSelected()) return;
+        open();
+      });
       closeBtn.addEventListener('click', close);
       clearBtn.addEventListener('click', function(){
-        ctx.fillStyle='#fff'; ctx.fillRect(0,0,pad.width,pad.height);
+        ctx.fillStyle='#fff';
+        ctx.fillRect(0,0,pad.width,pad.height);
       });
       saveBtn.addEventListener('click', function(){
         var j=currentJob(); if(!j) return;
@@ -1729,11 +2169,13 @@ window.addEventListener('load', function(){
         var dataUrl = pad.toDataURL('image/png');
         if(!j.signatures) j.signatures={customer:null, manager:null};
         j.signatures[role]={name:name, date:date, dataUrl:dataUrl};
-        saveDB(); updatePreview(); close();
+        saveDB();
+        updatePreview();
+        close();
       });
     })();
 
-    // Recent jobs dropdown toggle
+    /* ------ Recent jobs dropdown toggle ------ */
     (function(){
       var toggle = document.getElementById('recentJobsToggle');
       var wrap = document.getElementById('recentJobsWrap');
@@ -1743,7 +2185,7 @@ window.addEventListener('load', function(){
       });
     })();
 
-    // Keep overall notes in sync
+    /* ------ Keep overall notes synced ------ */
     (function(){
       var on = document.getElementById('overallNotes');
       if(on){
@@ -1753,12 +2195,17 @@ window.addEventListener('load', function(){
       }
     })();
 
+    /* ------ Self-test badge ------ */
     (function selftest(){
       var ok = !!(window.localStorage && document.querySelector && document.createElement);
       var tag=document.getElementById('selftest');
-      if(tag){ tag.textContent='Self-test: '+(ok?'OK':'Limited'); tag.className='tag selftest '+(ok?'ok':'warn'); }
+      if(tag){
+        tag.textContent='Self-test: '+(ok?'OK':'Limited');
+        tag.className='tag selftest '+(ok?'ok':'warn');
+      }
     })();
 
+    /* ------ Initial upgrade + render ------ */
     upgradeDB();
     renderAll();
 
@@ -1767,7 +2214,8 @@ window.addEventListener('load', function(){
       $('#invJob').value = UI.lastJobId;
       loadInvoice(UI.lastJobId);
     }
-  });
+
+  }); // end guard init
 });
 </script>
 </body>
