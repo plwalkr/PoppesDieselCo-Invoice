@@ -660,7 +660,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
   var logEl = document.getElementById('debugLog');
   var metaEl = document.getElementById('debugMeta');
   var buf = [];
-  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\\n'); } }
+  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\n'); } }
   window.AppLog = {
     info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
     warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
@@ -821,7 +821,7 @@ window.addEventListener('load', function(){
     function $all(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
     function fmt(n){ return "$"+Number(n||0).toFixed(2); }
     function matchesAllTokens(hay, q){
-      var tokens = (q||'').replace(/\\s+/g,' ').toLowerCase().split(' ');
+      var tokens = (q||'').replace(/\s+/g,' ').toLowerCase().split(' ');
       var text = String(hay||'').toLowerCase();
       for(var i=0;i<tokens.length;i++){ if(tokens[i] && text.indexOf(tokens[i])===-1) return false; }
       return true;
@@ -1892,6 +1892,9 @@ window.addEventListener('load', function(){
           return;
         }
         try {
+          // Make sure DB has latest lines / notes / totals
+          try { if (typeof persistLines === 'function') persistLines(); } catch(_){}
+
           var payload = buildBackupPayload();
           var totalJobs = (payload.db && payload.db.jobs) ? payload.db.jobs.length : 0;
           var totalLines = 0;
@@ -1915,7 +1918,11 @@ window.addEventListener('load', function(){
             alert('Cloud save failed: ' + result.error.message);
             return;
           }
-          alert('Cloud save complete.\\nJobs: ' + totalJobs + '\\nTotal lines across all jobs: ' + totalLines);
+          alert(
+            'Cloud save complete.\n' +
+            'Jobs: ' + totalJobs + '\n' +
+            'Total lines across all jobs: ' + totalLines
+          );
         } catch (e) {
           console.error('cloudSave threw', e);
           alert('Cloud save crashed: ' + (e.message || e));
@@ -1943,7 +1950,7 @@ window.addEventListener('load', function(){
             alert('No cloud snapshot found yet.');
             return null;
           }
-          return result.data.data;
+          return result.data.data; // this is the payload from buildBackupPayload()
         } catch (e) {
           console.error('cloudLoad threw', e);
           alert('Cloud load crashed: ' + (e.message || e));
@@ -1951,10 +1958,64 @@ window.addEventListener('load', function(){
         }
       }
 
+      function applyCloudSnapshot(snap){
+        if (!snap || !snap.db) {
+          throw new Error('Snapshot missing db property');
+        }
+
+        // Replace in-memory state
+        DB = snap.db;
+        UI = snap.ui || UI || {};
+
+        // Restore watermark if present
+        try {
+          if (snap.wm) localStorage.setItem(WMKEY, snap.wm);
+        } catch(_){}
+
+        // Upgrade schema + re-render everything
+        upgradeDB();
+        renderAll(); // customers, jobs, dashboard, settings, recent jobs, filters
+
+        // Restore active tab if sensible
+        if (UI.activeTab && document.getElementById(UI.activeTab)) {
+          $all('.tab').forEach(function(t){ t.classList.remove('active'); });
+          document.getElementById(UI.activeTab).classList.add('active');
+        }
+
+        // Restore last opened job or choose latest
+        var jobId = null;
+        if (UI.lastJobId && DB.jobs.some(function (j) { return j.id === UI.lastJobId; })) {
+          jobId = UI.lastJobId;
+        } else if (DB.jobs.length) {
+          var latest = DB.jobs[0];
+          for (var k = 1; k < DB.jobs.length; k++) {
+            if ((DB.jobs[k].createdAt || '') > (latest.createdAt || '')) latest = DB.jobs[k];
+          }
+          jobId = latest.id;
+          UI.lastJobId = latest.id;
+        }
+
+        if (jobId) {
+          var invSel = document.getElementById('invJob');
+          if (invSel) {
+            invSel.value = jobId;
+          }
+          loadInvoice(jobId); // this re-builds all lines, notes, photos, signatures into DOM
+        } else {
+          // No jobs yet; clear invoice table just in case
+          var tb = document.querySelector('#lines tbody');
+          if (tb) tb.innerHTML = '';
+          updatePreview();
+          recalcTotals();
+        }
+
+        saveUI(UI);
+        saveDB();
+      }
+
       if (cloudSaveBtn) {
-        cloudSaveBtn.addEventListener('click', async function () {
-          try { if (typeof persistLines === 'function') persistLines(); } catch(_){}
-          await cloudSave();
+        cloudSaveBtn.addEventListener('click', function () {
+          cloudSave();
         });
       }
 
@@ -1971,32 +2032,21 @@ window.addEventListener('load', function(){
               if (jj.lines && jj.lines.length) totalLines += jj.lines.length;
             }
           }
-          alert('Cloud loaded.\\nJobs in snapshot: ' + totalJobs + '\\nTotal lines in snapshot: ' + totalLines);
 
-          if (snap.db) DB = snap.db;
-          if (snap.ui) UI = snap.ui;
+          alert(
+            'Cloud snapshot loaded from Supabase.\n' +
+            'Jobs in snapshot: ' + totalJobs + '\n' +
+            'Total lines in snapshot: ' + totalLines + '\n\n' +
+            'Applying to this device now…'
+          );
+
           try {
-            if (snap.wm) localStorage.setItem(WMKEY, snap.wm);
-          } catch(_) {}
-
-          upgradeDB();
-          renderAll();
-
-          if (UI.lastJobId && DB.jobs.some(function (j) { return j.id === UI.lastJobId; })) {
-            document.getElementById('invJob').value = UI.lastJobId;
-            loadInvoice(UI.lastJobId);
-          } else if (DB.jobs.length) {
-            var latest = DB.jobs[0];
-            for (var k = 1; k < DB.jobs.length; k++) {
-              if ((DB.jobs[k].createdAt || '') > (latest.createdAt || '')) latest = DB.jobs[k];
-            }
-            document.getElementById('invJob').value = latest.id;
-            loadInvoice(latest.id);
-            UI.lastJobId = latest.id;
-            saveUI(UI);
+            applyCloudSnapshot(snap);
+            alert('Cloud data applied.\nCheck the Invoice tab for your parts, labor, notes, photos, and signatures.');
+          } catch (e) {
+            console.error('applyCloudSnapshot failed', e);
+            alert('Cloud load crashed while applying snapshot: ' + (e.message || e));
           }
-
-          alert('Cloud data applied. Check the Invoice tab for your parts + notes.');
         });
       }
 
@@ -2052,10 +2102,10 @@ window.addEventListener('load', function(){
       var to=encodeURIComponent(document.getElementById('emailTo').value.trim()||'');
       var subj=encodeURIComponent((DB.settings.shopSubj||'') + (j.docType+' '+(j.invNo||'')+' from '+(DB.settings.shopFrom||'Your Shop')).trim());
       var body=encodeURIComponent(
-        'Hello,\\n\\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+
-        '.\\nPayment link: '+(j.paymentLink||'')+
-        '\\n\\n'+(DB.settings.shopFooter||'')+
-        '\\n\\n— '+(DB.settings.shopFrom||'')
+        'Hello,\n\nYour '+j.docType+' total is '+document.getElementById('grand').textContent+
+        '.\nPayment link: '+(j.paymentLink||'')+
+        '\n\n'+(DB.settings.shopFooter||'')+
+        '\n\n— '+(DB.settings.shopFrom||'')
       );
       location.href='mailto:'+to+'?subject='+subj+'&body='+body;
     });
@@ -2063,25 +2113,25 @@ window.addEventListener('load', function(){
     /* ------ PDF (print) ------ */
     document.getElementById('pdf').addEventListener('click', function(){
       var css =
-        'html,body{margin:0;padding:0}body{font-family:'+ (document.body && getComputedStyle(document.body).fontFamily || 'sans-serif') +';font-size:11pt;line-height:1.35;color:#000}' +
-        '.print-area{padding:8px 12px 12px;border-radius:0;position:relative}' +
-        '.invoice-header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:6px}' +
-        '.invoice-header h3{margin:0;font-size:14pt}' +
-        'table{width:100%;border-collapse:collapse;margin-top:6px}' +
-        'th,td{border-bottom:1px solid #000;padding:6px;text-align:left;vertical-align:top;font-size:10pt}' +
-        '.totals{display:grid;gap:4px;justify-items:end;margin-top:8px}.grand{font-weight:700}' +
-        '.badge{border:1px solid #000;border-radius:9999px;padding:2px 6px;font-size:9pt}' +
-        '.signatures{margin-top:16px;display:grid;gap:10px}' +
-        '.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}' +
-        '.sig-line{border-bottom:1px solid #000;height:28px;display:flex;align-items:flex-end}' +
-        '.sig-label{font-size:9pt;color:#333;margin-top:4px}' +
-        '.sig-img{max-height:60px;}' +
-        '.watermark{position:absolute;inset:0;z-index:0;opacity:.08}' +
-        '#wmImg{max-width:90%;max-height:90%;opacity:.12}' +
-        '#wmFallback{opacity:.12}' +
-        '.p-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}' +
-        '.p-photo{border:1px solid #000;padding:4px;border-radius:6px;break-inside:avoid;page-break-inside:avoid}' +
-        '.p-photo img{width:100%;height:1.8in;object-fit:cover;border-radius:4px;display:block}' +
+        'html,body{margin:0;padding:0}body{font-family:'+ (document.body && getComputedStyle(document.body).fontFamily || 'sans-serif') +';font-size:11pt;line-height:1.35;color:#000}'+
+        '.print-area{padding:8px 12px 12px;border-radius:0;position:relative}'+
+        '.invoice-header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:6px}'+
+        '.invoice-header h3{margin:0;font-size:14pt}'+
+        'table{width:100%;border-collapse:collapse;margin-top:6px}'+
+        'th,td{border-bottom:1px solid #000;padding:6px;text-align:left;vertical-align:top;font-size:10pt}'+
+        '.totals{display:grid;gap:4px;justify-items:end;margin-top:8px}.grand{font-weight:700}'+
+        '.badge{border:1px solid #000;border-radius:9999px;padding:2px 6px;font-size:9pt}'+
+        '.signatures{margin-top:16px;display:grid;gap:10px}'+
+        '.sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}'+
+        '.sig-line{border-bottom:1px solid #000;height:28px;display:flex;align-items:flex-end}'+
+        '.sig-label{font-size:9pt;color:#333;margin-top:4px}'+
+        '.sig-img{max-height:60px;}'+
+        '.watermark{position:absolute;inset:0;z-index:0;opacity:.08}'+
+        '#wmImg{max-width:90%;max-height:90%;opacity:.12}'+
+        '#wmFallback{opacity:.12}'+
+        '.p-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}'+
+        '.p-photo{border:1px solid #000;padding:4px;border-radius:6px;break-inside:avoid;page-break-inside:avoid}'+
+        '.p-photo img{width:100%;height:1.8in;object-fit:cover;border-radius:4px;display:block}'+
         '#pPhotosBlock{page-break-before:always}';
       var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>'
                   + document.getElementById('preview').outerHTML
@@ -2220,4 +2270,5 @@ window.addEventListener('load', function(){
 </script>
 </body>
 </html>
+
 
