@@ -178,10 +178,15 @@
     }
 
     /* Tables */
+    .table-wrap {
+      overflow-x: auto;
+      max-width: 100%;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
+      table-layout: auto; /* let browser size columns to content */
     }
     thead {
       background: var(--table-header);
@@ -200,44 +205,7 @@
       background: rgba(0,0,0,0.06);
     }
 
-    /* Invoice line table sizing tweaks – more flexible, less horizontal scroll */
-    #lines th:nth-child(2),
-    #lines td:nth-child(2) {
-      /* Type column */
-      width: 8%;
-      min-width: 70px;
-    }
-
-    #lines th:nth-child(3),
-    #lines td:nth-child(3) {
-      /* Description / Note */
-      width: 40%;
-      min-width: 180px;
-    }
-
-    #lines th:nth-child(4),
-    #lines td:nth-child(4),
-    #lines th:nth-child(5),
-    #lines td:nth-child(5),
-    #lines th:nth-child(6),
-    #lines td:nth-child(6),
-    #lines th:nth-child(7),
-    #lines td:nth-child(7) {
-      /* Qty / List / Cost / Unit */
-      width: 9%;
-      min-width: 60px;
-    }
-
-    #lines th:nth-child(8),
-    #lines td:nth-child(8),
-    #lines th:nth-child(9),
-    #lines td:nth-child(9),
-    #lines th:nth-child(10),
-    #lines td:nth-child(10) {
-      /* Line $, Profit $, X */
-      width: 6%;
-      min-width: 50px;
-    }
+    /* We removed rigid #lines column widths so cells can grow/wrap naturally */
 
     /* Badges */
     .badge {
@@ -755,7 +723,7 @@
 
     <div class="card">
       <div class="section-title">Customer List</div>
-      <div style="overflow-x:auto;">
+      <div class="table-wrap">
         <table id="custTable">
           <thead>
             <tr>
@@ -829,7 +797,7 @@
 
     <div class="card">
       <div class="section-title">All Jobs</div>
-      <div style="overflow-x:auto;">
+      <div class="table-wrap">
         <table id="jobsTable">
           <thead>
             <tr>
@@ -937,7 +905,7 @@
           </div>
         </div>
 
-        <div>
+        <div class="table-wrap">
           <table id="lines">
             <thead>
               <tr>
@@ -1164,7 +1132,7 @@
 <div id="qeModal" class="modal-backdrop">
   <div class="modal">
     <div class="modal-header">
-      <h3>Quick Estimate</hh3>
+      <h3>Quick Estimate</h3>
       <button type="button" id="qeClose" class="modal-close">&times;</button>
     </div>
     <div style="font-size:13px;">
