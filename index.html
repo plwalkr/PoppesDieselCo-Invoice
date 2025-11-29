@@ -127,12 +127,6 @@
       grid-template-columns: minmax(0,1.1fr) minmax(0,1.3fr);
       gap: 10px;
     }
-
-    /* Make the invoice left panel wider than the preview panel */
-    #invoice .grid-2 {
-      grid-template-columns: minmax(0,1.7fr) minmax(0,1.0fr);
-    }
-
     @media (max-width: 960px) {
       .grid-2 { grid-template-columns: minmax(0,1fr); }
     }
@@ -206,6 +200,45 @@
       background: rgba(0,0,0,0.06);
     }
 
+    /* Invoice line table sizing tweaks – more flexible, less horizontal scroll */
+    #lines th:nth-child(2),
+    #lines td:nth-child(2) {
+      /* Type column */
+      width: 8%;
+      min-width: 70px;
+    }
+
+    #lines th:nth-child(3),
+    #lines td:nth-child(3) {
+      /* Description / Note */
+      width: 40%;
+      min-width: 180px;
+    }
+
+    #lines th:nth-child(4),
+    #lines td:nth-child(4),
+    #lines th:nth-child(5),
+    #lines td:nth-child(5),
+    #lines th:nth-child(6),
+    #lines td:nth-child(6),
+    #lines th:nth-child(7),
+    #lines td:nth-child(7) {
+      /* Qty / List / Cost / Unit */
+      width: 9%;
+      min-width: 60px;
+    }
+
+    #lines th:nth-child(8),
+    #lines td:nth-child(8),
+    #lines th:nth-child(9),
+    #lines td:nth-child(9),
+    #lines th:nth-child(10),
+    #lines td:nth-child(10) {
+      /* Line $, Profit $, X */
+      width: 6%;
+      min-width: 50px;
+    }
+
     /* Badges */
     .badge {
       display: inline-block;
@@ -269,9 +302,9 @@
     .calc-hint.ok { color: #0f6a45; }
     .calc-hint.warn { color: #a35a00; }
 
-    .drag-col { width: 32px; }
+    .drag-col { width: 40px; }
     .drag-col .handle {
-      width: 28px;
+      width: 32px;
       padding: 3px 0;
       text-align: center;
       font-size: 14px;
@@ -297,42 +330,6 @@
     .desc-wrap .lNote {
       font-size: 11px;
       min-height: 38px;
-    }
-
-    /* Invoice line table sizing tweaks – widened Type + Description */
-    #lines th:nth-child(2),
-    #lines td:nth-child(2) {
-      /* Type column */
-      min-width: 110px;
-    }
-    #lines th:nth-child(3),
-    #lines td:nth-child(3) {
-      /* Description / Note */
-      min-width: 280px;
-    }
-    #lines th:nth-child(4),
-    #lines td:nth-child(4),
-    #lines th:nth-child(5),
-    #lines td:nth-child(5),
-    #lines th:nth-child(6),
-    #lines td:nth-child(6),
-    #lines th:nth-child(7),
-    #lines td:nth-child(7) {
-      /* Qty / List / Cost / Unit */
-      min-width: 90px;
-    }
-    #lines select.lType {
-      width: 100%;
-    }
-    #lines .lQty,
-    #lines .lList,
-    #lines .lCost,
-    #lines .lUnit {
-      text-align: right;
-    }
-    #lines td.lLine,
-    #lines td.lProfit {
-      text-align: right;
     }
 
     /* Photo grid */
@@ -940,7 +937,7 @@
           </div>
         </div>
 
-        <div style="overflow-x:auto;">
+        <div>
           <table id="lines">
             <thead>
               <tr>
@@ -1167,7 +1164,7 @@
 <div id="qeModal" class="modal-backdrop">
   <div class="modal">
     <div class="modal-header">
-      <h3>Quick Estimate</h3>
+      <h3>Quick Estimate</hh3>
       <button type="button" id="qeClose" class="modal-close">&times;</button>
     </div>
     <div style="font-size:13px;">
