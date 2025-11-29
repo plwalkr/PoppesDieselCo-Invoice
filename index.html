@@ -127,6 +127,12 @@
       grid-template-columns: minmax(0,1.1fr) minmax(0,1.3fr);
       gap: 10px;
     }
+
+    /* Make the invoice left panel wider than the preview panel */
+    #invoice .grid-2 {
+      grid-template-columns: minmax(0,1.7fr) minmax(0,1.0fr);
+    }
+
     @media (max-width: 960px) {
       .grid-2 { grid-template-columns: minmax(0,1fr); }
     }
@@ -293,16 +299,16 @@
       min-height: 38px;
     }
 
-    /* Invoice line table sizing tweaks */
+    /* Invoice line table sizing tweaks – widened Type + Description */
     #lines th:nth-child(2),
     #lines td:nth-child(2) {
       /* Type column */
-      min-width: 80px;
+      min-width: 110px;
     }
     #lines th:nth-child(3),
     #lines td:nth-child(3) {
       /* Description / Note */
-      min-width: 230px;
+      min-width: 280px;
     }
     #lines th:nth-child(4),
     #lines td:nth-child(4),
