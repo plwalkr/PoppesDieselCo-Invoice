@@ -263,9 +263,9 @@
     .calc-hint.ok { color: #0f6a45; }
     .calc-hint.warn { color: #a35a00; }
 
-    .drag-col { width: 40px; }
+    .drag-col { width: 32px; }
     .drag-col .handle {
-      width: 32px;
+      width: 28px;
       padding: 3px 0;
       text-align: center;
       font-size: 14px;
@@ -291,6 +291,42 @@
     .desc-wrap .lNote {
       font-size: 11px;
       min-height: 38px;
+    }
+
+    /* Invoice line table sizing tweaks */
+    #lines th:nth-child(2),
+    #lines td:nth-child(2) {
+      /* Type column */
+      min-width: 80px;
+    }
+    #lines th:nth-child(3),
+    #lines td:nth-child(3) {
+      /* Description / Note */
+      min-width: 230px;
+    }
+    #lines th:nth-child(4),
+    #lines td:nth-child(4),
+    #lines th:nth-child(5),
+    #lines td:nth-child(5),
+    #lines th:nth-child(6),
+    #lines td:nth-child(6),
+    #lines th:nth-child(7),
+    #lines td:nth-child(7) {
+      /* Qty / List / Cost / Unit */
+      min-width: 90px;
+    }
+    #lines select.lType {
+      width: 100%;
+    }
+    #lines .lQty,
+    #lines .lList,
+    #lines .lCost,
+    #lines .lUnit {
+      text-align: right;
+    }
+    #lines td.lLine,
+    #lines td.lProfit {
+      text-align: right;
     }
 
     /* Photo grid */
