@@ -1,637 +1,1195 @@
 <!DOCTYPE html>
-<html data-theme="dark" lang="en">
+<html lang="en">
 <head>
-  <!-- Supabase client -->
+  <meta charset="utf-8" />
+  <title>Poppe’s Diesel Co. — Shop Manager v1.2.2 (Parts-Only Tax + Cloud Fix)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Supabase client (v2 UMD) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
-  <title>Poppe’s Diesel Co. — Shop Manager (v1.2.1 — PARTS-ONLY TAX)</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
-  <!-- Base layout + components -->
   <style>
-  :root{--bg:#e6cfae;--card:#13151c;--text:#0e111a;--muted:#3e463e;--border:#2e3226;--ink:#0e111a;--ink2:#161a24;--shadow:0 10px 20px rgba(0,0,0,.30);--info:#0a3d2e;--ok:#1f6b55;--warn:#f5c518;--danger:#962b2b;--font:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-  *{box-sizing:border-box}html,body{height:100%}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font)}
-  header{position:sticky;top:0;z-index:10;background:var(--ink);border-bottom:1px solid #2e3226;padding:12px 16px;box-shadow:var(--shadow);color:#fff}
-  h1{margin:0;font-size:20px;display:flex;gap:8px;align-items:center}
-  .tag{background:var(--ink2);color:#c5c9d3;padding:2px 6px;border-radius:6px;font-size:12px;white-space:nowrap}
-  nav.top{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  button,select,input,textarea{background:#fff;border:1px solid #b6b09f;color:#0e111a;padding:12px 14px;border-radius:12px;font-size:17px;touch-action:manipulation}
-  button{cursor:pointer}
-  .tab-btn{background:#1d312a;color:#fff;border:1px solid #0e241c}
-  .tab-btn:hover{filter:brightness(1.05)}
-  .primary{background:#0a3d2e;color:#fff;border-color:#0a3d2e}
-  .success{background:#1f6b55;color:#fff;border-color:#1f6b55}
-  main{padding:16px 16px 110px}
-  .tab{display:none}
-  .tab.active{display:block}
-  .table-wrap{overflow:auto;border:1px solid #b6b09f;border-radius:14px;background:#fff}
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:10px;border-bottom:1px solid #b6b09f;text-align:left;vertical-align:top}
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-  .card{background:#1d312a;color:#fff;border:1px solid #0e241c;border-radius:14px;padding:20px;box-shadow:var(--shadow)}
-  .card h3{margin:0 0 8px 0}
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0}
-  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
-  .actions>*{height:48px}
-  .print-area{background:#fff;color:#000;border-radius:14px;padding:16px;position:relative;overflow:hidden}
-  .watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:.08;z-index:0}
-  .invoice-header{position:relative;z-index:1;display:flex;justify-content:space-between;gap:16px;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:8px}
-  .lines thead th{background:#203229;color:#eaf5f0;border-bottom-color:#2f463a}
-  .totals{display:grid;gap:6px;justify-items:end;margin-top:8px;position:relative;z-index:1}
-  .badge{padding:.25rem .5rem;border-radius:999px;border:1px solid #000;font-size:.9em;background:#fff;color:#000}
-  .badge.estimate{background:#fdf1c4;color:#2b2100}
-  .badge.invoice{background:#d9efe7;color:#0a3d2e}
-  .small{font-size:.85em;color:var(--muted)}
-  .calc-hint{font-size:.8em;line-height:1.2;margin-top:6px;opacity:.9}
-  .calc-hint.ok{color:#0a7f63}
-  .calc-hint.warn{color:#b48802}
-  #debugToggle{position:fixed;right:12px;bottom:72px;z-index:60;background:#1e2030;border:1px solid #3a3f58;border-radius:999px;padding:10px 12px;color:#fff}
-  #debug{position:fixed;right:12px;bottom:12px;left:12px;max-height:50vh;overflow:auto;background:#0f111a;border:1px solid #30364a;border-radius:12px;padding:10px 12px;z-index:60;display:none;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#d7e1ff}
-  #debug pre{white-space:pre-wrap;margin:0}
-  #debug .meta{font-size:12px;color:#9fb3d1;margin-bottom:6px}
-  #error{display:none;position:sticky;top:0;z-index:20;background:#ff5566;color:#18040a;padding:10px 14px;border-bottom:2px solid #8a1b27}
-  .selftest{display:none;margin-left:8px}
-  .selftest.ok{display:inline-block;background:#10331f;border:1px solid #1f6440;color:#a5ffd8}
-  .selftest.warn{display:inline-block;background:#3a2f00;border:1px solid #7a5f00;color:#ffeaa3}
-  #toTop{position:fixed;right:20px;bottom:140px;z-index:60;background:#1d312a;color:#fff;border:1px solid #0e241c;border-radius:999px;padding:10px 14px;display:none;box-shadow:var(--shadow)}
-  #toTop:hover{filter:brightness(1.08)}
-  @media print{
-    body{background:#fff;color:#000}
-    header,nav.bottom,nav.top,.actions,.modal,#debug,#debugToggle,#invFilters,#internalNotesWrap,#photosWrap{display:none!important}
-    .tab{display:block!important}
-    #invoice{display:block!important}
-    .print-area{box-shadow:none;margin:0;padding:0}
-  }
-  #pdf{position:fixed;bottom:128px;right:20px;z-index:1000;min-width:160px;height:50px;background:var(--info);color:#fff;border:none;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
-  #pdf:hover{filter:brightness(1.05)}
-  .drag-col{width:28px;text-align:center}
-  .handle{min-width:32px;height:36px;padding:4px 6px;cursor:grab}
-  .handle:active{cursor:grabbing}
-  .draggable-row.dragging{opacity:.5}
-  .drop-target{outline:2px dashed var(--info);outline-offset:-2px}
-  .desc-wrap{display:flex;flex-direction:column;gap:6px}
-  .lNote{width:100%;min-height:64px;resize:vertical;background:#fff;color:#0e111a;border:1px solid #b6b09f;border-radius:10px;padding:8px 10px;font-size:.95rem}
-  #overallNotesWrap{margin-top:12px}
-  #overallNotes{width:100%;min-height:110px;resize:vertical}
-  .signatures{margin-top:16px;display:grid;gap:10px}
-  .sig-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:end}
-  .sig{display:flex;flex-direction:column;justify-content:flex-end}
-  .sig-line{border-bottom:1px solid #000;height:32px;display:flex;align-items:flex-end}
-  .sig-label{font-size:.9em;color:#333;margin-top:4px}
-  .sig-img{max-height:60px;max-width:100%;object-fit:contain}
-  .photo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
-  .photo-item{position:relative;background:#fff;border:1px solid #b6b09f;border-radius:8px;padding:6px}
-  .photo-item img{width:100%;height:90px;object-fit:cover;border-radius:6px}
-  .photo-item .del{position:absolute;top:4px;right:4px;background:#962b2b;color:#fff;border:none;border-radius:8px;padding:2px 6px;font-size:12px;cursor:pointer}
-  .photo-item label{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px}
-  .badge-open{background:#fff;border-color:#b6b09f}
-  .badge-ip{background:#fff7d6;border-color:#caa52a}
-  .badge-done{background:#d9efe7;border-color:#1f6b55;color:#0a3d2e}
-  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4);z-index:80}
-  .modal .panel{max-width:800px;width:min(96vw,800px)}
-  .noscript-overlay{position:fixed;inset:0;background:#18040a;color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;z-index:9999}
-  .noscript-overlay .box{max-width:720px;background:#2b0c15;border:2px solid #8a1b27;border-radius:12px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
-  .noscript-overlay h2{margin:0 0 10px 0}
-  </style>
+    :root {
+      --bg: #e3cda7;
+      --bg-dark: #d2b78a;
+      --card: #f7f0e4;
+      --accent: #0b3b2e;
+      --accent-soft: #164b3c;
+      --accent-text: #ffffff;
+      --danger: #7d1c1c;
+      --text-main: #222222;
+      --text-soft: #444444;
+      --border-soft: #c3b59f;
+      --table-header: #1c1c1c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+    }
+    h1,h2,h3,h4 { margin: 0; }
 
-  <!-- Theme / color tweaks -->
-  <style>
-  :root, html[data-theme="dark"]{
-    --parchment:#E3D1B4; --ink:#0E0F10; --ink2:#171A1F; --brand-red:#B13A33;
-    --bg:var(--parchment); --surface:#F5E9D3; --surface-2:#EFE1C8; --text:#0B0D0F; --muted:#6D6456; --border:#C7B497;
-    --info:var(--ink); --ok:#1F6B55; --warn:#B07A07; --danger:#962B2B;
-  }
-  body{ background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased; font-size:16.5px; line-height:1.5; }
-  header{ background:var(--ink); border-bottom:1px solid rgba(255,255,255,.06); }
-  .tag{ background:var(--ink2); color:#E8E0D2; }
-  .card{ background:var(--surface); color:var(--text); border:1px solid var(--border); }
-  .table-wrap{ background:var(--surface); border-color:var(--border); }
-  .lines thead th{ background:var(--ink)!important; color:var(--parchment)!important; border-bottom-color:var(--ink)!important; }
-  tbody tr:nth-child(odd) td{ background:var(--surface-2); }
-  .tab-btn{ background:var(--ink); border:1px solid #0a0b0c; color:#F2E7D1; }
-  .tab-btn:hover{ filter:brightness(1.06); }
-  .primary{ background:var(--info); border-color:var(--info); color:#F2E7D1; }
-  .success{ background:var(--ok); border-color:var(--ok); color:#fff; }
-  #pdf{ background:var(--brand-red)!important; border:none; }
-  #pdf:hover{ filter:brightness(1.06); }
-  :where(button,[role="button"],a,input,select,textarea):focus-visible{ outline:2px solid transparent; box-shadow:0 0 0 3px rgba(177,58,51,.45); }
-  .print-area{ background:var(--surface); color:var(--text); border:1px solid var(--border); }
-  #wmFallback{ opacity:.10 } #wmImg{ opacity:.10; mix-blend-mode:multiply }
-  nav.bottom{ background:rgba(14,17,26,.90); backdrop-filter:saturate(160%) blur(8px); border-top:1px solid rgba(255,255,255,.06); }
-  .badge{ border:1px solid var(--border); background:var(--surface); color:var(--text); }
-  .badge.estimate{ background:#F3E2BF; color:#3B2B00; }
-  .badge.invoice{ background:#DCD3C0; color:#0E0F10; }
-  #sigPad{ touch-action:none; }
-  </style>
+    /* Layout */
+    header {
+      background: #1a1208;
+      color: #f8f5f0;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    header .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    header .title-block h1 {
+      font-size: 20px;
+      letter-spacing: 0.03em;
+    }
+    header .subtitle {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+    header .right-block {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-  <!-- LOTR aesthetic sugar -->
-  <style>
-  :root{ --display:"Cinzel", ui-serif, Georgia, "Times New Roman", serif; }
-  h1,h2,h3{ font-family:var(--display); letter-spacing:.02em; }
-  h2{ font-weight:700; text-transform:uppercase; }
-  body{
-    background:
-      radial-gradient(120% 70% at 50% -20%, rgba(255,255,255,.55) 0%, rgba(0,0,0,0) 65%),
-      linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,0)),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E");
-    background-color:var(--bg); background-attachment:fixed,fixed,fixed; background-blend-mode:multiply,normal,normal;
-  }
-  header{ position:sticky; top:0; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
-  header::after{
-    content:""; position:absolute; left:0; right:0; bottom:-1px; height:6px;
-    background:repeating-linear-gradient(90deg,transparent 0 28px, var(--brand-red) 28px 44px,transparent 44px 72px);
-    opacity:.55; pointer-events:none;
-  }
-  main h2::before{ content:"★"; color:var(--brand-red); margin-right:.5rem; font-size:.9em; vertical-align:.02em; }
-  .card{
-    background:linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,0)) , var(--surface);
-    border:1px solid var(--border);
-    box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 10px 24px rgba(0,0,0,.10);
-    border-radius:16px;
-  }
-  input,select,textarea{ background:#fff; border:1px solid var(--border); box-shadow:0 1px 0 rgba(0,0,0,.04) inset; }
-  :where(input,select,textarea)::placeholder{ color:#756b5c; }
-  :where(input,select,textarea):focus{ outline:0; border-color:rgba(177,58,51,.55); box-shadow:0 0 0 3px rgba(177,58,51,.20); }
-  .tab-btn{
-    border-radius:9999px; padding:10px 16px;
-    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.10)) , var(--ink);
-    color:#F2E7D1; border:1px solid #0a0b0c;
-    transition:transform .08s ease, box-shadow .2s ease, filter .15s ease;
-    box-shadow:0 2px 0 rgba(0,0,0,.25), 0 8px 18px rgba(0,0,0,.10);
-  }
-  .tab-btn:hover{ filter:brightness(1.06); }
-  .tab-btn:active{ transform:translateY(1px); box-shadow:0 1px 0 rgba(0,0,0,.3), 0 6px 14px rgba(0,0,0,.12); }
-  .primary{ background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.10)) , var(--info); border-color:var(--info); }
-  .success{ background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.08)) , var(--ok); border-color:var(--ok); }
-  #pdf{
-    background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.12)), var(--brand-red)!important;
-    border:none; color:#fff; font-weight:700; letter-spacing:.02em;
-  }
-  .table-wrap{ border-radius:16px; overflow:auto; -webkit-overflow-scrolling:touch; }
-  .lines thead th{ position:sticky; top:0; z-index:1; }
-  tbody tr:hover td{ background:#EAD9BC; }
-  .print-area{
-    background:linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,0)), var(--surface);
-    border:1px solid var(--border);
-  }
-  #wmFallback{ opacity:.08 } #wmImg{ opacity:.10; mix-blend-mode:multiply }
-  .badge{ text-transform:uppercase; letter-spacing:.04em; background:#F0E4CC; border:1px solid #BFAE91; color:#1A1A1A; }
-  .badge.invoice{ background:#E6DAC2 } .badge.estimate{ background:#F3E2BF; color:#3B2B00 }
-  nav.bottom{ background:rgba(14,17,26,.84); backdrop-filter:saturate(150%) blur(10px); }
-  .small{ color:#5f584d } tbody td, th{ border-bottom-color:rgba(0,0,0,.12) }
+    .tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.4);
+      background: rgba(0,0,0,0.4);
+      color: #f8f5f0;
+      white-space: nowrap;
+    }
+    .tag.selftest.ok { border-color: #7ed321; }
+    .tag.selftest.warn { border-color: #f5a623; }
 
-  /* Recent jobs dropdown */
-  #recentJobsWrap{
-    border-radius:14px;
-    border:1px solid var(--border);
-    background:var(--surface);
-    padding:6px;
-  }
-  .recent-jobs-header{
-    width:100%;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    background:transparent;
-    border:none;
-    color:var(--text);
-    padding:6px 8px;
-    cursor:pointer;
-    font-size:.9rem;
-  }
-  .recent-jobs-header .chevron{
-    transition:transform .15s ease;
-  }
-  #recentJobsWrap.collapsed .recent-jobs-panel{
-    display:none;
-  }
-  #recentJobsWrap.collapsed .recent-jobs-header .chevron{
-    transform:rotate(-90deg);
-  }
-  .recent-jobs-panel{
-    margin-top:4px;
-  }
-  .recent-jobs-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(180px,1fr));
-    gap:6px;
-    margin-top:4px;
-  }
-  .recent-job-card{
-    border-radius:10px;
-    border:1px solid var(--border);
-    padding:6px 8px;
-    background:#fff;
-    cursor:pointer;
-    font-size:.8rem;
-    text-align:left;
-  }
-  .recent-job-card:hover{
-    filter:brightness(1.03);
-  }
-  .recent-job-title{
-    font-weight:600;
-  }
-  .recent-job-meta{
-    font-size:.75rem;
-    color:var(--muted);
-  }
+    main {
+      padding: 10px 12px 60px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Tabs */
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .tab-btn {
+      border: none;
+      background: #111;
+      color: #f5f5f5;
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .tab-btn[data-tab].active-tab {
+      background: var(--accent);
+    }
+    .tab-btn:hover { filter: brightness(1.05); }
+
+    .tab {
+      display: none;
+      background: rgba(0,0,0,0.12);
+      border-radius: 12px;
+      padding: 10px;
+      margin-top: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    }
+    .tab.active { display: block; }
+
+    /* Cards & grids */
+    .card {
+      background: var(--card);
+      border-radius: 10px;
+      padding: 10px;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0,1.1fr) minmax(0,1.3fr);
+      gap: 10px;
+    }
+    @media (max-width: 960px) {
+      .grid-2 { grid-template-columns: minmax(0,1fr); }
+    }
+
+    /* Forms / inputs */
+    label {
+      font-size: 12px;
+      font-weight: 500;
+      display: block;
+      margin-bottom: 2px;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #b5a185;
+      font-size: 13px;
+      background: #fdf8ef;
+      color: var(--text-main);
+    }
+    textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: 2px solid rgba(12,63,52,0.7);
+      outline-offset: 1px;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .row > .field {
+      flex: 1;
+      min-width: 150px;
+    }
+    .row > .field.small {
+      max-width: 150px;
+    }
+    .row > .field.xsmall {
+      max-width: 120px;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead {
+      background: var(--table-header);
+      color: #f7f7f7;
+    }
+    th, td {
+      padding: 6px 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.35);
+      text-align: left;
+      vertical-align: top;
+    }
+    tbody tr:nth-child(even) {
+      background: rgba(0,0,0,0.04);
+    }
+    tbody tr:hover {
+      background: rgba(0,0,0,0.06);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid rgba(0,0,0,0.4);
+      background: #f0f0f0;
+    }
+    .badge-open { background: #ffe59d; }
+    .badge-ip { background: #fff2c3; }
+    .badge-done { background: #c2f0c2; }
+    .badge.invoice {
+      background: #0e543e;
+      color: white;
+      border-color: #0e543e;
+    }
+    .badge.estimate {
+      background: #b38b00;
+      color: white;
+      border-color: #b38b00;
+    }
+
+    /* Invoice area */
+    #invoice-toolbar {
+      margin-bottom: 10px;
+    }
+    #invoice-toolbar .row.buttons {
+      flex-wrap: wrap;
+    }
+    #invoice-toolbar .row.buttons .tab-btn {
+      margin-bottom: 4px;
+    }
+
+    .totals-panel {
+      background: #1f1f1f;
+      color: #f7f7f7;
+      border-radius: 10px;
+      padding: 8px 10px;
+      min-width: 210px;
+      font-size: 13px;
+    }
+    .totals-line {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+    .totals-line strong { font-weight: 600; }
+    .totals-panel .grand {
+      margin-top: 4px;
+      padding-top: 4px;
+      border-top: 1px solid rgba(255,255,255,0.25);
+      font-weight: 700;
+    }
+
+    .calc-hint {
+      margin-top: 3px;
+      font-size: 10px;
+      color: #555;
+    }
+    .calc-hint.ok { color: #0f6a45; }
+    .calc-hint.warn { color: #a35a00; }
+
+    .drag-col { width: 40px; }
+    .drag-col .handle {
+      width: 32px;
+      padding: 3px 0;
+      text-align: center;
+      font-size: 14px;
+    }
+    .draggable-row.dragging {
+      opacity: 0.7;
+      box-shadow: 0 0 8px rgba(0,0,0,0.4);
+      position: relative;
+      z-index: 10;
+    }
+    .draggable-row.drop-target {
+      outline: 2px dashed #333;
+    }
+
+    .desc-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .desc-wrap .lDesc {
+      width: 100%;
+    }
+    .desc-wrap .lNote {
+      font-size: 11px;
+      min-height: 38px;
+    }
+
+    /* Photo grid */
+    #photoSection {
+      margin-top: 10px;
+    }
+    #photoGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px,1fr));
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .photo-item {
+      background: #fdf8ef;
+      border-radius: 8px;
+      padding: 6px;
+      border: 1px solid var(--border-soft);
+    }
+    .photo-item img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 4px;
+    }
+    .photo-item button.del {
+      border: none;
+      background: var(--danger);
+      color: #fff;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      cursor: pointer;
+      margin-bottom: 4px;
+    }
+
+    /* Preview / print area */
+    #preview {
+      position: relative;
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 10px 10px 14px;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.25);
+    }
+    #preview .watermark {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.08;
+    }
+    #wmImg {
+      max-width: 90%;
+      max-height: 90%;
+      opacity: 0.12;
+      display: none;
+    }
+    #wmFallback {
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.12;
+    }
+    #preview-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+    }
+    .invoice-header h3 {
+      font-size: 16px;
+      margin: 0;
+    }
+    .invoice-header .meta {
+      font-size: 11px;
+      text-align: right;
+    }
+
+    .p-totals {
+      margin-top: 6px;
+      display: flex;
+      justify-content: flex-end;
+      font-size: 12px;
+      gap: 8px;
+    }
+    .p-totals div {
+      min-width: 90px;
+      text-align: right;
+    }
+
+    #pOverallBlock {
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    .signatures {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+      font-size: 11px;
+    }
+    .sig-row {
+      display: grid;
+      grid-template-columns: minmax(0,2fr) minmax(0,1.3fr);
+      gap: 16px;
+      align-items: flex-end;
+    }
+    @media (max-width: 720px) {
+      .sig-row { grid-template-columns: minmax(0,1fr); }
+    }
+    .sig-line {
+      border-bottom: 1px solid #333;
+      height: 28px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
+      gap: 6px;
+    }
+    .sig-label {
+      margin-top: 2px;
+      color: #555;
+    }
+    .sig-img {
+      max-height: 60px;
+    }
+
+    .p-photos {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .p-photo {
+      border: 1px solid #333;
+      padding: 4px;
+      border-radius: 6px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .p-photo img {
+      width: 100%;
+      height: 1.8in;
+      object-fit: cover;
+      border-radius: 4px;
+      display: block;
+    }
+
+    /* Recent jobs pill */
+    #recentJobsWrap {
+      margin-top: 4px;
+      background: #2a2119;
+      border-radius: 999px;
+      padding: 4px 8px;
+      color: #f7f7f7;
+      font-size: 12px;
+    }
+    #recentJobsWrap.collapsed #recentJobs { display: none; }
+    #recentJobsToggle {
+      border: none;
+      background: transparent;
+      color: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+    #recentJobsToggle:hover { text-decoration: underline; }
+    #recentJobs {
+      margin-top: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .recent-job-card {
+      border-radius: 999px;
+      border: none;
+      background: rgba(0,0,0,0.7);
+      color: #f7f7f7;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+    .recent-job-title { font-weight: 600; }
+    .recent-job-meta { opacity: 0.85; }
+
+    /* Debug */
+    #debugToggle {
+      border: none;
+      background: #333;
+      color: #fff;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    #debug {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-height: 40vh;
+      background: #0b0b0b;
+      color: #e0e0e0;
+      font-family: "SF Mono","Consolas","Menlo",monospace;
+      font-size: 11px;
+      padding: 6px 10px;
+      overflow: auto;
+      z-index: 40;
+      border-top: 1px solid #555;
+    }
+    #debugMeta {
+      font-size: 10px;
+      margin-bottom: 4px;
+      opacity: 0.8;
+    }
+    #debugLog {
+      white-space: pre-wrap;
+    }
+
+    #error {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      text-align: center;
+      padding: 20px;
+      cursor: pointer;
+    }
+    #error-inner {
+      max-width: 320px;
+      background: #3b0000;
+      border-radius: 10px;
+      padding: 14px;
+      border: 1px solid #ffb3b3;
+    }
+
+    /* To top button */
+    #toTop {
+      position: fixed;
+      right: 16px;
+      bottom: 18px;
+      border: none;
+      background: #111;
+      color: white;
+      padding: 8px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 12px;
+      display: none;
+      z-index: 30;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 60;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+    .modal {
+      background: #fdf8ef;
+      border-radius: 10px;
+      padding: 10px;
+      max-width: 480px;
+      width: 100%;
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .modal-header h3 {
+      font-size: 15px;
+    }
+    .modal-close {
+      border: none;
+      background: transparent;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    #sigPad {
+      width: 100%;
+      height: 160px;
+      border-radius: 8px;
+      border: 1px solid var(--border-soft);
+      background: #ffffff;
+      display: block;
+    }
+
+    /* Small helpers */
+    .muted { color: var(--text-soft); font-size: 11px; }
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #2b1a0a;
+    }
+
   </style>
 </head>
-
 <body>
-<noscript>
-  <div class="noscript-overlay">
-    <div class="box">
-      <h2>JavaScript is disabled or blocked</h2>
-      <p>This app is 100% client-side. Please open the file in Chrome/Edge with JavaScript enabled.</p>
-      <ul>
-        <li>Download the file and open it so the address bar starts with <code>file:///</code></li>
-        <li>Disable blockers for this file</li>
-      </ul>
-    </div>
-  </div>
-</noscript>
-
-<div id="error" style="display:none">JavaScript error detected. Tap to reload.</div>
 
 <header>
-  <h1>
-    Poppe’s Diesel Co. — Shop Manager
-    <span class="tag">v1.2.1</span>
-    <span class="tag selftest" id="selftest">Self-test: …</span>
-    <span class="tag">COMPAT</span>
-  </h1>
-  <nav class="top">
-    <button class="tab-btn" data-tab="dashboard">Dashboard</button>
-    <button class="tab-btn" data-tab="customers">Customers</button>
-    <button class="tab-btn" data-tab="jobs">Jobs</button>
-    <button class="tab-btn" data-tab="invoice">Estimate / Invoice</button>
-    <button class="tab-btn" data-tab="settings">Settings</button>
-  </nav>
+  <div class="title-block">
+    <h1>Poppe’s Diesel Co. — Shop Manager</h1>
+    <div class="subtitle">v1.2.2 — Parts-Only Tax · Cloud Save/Load · Local Backup</div>
+  </div>
+  <div class="right-block">
+    <span id="selftest" class="tag selftest">Self-test: …</span>
+    <div class="tag">Watermark:
+      <input type="file" id="wmFile" accept="image/*" style="font-size:10px; margin-left:4px; max-width:140px;" />
+    </div>
+    <button id="debugToggle">Debug</button>
+  </div>
 </header>
 
 <main>
+  <!-- Tab buttons -->
+  <div class="tab-bar">
+    <button class="tab-btn active-tab" data-tab="dashboard">Dashboard</button>
+    <button class="tab-btn" data-tab="customers">Customers</button>
+    <button class="tab-btn" data-tab="jobs">Jobs</button>
+    <button class="tab-btn" data-tab="invoice">Invoice / Estimate</button>
+    <button class="tab-btn" data-tab="settings">Settings & Backup</button>
+  </div>
+
   <!-- Dashboard -->
-  <section class="tab active" id="dashboard">
-    <h2>Dashboard</h2>
-    <div class="cards">
-      <div class="card"><h3>Open Jobs</h3><div id="openJobs">0</div></div>
-      <div class="card"><h3>Unpaid Invoices</h3><div id="unpaid">0</div></div>
-      <div class="card"><h3>Revenue (This Month)</h3><div id="revMonth">$0</div></div>
-      <div class="card"><h3>Profit (This Month)</h3><div id="profitMonth">$0</div></div>
+  <section id="dashboard" class="tab active">
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-title">Shop Snapshot</div>
+        <div class="row">
+          <div class="field">
+            <label>Open jobs</label>
+            <div id="openJobs" style="font-size:22px; font-weight:700;">0</div>
+          </div>
+          <div class="field">
+            <label>Unpaid invoices</label>
+            <div id="unpaid" style="font-size:22px; font-weight:700;">0</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Revenue this month</label>
+            <div id="revMonth" style="font-size:18px; font-weight:600;">$0.00</div>
+          </div>
+          <div class="field">
+            <label>Estimated profit (month)</label>
+            <div id="profitMonth" style="font-size:18px; font-weight:600;">$0.00</div>
+          </div>
+        </div>
+        <p class="muted">Based on job totals and profit estimates from current database.</p>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Quick Notes</div>
+        <p style="font-size:13px; line-height:1.4;">
+          Use the <strong>Customers</strong> tab to add vehicles & contact info, then the
+          <strong>Jobs</strong> tab to start a new ticket. Build the estimate/invoice in the
+          <strong>Invoice</strong> tab, and keep your data safe with the
+          <strong>Settings &amp; Backup</strong> tab (local JSON backup, flash-drive save, and Supabase cloud snapshot).
+        </p>
+      </div>
     </div>
   </section>
 
   <!-- Customers -->
-  <section class="tab" id="customers">
-    <h2>Customers</h2>
-    <form class="grid" id="custForm">
-      <input id="custName" placeholder="Full name (e.g., Jane Smith)" required=""/>
-      <input id="custPhone" inputmode="tel" placeholder="Phone (e.g., 555-123-4567)"/>
-      <input id="custEmail" inputmode="email" placeholder="Email (e.g., name@shop.com)"/>
-      <input id="custVehicle" placeholder="Vehicle (e.g., 2018 F-350 6.7L)"/>
-      <button class="primary" type="submit">Add Customer</button>
-    </form>
-    <div class="table-wrap">
-      <table id="custTable">
-        <thead>
-          <tr><th>Name</th><th>Phone</th><th>Email</th><th>Vehicle</th><th></th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+  <section id="customers" class="tab">
+    <div class="card" style="margin-bottom:8px;">
+      <div class="section-title">Add Customer</div>
+      <form id="custForm">
+        <div class="row">
+          <div class="field">
+            <label for="custName">Name</label>
+            <input id="custName" type="text" placeholder="Joey Poppe" required />
+          </div>
+          <div class="field">
+            <label for="custPhone">Phone</label>
+            <input id="custPhone" type="text" placeholder="555-123-4567" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="custEmail">Email</label>
+            <input id="custEmail" type="email" placeholder="customer@example.com" />
+          </div>
+          <div class="field">
+            <label for="custVehicle">Vehicle / Notes</label>
+            <input id="custVehicle" type="text" placeholder="2013 VW Touareg TDI — 210k mi" />
+          </div>
+        </div>
+        <button type="submit" class="tab-btn">Save Customer</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Customer List</div>
+      <div style="overflow-x:auto;">
+        <table id="custTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Vehicle</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody><!-- filled by JS --></tbody>
+        </table>
+      </div>
     </div>
   </section>
 
   <!-- Jobs -->
-  <section class="tab" id="jobs">
-    <h2>Jobs</h2>
-    <form class="grid" id="jobForm">
-      <select id="jobCustomer" required=""></select>
-      <input id="jobTitle" placeholder="Job title (e.g., Front brakes + rotors)" required=""/>
-      <input id="jobVIN" placeholder="VIN (17 chars)"/>
-      <button class="tab-btn" id="decodeVIN" type="button">Decode VIN</button>
-      <div aria-live="polite" class="card" id="vinResult" style="display:none"></div>
-      <div aria-live="polite" class="card" id="vinSuggest" style="display:none">
-        <div><strong>Suggested parts &amp; labor</strong> (platform match)</div>
-        <div class="actions" id="vinTags"></div>
-        <button class="tab-btn primary" id="addAllSuggest" type="button">Add All</button>
-      </div>
-      <textarea id="jobNotes" placeholder="Notes (symptoms, codes, etc.)"></textarea>
-      <select id="jobStatus"><option>Open</option><option>In Progress</option><option>Done</option></select>
-      <button class="primary" type="submit">Create Job</button>
-    </form>
+  <section id="jobs" class="tab">
+    <div class="card" style="margin-bottom:8px;">
+      <div class="section-title">New Job / Ticket</div>
+      <form id="jobForm">
+        <div class="row">
+          <div class="field">
+            <label for="jobCustomer">Customer</label>
+            <select id="jobCustomer">
+              <option value="">Select…</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="jobTitle">Job title</label>
+            <input id="jobTitle" type="text" placeholder="Oil change &amp; tune-up" />
+          </div>
+        </div>
 
-    <div class="card" id="internalNotesWrap">
-      <h3>Internal Staff Notes (won’t print)</h3>
-      <textarea id="internalNotes" placeholder="For in-house eyes only — diagnostic rabbit holes, supplier rants, etc."></textarea>
+        <div class="row">
+          <div class="field">
+            <label for="jobVIN">VIN</label>
+            <input id="jobVIN" type="text" placeholder="17-digit VIN" />
+          </div>
+          <div class="field xsmall">
+            <label>&nbsp;</label>
+            <button type="button" id="decodeVIN" class="tab-btn">Decode VIN &amp; Suggest Template</button>
+          </div>
+        </div>
+
+        <div id="vinResult" class="muted" style="display:none;"></div>
+        <div id="vinSuggest" style="display:none; margin-top:4px;">
+          <div class="muted">Suggested service templates:</div>
+          <div id="vinTags" style="margin-top:4px; display:flex; flex-wrap:wrap; gap:4px;"></div>
+          <button type="button" id="addAllSuggest" class="tab-btn" style="margin-top:4px;">Add All Suggestion Templates</button>
+        </div>
+
+        <div class="row" style="margin-top:8px;">
+          <div class="field">
+            <label for="jobNotes">Job notes (intake)</label>
+            <textarea id="jobNotes" placeholder="Customer complaint, symptoms, etc."></textarea>
+          </div>
+          <div class="field small">
+            <label for="jobStatus">Status</label>
+            <select id="jobStatus">
+              <option>Open</option>
+              <option>In Progress</option>
+              <option>Done</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="tab-btn">Create Job</button>
+      </form>
     </div>
 
-    <div class="table-wrap">
-      <table id="jobsTable">
-        <thead>
-          <tr><th>#</th><th>Customer</th><th>Title</th><th>Status</th><th>Total</th><th>Profit</th><th></th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+    <div class="card">
+      <div class="section-title">All Jobs</div>
+      <div style="overflow-x:auto;">
+        <table id="jobsTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Customer</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Subtotal</th>
+              <th>Profit</th>
+              <th>Open</th>
+            </tr>
+          </thead>
+          <tbody><!-- filled by JS --></tbody>
+        </table>
+      </div>
     </div>
   </section>
 
   <!-- Invoice -->
-  <section class="tab" id="invoice">
-    <h2>Estimate / Invoice<br/><small>Poppe’s Diesel Co. — Built in the Garage, Backed by Freedom</small></h2>
+  <section id="invoice" class="tab">
+    <div id="invoice-toolbar" class="card">
+      <div class="row">
+        <div class="field">
+          <label for="invCustFilter">Filter by Customer</label>
+          <select id="invCustFilter">
+            <option value="">All customers</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="invJobSearch">Search Jobs</label>
+          <input id="invJobSearch" type="text" placeholder="Type to filter jobs by customer, VIN, notes…" />
+        </div>
+        <div class="field">
+          <label for="invJob">Job</label>
+          <select id="invJob">
+            <option value="">Select job…</option>
+          </select>
+        </div>
+        <div class="field xsmall">
+          <label for="docType">Type</label>
+          <select id="docType">
+            <option>Estimate</option>
+            <option>Invoice</option>
+          </select>
+        </div>
+        <div class="field xsmall">
+          <label for="invNo">Document #</label>
+          <input id="invNo" type="text" placeholder="(e.g., 2025-001)" />
+        </div>
+      </div>
 
-    <div class="grid" id="invFilters">
-      <label>Filter by Customer
-        <select id="invCustFilter"><option value="">All customers</option></select>
-      </label>
-      <label>Search Jobs
-        <input id="invJobSearch" placeholder="Type to filter jobs by customer/title…"/>
-      </label>
+      <div class="row">
+        <div class="field xsmall">
+          <label for="laborRate">Labor Rate ($/hr)</label>
+          <input id="laborRate" type="number" step="0.01" value="80" />
+        </div>
+        <div class="field xsmall">
+          <label for="salesTax">Sales Tax (%)</label>
+          <input id="salesTax" type="number" step="0.01" value="7" />
+        </div>
+        <div class="field">
+          <label for="payLink">Payment Link</label>
+          <input id="payLink" type="text" placeholder="https://pay.yourprovider.com/…" />
+        </div>
+        <div class="field">
+          <label for="emailTo">Email To</label>
+          <input id="emailTo" type="email" placeholder="customer@example.com" />
+        </div>
+      </div>
+
+      <div class="row buttons" style="margin-top:6px;">
+        <button type="button" id="addLabor" class="tab-btn">+ Labor Line</button>
+        <button type="button" id="addPart" class="tab-btn">+ Part Line</button>
+        <button type="button" id="applyMarkup" class="tab-btn">Apply Default Markup</button>
+        <button type="button" id="quickEstimate" class="tab-btn">Quick Estimate</button>
+        <button type="button" id="recalc" class="tab-btn">Recalculate</button>
+        <button type="button" id="markPaid" class="tab-btn" style="background:var(--accent);">Mark Paid</button>
+        <button type="button" id="approve" class="tab-btn">Approve Estimate</button>
+        <button type="button" id="convert" class="tab-btn">Convert to Invoice</button>
+        <button type="button" id="sign" class="tab-btn">Collect Signatures</button>
+        <button type="button" id="email" class="tab-btn">Email</button>
+      </div>
 
       <div id="recentJobsWrap" class="collapsed">
-        <button type="button" class="recent-jobs-header" id="recentJobsToggle">
-          <span>Recent Jobs (click to load)</span>
-          <span class="chevron">▾</span>
-        </button>
-        <div class="recent-jobs-panel">
-          <div class="small">Click a job card below to load it into the invoice.</div>
-          <div class="recent-jobs-grid" id="recentJobs"></div>
-        </div>
+        <button id="recentJobsToggle">Recent Jobs (click to expand)</button>
+        <div id="recentJobs"></div>
       </div>
     </div>
 
-    <form class="grid" id="invForm">
-      <select id="invJob" required=""></select>
-      <input id="invNo" placeholder="Document # (e.g., 2025-001)">
-      <label>Type
-        <select id="docType"><option>Estimate</option><option>Invoice</option></select>
-      </label>
-      <label>Labor Rate ($/hr)
-        <input id="laborRate" step="0.01" type="number" value="80"/>
-      </label>
-      <label>Sales Tax (%)
-        <input id="salesTax" step="0.01" type="number" value="7"/>
-      </label>
-      <label>Payment Link
-        <input id="payLink" placeholder="https://pay.yourprovider.com/invoice/123"/>
-      </label>
-      <label>Email To
-        <input id="emailTo" placeholder="customer@example.com"/>
-      </label>
-    </form>
-
-    <div class="actions">
-      <button class="tab-btn" id="addLabor" type="button">+ Labor Line</button>
-      <button class="tab-btn" id="addPart" type="button">+ Part Line</button>
-      <button class="tab-btn" id="applyMarkup" type="button">Apply Default Markup</button>
-      <button class="tab-btn" id="quickEstimate" type="button">Quick Estimate</button>
-      <button class="tab-btn" id="recalc" type="button">Recalculate</button>
-      <button class="tab-btn success" id="markPaid" type="button">Mark Paid</button>
-      <button class="tab-btn" id="approve" type="button">Approve Estimate</button>
-      <button class="tab-btn" id="convert" type="button">Convert to Invoice</button>
-      <button class="tab-btn" id="sign" type="button">Collect Signatures</button>
-      <button class="tab-btn" id="email" type="button">Email</button>
-      <button class="tab-btn primary" id="pdf" type="button">Generate PDF</button>
-    </div>
-
-    <div class="table-wrap" style="margin-top:10px">
-      <table class="lines" id="lines">
-        <thead>
-          <tr>
-            <th style="width:28px">↕</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Qty/Hrs</th>
-            <th>List $</th>
-            <th>Cost $</th>
-            <th>Unit $</th>
-            <th>Line $</th>
-            <th>Profit $</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
-    <div class="totals">
-      <div>Subtotal: <span id="sub">$0.00</span></div>
-      <div>Tax (Parts only): <span id="tax">$0.00</span></div>
-      <div class="grand">Total: <span id="grand">$0.00</span></div>
-      <div>Total Savings vs List: <span id="save">$0.00</span></div>
-      <div><strong>Total Profit:</strong> <span id="profit">$0.00</span></div>
-      <div>Margin: <span class="badge estimate" id="margin">0%</span></div>
-    </div>
-
-    <div class="card" id="overallNotesWrap" style="background:#fff;color:#000;border-color:#b6b09f">
-      <h3 style="color:#0e111a">Technician Overall Notes</h3>
-      <textarea id="overallNotes" placeholder="Explain diagnostics, verified checks, advisories."></textarea>
-    </div>
-
-    <div class="card" id="photosWrap" style="background:#fff;color:#000;border-color:#b6b09f">
-      <h3 style="color:#0e111a">Work Photos</h3>
-      <div class="actions">
-        <label style="display:inline-flex;align-items:center;gap:8px">
-          <input accept="image/*" id="photoInput" multiple="" type="file"/>Add photos
-        </label>
-        <label style="display:inline-flex;align-items:center;gap:8px">
-          <input checked="" id="photosOnPdf" type="checkbox"/> Include photos on PDF
-        </label>
-      </div>
-      <div aria-live="polite" class="photo-grid" id="photoGrid"></div>
-    </div>
-
-    <!-- Print preview -->
-    <div class="print-area" id="preview" style="margin-top:12px">
-      <div class="watermark">
-        <img alt="watermark" id="wmImg" style="display:none;max-width:90%;max-height:90%;opacity:.50;mix-blend-mode:multiply"/>
-        <svg height="90%" id="wmFallback" style="filter:grayscale(100%);opacity:.12" viewBox="0 0 800 200" width="90%">
-          <text dominant-baseline="middle" fill="#000" font-family="Impact,Haettenschweiler,'Arial Black',sans-serif" font-size="72" text-anchor="middle" x="50%" y="50%">Poppe’s Diesel Co.</text>
-        </svg>
-      </div>
-      <div class="invoice-header">
-        <div class="shop">
-          <h3>Poppe’s Diesel Co.</h3>
-          <p>Columbus, IN</p>
-          <p>poppedieselco@gmail.com</p>
-          <p>(208) 243-7934</p>
-        </div>
-        <div class="meta">
-          <div><strong>Doc #</strong> <span id="pInvNo">—</span></div>
-          <div><strong>Date</strong> <span id="pDate">—</span></div>
-          <div><strong>Type</strong> <span class="badge estimate" id="pType">Estimate</span></div>
-          <div><strong>Status</strong> <span id="pStatus">Unpaid</span></div>
-        </div>
-      </div>
-      <div><strong>Bill To:</strong> <span id="pCust">—</span><div id="pVeh"></div></div>
-      <table class="lines">
-        <thead>
-          <tr>
-            <th>Description</th>
-            <th>Qty/Hrs</th>
-            <th>Customer $</th>
-            <th>Line $</th>
-          </tr>
-        </thead>
-        <tbody id="pLines"></tbody>
-      </table>
-      <div id="pOverallBlock"></div>
-      <div class="totals">
-        <div>Subtotal: <span id="pSub">$0.00</span></div>
-        <div>Tax (Parts only): <span id="pTax">$0.00</span></div>
-        <div>Total Savings vs List: <span id="pSave">$0.00</span></div>
-        <div class="grand">Grand Total: <span id="pGrand">$0.00</span></div>
-      </div>
-      <div class="signatures" id="signatures">
-        <div class="sig-row">
-          <div class="sig">
-            <div class="sig-line"><img alt="" class="sig-img" id="pSigCustomer" style="display:none"/></div>
-            <div class="sig-label">Customer Signature <span id="pSigCustomerName"></span> <span class="small" id="pSigCustomerDate"></span></div>
-          </div>
-          <div class="sig">
-            <div class="sig-line"></div>
-            <div class="sig-label">Date</div>
+    <div class="grid-2" style="margin-top:8px;">
+      <!-- Lines + totals -->
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:8px; margin-bottom:4px;">
+          <div class="section-title">Line Items</div>
+          <div class="totals-panel">
+            <div class="totals-line"><span>Subtotal:</span> <span id="sub">$0.00</span></div>
+            <div class="totals-line"><span>Tax (Parts only):</span> <span id="tax">$0.00</span></div>
+            <div class="totals-line grand"><span>Total:</span> <span id="grand">$0.00</span></div>
+            <div class="totals-line"><span>Total Profit:</span> <span id="profit">$0.00</span></div>
+            <div class="totals-line"><span>Total Savings vs List:</span> <span id="save">$0.00</span></div>
+            <div class="totals-line">
+              <span>Margin:</span>
+              <span id="margin" class="badge estimate">0%</span>
+            </div>
           </div>
         </div>
-        <div class="sig-row">
-          <div class="sig">
-            <div class="sig-line"><img alt="" class="sig-img" id="pSigManager" style="display:none"/></div>
-            <div class="sig-label">Service Manager Signature <span id="pSigManagerName"></span> <span class="small" id="pSigManagerDate"></span></div>
+
+        <div style="overflow-x:auto;">
+          <table id="lines">
+            <thead>
+              <tr>
+                <th class="drag-col">⇅</th>
+                <th>Type</th>
+                <th>Description / Note</th>
+                <th>Qty/Hrs</th>
+                <th>List $</th>
+                <th>Cost $</th>
+                <th>Unit $</th>
+                <th>Line $</th>
+                <th>Line Profit $</th>
+                <th>×</th>
+              </tr>
+            </thead>
+            <tbody><!-- JS fills --></tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:8px;">
+          <div class="section-title">Technician Overall Notes</div>
+          <textarea id="overallNotes" placeholder="Explain diagnostics, verified checks, advisories."></textarea>
+        </div>
+
+        <div style="margin-top:8px;">
+          <div class="section-title">Internal Notes (shop-only)</div>
+          <textarea id="internalNotes" placeholder="Private notes for you / techs (won’t print)."></textarea>
+        </div>
+
+        <div id="photoSection">
+          <div class="section-title">Work Photos</div>
+          <div class="row">
+            <div class="field">
+              <label for="photoInput">Attach Photos</label>
+              <input id="photoInput" type="file" accept="image/*" multiple />
+            </div>
+            <div class="field">
+              <label><input type="checkbox" id="photosOnPdf" checked /> Include photos on PDF</label>
+              <div class="muted">Each photo can be toggled on/off below.</div>
+            </div>
           </div>
-          <div class="sig">
-            <div class="sig-line"></div>
-            <div class="sig-label">Date</div>
+          <div id="photoGrid"></div>
+        </div>
+
+        <div style="margin-top:10px; display:flex; justify-content:flex-end;">
+          <button type="button" id="pdf" class="tab-btn" style="background:#b22222;">Generate PDF</button>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="card">
+        <div class="section-title">Preview (Print Layout)</div>
+        <div id="preview">
+          <div class="watermark">
+            <img id="wmImg" alt="Watermark" />
+            <div id="wmFallback">POPPE’S DIESEL CO.</div>
+          </div>
+          <div id="preview-content">
+            <div class="invoice-header">
+              <div>
+                <h3><span id="pType" class="badge estimate">Estimate</span> <span id="pInvNo">DRAFT</span></h3>
+                <div style="font-size:11px; margin-top:4px;">
+                  <strong>Bill To:</strong> <span id="pCust">—</span><br/>
+                  <span id="pVeh"></span>
+                </div>
+              </div>
+              <div class="meta">
+                <div>Date: <span id="pDate"></span></div>
+                <div>Status: <span id="pStatus"></span></div>
+              </div>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th style="width:50px;">Qty</th>
+                  <th style="width:120px;">Unit</th>
+                  <th style="width:90px;">Line</th>
+                </tr>
+              </thead>
+              <tbody id="pLines"></tbody>
+            </table>
+
+            <div class="p-totals">
+              <div>Subtotal: <span id="pSub">$0.00</span></div>
+              <div>Tax: <span id="pTax">$0.00</span></div>
+              <div><strong>Total: <span id="pGrand">$0.00</span></strong></div>
+              <div>Savings: <span id="pSave">$0.00</span></div>
+            </div>
+
+            <div id="pOverallBlock"></div>
+
+            <div class="signatures">
+              <div class="sig-row">
+                <div>
+                  <div class="sig-line">
+                    <img id="pSigCustomer" class="sig-img" alt="Customer Signature" />
+                  </div>
+                  <div class="sig-label">
+                    Customer Signature
+                    <span id="pSigCustomerName"></span>
+                    <span id="pSigCustomerDate"></span>
+                  </div>
+                </div>
+                <div>
+                  <div class="sig-line">
+                    <img id="pSigManager" class="sig-img" alt="Manager Signature" />
+                  </div>
+                  <div class="sig-label">
+                    Shop Representative
+                    <span id="pSigManagerName"></span>
+                    <span id="pSigManagerDate"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="pPhotosBlock"></div>
           </div>
         </div>
       </div>
-      <div id="pPhotosBlock" style="margin-top:10px"></div>
     </div>
   </section>
 
-  <!-- Settings -->
-  <section class="tab" id="settings">
-    <h2>Settings</h2>
-
-    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-      <h3 style="color:#0e111a">Default Parts Markup</h3>
-      <div class="grid">
-        <label>Default Markup %
-          <input id="defaultMarkup" step="1" type="number" value="40"/>
-        </label>
-        <div class="small">Used by “Apply Default Markup”.</div>
+  <!-- Settings / Backup -->
+  <section id="settings" class="tab">
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-title">Shop Defaults</div>
+        <div class="row">
+          <div class="field small">
+            <label for="defaultMarkup">Default markup % (parts)</label>
+            <input id="defaultMarkup" type="number" step="0.01" value="40" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="shopFrom">Shop Name / From line</label>
+            <input id="shopFrom" type="text" placeholder="Poppe’s Diesel Co." />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="shopReply">Reply-To Email</label>
+            <input id="shopReply" type="email" placeholder="poppedieselco@gmail.com" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="shopSubj">Email Subject Prefix</label>
+            <input id="shopSubj" type="text" placeholder="[Poppe’s Diesel Co.] " />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="shopFooter">Email Footer</label>
+            <textarea id="shopFooter" placeholder="Thank you for supporting local."></textarea>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-      <h3 style="color:#0e111a">Email Presets</h3>
-      <div class="grid">
-        <label>From (Shop Name) <input id="shopFrom" placeholder="Poppe’s Diesel Co."/></label>
-        <label>Reply-To Email <input id="shopReply" inputmode="email" placeholder="poppedieselco@gmail.com"/></label>
-        <label>Subject Prefix <input id="shopSubj" placeholder="[Poppe’s Diesel Co.] "/></label>
-        <label>Footer (email body) <input id="shopFooter" placeholder="Thank you for supporting local."/></label>
-      </div>
-      <div class="small">Tap Email to use these in a mailto draft.</div>
-    </div>
-
-    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-      <h3 style="color:#0e111a">Branding (Watermark)</h3>
-      <div class="grid">
-        <label>Upload Logo <input accept="image/*" id="wmFile" type="file"/></label>
-      </div>
-      <div class="small">Upload your logo here once; it will print faintly behind the invoice/estimate.</div>
-    </div>
-
-    <div class="card" style="background:#fff;color:#000;border-color:#b6b09f">
-      <h3 style="color:#0e111a">Backup &amp; Restore</h3>
-      <div class="grid">
-        <div class="actions">
-          <button class="tab-btn" id="exportBtn" type="button">Export Data (JSON)</button>
-          <label style="display:inline-flex;align-items:center;gap:8px">
-            <input id="importFile" type="file" accept="application/json"/> Import JSON
+      <div class="card">
+        <div class="section-title">Backup / Restore</div>
+        <p style="font-size:13px; margin-bottom:6px;">
+          <strong>Local JSON backup</strong> includes all customers, jobs, line items,
+          notes, photos, signatures, settings, and UI state.
+        </p>
+        <div class="row">
+          <button type="button" id="exportBtn" class="tab-btn">Export JSON Backup</button>
+          <label class="tab-btn" style="cursor:pointer;">
+            Import Backup
+            <input id="importFile" type="file" accept="application/json" style="display:none;" />
           </label>
-          <button class="tab-btn" id="importBtn" type="button">Import</button>
-          <button class="tab-btn" id="fsChoose" type="button">Choose Save File (Flash Drive)</button>
-          <button class="tab-btn" id="fsQuickSave" type="button" title="Save to the chosen file">Quick Save</button>
-          <!-- Cloud buttons -->
-          <button class="tab-btn" id="cloudSaveBtn" type="button">Cloud Save (Supabase)</button>
-          <button class="tab-btn" id="cloudLoadBtn" type="button">Cloud Load (Supabase)</button>
+          <button type="button" id="importBtn" class="tab-btn">Run Import</button>
         </div>
-        <div class="small">
-          Exports customers, jobs, settings, UI state, and your watermark so you can restore after site updates.
-          Cloud Save / Load uses your Supabase project (backed up off your laptop).
+
+        <hr style="margin:8px 0; border:none; border-top:1px solid var(--border-soft);" />
+
+        <p style="font-size:13px; margin-bottom:6px;">
+          <strong>Flash-drive Save</strong> (browser File System Access, Chromium-based):
+        </p>
+        <div class="row">
+          <button type="button" id="fsChoose" class="tab-btn">Choose Save File</button>
+          <button type="button" id="fsQuickSave" class="tab-btn">Quick Save to File</button>
         </div>
+
+        <hr style="margin:8px 0; border:none; border-top:1px solid var(--border-soft);" />
+
+        <p style="font-size:13px; margin-bottom:6px;">
+          <strong>Supabase Cloud Snapshot</strong> (single row keyed by ID: <code>main</code>):
+        </p>
+        <div class="row">
+          <button type="button" id="cloudSaveBtn" class="tab-btn">Cloud Save</button>
+          <button type="button" id="cloudLoadBtn" class="tab-btn">Cloud Load</button>
+        </div>
+        <p class="muted">
+          Cloud save/load round-trips the entire app state: customers, jobs, all lines
+          (labor &amp; parts, list/cost/unit/notes), overall notes, internal notes, photos,
+          signatures, settings, UI (where useful), and watermark.
+        </p>
       </div>
     </div>
   </section>
 </main>
 
-<button id="toTop" title="Back to top">↑ Top</button>
-
-<nav class="bottom" style="position:fixed;bottom:0;left:0;right:0;background:#0e111a;border-top:1px solid var(--border);display:flex;justify-content:space-between;padding:10px 10px;align-items:center;color:#fff">
-  <div>
-    <button class="tab-btn" data-tab="dashboard">🏠</button>
-    <button class="tab-btn" data-tab="customers">👤</button>
-    <button class="tab-btn" data-tab="jobs">🧰</button>
-    <button class="tab-btn" data-tab="invoice">🧾</button>
-    <button class="tab-btn" data-tab="settings">⚙️</button>
-  </div>
-  <button id="debugToggle" title="Debug">🪲</button>
-</nav>
-
+<!-- Debug panel -->
 <div id="debug">
-  <div class="meta" id="debugMeta"></div>
+  <div id="debugMeta"></div>
   <pre id="debugLog"></pre>
 </div>
 
-<!-- Signature Modal -->
-<div class="modal" id="sigModal" style="display:none">
-  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
-    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h3 id="sigTitle" style="color:#0e111a;margin:0">Collect Signature</h3>
-      <button class="tab-btn" id="sigClose">Close</button>
-    </header>
-    <div class="grid">
-      <label>Signer Name <input id="sigName" placeholder="Printed name"/></label>
-      <label>Date <input id="sigDate" type="date"/></label>
-      <label>Role
-        <select id="sigRole">
-          <option value="customer">Customer</option>
-          <option value="manager">Service Manager</option>
-        </select>
-      </label>
+<!-- Fatal error overlay -->
+<div id="error">
+  <div id="error-inner">
+    <strong>Something went sideways.</strong>
+    <p style="margin-top:4px;">Tap anywhere to reload the app.</p>
+  </div>
+</div>
+
+<button id="toTop">Back to top ↑</button>
+
+<!-- Quick Estimate Modal -->
+<div id="qeModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Quick Estimate</h3>
+      <button type="button" id="qeClose" class="modal-close">&times;</button>
     </div>
-    <div style="margin-top:8px">
-      <canvas height="220" id="sigPad" style="width:100%;background:#fff;border:1px dashed #b6b09f;border-radius:8px" width="640"></canvas>
-    </div>
-    <div class="actions" style="margin-top:8px">
-      <button class="tab-btn" id="sigClear">Clear</button>
-      <button class="tab-btn primary" id="sigSave">Save Signature</button>
+    <div style="font-size:13px;">
+      <div class="row">
+        <div class="field">
+          <label for="qeTitle">Title / Job summary</label>
+          <input id="qeTitle" type="text" placeholder="e.g., Front brakes & rotors" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="field small">
+          <label for="qeHours">Labor hours</label>
+          <input id="qeHours" type="number" step="0.1" value="1.5" />
+        </div>
+        <div class="field small">
+          <label for="qePartsCost">Total parts cost ($)</label>
+          <input id="qePartsCost" type="number" step="0.01" value="0" />
+        </div>
+        <div class="field small">
+          <label for="qeMarkup">Markup %</label>
+          <input id="qeMarkup" type="number" step="0.1" value="40" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:6px; justify-content:flex-end;">
+        <button type="button" id="qeApplyAppend" class="tab-btn">Append to Lines</button>
+        <button type="button" id="qeApplyReplace" class="tab-btn" style="background:#7d1c1c;">Replace Lines</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Quick Estimate Modal -->
-<div class="modal" id="qeModal" style="display:none">
-  <div class="panel card" style="background:#fff;color:#000;border-color:#b6b09f;max-width:700px">
-    <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <h3 style="color:#0e111a;margin:0">Quick Estimate Builder</h3>
-      <button class="tab-btn" id="qeClose">Close</button>
-    </header>
-    <div class="grid">
-      <label>Title/Concern <input id="qeTitle" placeholder="e.g., Front brakes: pads+rotors"/></label>
-      <label>Parts Cost ($) <input id="qePartsCost" step="0.01" type="number" value="0"/></label>
-      <label>Markup % <input id="qeMarkup" step="1" type="number" value="40"/></label>
-      <label>Labor Hours <input id="qeHours" step="0.1" type="number" value="1.5"/></label>
-      <div class="small">Uses current labor rate &amp; tax.</div>
+<!-- Signature Modal -->
+<div id="sigModal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Collect Signature</h3>
+      <button type="button" id="sigClose" class="modal-close">&times;</button>
     </div>
-    <div class="actions">
-      <button class="tab-btn" id="qeApplyAppend">Append Lines</button>
-      <button class="tab-btn danger" id="qeApplyReplace" style="background:#962b2b">Replace Lines</button>
+    <div style="font-size:13px;">
+      <div class="row">
+        <div class="field small">
+          <label for="sigRole">Role</label>
+          <select id="sigRole">
+            <option value="customer">Customer</option>
+            <option value="manager">Shop Representative</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="sigName">Name (optional)</label>
+          <input id="sigName" type="text" />
+        </div>
+        <div class="field small">
+          <label for="sigDate">Date</label>
+          <input id="sigDate" type="date" />
+        </div>
+      </div>
+
+      <canvas id="sigPad" width="600" height="180"></canvas>
+
+      <div class="row" style="margin-top:6px; justify-content:flex-end;">
+        <button type="button" id="sigClear" class="tab-btn">Clear</button>
+        <button type="button" id="sigSave" class="tab-btn" style="background:var(--accent);">Save Signature</button>
+      </div>
     </div>
   </div>
 </div>
@@ -639,7 +1197,7 @@
 <script>
 /* ---------------- Supabase Cloud Config ---------------- */
 var SUPABASE_URL = 'https://hhbrbkyfryjidworupvf.supabase.co';
-var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoYnJia3lmcnlqaWR3b3J1cHZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0MzI3NTEsImV4cCI6MjA3OTAwODc1MX0.NCU-_2RlP8-5w5_x0g10Q5HrFgPW9hyfyN7D87s_BWw';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoYnJia3lmcnlqaWR3b3J1cHZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0MzI3NTEsImV4cCI6MjA3OTAwODc1MX0.NCU-_2RlP8-5w5w0g10Q5HrFgPW9hyfyN7D87s_BWw';
 
 var supabaseClient = null;
 var SHOP_STATE_ID = 'main';
@@ -664,7 +1222,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
   window.AppLog = {
     info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
     warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
-    error: function(msg, err){ try{ console.error('[ERROR]', msg, err); }catch(e){} print('[ERROR] ' + msg + (err?(' :: '+ (err.message||err)):'')); var el = document.getElementById('error'); if(el){ el.style.display='block'; el.onclick=function(){ location.reload(); }; } }
+    error: function(msg, err){ try{ console.error('[ERROR]', msg, err); }catch(e){} print('[ERROR] ' + msg + (err?(' :: '+ (err.message||err)):'')); var el = document.getElementById('error'); if(el){ el.style.display='flex'; el.onclick=function(){ location.reload(); }; } }
   };
   if(metaEl){
     try{ metaEl.textContent = 'UA=' + navigator.userAgent + ' | Lang=' + navigator.language + ' | ' + (new Date()).toLocaleString(); }catch(_){}
@@ -831,7 +1389,7 @@ window.addEventListener('load', function(){
     function buildBackupPayload(){
       var payload = {
         _note: 'Poppe’s Diesel Co. Shop Manager backup',
-        version: 'v1.2.1',
+        version: 'v1.2.2',
         exportedAt: new Date().toISOString(),
         db: DB,
         ui: UI,
@@ -891,6 +1449,8 @@ window.addEventListener('load', function(){
         var id = b.getAttribute('data-tab');
         $all('.tab').forEach(function(t){ t.classList.remove('active'); });
         document.getElementById(id).classList.add('active');
+        $all('.tab-btn[data-tab]').forEach(function(x){ x.classList.remove('active-tab'); });
+        b.classList.add('active-tab');
         UI.activeTab = id;
         saveUI(UI);
         try{ window.scrollTo(0,0); }catch(_){}
@@ -899,6 +1459,9 @@ window.addEventListener('load', function(){
     if (UI.activeTab && document.getElementById(UI.activeTab)) {
       $all('.tab').forEach(function(t){ t.classList.remove('active'); });
       document.getElementById(UI.activeTab).classList.add('active');
+      $all('.tab-btn[data-tab]').forEach(function(x){
+        if(x.getAttribute('data-tab')===UI.activeTab) x.classList.add('active-tab');
+      });
     }
 
     /* ------ Customers ------ */
@@ -1275,8 +1838,12 @@ window.addEventListener('load', function(){
       $('#lines tbody').innerHTML='';
       for(var i=0;i<(j.lines||[]).length;i++){
         var l=j.lines[i];
-        addLine(l.type,l.desc,l.qty,l.list,l.cost,l.unit,l.note);
+        // IMPORTANT: skipPersist so we don't overwrite j.lines while building rows
+        addLine(l.type,l.desc,l.qty,l.list,l.cost,l.unit,l.note,{skipPersist:true});
       }
+      // Single persist after DOM matches full j.lines
+      persistLines();
+
       $('#invNo').value = j.invNo||'';
       $('#docType').value = j.docType||'Estimate';
       $('#payLink').value = j.paymentLink||'';
@@ -1330,7 +1897,9 @@ window.addEventListener('load', function(){
       });
     }
 
-    function addLine(type, desc, qty, list, cost, unit, note){
+    // *** addLine now has options, with skipPersist flag ***
+    function addLine(type, desc, qty, list, cost, unit, note, options){
+      options = options || {};
       var tr = document.createElement('tr');
       var descPH = type==='Labor' ? "e.g., Diagnostics / R&R" : "e.g., Fuel Filter (FF63009) — Fleetguard";
       var qtyPH  = type==='Labor' ? "hrs (e.g., 1.5)"       : "qty (e.g., 1)";
@@ -1361,7 +1930,9 @@ window.addEventListener('load', function(){
           tr.querySelector(sel).addEventListener(evt, persistLines);
         });
       });
-      persistLines();
+      if (!options.skipPersist) {
+        persistLines();
+      }
     }
 
     function rowsToLines(){
@@ -1674,11 +2245,11 @@ window.addEventListener('load', function(){
           j.lines=[];
         }
 
-        addLine('Labor', title?('Diagnose/Repair — '+title):'Diagnose/Repair', hours, 0, 0, laborRate, '');
+        addLine('Labor', title?('Diagnose/Repair — '+title):'Diagnose/Repair', hours, 0, 0, laborRate, '', {skipPersist:true});
 
         if(partsCost>0){
           var sell = partsCost*(1+mu);
-          addLine('Part', title?('Parts — '+title):'Parts', 1, 0, partsCost, sell, '');
+          addLine('Part', title?('Parts — '+title):'Parts', 1, 0, partsCost, sell, '', {skipPersist:true});
         }
         persistLines();
         close();
@@ -1892,9 +2463,6 @@ window.addEventListener('load', function(){
           return;
         }
         try {
-          // Make sure DB has latest lines / notes / totals
-          try { if (typeof persistLines === 'function') persistLines(); } catch(_){}
-
           var payload = buildBackupPayload();
           var totalJobs = (payload.db && payload.db.jobs) ? payload.db.jobs.length : 0;
           var totalLines = 0;
@@ -1918,11 +2486,7 @@ window.addEventListener('load', function(){
             alert('Cloud save failed: ' + result.error.message);
             return;
           }
-          alert(
-            'Cloud save complete.\n' +
-            'Jobs: ' + totalJobs + '\n' +
-            'Total lines across all jobs: ' + totalLines
-          );
+          alert('Cloud save complete.\nJobs: ' + totalJobs + '\nTotal lines across all jobs: ' + totalLines);
         } catch (e) {
           console.error('cloudSave threw', e);
           alert('Cloud save crashed: ' + (e.message || e));
@@ -1950,7 +2514,7 @@ window.addEventListener('load', function(){
             alert('No cloud snapshot found yet.');
             return null;
           }
-          return result.data.data; // this is the payload from buildBackupPayload()
+          return result.data.data;
         } catch (e) {
           console.error('cloudLoad threw', e);
           alert('Cloud load crashed: ' + (e.message || e));
@@ -1958,64 +2522,10 @@ window.addEventListener('load', function(){
         }
       }
 
-      function applyCloudSnapshot(snap){
-        if (!snap || !snap.db) {
-          throw new Error('Snapshot missing db property');
-        }
-
-        // Replace in-memory state
-        DB = snap.db;
-        UI = snap.ui || UI || {};
-
-        // Restore watermark if present
-        try {
-          if (snap.wm) localStorage.setItem(WMKEY, snap.wm);
-        } catch(_){}
-
-        // Upgrade schema + re-render everything
-        upgradeDB();
-        renderAll(); // customers, jobs, dashboard, settings, recent jobs, filters
-
-        // Restore active tab if sensible
-        if (UI.activeTab && document.getElementById(UI.activeTab)) {
-          $all('.tab').forEach(function(t){ t.classList.remove('active'); });
-          document.getElementById(UI.activeTab).classList.add('active');
-        }
-
-        // Restore last opened job or choose latest
-        var jobId = null;
-        if (UI.lastJobId && DB.jobs.some(function (j) { return j.id === UI.lastJobId; })) {
-          jobId = UI.lastJobId;
-        } else if (DB.jobs.length) {
-          var latest = DB.jobs[0];
-          for (var k = 1; k < DB.jobs.length; k++) {
-            if ((DB.jobs[k].createdAt || '') > (latest.createdAt || '')) latest = DB.jobs[k];
-          }
-          jobId = latest.id;
-          UI.lastJobId = latest.id;
-        }
-
-        if (jobId) {
-          var invSel = document.getElementById('invJob');
-          if (invSel) {
-            invSel.value = jobId;
-          }
-          loadInvoice(jobId); // this re-builds all lines, notes, photos, signatures into DOM
-        } else {
-          // No jobs yet; clear invoice table just in case
-          var tb = document.querySelector('#lines tbody');
-          if (tb) tb.innerHTML = '';
-          updatePreview();
-          recalcTotals();
-        }
-
-        saveUI(UI);
-        saveDB();
-      }
-
       if (cloudSaveBtn) {
-        cloudSaveBtn.addEventListener('click', function () {
-          cloudSave();
+        cloudSaveBtn.addEventListener('click', async function () {
+          try { if (typeof persistLines === 'function') persistLines(); } catch(_){}
+          await cloudSave();
         });
       }
 
@@ -2032,21 +2542,32 @@ window.addEventListener('load', function(){
               if (jj.lines && jj.lines.length) totalLines += jj.lines.length;
             }
           }
+          alert('Cloud loaded.\nJobs in snapshot: ' + totalJobs + '\nTotal lines in snapshot: ' + totalLines);
 
-          alert(
-            'Cloud snapshot loaded from Supabase.\n' +
-            'Jobs in snapshot: ' + totalJobs + '\n' +
-            'Total lines in snapshot: ' + totalLines + '\n\n' +
-            'Applying to this device now…'
-          );
-
+          if (snap.db) DB = snap.db;
+          if (snap.ui) UI = snap.ui;
           try {
-            applyCloudSnapshot(snap);
-            alert('Cloud data applied.\nCheck the Invoice tab for your parts, labor, notes, photos, and signatures.');
-          } catch (e) {
-            console.error('applyCloudSnapshot failed', e);
-            alert('Cloud load crashed while applying snapshot: ' + (e.message || e));
+            if (snap.wm) localStorage.setItem(WMKEY, snap.wm);
+          } catch(_) {}
+
+          upgradeDB();
+          renderAll();
+
+          if (UI.lastJobId && DB.jobs.some(function (j) { return j.id === UI.lastJobId; })) {
+            document.getElementById('invJob').value = UI.lastJobId;
+            loadInvoice(UI.lastJobId);
+          } else if (DB.jobs.length) {
+            var latest = DB.jobs[0];
+            for (var k = 1; k < DB.jobs.length; k++) {
+              if ((DB.jobs[k].createdAt || '') > (latest.createdAt || '')) latest = DB.jobs[k];
+            }
+            document.getElementById('invJob').value = latest.id;
+            loadInvoice(latest.id);
+            UI.lastJobId = latest.id;
+            saveUI(UI);
           }
+
+          alert('Cloud data applied. Check the Invoice tab for your parts + notes.');
         });
       }
 
@@ -2133,9 +2654,9 @@ window.addEventListener('load', function(){
         '.p-photo{border:1px solid #000;padding:4px;border-radius:6px;break-inside:avoid;page-break-inside:avoid}'+
         '.p-photo img{width:100%;height:1.8in;object-fit:cover;border-radius:4px;display:block}'+
         '#pPhotosBlock{page-break-before:always}';
-      var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>'
-                  + document.getElementById('preview').outerHTML
-                  + '</body></html>';
+      var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>' +
+                    document.getElementById('preview').outerHTML +
+                    '</body></html>';
       var w = window.open('', '_blank');
       if(!w){
         alert('Please allow pop-ups to print.');
@@ -2268,7 +2789,6 @@ window.addEventListener('load', function(){
   }); // end guard init
 });
 </script>
+
 </body>
 </html>
-
-
