@@ -1296,12 +1296,9 @@ function guard(name, fn){
     fn();
     AppLog.info(name + ' ✅');
   } catch(e) {
+    // Log, but DO NOT show the big red overlay anymore
     AppLog.error(name + ' ❌', e);
-    var el = document.getElementById('error');
-    if (el) {
-      el.style.display = 'flex';
-      el.onclick = function(){ location.reload(); };
-    }
+    // To debug, open the Debug panel (top-right) and check the last [ERROR] line.
   }
 }
 
@@ -3070,5 +3067,6 @@ function escapeHtml(s){
 
 </body>
 </html>
+
 
 
