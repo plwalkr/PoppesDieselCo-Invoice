@@ -1296,10 +1296,11 @@ function guard(name, fn){
     fn();
     AppLog.info(name + ' ✅');
   } catch(e) {
-    // Log, but DO NOT show the big red overlay anymore
+    // Log errors but do not block the UI with the overlay; use Debug panel instead.
     AppLog.error(name + ' ❌', e);
-    // To debug, open the Debug panel (top-right) and check the last [ERROR] line.
   }
+}
+
 }
 
 if (!window.crypto) window.crypto = {};
@@ -1503,6 +1504,12 @@ window.addEventListener('load', function(){
       $('#shopReply').value  = DB.settings.shopReply  || '';
       $('#shopSubj').value   = DB.settings.shopSubj   || '';
       $('#shopFooter').value = DB.settings.shopFooter || '';
+    }
+
+    // Stubbed photo grid renderer to avoid init crashes when legacy photo features are not present
+    function renderPhotoGrid(){
+      // No-op: photo grid removed in this version, but calls may still exist in older job flows
+      return;
     }
 
     function renderAll(){
@@ -3067,6 +3074,4 @@ function escapeHtml(s){
 
 </body>
 </html>
-
-
 
