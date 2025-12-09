@@ -1404,6 +1404,17 @@ window.addEventListener('load', function(){
 
     var DB = loadDB() || defaultDB();
 
+    // Normalize DB shape in case older or partial data is stored
+    if (!DB || typeof DB !== 'object') {
+      DB = defaultDB();
+    }
+    if (!Array.isArray(DB.customers)) DB.customers = [];
+    if (!Array.isArray(DB.jobs)) DB.jobs = [];
+    if (!Array.isArray(DB.templates)) DB.templates = seedTemplates();
+    if (!DB.settings) DB.settings = defaultDB().settings;
+
+
+
     var UIKEY = 'pdc_ui_state';
     function loadUI(){
       try { return JSON.parse(localStorage.getItem(UIKEY)||'{}'); }
@@ -3059,4 +3070,5 @@ function escapeHtml(s){
 
 </body>
 </html>
+
 
