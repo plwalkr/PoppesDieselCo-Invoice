@@ -1274,7 +1274,10 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
   window.AppLog = {
     info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
     warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
-    error: function(msg, err){ try{ console.error('[ERROR]', msg, err); }catch(e){} print('[ERROR] ' + msg + (err?(' :: '+ (err.message||err)):'')); var el = document.getElementById('error'); if(el){ el.style.display='flex'; el.onclick=function(){ location.reload(); }; } }
+    error: function(msg, err){
+    try { console.error('[ERROR]', msg, err); } catch(e) {}
+    print('[ERROR] ' + msg + (err ? (' :: ' + (err.message || err)) : ''));
+  }
   };
   if(metaEl){
     try{ metaEl.textContent = 'UA=' + navigator.userAgent + ' | Lang=' + navigator.language + ' | ' + (new Date()).toLocaleString(); }catch(_){}
@@ -1289,8 +1292,17 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 })();
 
 function guard(name, fn){
-  try { fn(); AppLog.info(name + ' ✅'); }
-  catch(e){ AppLog.error(name + ' ❌', e); }
+  try {
+    fn();
+    AppLog.info(name + ' ✅');
+  } catch(e) {
+    AppLog.error(name + ' ❌', e);
+    var el = document.getElementById('error');
+    if (el) {
+      el.style.display = 'flex';
+      el.onclick = function(){ location.reload(); };
+    }
+  }
 }
 
 if (!window.crypto) window.crypto = {};
@@ -3047,3 +3059,4 @@ function escapeHtml(s){
 
 </body>
 </html>
+
