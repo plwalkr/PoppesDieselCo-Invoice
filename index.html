@@ -649,6 +649,20 @@
       max-width: none;
     }
 
+
+  /* === Joey 12/9/2025: tech-note spacing + watermark stacking + preview labels === */
+  #lines td:nth-child(3) .desc-wrap .lNote {
+    min-height: 64px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  #preview .watermark {
+    z-index: 0;
+  }
+  #preview-content {
+    position: relative;
+    z-index: 1;
+  }
 </style>
 </head>
 <body>
@@ -878,6 +892,10 @@
         <div class="field xsmall">
           <label for="laborRate">Labor Rate ($/hr)</label>
           <input id="laborRate" type="number" step="0.01" value="80" />
+        </div>
+        <div class="field xsmall">
+          <label for="markupFactor">Markup (x cost, parts)</label>
+          <input id="markupFactor" type="number" step="0.01" value="1.40" />
         </div>
         <div class="field xsmall">
           <label for="salesTax">Sales Tax (%)</label>
@@ -2017,7 +2035,7 @@ window.addEventListener('load', function(){
       renderJobs();
       renderDashboard();
       saveDB();
-    }
+    
 
     function applyDefaultMarkup(){
       var mu = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
@@ -2826,6 +2844,183 @@ function escapeHtml(s){
       }
     })();
 
+
+    /* ------ Markup factor + auto-calc overrides (12/09/2025) ------ */
+
+    function getMarkupFactor(){
+      var el = document.getElementById('markupFactor');
+      var v = el ? Number(el.value || 0) : 0;
+      if (!isFinite(v) || v <= 0){
+        if (typeof DB !== 'undefined' && DB && DB.settings && typeof DB.settings.defaultMarkup === 'number'){
+          v = 1 + (DB.settings.defaultMarkup/100);
+        } else {
+          v = 1.4; // sensible default
+        }
+      }
+      return v;
+    }
+}
+
+    function applyDefaultMarkup(){
+      var factor = getMarkupFactor(); // e.g. 1.40 for 40% over cost
+      var mu = factor - 1;            // markup as fraction
+      $all('#lines tbody tr').forEach(function(tr){
+        var typeSel = tr.querySelector('.lType');
+        if (!typeSel || typeSel.value !== 'Part') return;
+        var cost = Number(tr.querySelector('.lCost').value || 0);
+        var newUnit = cost * factor;
+        if (newUnit > 0){
+          var unitEl = tr.querySelector('.lUnit');
+          if (unitEl) unitEl.value = newUnit.toFixed(2);
+        }
+      });
+      persistLines();
+    }
+
+    function setupCostAutoCalc(){
+      var tbody = document.querySelector('#lines tbody');
+      if (!tbody) return;
+      tbody.addEventListener('input', function(ev){
+        var target = ev.target;
+        if (!target.classList.contains('lCost')) return;
+        var tr = target.closest('tr');
+        if (!tr) return;
+        var typeSel = tr.querySelector('.lType');
+        if (typeSel && typeSel.value !== 'Part') return; // only auto-calc parts
+        var cost = Number(target.value || 0);
+        var factor = getMarkupFactor();
+        var unitEl = tr.querySelector('.lUnit');
+        if (!unitEl) return;
+        var newUnit = cost * factor;
+        if (newUnit > 0){
+          unitEl.value = newUnit.toFixed(2);
+        } else {
+          unitEl.value = '';
+        }
+        persistLines();
+      });
+    }
+
+    function recalcTotals(){
+      var rows = rowsToLines();
+      var subtotal = 0, profit = 0, partsSubtotal = 0, savingsTotal = 0;
+      var laborRate = Number($('#laborRate').value || 80);
+      var muDefault = getMarkupFactor() - 1; // compare against current factor
+      var trs = $all('#lines tbody tr');
+      var warrantyHours = 0;
+
+      for (var i = 0; i < rows.length; i++){
+        var r = rows[i];
+        var isWarranty = (r.type === 'Warranty');
+
+        // If labor line with no unit, default to laborRate and sync UI
+        if (r.type === 'Labor' && (!r.unit || r.unit === 0)) {
+          r.unit = laborRate;
+          if (trs[i]) {
+            var uEl = trs[i].querySelector('.lUnit');
+            if (uEl) uEl.value = r.unit.toFixed(2);
+          }
+        }
+
+        if (isWarranty) {
+          warrantyHours += (r.qty || 0);
+        }
+
+        var lineTotal = isWarranty ? 0 : (r.qty * r.unit);
+        if (!isWarranty) {
+          subtotal += lineTotal;
+        }
+
+        if (r.type === 'Part' && !isWarranty) {
+          partsSubtotal += lineTotal;
+          var list = Number(r.list || 0);
+          if (list > r.unit) {
+            savingsTotal += (list - r.unit) * (r.qty || 1);
+          }
+        }
+
+        var lineProfit = isWarranty ? 0 : (r.qty * (r.unit - (r.cost || 0)));
+        r.profit = lineProfit;
+        if (!isWarranty) {
+          profit += lineProfit;
+        }
+
+        var tr = trs[i];
+        if (!tr) continue;
+        var lineCell = tr.querySelector('.lLine');
+        if (lineCell) lineCell.textContent = fmt(lineTotal);
+        var profitCell = tr.querySelector('.lProfit');
+        if (profitCell) profitCell.textContent = fmt(lineProfit);
+
+        var hint = tr.querySelector('.calc-hint');
+        if (hint){
+          if (isWarranty) {
+            hint.className = 'calc-hint ok';
+            hint.textContent = 'Warranty hours (not billed)';
+          } else {
+            var up = (r.unit - (r.cost || 0));
+            var per = (r.cost > 0) ? Math.round((up / r.cost) * 100) : 100;
+            var cls = (r.cost > 0 && (up / r.cost) >= muDefault) ? 'ok' : (r.cost > 0 ? 'warn' : 'ok');
+            // dollars of profit for this line
+            var dollars = fmt(up * (r.qty || 1));
+            var perTxt = r.cost > 0 ? '(+' + per + '%)' : '(set cost for %)';
+            hint.className = 'calc-hint ' + cls;
+            hint.textContent = dollars + ' ' + perTxt;
+          }
+        }
+      }
+
+      var taxPct = Number($('#salesTax').value || 0);
+      var tax = partsSubtotal * (taxPct / 100); // parts-only tax
+      var grand = subtotal + tax;
+
+      document.getElementById('sub').textContent = fmt(subtotal);
+      document.getElementById('tax').textContent = fmt(tax);
+      document.getElementById('grand').textContent = fmt(grand);
+      document.getElementById('profit').textContent = fmt(profit);
+      document.getElementById('save').textContent = fmt(savingsTotal);
+
+      var margin = grand > 0 ? Math.round((profit / grand) * 100) : 0;
+      var badge = document.getElementById('margin');
+      if (badge){
+        badge.textContent = margin + '%';
+        badge.className = 'badge ' + (margin >= 25 ? 'invoice' : (margin >= 15 ? 'badge-open' : 'estimate'));
+      }
+
+      var wEl = document.getElementById('wHours');
+      if (wEl) wEl.textContent = warrantyHours.toFixed(2);
+
+      var pwEl = document.getElementById('pWHours');
+      if (pwEl) pwEl.textContent = warrantyHours.toFixed(2);
+
+      document.getElementById('pSub').textContent = fmt(subtotal);
+      document.getElementById('pTax').textContent = fmt(tax);
+      document.getElementById('pGrand').textContent = fmt(grand);
+      document.getElementById('pSave').textContent = fmt(savingsTotal);
+    }
+
+    // Initialize markup field + auto-calc once DOM is ready (inside init guard)
+    (function initMarkupAndAutoCalc(){
+      var el = document.getElementById('markupFactor');
+      if (el){
+        // Try restore from UI cache if present
+        if (typeof UI !== 'undefined' && UI && UI.markupFactor != null){
+          el.value = UI.markupFactor;
+        } else if (typeof DB !== 'undefined' && DB && DB.settings && typeof DB.settings.defaultMarkup === 'number'){
+          var pct = DB.settings.defaultMarkup; // e.g. 40
+          el.value = (1 + pct/100).toFixed(2);
+        }
+        el.addEventListener('input', function(){
+          if (typeof UI !== 'undefined' && UI){
+            UI.markupFactor = el.value;
+            saveUI(UI);
+          }
+          recalcTotals();
+        });
+      }
+      setupCostAutoCalc();
+    })();
+
     /* ------ Self-test badge ------ */
     (function selftest(){
       var ok = !!(window.localStorage && document.querySelector && document.createElement);
@@ -2852,6 +3047,3 @@ function escapeHtml(s){
 
 </body>
 </html>
-
-
-
