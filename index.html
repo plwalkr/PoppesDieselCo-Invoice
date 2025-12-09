@@ -396,8 +396,9 @@
       gap: 8px;
     }
     .p-totals div {
-      min-width: 90px;
+      min-width: 110px;
       text-align: right;
+      white-space: nowrap;
     }
 
     #pOverallBlock {
@@ -1440,6 +1441,8 @@ window.addEventListener('load', function(){
           if(typeof j.lines[l].cost==='undefined') j.lines[l].cost=0;
           if(typeof j.lines[l].unit==='undefined') j.lines[l].unit=0;
         }
+        // Clean out any completely empty placeholder lines from older data
+        j.lines = cleanLines(j.lines || []);
       }
       if(!DB.settings) DB.settings = defaultDB().settings;
       saveDB();
@@ -1733,6 +1736,22 @@ window.addEventListener('load', function(){
       return mode==='profit'?profit:subtotal;
     }
 
+    function cleanLines(lines){
+      return (lines || []).filter(function(l){
+        if(!l) return false;
+        var desc = (l.desc || '').trim();
+        var note = (l.note || '').trim();
+        var qty  = Number(l.qty  || 0);
+        var list = Number(l.list || 0);
+        var cost = Number(l.cost || 0);
+        var unit = Number(l.unit || 0);
+        // Drop lines that are truly empty placeholders
+        if(!desc && !note && qty===0 && list===0 && cost===0 && unit===0) return false;
+        return true;
+      });
+    }
+
+
     function renderJobs(){
       var tb = $('#jobsTable tbody'); tb.innerHTML='';
       DB.jobs.forEach(function(j){
@@ -1909,6 +1928,8 @@ window.addEventListener('load', function(){
       if(!j) j = DB.jobs.filter(function(x){ return x.id===id; })[0];
       if(!j) return;
 
+      j.lines = cleanLines(j.lines || []);
+
       $('#laborRate').value = (j.laborRate != null) ? j.laborRate : 80;
       $('#salesTax').value  = (j.salesTaxPct != null) ? j.salesTaxPct : 7;
 
@@ -2032,6 +2053,7 @@ window.addEventListener('load', function(){
       var j = currentJob(); if(!j) return;
 
       var lines = rowsToLines();
+      lines = cleanLines(lines);
       var laborRateNow = Number($('#laborRate').value || 80);
       var trs = $all('#lines tbody tr');
       for (var i=0;i<lines.length;i++){
@@ -3072,4 +3094,3 @@ function escapeHtml(s){
 
 </body>
 </html>
-
