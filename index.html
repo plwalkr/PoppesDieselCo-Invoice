@@ -246,7 +246,7 @@
       color: #f7f7f7;
       border-radius: 10px;
       padding: 8px 10px;
-      min-width: 240px;
+      min-width: 260px;
       font-size: 13px;
     }
     .totals-line {
@@ -396,7 +396,7 @@
       gap: 8px;
     }
     .p-totals div {
-      min-width: 110px;
+      min-width: 130px;
       text-align: right;
       white-space: nowrap;
     }
@@ -1280,6 +1280,12 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
     print('[ERROR] ' + msg + (err ? (' :: ' + (err.message || err)) : ''));
   }
   };
+
+  // Global stub so init never crashes if updatePreview hasn't been defined yet.
+  // The full implementation is declared later inside app init.
+  if (typeof updatePreview === 'undefined') {
+    function updatePreview(){}
+  }
   if(metaEl){
     try{ metaEl.textContent = 'UA=' + navigator.userAgent + ' | Lang=' + navigator.language + ' | ' + (new Date()).toLocaleString(); }catch(_){}
   }
@@ -1338,6 +1344,7 @@ if (!window.crypto.randomUUID){
 
 /* -------------- App init -------------- */
 window.addEventListener('load', function(){
+  guard('init', function(){
 
     var STORAGE_KEY = 'poppe_shop_db_v112';
 
@@ -1740,12 +1747,12 @@ window.addEventListener('load', function(){
         if(!l) return false;
         var desc = (l.desc || '').trim();
         var note = (l.note || '').trim();
-        var qty  = Number(l.qty  || 0);
         var list = Number(l.list || 0);
         var cost = Number(l.cost || 0);
         var unit = Number(l.unit || 0);
-        // Drop lines that are truly empty placeholders
-        if(!desc && !note && qty===0 && list===0 && cost===0 && unit===0) return false;
+        // Drop lines that are truly empty placeholders (no text and no money values),
+        // regardless of how qty/hours was left.
+        if(!desc && !note && list===0 && cost===0 && unit===0) return false;
         return true;
       });
     }
@@ -3087,6 +3094,7 @@ function escapeHtml(s){
       loadInvoice(UI.lastJobId);
     }
 
+  }); // end guard init
 });
 </script>
 
