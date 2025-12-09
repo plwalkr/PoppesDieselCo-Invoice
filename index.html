@@ -1741,12 +1741,13 @@ window.addEventListener('load', function(){
         if(!l) return false;
         var desc = (l.desc || '').trim();
         var note = (l.note || '').trim();
-        var qty  = Number(l.qty  || 0);
         var list = Number(l.list || 0);
         var cost = Number(l.cost || 0);
         var unit = Number(l.unit || 0);
-        // Drop lines that are truly empty placeholders
-        if(!desc && !note && qty===0 && list===0 && cost===0 && unit===0) return false;
+        // Drop lines that are truly empty placeholders:
+        // no description, no note, and no money values set,
+        // regardless of what qty/hours was left at.
+        if(!desc && !note && list===0 && cost===0 && unit===0) return false;
         return true;
       });
     }
