@@ -247,7 +247,6 @@
       border-radius: 10px;
       padding: 8px 10px;
       min-width: 260px;
-      max-width: 260px;
       font-size: 13px;
     }
     .totals-line {
@@ -255,6 +254,7 @@
       justify-content: space-between;
       margin-bottom: 3px;
     }
+    .totals-line span:first-child { white-space: nowrap; }
     .totals-line strong { font-weight: 600; }
     .totals-panel .grand {
       margin-top: 4px;
@@ -353,12 +353,15 @@
       pointer-events: none;
       z-index: 2;
       opacity: 0.35;
+      background: transparent !important;
     }
     #wmImg {
       max-width: 90%;
       max-height: 90%;
       opacity: 0.35;
       display: none;
+      background: transparent !important;
+      mix-blend-mode: multiply;
     }
     #wmFallback {
       font-size: 40px;
@@ -397,7 +400,7 @@
       gap: 8px;
     }
     .p-totals div {
-      min-width: 130px;
+      min-width: 110px;
       text-align: right;
       white-space: nowrap;
     }
@@ -1338,6 +1341,8 @@ if (!window.crypto.randomUUID){
 })();
 
 /* -------------- App init -------------- */
+function updatePreview(){}
+
 window.addEventListener('load', function(){
   guard('init', function(){
 
@@ -1746,7 +1751,9 @@ window.addEventListener('load', function(){
         var list = Number(l.list || 0);
         var cost = Number(l.cost || 0);
         var unit = Number(l.unit || 0);
-        // Drop lines that are truly empty placeholders, including old zombie rows
+        // Drop lines that are truly empty placeholders:
+        // no description, no note, and no money values set,
+        // and qty is 0 or 1 (old zombie rows).
         if(!desc && !note && list===0 && cost===0 && unit===0 && (qty===0 || qty===1)) return false;
         return true;
       });
@@ -2051,39 +2058,45 @@ window.addEventListener('load', function(){
     }
 
     function persistLines(){
-      var j = currentJob(); if(!j) return;
+      var j = currentJob();
+      if (!j) return;
 
+      // Pull current rows from DOM
       var lines = rowsToLines();
+
+      // Auto-fill Labor and Part unit pricing before saving
       var laborRateNow = Number($('#laborRate').value || 80);
-      var muDefault = Number($('#defaultMarkup').value || (DB.settings && DB.settings.defaultMarkup) || 40) / 100;
+      var factor = Number($('#markupFactor').value || 1.40); // x cost for parts
       var trs = $all('#lines tbody tr');
 
-      for (var i=0;i<lines.length;i++){
+      for (var i = 0; i < lines.length; i++){
         var ln = lines[i];
+        var tr = trs[i];
 
-        // Auto-fill Labor unit $ with current labor rate if empty
-        if (ln.type==='Labor' && (!ln.unit || ln.unit===0)){
+        // For Labor: if unit is empty/zero, use current labor rate
+        if (ln.type === 'Labor' && (!ln.unit || ln.unit === 0)){
           ln.unit = laborRateNow;
-          if (trs[i]) {
-            var unitEl = trs[i].querySelector('.lUnit');
-            if (unitEl) unitEl.value = laborRateNow.toFixed(2);
+          if (tr) {
+            var unitElL = tr.querySelector('.lUnit');
+            if (unitElL) unitElL.value = laborRateNow.toFixed(2);
           }
         }
 
-        // Auto-fill Part unit $ from cost + markup if empty
-        if (ln.type==='Part' && ln.cost>0 && (!ln.unit || ln.unit===0)){
-          var newUnit = ln.cost * (1 + muDefault);
+        // For Part: if cost is set and unit empty/zero, apply markup factor
+        if (ln.type === 'Part' && ln.cost > 0 && (!ln.unit || ln.unit === 0)){
+          var newUnit = ln.cost * factor;
           ln.unit = newUnit;
-          if (trs[i]) {
-            var uEl = trs[i].querySelector('.lUnit');
-            if (uEl) uEl.value = newUnit.toFixed(2);
+          if (tr) {
+            var unitElP = tr.querySelector('.lUnit');
+            if (unitElP) unitElP.value = newUnit.toFixed(2);
           }
         }
       }
 
-      // Drop any totally empty placeholder lines
+      // Remove zombie/placeholder rows
       lines = cleanLines(lines);
 
+      // Persist back to the job
       j.lines = lines;
       j.invNo = $('#invNo').value.trim();
       j.docType = $('#docType').value;
@@ -2095,12 +2108,13 @@ window.addEventListener('load', function(){
       j.laborRate = Number($('#laborRate').value || 80);
       j.salesTaxPct = Number($('#salesTax').value || 0);
 
+      // Recalc views
       recalcTotals();
       updatePreview();
       renderJobs();
       renderDashboard();
       saveDB();
-    
+    }
 
     function applyDefaultMarkup(){
       var mu = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
