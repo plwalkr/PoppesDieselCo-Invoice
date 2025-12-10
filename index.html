@@ -1272,29 +1272,51 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
 /* -------------- Minimal debug harness -------------- */
 (function(){
-  var logEl = document.getElementById('debugLog');
+  var logEl  = document.getElementById('debugLog');
   var metaEl = document.getElementById('debugMeta');
   var buf = [];
-  function print(line){ buf.push(line); if(logEl){ logEl.textContent = buf.join('\n'); } }
+
+  function print(line){
+    buf.push(line);
+    if (logEl) {
+      logEl.textContent = buf.join('\n');
+    }
+  }
+
   window.AppLog = {
-    info: function(msg){ try{ console.log('[INFO]', msg); }catch(e){} print('[INFO] ' + msg); },
-    warn: function(msg){ try{ console.warn('[WARN]', msg); }catch(e){} print('[WARN] ' + msg); },
+    info: function(msg){
+      try { console.log('[INFO]', msg); } catch(e) {}
+      print('[INFO] ' + msg);
+    },
+    warn: function(msg){
+      try { console.warn('[WARN]', msg); } catch(e) {}
+      print('[WARN] ' + msg);
+    },
     error: function(msg, err){
-    try { console.error('[ERROR]', msg, err); } catch(e) {}
-    print('[ERROR] ' + msg + (err ? (' :: ' + (err.message || err)) : ''));
-  }
+      try { console.error('[ERROR]', msg, err); } catch(e) {}
+      print('[ERROR] ' + msg + (err ? (' :: ' + (err.message || err)) : ''));
+    }
   };
-  if(metaEl){
-    try{ metaEl.textContent = 'UA=' + navigator.userAgent + ' | Lang=' + navigator.language + ' | ' + (new Date()).toLocaleString(); }catch(_){}
+
+  if (metaEl){
+    try {
+      var lang = navigator.language || navigator.userLanguage || 'n/a';
+      metaEl.textContent =
+        'UA=' + navigator.userAgent +
+        ' | Lang=' + lang +
+        ' | ' + (new Date()).toLocaleString();
+    } catch(_) {}
   }
+
   var dbg = document.getElementById('debugToggle');
-  if(dbg){
+  if (dbg){
     dbg.addEventListener('click', function(){
       var box = document.getElementById('debug');
-      box.style.display = (box.style.display==='block'?'none':'block');
+      if (!box) return;
+      box.style.display = (box.style.display === 'block' ? 'none' : 'block');
     });
   }
-})();
+})();;
 
 function guard(name, fn){
   try {
