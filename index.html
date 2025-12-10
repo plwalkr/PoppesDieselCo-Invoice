@@ -247,6 +247,7 @@
       border-radius: 10px;
       padding: 8px 10px;
       min-width: 260px;
+      max-width: 260px;
       font-size: 13px;
     }
     .totals-line {
@@ -1280,12 +1281,6 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
     print('[ERROR] ' + msg + (err ? (' :: ' + (err.message || err)) : ''));
   }
   };
-
-  // Global stub so init never crashes if updatePreview hasn't been defined yet.
-  // The full implementation is declared later inside app init.
-  if (typeof updatePreview === 'undefined') {
-    function updatePreview(){}
-  }
   if(metaEl){
     try{ metaEl.textContent = 'UA=' + navigator.userAgent + ' | Lang=' + navigator.language + ' | ' + (new Date()).toLocaleString(); }catch(_){}
   }
@@ -1747,12 +1742,12 @@ window.addEventListener('load', function(){
         if(!l) return false;
         var desc = (l.desc || '').trim();
         var note = (l.note || '').trim();
+        var qty  = Number(l.qty  || 0);
         var list = Number(l.list || 0);
         var cost = Number(l.cost || 0);
         var unit = Number(l.unit || 0);
-        // Drop lines that are truly empty placeholders (no text and no money values),
-        // regardless of how qty/hours was left.
-        if(!desc && !note && list===0 && cost===0 && unit===0) return false;
+        // Drop lines that are truly empty placeholders, including old zombie rows
+        if(!desc && !note && list===0 && cost===0 && unit===0 && (qty===0 || qty===1)) return false;
         return true;
       });
     }
@@ -2059,18 +2054,35 @@ window.addEventListener('load', function(){
       var j = currentJob(); if(!j) return;
 
       var lines = rowsToLines();
-      lines = cleanLines(lines);
       var laborRateNow = Number($('#laborRate').value || 80);
+      var muDefault = Number($('#defaultMarkup').value || (DB.settings && DB.settings.defaultMarkup) || 40) / 100;
       var trs = $all('#lines tbody tr');
+
       for (var i=0;i<lines.length;i++){
-        if (lines[i].type==='Labor' && (!lines[i].unit || lines[i].unit===0)){
-          lines[i].unit = laborRateNow;
+        var ln = lines[i];
+
+        // Auto-fill Labor unit $ with current labor rate if empty
+        if (ln.type==='Labor' && (!ln.unit || ln.unit===0)){
+          ln.unit = laborRateNow;
           if (trs[i]) {
             var unitEl = trs[i].querySelector('.lUnit');
             if (unitEl) unitEl.value = laborRateNow.toFixed(2);
           }
         }
+
+        // Auto-fill Part unit $ from cost + markup if empty
+        if (ln.type==='Part' && ln.cost>0 && (!ln.unit || ln.unit===0)){
+          var newUnit = ln.cost * (1 + muDefault);
+          ln.unit = newUnit;
+          if (trs[i]) {
+            var uEl = trs[i].querySelector('.lUnit');
+            if (uEl) uEl.value = newUnit.toFixed(2);
+          }
+        }
       }
+
+      // Drop any totally empty placeholder lines
+      lines = cleanLines(lines);
 
       j.lines = lines;
       j.invNo = $('#invNo').value.trim();
