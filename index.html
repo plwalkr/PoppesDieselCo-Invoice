@@ -254,7 +254,7 @@
       justify-content: space-between;
       margin-bottom: 3px;
     }
-    .totals-line span:first-child { white-space: nowrap; }
+    .totals-line span:first-child { white-space: normal; }
     .totals-line strong { font-weight: 600; }
     .totals-panel .grand {
       margin-top: 4px;
@@ -2152,96 +2152,6 @@ window.addEventListener('load', function(){
     }
 
     
-    function recalcTotals(){
-      var rows = rowsToLines();
-      var subtotal = 0, profit = 0, partsSubtotal = 0, savingsTotal = 0;
-      var laborRate = Number($('#laborRate').value || 80);
-      var muDefault = Number($('#defaultMarkup').value || DB.settings.defaultMarkup || 40) / 100;
-      var trs = $all('#lines tbody tr');
-      var warrantyHours = 0;
-
-      for (var i = 0; i < rows.length; i++){
-        var r = rows[i];
-        var isWarranty = (r.type === 'Warranty');
-
-        if (r.type === 'Labor' && (!r.unit || r.unit === 0)) {
-          r.unit = laborRate;
-          if (trs[i]) {
-            var uEl = trs[i].querySelector('.lUnit');
-            if (uEl) uEl.value = r.unit.toFixed(2);
-          }
-        }
-
-        if (isWarranty) {
-          warrantyHours += (r.qty || 0);
-        }
-
-        var line = isWarranty ? 0 : (r.qty * r.unit);
-        if (!isWarranty) {
-          subtotal += line;
-        }
-
-        if (r.type === 'Part' && !isWarranty) {
-          partsSubtotal += line;
-          var list = Number(r.list || 0);
-          if (list > r.unit) {
-            savingsTotal += (list - r.unit) * (r.qty || 1);
-          }
-        }
-
-        var lineProfit = isWarranty ? 0 : (r.qty * (r.unit - (r.cost || 0)));
-        r.profit = lineProfit;
-        if (!isWarranty) {
-          profit += lineProfit;
-        }
-
-        var tr = trs[i]; if (!tr) continue;
-        tr.querySelector('.lLine').textContent = fmt(line);
-        tr.querySelector('.lProfit').textContent = fmt(lineProfit);
-
-        var hint = tr.querySelector('.calc-hint');
-        if (hint){
-          if (isWarranty) {
-            hint.className = 'calc-hint ok';
-            hint.textContent = 'Warranty hours (not billed)';
-          } else {
-            var up = (r.unit - (r.cost || 0));
-            var per = (r.cost > 0) ? Math.round((up / r.cost) * 100) : 100;
-            var cls = (r.cost > 0 && (up / r.cost) >= muDefault) ? 'ok' : (r.cost > 0 ? 'warn' : 'ok');
-            hint.className = 'calc-hint ' + cls;
-            var dollars = fmt(up * (r.qty || 1));
-            var perTxt = r.cost > 0 ? '(+' + per + '%)' : '(set cost for %)';
-            hint.textContent = dollars + ' ' + perTxt;
-          }
-        }
-      }
-
-      var taxPct = Number($('#salesTax').value || 0);
-      var tax = partsSubtotal * (taxPct / 100); // parts-only tax
-      var grand = subtotal + tax;
-
-      document.getElementById('sub').textContent = fmt(subtotal);
-      document.getElementById('tax').textContent = fmt(tax);
-      document.getElementById('grand').textContent = fmt(grand);
-      document.getElementById('profit').textContent = fmt(profit);
-      document.getElementById('save').textContent = fmt(savingsTotal);
-
-      var margin = grand > 0 ? Math.round((profit / grand) * 100) : 0;
-      var badge = document.getElementById('margin');
-      badge.textContent = margin + '%';
-      badge.className = 'badge ' + (margin >= 25 ? 'invoice' : (margin >= 15 ? 'badge-open' : 'estimate'));
-
-      var wEl = document.getElementById('wHours');
-      if (wEl) wEl.textContent = warrantyHours.toFixed(2);
-
-      var pwEl = document.getElementById('pWHours');
-      if (pwEl) pwEl.textContent = warrantyHours.toFixed(2);
-
-      document.getElementById('pSub').textContent = fmt(subtotal);
-      document.getElementById('pTax').textContent = fmt(tax);
-      document.getElementById('pGrand').textContent = fmt(grand);
-      document.getElementById('pSave').textContent = fmt(savingsTotal);
-    }
 
 function escapeHtml(s){
       return String(s||'').replace(/[&<>"']/g, function(c){
