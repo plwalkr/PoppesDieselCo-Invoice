@@ -1363,8 +1363,6 @@ if (!window.crypto.randomUUID){
 })();
 
 /* -------------- App init -------------- */
-function updatePreview(){}
-
 window.addEventListener('load', function(){
   guard('init', function(){
 
@@ -2138,22 +2136,7 @@ window.addEventListener('load', function(){
       saveDB();
     }
 
-    function applyDefaultMarkup(){
-      var mu = Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100;
-      $all('#lines tbody tr').forEach(function(tr){
-        var type = tr.querySelector('.lType').value;
-        if(type==='Part'){
-          var cost = Number(tr.querySelector('.lCost').value||0);
-          var newUnit = cost * (1+mu);
-          if(newUnit>0) tr.querySelector('.lUnit').value = newUnit.toFixed(2);
-        }
-      });
-      persistLines();
-    }
-
-    
-
-function escapeHtml(s){
+    function escapeHtml(s){
       return String(s||'').replace(/[&<>"']/g, function(c){
         return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
       });
@@ -2870,7 +2853,6 @@ function escapeHtml(s){
       }
       return v;
     }
-}
 
     function applyDefaultMarkup(){
       var factor = getMarkupFactor(); // e.g. 1.40 for 40% over cost
