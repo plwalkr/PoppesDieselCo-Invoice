@@ -2719,7 +2719,7 @@ window.addEventListener('load', function(){
         '.sig-line{border-bottom:1px solid #000;height:28px;display:flex;align-items:flex-end}'+
         '.sig-label{font-size:9pt;color:#333;margin-top:4px}'+
         '.sig-img{max-height:60px;}'+
-        '.watermark{position:absolute;inset:0;z-index:0;opacity:.28}'+
+        '.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:0;opacity:.28}'+
         '#wmImg{max-width:90%;max-height:90%;opacity:.28}'+
         '#wmFallback{opacity:.28}'+
         '.p-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}'+
@@ -2990,6 +2990,13 @@ window.addEventListener('load', function(){
       document.getElementById('pTax').textContent = fmt(tax);
       document.getElementById('pGrand').textContent = fmt(grand);
       document.getElementById('pSave').textContent = fmt(savingsTotal);
+
+      if (typeof AppLog !== 'undefined' && AppLog && typeof AppLog.info === 'function') {
+        AppLog.info('recalcTotals :: sub=' + fmt(subtotal) +
+                    ' parts=' + fmt(partsSubtotal) +
+                    ' tax=' + fmt(tax) +
+                    ' savings=' + fmt(savingsTotal));
+      }
     }
 
     // Initialize markup field + auto-calc once DOM is ready (inside init guard)
@@ -3040,5 +3047,4 @@ window.addEventListener('load', function(){
 
 </body>
 </html>
-
 
