@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Poppe’s Diesel Co. — Shop Manager v1.2.2 (Parts-Only Tax + Cloud Fix)</title>
+  <title>Poppe’s Diesel Co. — Shop Manager v1.2.3 (Parts-Only Tax + Cloud Fix)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Supabase client (v2 UMD) -->
@@ -675,12 +675,14 @@
 <header>
   <div class="title-block">
     <h1>Poppe’s Diesel Co. — Shop Manager</h1>
-    <div class="subtitle">v1.2.2 — Parts-Only Tax · Cloud Save/Load · Local Backup</div>
+    <div class="subtitle">v1.2.3 — Parts-Only Tax · Cloud Save/Load · Local Backup</div>
   </div>
   <div class="right-block">
     <span id="selftest" class="tag selftest">Self-test: …</span>
     <div class="tag">Watermark:
       <input type="file" id="wmFile" accept="image/*" style="font-size:10px; margin-left:4px; max-width:140px;" />
+      <button id="wmUseDefault" class="mini-btn" title="Use built-in default watermark">Default</button>
+      <button id="wmClear" class="mini-btn" title="Remove saved watermark">Clear</button>
     </div>
     <button id="debugToggle">Debug</button>
   </div>
@@ -1350,29 +1352,101 @@ if (!window.crypto.randomUUID){
   var KEY = 'pdc_wm_dataurl';
   var imgEl = document.getElementById('wmImg');
   var fallback = document.getElementById('wmFallback');
-  function setWM(src){ if(!imgEl) return; imgEl.src = src; imgEl.style.display = 'block'; if(fallback) fallback.style.display = 'none'; }
+
+  // A safe built-in default so the watermark is never "missing"
+  function defaultSvgDataUrl(){
+    var svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#111"/>
+      <stop offset="1" stop-color="#444"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="none"/>
+  <g opacity="0.30">
+    <text x="50%" y="46%" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+          font-size="86" font-weight="800" fill="url(#g)" letter-spacing="10">
+      POPPE'S DIESEL CO.
+    </text>
+    <text x="50%" y="56%" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+          font-size="42" font-weight="700" fill="#333" letter-spacing="8">
+      1776 • GARAGE-BUILT
+    </text>
+  </g>
+</svg>`.trim();
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
+  function showFallback(){
+    if(fallback) fallback.style.display = 'block';
+    if(imgEl) { imgEl.style.display = 'none'; imgEl.removeAttribute('src'); }
+  }
+
+  function setWM(src, persist){
+    if(!imgEl) return;
+    imgEl.src = src;
+    imgEl.style.display = 'block';
+    if(fallback) fallback.style.display = 'none';
+    if(persist){
+      try { localStorage.setItem(KEY, src); } catch(e){}
+    }
+  }
+
+  // Load cached watermark, otherwise use default.
   try {
     var cached = localStorage.getItem(KEY);
-    if(cached){ setWM(cached); }
-  } catch(_){}
+    if(cached){
+      setWM(cached, false);
+    } else {
+      setWM(defaultSvgDataUrl(), false);
+    }
+  } catch(e){
+    setWM(defaultSvgDataUrl(), false);
+  }
+
   var up = document.getElementById('wmFile');
+  var btnDefault = document.getElementById('wmUseDefault');
+  var btnClear = document.getElementById('wmClear');
+
   function readAsDataURL(file, cb, eb){
     var r = new FileReader();
-    r.onload=function(){cb(r.result)};
-    r.onerror=function(){ if(eb) eb(r.error); };
+    r.onload = function(){ cb(r.result); };
+    r.onerror = function(){ eb && eb(r.error); };
     r.readAsDataURL(file);
   }
-  if(up) up.addEventListener('change', function(){
-    var f = up.files && up.files[0];
-    if(!f) return;
-    readAsDataURL(f, function(data){
-      try{ localStorage.setItem(KEY, data); }catch(_){}
-      setWM(data);
-      alert('Watermark updated.');
-      up.value='';
+
+  if (up){
+    up.addEventListener('change', function(){
+      var f = up.files && up.files[0];
+      if(!f) return;
+      readAsDataURL(f, function(url){
+        setWM(url, true);
+        log('Watermark updated.');
+        up.value='';
+      }, function(err){
+        log('Watermark read failed: ' + (err && err.message ? err.message : 'unknown'));
+      });
     });
-  });
+  }
+
+  if (btnDefault){
+    btnDefault.addEventListener('click', function(){
+      setWM(defaultSvgDataUrl(), false);
+      try { localStorage.removeItem(KEY); } catch(_){}
+      log('Watermark set to default.');
+    });
+  }
+
+  if (btnClear){
+    btnClear.addEventListener('click', function(){
+      try { localStorage.removeItem(KEY); } catch(_){}
+      showFallback();
+      log('Watermark cleared (fallback text will show).');
+    });
+  }
 })();
+;
 
 /* -------------- App init -------------- */
 window.addEventListener('load', function(){
@@ -1501,7 +1575,7 @@ window.addEventListener('load', function(){
     function buildBackupPayload(){
       var payload = {
         _note: 'Poppe’s Diesel Co. Shop Manager backup',
-        version: 'v1.2.2',
+        version: 'v1.2.3',
         exportedAt: new Date().toISOString(),
         db: DB,
         ui: UI,
