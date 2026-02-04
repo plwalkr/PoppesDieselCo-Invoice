@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Poppe’s Diesel Co. — Shop Manager v1.2.4 (Parts-Only Tax + Cloud Fix)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Poppe’s Diesel Co. — Shop Manager v1.2.5 (iPhone Print + Mobile UX)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
 
   <!-- Supabase client (v2 UMD) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -668,6 +668,58 @@
     position: relative;
     z-index: 1;
   }
+
+    /* ---------- Mobile UX hardening (iPhone/iOS Safari) ---------- */
+    html, body { overflow-x: hidden; }
+    /* Prevent Safari from auto-resizing text */
+    body { -webkit-text-size-adjust: 100%; }
+
+    /* Improve tap behavior (reduces double-tap zoom weirdness) */
+    button, .tab-btn, .mini-btn { touch-action: manipulation; }
+
+    /* iOS Safari zooms inputs if font-size < 16px; bump on small screens */
+    @media (max-width: 720px) {
+      input[type="text"],
+      input[type="number"],
+      input[type="email"],
+      textarea,
+      select {
+        font-size: 16px !important;
+      }
+
+      header { flex-wrap: wrap; }
+      header .right-block {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: flex-start;
+      }
+      header .right-block .tag { max-width: 100%; }
+
+      /* Make tab bar scroll horizontally instead of breaking layout */
+      .tab-bar {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+        gap: 6px;
+        padding-bottom: 6px;
+      }
+      .tab-bar .tab-btn { flex: 0 0 auto; }
+
+      /* Make action buttons less chaotic */
+      .row { gap: 10px; }
+      .row > .field { min-width: 100%; }
+
+      /* File input in header shouldn't be tiny on phone */
+      #wmFile { font-size: 14px !important; max-width: 220px !important; }
+    }
+
+    /* Print fidelity improvements across browsers */
+    @media print {
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+
 </style>
 </head>
 <body>
@@ -675,7 +727,7 @@
 <header>
   <div class="title-block">
     <h1>Poppe’s Diesel Co. — Shop Manager</h1>
-    <div class="subtitle">v1.2.4 — Parts-Only Tax · Cloud Save/Load · Local Backup</div>
+    <div class="subtitle">v1.2.5 — Parts-Only Tax · Cloud Save/Load · Local Backup</div>
   </div>
   <div class="right-block">
     <span id="selftest" class="tag selftest">Self-test: …</span>
@@ -1577,7 +1629,7 @@ window.addEventListener('load', function(){
     function buildBackupPayload(){
       var payload = {
         _note: 'Poppe’s Diesel Co. Shop Manager backup',
-        version: 'v1.2.4',
+        version: 'v1.2.5',
         exportedAt: new Date().toISOString(),
         db: DB,
         ui: UI,
@@ -2800,6 +2852,57 @@ window.addEventListener('load', function(){
     });
 
     /* ------ PDF (print) ------ */
+    function _printHtmlViaIframe(htmlDoc){
+      // iOS Safari/WebKit is unreliable printing from a popup window.
+      // This prints from an offscreen iframe (more consistent on iPhone).
+      var iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = '0';
+      iframe.setAttribute('aria-hidden','true');
+      document.body.appendChild(iframe);
+
+      var doc = iframe.contentWindow.document;
+      doc.open();
+      doc.write(htmlDoc);
+      doc.close();
+
+      // Wait for images to load before printing (important for iPhone)
+      var imgs = Array.prototype.slice.call(doc.images || []);
+      var waiters = imgs.map(function(img){
+        return new Promise(function(resolve){
+          if (!img) return resolve();
+          if (img.complete) return resolve();
+          img.onload = function(){ resolve(); };
+          img.onerror = function(){ resolve(); };
+        });
+      });
+
+      Promise.all(waiters).then(function(){
+        try { iframe.contentWindow.focus(); } catch(e){}
+        try { iframe.contentWindow.print(); } catch(e){
+          // Fallback: open in a new tab if printing fails
+          try{
+            var w = window.open('', '_blank');
+            if (w){
+              w.document.open(); w.document.write(htmlDoc); w.document.close();
+              try{ w.focus(); w.print(); }catch(_){}
+            } else {
+              alert('Printing blocked. Please allow pop-ups or use the Share button in your browser.');
+            }
+          }catch(_){}
+        }
+
+        // Cleanup after a moment (lets the print dialog open)
+        setTimeout(function(){
+          try { document.body.removeChild(iframe); } catch(e){}
+        }, 1500);
+      });
+    }
+
     document.getElementById('pdf').addEventListener('click', function(){
       var css =
         'html,body{margin:0;padding:0}body{-webkit-print-color-adjust:exact;print-color-adjust:exact;font-family:'+ (document.body && getComputedStyle(document.body).fontFamily || 'sans-serif') +';font-size:11pt;line-height:1.35;color:#000}'+
@@ -2825,18 +2928,13 @@ window.addEventListener('load', function(){
         '.p-photo{border:1px solid #000;padding:4px;border-radius:6px;break-inside:avoid;page-break-inside:avoid}'+
         '.p-photo img{width:100%;height:1.8in;object-fit:cover;border-radius:4px;display:block}'+
         '#pPhotosBlock{page-break-before:always}';
-      var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice/Estimate</title><style>'+css+'</style></head><body>' +
+
+      var htmlDoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'+
+                    '<title>Invoice/Estimate</title><style>'+css+'</style></head><body>' +
                     document.getElementById('preview').outerHTML +
                     '</body></html>';
-      var w = window.open('', '_blank');
-      if(!w){
-        alert('Please allow pop-ups to print.');
-        return;
-      }
-      w.document.open();
-      w.document.write(htmlDoc);
-      w.document.close();
-      try{ w.focus(); w.print(); }catch(_){}
+
+      _printHtmlViaIframe(htmlDoc);
     });
 
     /* ------ Signature modal ------ */
