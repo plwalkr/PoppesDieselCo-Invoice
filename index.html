@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Poppe’s Diesel Co. — Shop Manager v1.2.3 (Parts-Only Tax + Cloud Fix)</title>
+  <title>Poppe’s Diesel Co. — Shop Manager v1.2.4 (Parts-Only Tax + Cloud Fix)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Supabase client (v2 UMD) -->
@@ -351,17 +351,17 @@
       align-items: center;
       justify-content: center;
       pointer-events: none;
-      z-index: 2;
-      opacity: 0.35;
+      z-index: 0; /* behind content */
+      opacity: 1; /* control opacity on the image/text itself */
       background: transparent !important;
     }
     #wmImg {
-      max-width: 90%;
-      max-height: 90%;
-      opacity: 0.35;
-      display: none;
+      max-width: 92%;
+      max-height: 92%;
+      opacity: 0.18;         /* visible but subtle */
+      display: none;         /* JS turns on when src is set */
       background: transparent !important;
-      mix-blend-mode: multiply;
+      mix-blend-mode: normal; /* avoid 'invisible' edge cases */
     }
     #wmFallback {
       font-size: 40px;
@@ -372,7 +372,7 @@
     }
     #preview-content {
       position: relative;
-      z-index: 1;
+      z-index: 1; /* above watermark */
     }
 
     .invoice-header {
@@ -675,7 +675,7 @@
 <header>
   <div class="title-block">
     <h1>Poppe’s Diesel Co. — Shop Manager</h1>
-    <div class="subtitle">v1.2.3 — Parts-Only Tax · Cloud Save/Load · Local Backup</div>
+    <div class="subtitle">v1.2.4 — Parts-Only Tax · Cloud Save/Load · Local Backup</div>
   </div>
   <div class="right-block">
     <span id="selftest" class="tag selftest">Self-test: …</span>
@@ -1355,26 +1355,21 @@ if (!window.crypto.randomUUID){
 
   // A safe built-in default so the watermark is never "missing"
   function defaultSvgDataUrl(){
-    var svg = `
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#111"/>
-      <stop offset="1" stop-color="#444"/>
-    </linearGradient>
-  </defs>
+    // Simple, high-compat SVG (no gradients) to avoid any "not rendering" surprises.
+    var svg =
+`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800">
   <rect width="100%" height="100%" fill="none"/>
-  <g opacity="0.30">
-    <text x="50%" y="46%" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
-          font-size="86" font-weight="800" fill="url(#g)" letter-spacing="10">
-      POPPE'S DIESEL CO.
-    </text>
-    <text x="50%" y="56%" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
-          font-size="42" font-weight="700" fill="#333" letter-spacing="8">
-      1776 • GARAGE-BUILT
-    </text>
+  <g opacity="0.35">
+    <text x="50%" y="48%" text-anchor="middle"
+      font-family="Arial, Helvetica, sans-serif"
+      font-size="84" font-weight="800"
+      fill="#111" letter-spacing="10">POPPE'S DIESEL CO.</text>
+    <text x="50%" y="58%" text-anchor="middle"
+      font-family="Arial, Helvetica, sans-serif"
+      font-size="40" font-weight="700"
+      fill="#111" letter-spacing="8">1776  •  GARAGE-BUILT</text>
   </g>
-</svg>`.trim();
+</svg>`;
     return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   }
 
@@ -1385,9 +1380,16 @@ if (!window.crypto.randomUUID){
 
   function setWM(src, persist){
     if(!imgEl) return;
+
+    imgEl.onerror = function(){
+      showFallback();
+      log('Watermark failed to render (image load error). Using fallback text instead.');
+    };
+
     imgEl.src = src;
     imgEl.style.display = 'block';
     if(fallback) fallback.style.display = 'none';
+
     if(persist){
       try { localStorage.setItem(KEY, src); } catch(e){}
     }
@@ -1575,7 +1577,7 @@ window.addEventListener('load', function(){
     function buildBackupPayload(){
       var payload = {
         _note: 'Poppe’s Diesel Co. Shop Manager backup',
-        version: 'v1.2.3',
+        version: 'v1.2.4',
         exportedAt: new Date().toISOString(),
         db: DB,
         ui: UI,
@@ -2800,7 +2802,7 @@ window.addEventListener('load', function(){
     /* ------ PDF (print) ------ */
     document.getElementById('pdf').addEventListener('click', function(){
       var css =
-        'html,body{margin:0;padding:0}body{font-family:'+ (document.body && getComputedStyle(document.body).fontFamily || 'sans-serif') +';font-size:11pt;line-height:1.35;color:#000}'+
+        'html,body{margin:0;padding:0}body{-webkit-print-color-adjust:exact;print-color-adjust:exact;font-family:'+ (document.body && getComputedStyle(document.body).fontFamily || 'sans-serif') +';font-size:11pt;line-height:1.35;color:#000}'+
         '.print-area{padding:8px 12px 12px;border-radius:0;position:relative}'+
         '.invoice-header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:6px}'+
         '.invoice-header h3{margin:0;font-size:14pt}'+
@@ -2815,9 +2817,9 @@ window.addEventListener('load', function(){
         '.sig-img{max-height:60px;}'+
         '.print-area{box-sizing:border-box;width:8.5in;min-height:11in;margin:0 auto;position:relative}'+
         '@page{size:Letter;margin:0.5in}'+
-        '.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:0;opacity:.22;background:transparent!important}'+
+        '.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:0;opacity:1;background:transparent!important}'+
         '.print-area #preview-content{position:relative;z-index:1}'+
-        '#wmImg{max-width:92%;max-height:92%;opacity:.22;display:block!important;background:transparent!important}'+
+        '#wmImg{max-width:92%;max-height:92%;opacity:.18;display:block!important;background:transparent!important}'+
         '#wmFallback{opacity:.28}'+
         '.p-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}'+
         '.p-photo{border:1px solid #000;padding:4px;border-radius:6px;break-inside:avoid;page-break-inside:avoid}'+
