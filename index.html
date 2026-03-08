@@ -760,11 +760,6 @@
   <div class="right-block">
     <span id="selftest" class="tag selftest">Self-test: …</span>
     <span id="diagStatus" class="tag diag-status ok">Diagnostics: OK</span>
-    <div class="tag">Watermark:
-      <input type="file" id="wmFile" accept="image/*" style="font-size:10px; margin-left:4px; max-width:140px;" />
-      <button id="wmUseDefault" class="mini-btn" title="Use built-in default watermark">Default</button>
-      <button id="wmClear" class="mini-btn" title="Remove saved watermark">Clear</button>
-    </div>
     <button id="debugToggle" title="Open diagnostics panel" aria-haspopup="dialog" aria-controls="debug" aria-expanded="false">Diagnostics</button>
   </div>
 </header>
@@ -974,6 +969,35 @@
           <label for="invNo">Document #</label>
           <input id="invNo" type="text" placeholder="(e.g., 2025-001)" />
         </div>
+        <div class="field xsmall">
+          <label for="roNo">RO / Work Order #</label>
+          <input id="roNo" type="text" placeholder="(e.g., RO-1024)" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field xsmall">
+          <label for="dueDate">Due Date</label>
+          <input id="dueDate" type="date" />
+        </div>
+        <div class="field xsmall">
+          <label for="paymentTerms">Payment Terms</label>
+          <select id="paymentTerms">
+            <option value="Due on receipt">Due on receipt</option>
+            <option value="Net 7">Net 7</option>
+            <option value="Net 15">Net 15</option>
+            <option value="Net 30">Net 30</option>
+            <option value="Estimate valid 14 days">Estimate valid 14 days</option>
+          </select>
+        </div>
+        <div class="field xsmall">
+          <label for="odometer">Odometer</label>
+          <input id="odometer" type="number" step="1" min="0" placeholder="miles" />
+        </div>
+        <div class="field xsmall">
+          <label for="licensePlate">License Plate</label>
+          <input id="licensePlate" type="text" placeholder="ABC-1234" />
+        </div>
       </div>
 
       <div class="row">
@@ -1006,6 +1030,33 @@
         <div class="field">
           <label for="emailTo">Email To</label>
           <input id="emailTo" type="email" placeholder="customer@example.com" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field xsmall">
+          <label for="paymentMethod">Payment Method</label>
+          <select id="paymentMethod">
+            <option value="">Unspecified</option>
+            <option>Cash</option>
+            <option>Card</option>
+            <option>Check</option>
+            <option>Bank Transfer</option>
+            <option>Online Invoice</option>
+            <option>Financing</option>
+          </select>
+        </div>
+        <div class="field xsmall">
+          <label for="paidDate">Paid Date</label>
+          <input id="paidDate" type="date" />
+        </div>
+        <div class="field xsmall">
+          <label for="amountPaid">Amount Paid</label>
+          <input id="amountPaid" type="number" step="0.01" min="0" value="0" />
+        </div>
+        <div class="field xsmall">
+          <label for="balanceDue">Balance Due</label>
+          <input id="balanceDue" type="text" value="$0.00" readonly />
         </div>
       </div>
 
@@ -1107,17 +1158,33 @@
             <div id="wmFallback">POPPE’S DIESEL CO.</div>
           </div>
           <div id="preview-content">
+            <div style="display:flex; justify-content:space-between; gap:12px; margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:8px;">
+              <div>
+                <div style="font-size:18px; font-weight:800;" id="pShopName">Poppe’s Diesel Co.</div>
+                <div style="font-size:11px; line-height:1.35;" id="pShopAddress"></div>
+                <div style="font-size:11px; line-height:1.35;" id="pShopContact"></div>
+              </div>
+              <div style="text-align:right; font-size:11px;">
+                <div><strong id="pTypeTitle">Estimate</strong></div>
+                <div id="pInvNo">DRAFT</div>
+                <div id="pRoNoWrap">RO: <span id="pRoNo">—</span></div>
+              </div>
+            </div>
             <div class="invoice-header">
               <div>
-                <h3><span id="pType" class="badge estimate">Estimate</span> <span id="pInvNo">DRAFT</span></h3>
+                <h3><span id="pType" class="badge estimate">Estimate</span> <span id="pDocNoLabel"></span></h3>
                 <div style="font-size:11px; margin-top:4px;">
                   <strong>Bill To:</strong> <span id="pCust">—</span><br/>
-                  <span id="pVeh"></span>
+                  <span id="pVeh"></span><br/>
+                  <span id="pPlateOdo"></span>
                 </div>
               </div>
               <div class="meta">
                 <div>Date: <span id="pDate"></span></div>
+                <div>Due: <span id="pDueDate">—</span></div>
+                <div>Terms: <span id="pTerms">—</span></div>
                 <div>Status: <span id="pStatus"></span></div>
+                <div>Paid: <span id="pPaidMeta">—</span></div>
               </div>
             </div>
 
@@ -1138,11 +1205,16 @@
               <div>Tax: <span id="pTax">$0.00</span></div>
               <div>Discount: <span id="pDiscount">$0.00</span></div>
               <div><strong>Total: <span id="pGrand">$0.00</span></strong></div>
+              <div>Amount Paid: <span id="pAmountPaid">$0.00</span></div>
+              <div>Balance Due: <span id="pBalanceDue">$0.00</span></div>
+              <div>Payment Method: <span id="pPaymentMethod">—</span></div>
               <div>Savings: <span id="pSave">$0.00</span></div>
               <div>Warranty hours (not billed): <span id="pWHours">0.00</span></div>
             </div>
 
+            <div id="pApprovalBlock"></div>
             <div id="pOverallBlock"></div>
+            <div id="pDisclaimerBlock"></div>
 
             <div class="signatures">
               <div class="sig-row">
@@ -1209,6 +1281,48 @@
           <div class="field">
             <label for="shopFooter">Email Footer</label>
             <textarea id="shopFooter" placeholder="Thank you for supporting local."></textarea>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="shopPhone">Shop Phone</label>
+            <input id="shopPhone" type="text" placeholder="(812) 555-1212" />
+          </div>
+          <div class="field">
+            <label for="shopWebsite">Shop Website</label>
+            <input id="shopWebsite" type="text" placeholder="poppesdieselco.com" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="shopAddress">Shop Address / Location</label>
+            <textarea id="shopAddress" placeholder="Columbus, Indiana"></textarea>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="shopDisclaimer">Warranty / Disclaimer Block</label>
+            <textarea id="shopDisclaimer" placeholder="Example: Labor warranty 30 days on installed parts unless otherwise stated. Customer-supplied parts carry no labor warranty."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Advanced Tools</div>
+        <div class="row">
+          <div class="field">
+            <label><input id="showVinTools" type="checkbox" checked /> Show VIN decode tools on Jobs tab</label>
+            <div class="muted">Hide the VIN helper buttons when you want a cleaner intake screen.</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="wmFile">Watermark Image</label>
+            <input type="file" id="wmFile" accept="image/*" />
+            <div style="margin-top:6px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button id="wmUseDefault" class="tab-btn" type="button" title="Use built-in default watermark">Use Default Watermark</button>
+              <button id="wmClear" class="tab-btn" type="button" title="Remove saved watermark">Clear Watermark</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1352,7 +1466,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.3.5';
+const APP_VERSION = 'v1.4.0';
 const APP_BUILD_DATE = '2026-03-08';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -1439,7 +1553,11 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
     state.push('- SelectedJobId=' + getSelectedText('invJob'));
     state.push('- DocumentType=' + getSelectedText('docType'));
     state.push('- DocumentNo=' + getSelectedText('invNo'));
+    state.push('- RONo=' + getSelectedText('roNo'));
+    state.push('- DueDate=' + getSelectedText('dueDate'));
+    state.push('- PaymentTerms=' + getSelectedText('paymentTerms'));
     state.push('- EmailTo=' + getSelectedText('emailTo'));
+    state.push('- PaymentMethod=' + getSelectedText('paymentMethod'));
     state.push('- LineCount=' + getLineCount());
     state.push('- DiscountType=' + discountType);
     state.push('- DiscountInput=' + discountValue);
@@ -1800,7 +1918,12 @@ window.addEventListener('load', function(){
           shopFrom:'Poppe’s Diesel Co.',
           shopReply:'poppedieselco@gmail.com',
           shopSubj:'[Poppe’s Diesel Co.] ',
-          shopFooter:'Thank you for supporting local.'
+          shopFooter:'Thank you for supporting local.',
+          shopPhone:'',
+          shopWebsite:'',
+          shopAddress:'Columbus, Indiana',
+          shopDisclaimer:'Labor warranty 30 days on installed parts unless otherwise stated. Customer-supplied parts carry no labor warranty.',
+          showVinTools:true
         }
       };
     }
@@ -1864,6 +1987,16 @@ window.addEventListener('load', function(){
         if(!j.signatures) j.signatures={customer:null, manager:null};
         if(!j.docType) j.docType='Estimate';
         if(typeof j.paid==='undefined') j.paid=false;
+        if(typeof j.roNo==='undefined') j.roNo='';
+        if(typeof j.dueDate==='undefined') j.dueDate='';
+        if(typeof j.paymentTerms==='undefined') j.paymentTerms='Due on receipt';
+        if(typeof j.odometer==='undefined') j.odometer='';
+        if(typeof j.licensePlate==='undefined') j.licensePlate='';
+        if(typeof j.paymentMethod==='undefined') j.paymentMethod='';
+        if(typeof j.amountPaid==='undefined') j.amountPaid=0;
+        if(typeof j.balanceDue==='undefined') j.balanceDue=0;
+        if(typeof j.paidAt==='undefined') j.paidAt=null;
+        if(typeof j.approvedAt==='undefined') j.approvedAt=null;
         if(!j.lines) j.lines=[];
         for(l=0;l<(j.lines||[]).length;l++){
           if(typeof j.lines[l].note==='undefined') j.lines[l].note='';
@@ -1875,6 +2008,11 @@ window.addEventListener('load', function(){
         j.lines = cleanLines(j.lines || []);
       }
       if(!DB.settings) DB.settings = defaultDB().settings;
+      if(typeof DB.settings.shopPhone==='undefined') DB.settings.shopPhone='';
+      if(typeof DB.settings.shopWebsite==='undefined') DB.settings.shopWebsite='';
+      if(typeof DB.settings.shopAddress==='undefined') DB.settings.shopAddress='Columbus, Indiana';
+      if(typeof DB.settings.shopDisclaimer==='undefined') DB.settings.shopDisclaimer='Labor warranty 30 days on installed parts unless otherwise stated. Customer-supplied parts carry no labor warranty.';
+      if(typeof DB.settings.showVinTools==='undefined') DB.settings.showVinTools=true;
       saveDB();
     }
 
@@ -1882,6 +2020,29 @@ window.addEventListener('load', function(){
     function $(sel, root){ return (root||document).querySelector(sel); }
     function $all(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
     function fmt(n){ return "$"+Number(n||0).toFixed(2); }
+    function balanceDueFor(job, total){
+      var amt = Number(job && job.amountPaid || 0);
+      var grand = Number(total || 0);
+      return Math.max(0, grand - amt);
+    }
+    function isoDateToLocalText(v){
+      if(!v) return '—';
+      try{
+        var d = new Date(v);
+        if(isNaN(d.getTime())) return String(v);
+        return d.toLocaleDateString();
+      }catch(_){ return String(v); }
+    }
+    function applySettingsVisibility(){
+      var showVin = !(DB && DB.settings && DB.settings.showVinTools === false);
+      var btn = document.getElementById('decodeVIN');
+      var wrap = document.getElementById('vinSuggest');
+      if(btn){
+        var holder = btn.closest('.field');
+        if(holder) holder.style.display = showVin ? '' : 'none';
+      }
+      if(!showVin && wrap){ wrap.style.display = 'none'; }
+    }
     function matchesAllTokens(hay, q){
       var tokens = (q||'').replace(/\s+/g,' ').toLowerCase().split(' ');
       var text = String(hay||'').toLowerCase();
@@ -1935,6 +2096,12 @@ window.addEventListener('load', function(){
       $('#shopReply').value  = DB.settings.shopReply  || '';
       $('#shopSubj').value   = DB.settings.shopSubj   || '';
       $('#shopFooter').value = DB.settings.shopFooter || '';
+      $('#shopPhone').value = DB.settings.shopPhone || '';
+      $('#shopWebsite').value = DB.settings.shopWebsite || '';
+      $('#shopAddress').value = DB.settings.shopAddress || '';
+      $('#shopDisclaimer').value = DB.settings.shopDisclaimer || '';
+      $('#showVinTools').checked = DB.settings.showVinTools !== false;
+      applySettingsVisibility();
     }
 
     // Stubbed photo grid renderer to avoid init crashes when legacy photo features are not present
@@ -2380,8 +2547,16 @@ window.addEventListener('load', function(){
       persistLines();
 
       $('#invNo').value = j.invNo||'';
+      $('#roNo').value = j.roNo||'';
       $('#docType').value = j.docType||'Estimate';
+      $('#dueDate').value = j.dueDate||'';
+      $('#paymentTerms').value = j.paymentTerms||'Due on receipt';
+      $('#odometer').value = j.odometer||'';
+      $('#licensePlate').value = j.licensePlate||'';
       $('#payLink').value = j.paymentLink||'';
+      $('#paymentMethod').value = j.paymentMethod||'';
+      $('#paidDate').value = j.paidAt ? String(j.paidAt).slice(0,10) : '';
+      $('#amountPaid').value = Number(j.amountPaid||0).toFixed(2).replace(/\.00$/,'');
       var c = findCustomer(j.customerId);
       $('#emailTo').value = (j.emailTo && j.emailTo.trim())
         ? j.emailTo
@@ -2528,8 +2703,16 @@ window.addEventListener('load', function(){
       // Persist back to the job
       j.lines = lines;
       j.invNo = $('#invNo').value.trim();
+      j.roNo = $('#roNo').value.trim();
       j.docType = $('#docType').value;
+      j.dueDate = $('#dueDate').value;
+      j.paymentTerms = $('#paymentTerms').value;
+      j.odometer = $('#odometer').value.trim();
+      j.licensePlate = $('#licensePlate').value.trim();
       j.paymentLink = $('#payLink').value.trim();
+      j.paymentMethod = $('#paymentMethod').value;
+      j.paidAt = $('#paidDate').value ? new Date($('#paidDate').value+'T12:00:00').toISOString() : null;
+      j.amountPaid = Number($('#amountPaid').value || 0);
       j.emailTo = $('#emailTo').value.trim();
       j.overallNotes = $('#overallNotes').value || '';
       j.internalNotes = $('#internalNotes').value || '';
@@ -2539,6 +2722,7 @@ window.addEventListener('load', function(){
       j.markupFactor = Number($('#markupFactor').value || 1.40);
       j.discountType = ($('#discountType') ? $('#discountType').value : 'percent');
       j.discountValue = Number($('#discountValue') ? $('#discountValue').value : 0);
+      j.balanceDue = balanceDueFor(j, Number((document.getElementById('grand') && document.getElementById('grand').textContent || '$0').replace(/[^0-9.-]/g,'')));
 
       // Recalc views
       recalcTotals();
@@ -2556,18 +2740,45 @@ window.addEventListener('load', function(){
 
     function updatePreview(){
       var j = currentJob();
-      document.getElementById('pInvNo').textContent = ($('#invNo').value.trim() || 'DRAFT');
+      var docNo = ($('#invNo').value.trim() || 'DRAFT');
+      var roNo = ($('#roNo').value.trim() || '—');
+      document.getElementById('pInvNo').textContent = docNo;
+      document.getElementById('pDocNoLabel').textContent = docNo;
+      document.getElementById('pRoNo').textContent = roNo;
       document.getElementById('pDate').textContent = new Date().toLocaleDateString();
+      document.getElementById('pDueDate').textContent = $('#dueDate').value || '—';
+      document.getElementById('pTerms').textContent = $('#paymentTerms').value || '—';
       var t = $('#docType').value;
       var badge = document.getElementById('pType');
       badge.textContent=t;
       badge.className='badge ' + (t==='Invoice'?'invoice':'estimate');
+      document.getElementById('pTypeTitle').textContent = t;
       document.getElementById('pStatus').textContent = j && j.paid
         ? 'Paid'
         : (t==='Estimate' ? (j && j.approved ? 'Approved':'Pending Approval') : 'Unpaid');
       var c = j ? findCustomer(j.customerId) : null;
       document.getElementById('pCust').textContent = c?c.name:'—';
       document.getElementById('pVeh').textContent = c?(c.vehicle||''):'';
+      var plateBits = [];
+      if($('#licensePlate').value.trim()) plateBits.push('Plate: ' + $('#licensePlate').value.trim());
+      if($('#odometer').value.trim()) plateBits.push('Odometer: ' + $('#odometer').value.trim() + ' mi');
+      document.getElementById('pPlateOdo').textContent = plateBits.join(' • ');
+      document.getElementById('pShopName').textContent = DB.settings.shopFrom || 'Poppe’s Diesel Co.';
+      document.getElementById('pShopAddress').textContent = DB.settings.shopAddress || '';
+      var contactBits = [];
+      if(DB.settings.shopPhone) contactBits.push(DB.settings.shopPhone);
+      if(DB.settings.shopReply) contactBits.push(DB.settings.shopReply);
+      if(DB.settings.shopWebsite) contactBits.push(DB.settings.shopWebsite);
+      document.getElementById('pShopContact').textContent = contactBits.join(' • ');
+      var amountPaid = Number($('#amountPaid').value || 0);
+      var grandNum = Number((document.getElementById('grand').textContent || '$0').replace(/[^0-9.-]/g,''));
+      var bal = balanceDueFor(j || {}, grandNum);
+      document.getElementById('balanceDue').value = fmt(bal);
+      document.getElementById('pAmountPaid').textContent = fmt(amountPaid);
+      document.getElementById('pBalanceDue').textContent = fmt(bal);
+      document.getElementById('pPaymentMethod').textContent = $('#paymentMethod').value || '—';
+      document.getElementById('pPaidMeta').textContent = (j && j.paidAt ? isoDateToLocalText(j.paidAt) : '—');
+      if(j){ j.balanceDue = bal; }
 
       var tbody = document.getElementById('pLines'); tbody.innerHTML='';
       if(j){
@@ -2607,10 +2818,20 @@ window.addEventListener('load', function(){
         }
       }
 
+      var pApproval = document.getElementById('pApprovalBlock'); pApproval.innerHTML='';
+      if(j && j.approvedAt){
+        pApproval.innerHTML = '<div style="margin-top:8px; font-size:11px;"><strong>Estimate Approved:</strong> ' + escapeHtml(isoDateToLocalText(j.approvedAt)) + '</div>';
+      }
+
       var pBlk = document.getElementById('pOverallBlock'); pBlk.innerHTML='';
       if(j && j.overallNotes && j.overallNotes.trim()){
         pBlk.innerHTML = '<h4 style="margin:8px 0 4px 0;">Technician Overall Notes</h4>' +
           '<div style="white-space:pre-wrap; line-height:1.35;">'+escapeHtml(j.overallNotes.trim())+'</div>';
+      }
+
+      var pDisc = document.getElementById('pDisclaimerBlock'); pDisc.innerHTML='';
+      if(DB.settings.shopDisclaimer && DB.settings.shopDisclaimer.trim()){
+        pDisc.innerHTML = '<div style="margin-top:10px; padding-top:8px; border-top:1px solid #ddd; font-size:10.5px; white-space:pre-wrap; line-height:1.35;"><strong>Warranty / Policy</strong><br>' + escapeHtml(DB.settings.shopDisclaimer.trim()) + '</div>';
       }
 
       function setSig(role){
@@ -2768,7 +2989,12 @@ window.addEventListener('load', function(){
     document.getElementById('shopFrom').addEventListener('input', function(){ DB.settings.shopFrom=this.value; saveDB(); });
     document.getElementById('shopReply').addEventListener('input', function(){ DB.settings.shopReply=this.value; saveDB(); });
     document.getElementById('shopSubj').addEventListener('input', function(){ DB.settings.shopSubj=this.value; saveDB(); });
-    document.getElementById('shopFooter').addEventListener('input', function(){ DB.settings.shopFooter=this.value; saveDB(); });
+    document.getElementById('shopFooter').addEventListener('input', function(){ DB.settings.shopFooter=this.value; saveDB(); updatePreview(); });
+    document.getElementById('shopPhone').addEventListener('input', function(){ DB.settings.shopPhone=this.value; saveDB(); updatePreview(); });
+    document.getElementById('shopWebsite').addEventListener('input', function(){ DB.settings.shopWebsite=this.value; saveDB(); updatePreview(); });
+    document.getElementById('shopAddress').addEventListener('input', function(){ DB.settings.shopAddress=this.value; saveDB(); updatePreview(); });
+    document.getElementById('shopDisclaimer').addEventListener('input', function(){ DB.settings.shopDisclaimer=this.value; saveDB(); updatePreview(); });
+    document.getElementById('showVinTools').addEventListener('change', function(){ DB.settings.showVinTools=this.checked; saveDB(); applySettingsVisibility(); });
 
     /* ------ Backup & Restore + Flash-drive FS ------ */
     (function(){
@@ -3068,12 +3294,25 @@ window.addEventListener('load', function(){
     });
     document.getElementById('applyMarkup').addEventListener('click', applyDefaultMarkup);
     document.getElementById('recalc').addEventListener('click', recalcTotals);
+    ['invNo','roNo','docType','dueDate','paymentTerms','odometer','licensePlate','payLink','emailTo','paymentMethod','paidDate','amountPaid'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el){ el.addEventListener('input', persistLines); el.addEventListener('change', persistLines); }
+    });
 
     document.getElementById('markPaid').addEventListener('click', function(){
       var j=ensureJobSelected(); if(!j) return;
       j.paid=!j.paid;
       j.paidAt=j.paid?new Date().toISOString():null;
-      if(j.paid){ j.taxPercentAtSale = Number(document.getElementById('salesTax').value||0); }
+      if(j.paid){
+        j.taxPercentAtSale = Number(document.getElementById('salesTax').value||0);
+        j.amountPaid = Number((document.getElementById('grand').textContent || '$0').replace(/[^0-9.-]/g,''));
+        document.getElementById('amountPaid').value = j.amountPaid.toFixed(2);
+        document.getElementById('paidDate').value = String(j.paidAt).slice(0,10);
+      } else {
+        j.amountPaid = 0;
+        document.getElementById('amountPaid').value = '0';
+        document.getElementById('paidDate').value = '';
+      }
       updatePreview();
       renderJobs();
       saveDB();
@@ -3089,6 +3328,7 @@ window.addEventListener('load', function(){
       j.approved=true;
       j.approvedAt=new Date().toISOString();
       updatePreview();
+      persistLines();
       saveDB();
       alert('Estimate approved.');
     });
