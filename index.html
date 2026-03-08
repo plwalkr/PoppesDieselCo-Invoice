@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Poppe’s Diesel Co. — Shop Manager v1.2.5 (iPhone Print + Mobile UX)</title>
+  <title>Poppe’s Diesel Co. — Shop Manager</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
 
   <!-- Supabase client (v2 UMD) -->
@@ -530,6 +530,23 @@
       margin-bottom: 4px;
       opacity: 0.8;
     }
+    .debug-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .debug-btn {
+      border: 1px solid #666;
+      background: #1b1b1b;
+      color: #f5f5f5;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .debug-btn:hover { filter: brightness(1.08); }
     #debugLog {
       white-space: pre-wrap;
     }
@@ -727,7 +744,7 @@
 <header>
   <div class="title-block">
     <h1>Poppe’s Diesel Co. — Shop Manager</h1>
-    <div class="subtitle">v1.2.5 — Parts-Only Tax · Cloud Save/Load · Local Backup</div>
+    <div class="subtitle" id="appSubtitle">Version loading…</div>
   </div>
   <div class="right-block">
     <span id="selftest" class="tag selftest">Self-test: …</span>
@@ -1231,6 +1248,10 @@
 <!-- Debug panel -->
 <div id="debug">
   <div id="debugMeta"></div>
+  <div class="debug-toolbar">
+    <button type="button" id="debugCopy" class="debug-btn">Copy Debug</button>
+    <button type="button" id="debugClear" class="debug-btn">Clear Log</button>
+  </div>
   <pre id="debugLog"></pre>
 </div>
 
@@ -1318,6 +1339,10 @@
 </div>
 
 <script>
+const APP_VERSION = 'v1.2.6';
+const APP_BUILD_DATE = '2026-03-08';
+const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
+
 /* ---------------- Supabase Cloud Config ---------------- */
 var SUPABASE_URL = 'https://hhbrbkyfryjidworupvf.supabase.co';
 var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoYnJia3lmcnlqaWR3b3J1cHZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0MzI3NTEsImV4cCI6MjA3OTAwODc1MX0.NCU-_2RlP8-5w5w0g10Q5HrFgPW9hyfyN7D87s_BWw';
@@ -1336,53 +1361,118 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
   console.warn('Supabase not configured (no URL/key or script not loaded).');
 }
 
-/* -------------- Minimal debug harness -------------- */
+/* -------------- Debug harness -------------- */
 (function(){
-  var logEl  = document.getElementById('debugLog');
+  var logEl = document.getElementById('debugLog');
   var metaEl = document.getElementById('debugMeta');
+  var copyBtn = document.getElementById('debugCopy');
+  var clearBtn = document.getElementById('debugClear');
+  var debugToggle = document.getElementById('debugToggle');
+  var debugBox = document.getElementById('debug');
+  var subtitleEl = document.getElementById('appSubtitle');
+  var titleEl = document.querySelector('title');
   var buf = [];
+  var maxLines = 500;
 
-  function print(line){
-    buf.push(line);
-    if (logEl) {
-      logEl.textContent = buf.join('\n');
-    }
+  function nowStamp(){
+    try { return new Date().toLocaleString(); } catch(_) { return String(Date.now()); }
+  }
+
+  function getMetaLine(){
+    var lang = 'n/a';
+    try { lang = navigator.language || navigator.userLanguage || 'n/a'; } catch(_) {}
+    return 'Version=' + APP_VERSION +
+      ' | BuildDate=' + APP_BUILD_DATE +
+      ' | UA=' + (navigator.userAgent || 'n/a') +
+      ' | Lang=' + lang +
+      ' | ' + nowStamp();
+  }
+
+  function refreshMeta(){
+    if (metaEl) metaEl.textContent = getMetaLine();
+    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Parts-Only Tax · Cloud Save/Load · Local Backup';
+    if (titleEl) titleEl.textContent = 'Poppe’s Diesel Co. — Shop Manager ' + APP_VERSION + ' (' + APP_BUILD_DATE + ')';
+  }
+
+  function writeBuffer(){
+    if (buf.length > maxLines) buf = buf.slice(buf.length - maxLines);
+    if (logEl) logEl.textContent = buf.join('
+');
+    refreshMeta();
+  }
+
+  function add(level, msg, err){
+    var suffix = '';
+    if (err) suffix = ' :: ' + (err.stack || err.message || err);
+    buf.push('[' + level + '] ' + msg + suffix);
+    writeBuffer();
   }
 
   window.AppLog = {
     info: function(msg){
-      try { console.log('[INFO]', msg); } catch(e) {}
-      print('[INFO] ' + msg);
+      try { console.log('[INFO]', msg); } catch(_) {}
+      add('INFO', msg);
     },
     warn: function(msg){
-      try { console.warn('[WARN]', msg); } catch(e) {}
-      print('[WARN] ' + msg);
+      try { console.warn('[WARN]', msg); } catch(_) {}
+      add('WARN', msg);
     },
     error: function(msg, err){
-      try { console.error('[ERROR]', msg, err); } catch(e) {}
-      print('[ERROR] ' + msg + (err ? (' :: ' + (err.message || err)) : ''));
+      try { console.error('[ERROR]', msg, err); } catch(_) {}
+      add('ERROR', msg, err);
+    },
+    clear: function(){
+      buf = [];
+      writeBuffer();
+      add('INFO', 'debug log cleared');
+    },
+    snapshot: function(){
+      return getMetaLine() + '
+' + buf.join('
+');
     }
   };
 
-  if (metaEl){
-    try {
-      var lang = navigator.language || navigator.userLanguage || 'n/a';
-      metaEl.textContent =
-        'UA=' + navigator.userAgent +
-        ' | Lang=' + lang +
-        ' | ' + (new Date()).toLocaleString();
-    } catch(_) {}
-  }
+  refreshMeta();
 
-  var dbg = document.getElementById('debugToggle');
-  if (dbg){
-    dbg.addEventListener('click', function(){
-      var box = document.getElementById('debug');
-      if (!box) return;
-      box.style.display = (box.style.display === 'block' ? 'none' : 'block');
+  if (debugToggle){
+    debugToggle.addEventListener('click', function(){
+      if (!debugBox) return;
+      debugBox.style.display = (debugBox.style.display === 'block' ? 'none' : 'block');
+      refreshMeta();
     });
   }
-})();;
+
+  if (copyBtn){
+    copyBtn.addEventListener('click', async function(){
+      var payload = window.AppLog.snapshot();
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(payload);
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = payload;
+          ta.setAttribute('readonly', 'readonly');
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+        }
+        window.AppLog.info('debug report copied to clipboard');
+      } catch (e) {
+        window.AppLog.error('debug copy failed', e);
+      }
+    });
+  }
+
+  if (clearBtn){
+    clearBtn.addEventListener('click', function(){
+      window.AppLog.clear();
+    });
+  }
+})();
 
 function guard(name, fn){
   try {
@@ -1629,7 +1719,7 @@ window.addEventListener('load', function(){
     function buildBackupPayload(){
       var payload = {
         _note: 'Poppe’s Diesel Co. Shop Manager backup',
-        version: 'v1.2.5',
+        version: APP_VERSION,
         exportedAt: new Date().toISOString(),
         db: DB,
         ui: UI,
@@ -2524,7 +2614,7 @@ window.addEventListener('load', function(){
       if(exportBtn){
         exportBtn.addEventListener('click', function(){
           var backup = buildBackupPayload();
-          downloadText('poppes_shop_backup_'+Date.now()+'.json', JSON.stringify(backup, null, 2));
+          downloadText('poppes_shop_backup_'+APP_VERSION+'_'+APP_BUILD_DATE+'_'+Date.now()+'.json', JSON.stringify(backup, null, 2));
         });
       }
 
