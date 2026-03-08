@@ -1340,7 +1340,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.3.1';
+const APP_VERSION = 'v1.3.2';
 const APP_BUILD_DATE = '2026-03-08';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -1377,6 +1377,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
   var maxLines = 500;
   var lastLineKey = '';
   var lastLineCount = 0;
+  var onceKeys = Object.create(null);
 
   function nowStamp(){
     try { return new Date().toLocaleString(); } catch(_) { return String(Date.now()); }
@@ -1413,6 +1414,10 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
   function getDebugStateLines(){
     var state = [];
+    var discountType = getSelectedText('discountType');
+    var discountValue = getSelectedText('discountValue');
+    var warningCount = 0;
+    try { warningCount = Object.keys(onceKeys).length; } catch(_) {}
     state.push('State Snapshot');
     state.push('- ActiveTab=' + getActiveTab());
     state.push('- SelectedJobId=' + getSelectedText('invJob'));
@@ -1420,12 +1425,15 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
     state.push('- DocumentNo=' + getSelectedText('invNo'));
     state.push('- EmailTo=' + getSelectedText('emailTo'));
     state.push('- LineCount=' + getLineCount());
+    state.push('- DiscountType=' + discountType);
+    state.push('- DiscountInput=' + discountValue);
     state.push('- Subtotal=' + getSelectedText('sub'));
     state.push('- Tax=' + getSelectedText('tax'));
     state.push('- Discount=' + getSelectedText('disc'));
     state.push('- Grand=' + getSelectedText('grand'));
     state.push('- Profit=' + getSelectedText('profit'));
     state.push('- Savings=' + getSelectedText('save'));
+    state.push('- DiagnosticsWarnings=' + warningCount);
     state.push('- SelfTest=' + getSelectedText('selftest'));
     state.push('- Clipboard=' + (!!(navigator.clipboard && navigator.clipboard.writeText) ? 'available' : 'fallback'));
     state.push('- LocalStorage=' + (!!window.localStorage ? 'available' : 'missing'));
@@ -1504,6 +1512,9 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
   }
 
   refreshMeta();
+  if (window.AppLog && typeof window.AppLog.info === 'function') {
+    window.AppLog.info('diagnostics ready :: ' + APP_BUILD_LABEL);
+  }
 
   if (debugToggle){
     debugToggle.addEventListener('click', function(ev){
@@ -3420,6 +3431,19 @@ window.addEventListener('load', function(){
         if (window.__lastRecalcSummary !== recalcSummary) {
           window.__lastRecalcSummary = recalcSummary;
           AppLog.info(recalcSummary);
+        }
+
+        var discountPct = subtotal > 0 ? (discountAmt / subtotal) * 100 : 0;
+        if (discountPct >= 50) {
+          AppLog.once('warn-high-discount-' + Math.round(discountPct), 'warn', 'high discount detected :: ' + Math.round(discountPct) + '% (' + discType + '=' + discInput + ')');
+        }
+        if (grand > 0 && Math.abs(profitNet - grand) < 0.005) {
+          AppLog.once('warn-profit-equals-grand', 'warn', 'profit equals grand total :: internal cost inputs may be zero or not tracked yet');
+        }
+        var docNoEl = document.getElementById('invNo');
+        var docNoVal = docNoEl ? String(docNoEl.value || '').trim() : '';
+        if (!docNoVal) {
+          AppLog.once('warn-missing-docno', 'warn', 'document number is blank :: invoices may be harder to track later');
         }
       }
     }
