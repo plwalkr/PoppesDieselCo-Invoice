@@ -1340,7 +1340,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.3.2';
+const APP_VERSION = 'v1.3.3';
 const APP_BUILD_DATE = '2026-03-08';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -1417,7 +1417,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
     var discountType = getSelectedText('discountType');
     var discountValue = getSelectedText('discountValue');
     var warningCount = 0;
-    try { warningCount = Object.keys(onceKeys).length; } catch(_) {}
+    try { warningCount = (window.AppLog && typeof window.AppLog.warningCount === 'function') ? window.AppLog.warningCount() : Object.keys(onceKeys).length; } catch(_) {}
     state.push('State Snapshot');
     state.push('- ActiveTab=' + getActiveTab());
     state.push('- SelectedJobId=' + getSelectedText('invJob'));
@@ -1481,10 +1481,26 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
       try { console.error('[ERROR]', msg, err); } catch(_) {}
       add('ERROR', msg, err);
     },
+    once: function(key, level, msg, err){
+      if (!key) {
+        if (level === 'error') return this.error(msg || 'once-error', err);
+        if (level === 'warn') return this.warn(msg || 'once-warn');
+        return this.info(msg || 'once-info');
+      }
+      if (onceKeys[key]) return;
+      onceKeys[key] = true;
+      if (level === 'error') return this.error(msg || key, err);
+      if (level === 'warn') return this.warn(msg || key);
+      return this.info(msg || key);
+    },
+    warningCount: function(){
+      try { return Object.keys(onceKeys).length; } catch(_) { return 0; }
+    },
     clear: function(){
       buf = [];
       lastLineKey = '';
       lastLineCount = 0;
+      onceKeys = Object.create(null);
       writeBuffer();
       add('INFO', 'debug log cleared');
     },
