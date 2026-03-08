@@ -1250,6 +1250,7 @@
   <div id="debugMeta"></div>
   <div class="debug-toolbar">
     <button type="button" id="debugCopy" class="debug-btn">Copy Debug</button>
+    <button type="button" id="debugSelfTest" class="debug-btn">Run Self-Test</button>
     <button type="button" id="debugClear" class="debug-btn">Clear Log</button>
   </div>
   <pre id="debugLog"></pre>
@@ -1339,7 +1340,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.2.9';
+const APP_VERSION = 'v1.3.0';
 const APP_BUILD_DATE = '2026-03-08';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -1366,6 +1367,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
   var logEl = document.getElementById('debugLog');
   var metaEl = document.getElementById('debugMeta');
   var copyBtn = document.getElementById('debugCopy');
+  var selfTestBtn = document.getElementById('debugSelfTest');
   var clearBtn = document.getElementById('debugClear');
   var debugToggle = document.getElementById('debugToggle');
   var debugBox = document.getElementById('debug');
@@ -1373,6 +1375,8 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
   var titleEl = document.querySelector('title');
   var buf = [];
   var maxLines = 500;
+  var lastLineKey = '';
+  var lastLineCount = 0;
 
   function nowStamp(){
     try { return new Date().toLocaleString(); } catch(_) { return String(Date.now()); }
@@ -1386,6 +1390,47 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
       ' | UA=' + (navigator.userAgent || 'n/a') +
       ' | Lang=' + lang +
       ' | ' + nowStamp();
+  }
+
+  function getSelectedText(id){
+    var el = document.getElementById(id);
+    if (!el) return 'n/a';
+    if (el.tagName === 'SELECT') {
+      var opt = el.options && el.selectedIndex >= 0 ? el.options[el.selectedIndex] : null;
+      return opt ? (opt.textContent || opt.value || 'n/a').trim() : 'n/a';
+    }
+    return (el.value || el.textContent || 'n/a').trim();
+  }
+
+  function getActiveTab(){
+    var btn = document.querySelector('.tab-btn[data-tab].active-tab');
+    return btn ? (btn.getAttribute('data-tab') || btn.textContent || 'unknown').trim() : 'unknown';
+  }
+
+  function getLineCount(){
+    try { return document.querySelectorAll('#lines tbody tr').length; } catch(_) { return 0; }
+  }
+
+  function getDebugStateLines(){
+    var state = [];
+    state.push('State Snapshot');
+    state.push('- ActiveTab=' + getActiveTab());
+    state.push('- SelectedJobId=' + getSelectedText('invJob'));
+    state.push('- DocumentType=' + getSelectedText('docType'));
+    state.push('- DocumentNo=' + getSelectedText('invNo'));
+    state.push('- EmailTo=' + getSelectedText('emailTo'));
+    state.push('- LineCount=' + getLineCount());
+    state.push('- Subtotal=' + getSelectedText('sub'));
+    state.push('- Tax=' + getSelectedText('tax'));
+    state.push('- Discount=' + getSelectedText('disc'));
+    state.push('- Grand=' + getSelectedText('grand'));
+    state.push('- Profit=' + getSelectedText('profit'));
+    state.push('- Savings=' + getSelectedText('save'));
+    state.push('- SelfTest=' + getSelectedText('selftest'));
+    state.push('- Clipboard=' + (!!(navigator.clipboard && navigator.clipboard.writeText) ? 'available' : 'fallback'));
+    state.push('- LocalStorage=' + (!!window.localStorage ? 'available' : 'missing'));
+    state.push('- Supabase=' + (supabaseClient ? 'ready' : (SUPABASE_URL && SUPABASE_ANON_KEY ? 'configured-not-ready' : 'not-configured')));
+    return state;
   }
 
   function refreshMeta(){
@@ -1403,7 +1448,15 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
   function add(level, msg, err){
     var suffix = '';
     if (err) suffix = ' :: ' + (err.stack || err.message || err);
-    buf.push('[' + level + '] ' + msg + suffix);
+    var line = '[' + level + '] ' + msg + suffix;
+    if (line === lastLineKey && buf.length) {
+      lastLineCount += 1;
+      buf[buf.length - 1] = line + ' ×' + lastLineCount;
+    } else {
+      lastLineKey = line;
+      lastLineCount = 1;
+      buf.push(line);
+    }
     writeBuffer();
   }
 
@@ -1422,11 +1475,14 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
     },
     clear: function(){
       buf = [];
+      lastLineKey = '';
+      lastLineCount = 0;
       writeBuffer();
       add('INFO', 'debug log cleared');
     },
     snapshot: function(){
-      return getMetaLine() + '\n' + buf.join('\n');
+      var recent = buf.slice(Math.max(0, buf.length - 60));
+      return [getMetaLine(), '', getDebugStateLines().join('\n'), '', 'Recent Log Lines', recent.join('\n')].join('\n');
     }
   };
 
@@ -1460,6 +1516,20 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
         window.AppLog.info('debug report copied to clipboard');
       } catch (e) {
         window.AppLog.error('debug copy failed', e);
+      }
+    });
+  }
+
+  if (selfTestBtn){
+    selfTestBtn.addEventListener('click', function(){
+      try {
+        if (typeof window.runSelfTest === 'function') {
+          window.runSelfTest(true);
+        } else {
+          window.AppLog.warn('self-test function is not ready yet');
+        }
+      } catch (e) {
+        window.AppLog.error('self-test button failed', e);
       }
     });
   }
@@ -3307,10 +3377,14 @@ window.addEventListener('load', function(){
       document.getElementById('pSave').textContent = fmt(savingsTotal);
 
       if (typeof AppLog !== 'undefined' && AppLog && typeof AppLog.info === 'function') {
-        AppLog.info('recalcTotals :: sub=' + fmt(subtotal) +
-                    ' parts=' + fmt(partsSubtotal) +
-                    ' tax=' + fmt(tax) +
-                    ' savings=' + fmt(savingsTotal));
+        var recalcSummary = 'recalcTotals :: sub=' + fmt(subtotal) +
+                            ' parts=' + fmt(partsSubtotal) +
+                            ' tax=' + fmt(tax) +
+                            ' savings=' + fmt(savingsTotal);
+        if (window.__lastRecalcSummary !== recalcSummary) {
+          window.__lastRecalcSummary = recalcSummary;
+          AppLog.info(recalcSummary);
+        }
       }
     }
 
@@ -3353,14 +3427,42 @@ setupCostAutoCalc();
     })();
 
     /* ------ Self-test badge ------ */
-    (function selftest(){
-      var ok = !!(window.localStorage && document.querySelector && document.createElement);
+    window.runSelfTest = function(verbose){
+      var checks = [];
+      function pushCheck(name, pass, detail){
+        checks.push({ name:name, pass:!!pass, detail:detail || '' });
+      }
+
+      pushCheck('localStorage', !!window.localStorage, 'browser storage');
+      pushCheck('querySelector', !!document.querySelector, 'DOM selector support');
+      pushCheck('createElement', !!document.createElement, 'DOM creation support');
+      pushCheck('invoice totals nodes', !!(document.getElementById('sub') && document.getElementById('tax') && document.getElementById('grand')), 'subtotal/tax/grand DOM nodes');
+      pushCheck('invoice lines table', !!document.querySelector('#lines tbody'), 'invoice lines tbody exists');
+      pushCheck('debug logger', !!(window.AppLog && typeof window.AppLog.info === 'function'), 'AppLog available');
+      pushCheck('copy debug button', !!document.getElementById('debugCopy'), 'copy action wired');
+      pushCheck('selected job exists', !UI.lastJobId || DB.jobs.some(function(x){ return x.id === UI.lastJobId; }), UI.lastJobId ? ('lastJobId=' + UI.lastJobId) : 'no saved last job');
+      pushCheck('database arrays', !!(Array.isArray(DB.customers) && Array.isArray(DB.jobs)), 'customers/jobs arrays');
+      pushCheck('supabase config', !!(SUPABASE_URL && SUPABASE_ANON_KEY), 'cloud save keys present');
+
+      var passed = checks.filter(function(x){ return x.pass; }).length;
+      var total = checks.length;
+      var ok = passed === total;
       var tag=document.getElementById('selftest');
       if(tag){
-        tag.textContent='Self-test: '+(ok?'OK':'Limited');
-        tag.className='tag selftest '+(ok?'ok':'warn');
+        tag.textContent='Self-test: ' + passed + '/' + total + (ok ? ' OK' : ' Needs attention');
+        tag.className='tag selftest ' + (ok ? 'ok' : 'warn');
+        tag.title = checks.map(function(x){ return (x.pass ? '✅ ' : '⚠️ ') + x.name + ' — ' + x.detail; }).join('\n');
       }
-    })();
+
+      if (verbose && window.AppLog) {
+        window.AppLog.info('self-test complete :: ' + passed + '/' + total + ' passed');
+        checks.forEach(function(x){
+          (x.pass ? window.AppLog.info : window.AppLog.warn)('self-test :: ' + x.name + ' :: ' + (x.pass ? 'PASS' : 'CHECK') + ' :: ' + x.detail);
+        });
+      }
+      return { ok: ok, passed: passed, total: total, checks: checks };
+    };
+    window.runSelfTest(false);
 
     /* ------ Initial upgrade + render ------ */
     upgradeDB();
