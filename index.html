@@ -1339,7 +1339,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.2.6';
+const APP_VERSION = 'v1.2.9';
 const APP_BUILD_DATE = '2026-03-08';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -1396,8 +1396,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
   function writeBuffer(){
     if (buf.length > maxLines) buf = buf.slice(buf.length - maxLines);
-    if (logEl) logEl.textContent = buf.join('
-');
+    if (logEl) logEl.textContent = buf.join('\n');
     refreshMeta();
   }
 
@@ -1427,9 +1426,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
       add('INFO', 'debug log cleared');
     },
     snapshot: function(){
-      return getMetaLine() + '
-' + buf.join('
-');
+      return getMetaLine() + '\n' + buf.join('\n');
     }
   };
 
