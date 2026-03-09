@@ -1058,6 +1058,10 @@
           <label for="balanceDue">Balance Due</label>
           <input id="balanceDue" type="text" value="$0.00" readonly />
         </div>
+        <div class="field xsmall">
+          <label for="approvedAtDisplay">Approved At</label>
+          <input id="approvedAtDisplay" type="text" value="" readonly placeholder="Not approved yet" />
+        </div>
       </div>
 
       <div class="row buttons" style="margin-top:6px;">
@@ -1466,7 +1470,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.4.0';
+const APP_VERSION = 'v1.4.1';
 const APP_BUILD_DATE = '2026-03-08';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -2020,6 +2024,58 @@ window.addEventListener('load', function(){
     function $(sel, root){ return (root||document).querySelector(sel); }
     function $all(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
     function fmt(n){ return "$"+Number(n||0).toFixed(2); }
+    function todayLocalInputValue(){
+      var d = new Date();
+      var m = String(d.getMonth()+1).padStart(2,'0');
+      var day = String(d.getDate()).padStart(2,'0');
+      return d.getFullYear() + '-' + m + '-' + day;
+    }
+    function grandTotalNumber(){
+      return Number((document.getElementById('grand') && document.getElementById('grand').textContent || '$0').replace(/[^0-9.-]/g,''));
+    }
+    function updateInvoiceActionButtons(){
+      var j = currentJob();
+      var btn = document.getElementById('markPaid');
+      if(btn) btn.textContent = (j && j.paid) ? 'Mark Unpaid' : 'Mark Paid';
+    }
+    function syncPaymentState(options){
+      options = options || {};
+      var j = currentJob();
+      if(!j) return;
+      var grand = grandTotalNumber();
+      var amountEl = document.getElementById('amountPaid');
+      var paidDateEl = document.getElementById('paidDate');
+      var methodEl = document.getElementById('paymentMethod');
+      var amount = Number(amountEl && amountEl.value || 0);
+      if(!isFinite(amount) || amount < 0) amount = 0;
+      if(amountEl) amountEl.value = String(amount % 1 === 0 ? amount : amount.toFixed(2));
+      if(options.markPaid){
+        amount = grand;
+        if(amountEl) amountEl.value = grand.toFixed(2);
+        if(paidDateEl && !paidDateEl.value) paidDateEl.value = todayLocalInputValue();
+        if(methodEl && !methodEl.value) methodEl.value = 'Cash';
+        j.paid = true;
+      }
+      if(options.markUnpaid){
+        amount = 0;
+        if(amountEl) amountEl.value = '0';
+        if(paidDateEl) paidDateEl.value = '';
+        j.paid = false;
+      }
+      var balance = Math.max(0, grand - amount);
+      if(amount >= grand && grand > 0){
+        j.paid = true;
+        if(paidDateEl && !paidDateEl.value) paidDateEl.value = todayLocalInputValue();
+      } else if(amount <= 0 && !(paidDateEl && paidDateEl.value)){
+        j.paid = false;
+      }
+      j.amountPaid = amount;
+      j.balanceDue = balance;
+      j.paymentMethod = methodEl ? methodEl.value : (j.paymentMethod || '');
+      j.paidAt = (paidDateEl && paidDateEl.value) ? new Date(paidDateEl.value + 'T12:00:00').toISOString() : null;
+      document.getElementById('balanceDue').value = fmt(balance);
+      updateInvoiceActionButtons();
+    }
     function balanceDueFor(job, total){
       var amt = Number(job && job.amountPaid || 0);
       var grand = Number(total || 0);
@@ -2557,6 +2613,7 @@ window.addEventListener('load', function(){
       $('#paymentMethod').value = j.paymentMethod||'';
       $('#paidDate').value = j.paidAt ? String(j.paidAt).slice(0,10) : '';
       $('#amountPaid').value = Number(j.amountPaid||0).toFixed(2).replace(/\.00$/,'');
+      $('#approvedAtDisplay').value = j.approvedAt ? isoDateToLocalText(j.approvedAt) : '';
       var c = findCustomer(j.customerId);
       $('#emailTo').value = (j.emailTo && j.emailTo.trim())
         ? j.emailTo
@@ -2567,6 +2624,8 @@ window.addEventListener('load', function(){
       $('#photosOnPdf').checked = j.photosOnPdf!==false;
       updatePreview();
       recalcTotals();
+      syncPaymentState();
+      updateInvoiceActionButtons();
     }
 
     function makeRowDraggable(tr){
@@ -2713,6 +2772,8 @@ window.addEventListener('load', function(){
       j.paymentMethod = $('#paymentMethod').value;
       j.paidAt = $('#paidDate').value ? new Date($('#paidDate').value+'T12:00:00').toISOString() : null;
       j.amountPaid = Number($('#amountPaid').value || 0);
+      var approvedAtEl = document.getElementById('approvedAtDisplay');
+      if(approvedAtEl) approvedAtEl.value = j.approvedAt ? isoDateToLocalText(j.approvedAt) : '';
       j.emailTo = $('#emailTo').value.trim();
       j.overallNotes = $('#overallNotes').value || '';
       j.internalNotes = $('#internalNotes').value || '';
@@ -2722,10 +2783,11 @@ window.addEventListener('load', function(){
       j.markupFactor = Number($('#markupFactor').value || 1.40);
       j.discountType = ($('#discountType') ? $('#discountType').value : 'percent');
       j.discountValue = Number($('#discountValue') ? $('#discountValue').value : 0);
-      j.balanceDue = balanceDueFor(j, Number((document.getElementById('grand') && document.getElementById('grand').textContent || '$0').replace(/[^0-9.-]/g,'')));
 
       // Recalc views
       recalcTotals();
+      syncPaymentState();
+      j.balanceDue = balanceDueFor(j, grandTotalNumber());
       updatePreview();
       renderJobs();
       renderDashboard();
@@ -2777,7 +2839,9 @@ window.addEventListener('load', function(){
       document.getElementById('pAmountPaid').textContent = fmt(amountPaid);
       document.getElementById('pBalanceDue').textContent = fmt(bal);
       document.getElementById('pPaymentMethod').textContent = $('#paymentMethod').value || '—';
-      document.getElementById('pPaidMeta').textContent = (j && j.paidAt ? isoDateToLocalText(j.paidAt) : '—');
+      document.getElementById('pPaidMeta').textContent = (j && j.paidAt ? isoDateToLocalText(j.paidAt) : (bal > 0 ? 'Unpaid / Partial' : '—'));
+      var approvedAtEl = document.getElementById('approvedAtDisplay');
+      if(approvedAtEl) approvedAtEl.value = j && j.approvedAt ? isoDateToLocalText(j.approvedAt) : '';
       if(j){ j.balanceDue = bal; }
 
       var tbody = document.getElementById('pLines'); tbody.innerHTML='';
@@ -3296,23 +3360,25 @@ window.addEventListener('load', function(){
     document.getElementById('recalc').addEventListener('click', recalcTotals);
     ['invNo','roNo','docType','dueDate','paymentTerms','odometer','licensePlate','payLink','emailTo','paymentMethod','paidDate','amountPaid'].forEach(function(id){
       var el = document.getElementById(id);
-      if(el){ el.addEventListener('input', persistLines); el.addEventListener('change', persistLines); }
+      if(el){
+        el.addEventListener('input', function(){ if(id==='paymentMethod' || id==='paidDate' || id==='amountPaid') syncPaymentState(); persistLines(); });
+        el.addEventListener('change', function(){ if(id==='paymentMethod' || id==='paidDate' || id==='amountPaid') syncPaymentState(); persistLines(); });
+      }
     });
 
     document.getElementById('markPaid').addEventListener('click', function(){
       var j=ensureJobSelected(); if(!j) return;
-      j.paid=!j.paid;
-      j.paidAt=j.paid?new Date().toISOString():null;
-      if(j.paid){
-        j.taxPercentAtSale = Number(document.getElementById('salesTax').value||0);
-        j.amountPaid = Number((document.getElementById('grand').textContent || '$0').replace(/[^0-9.-]/g,''));
-        document.getElementById('amountPaid').value = j.amountPaid.toFixed(2);
-        document.getElementById('paidDate').value = String(j.paidAt).slice(0,10);
-      } else {
-        j.amountPaid = 0;
-        document.getElementById('amountPaid').value = '0';
-        document.getElementById('paidDate').value = '';
+      if(document.getElementById('docType').value !== 'Invoice'){
+        j.docType='Invoice';
+        document.getElementById('docType').value='Invoice';
       }
+      j.taxPercentAtSale = Number(document.getElementById('salesTax').value||0);
+      if(j.paid){
+        syncPaymentState({markUnpaid:true});
+      } else {
+        syncPaymentState({markPaid:true});
+      }
+      persistLines();
       updatePreview();
       renderJobs();
       saveDB();
@@ -3327,6 +3393,8 @@ window.addEventListener('load', function(){
       }
       j.approved=true;
       j.approvedAt=new Date().toISOString();
+      var approvedAtEl = document.getElementById('approvedAtDisplay');
+      if(approvedAtEl) approvedAtEl.value = isoDateToLocalText(j.approvedAt);
       updatePreview();
       persistLines();
       saveDB();
