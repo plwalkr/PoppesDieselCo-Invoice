@@ -266,6 +266,69 @@
       font-weight: 700;
     }
 
+
+    .totals-shell {
+      display: flex;
+      align-items: stretch;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .totals-analytics {
+      background: #f8f4eb;
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 8px 10px;
+      min-width: 250px;
+      flex: 1 1 260px;
+    }
+    .totals-analytics .mini-title {
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #2b241a;
+    }
+    .metric-bar {
+      margin-bottom: 7px;
+    }
+    .metric-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 11px;
+      margin-bottom: 3px;
+      color: #3d3428;
+    }
+    .metric-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(20,20,20,0.10);
+      overflow: hidden;
+    }
+    .metric-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width .18s ease;
+    }
+    .metric-bar.warn .metric-fill {
+      background: linear-gradient(90deg, #b26b00, #e0a11b);
+    }
+    .metric-bar.low .metric-fill {
+      background: linear-gradient(90deg, #6d6d6d, #a0a0a0);
+    }
+    @media (max-width: 980px){
+      .totals-shell {
+        flex-direction: column;
+      }
+      .totals-analytics,
+      .totals-panel {
+        min-width: 0;
+        width: 100%;
+      }
+    }
+
     .calc-hint {
       margin-top: 3px;
       font-size: 10px;
@@ -1086,19 +1149,48 @@
     <div class="grid-2" style="margin-top:8px;">
       <!-- Lines + totals -->
       <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:8px; margin-bottom:4px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:4px; flex-wrap:wrap;">
           <div class="section-title">Line Items</div>
-          <div class="totals-panel">
-            <div class="totals-line"><span>Subtotal:</span> <span id="sub">$0.00</span></div>
-            <div class="totals-line"><span>Tax (Parts only):</span> <span id="tax">$0.00</span></div>
-            <div class="totals-line"><span>Discount:</span> <span id="disc">$0.00</span></div>
-            <div class="totals-line grand"><span>Total:</span> <span id="grand">$0.00</span></div>
-            <div class="totals-line"><span>Total Profit:</span> <span id="profit">$0.00</span></div>
-            <div class="totals-line"><span>Total Savings vs List:</span> <span id="save">$0.00</span></div>
-            <div class="totals-line"><span>Warranty hours (not billed):</span> <span id="wHours">0.00</span></div>
-            <div class="totals-line">
-              <span>Margin:</span>
-              <span id="margin" class="badge estimate">0%</span>
+          <div class="totals-shell">
+            <div class="totals-panel">
+              <div class="totals-line"><span>Subtotal:</span> <span id="sub">$0.00</span></div>
+              <div class="totals-line"><span>Tax (Parts only):</span> <span id="tax">$0.00</span></div>
+              <div class="totals-line"><span>Discount:</span> <span id="disc">$0.00</span></div>
+              <div class="totals-line grand"><span>Total:</span> <span id="grand">$0.00</span></div>
+              <div class="totals-line"><span>Total Profit:</span> <span id="profit">$0.00</span></div>
+              <div class="totals-line"><span>Total Savings vs List:</span> <span id="save">$0.00</span></div>
+              <div class="totals-line"><span>Warranty hours (not billed):</span> <span id="wHours">0.00</span></div>
+              <div class="totals-line">
+                <span>Margin:</span>
+                <span id="margin" class="badge estimate">0%</span>
+              </div>
+            </div>
+            <div class="totals-analytics" id="jobAnalytics">
+              <div class="mini-title">Job Analytics</div>
+              <div class="metric-bar" id="metricProfitWrap">
+                <div class="metric-head"><span>Profit</span><span id="metricProfitVal">$0.00</span></div>
+                <div class="metric-track"><div class="metric-fill" id="metricProfitFill"></div></div>
+              </div>
+              <div class="metric-bar" id="metricTaxWrap">
+                <div class="metric-head"><span>Tax</span><span id="metricTaxVal">$0.00</span></div>
+                <div class="metric-track"><div class="metric-fill" id="metricTaxFill"></div></div>
+              </div>
+              <div class="metric-bar" id="metricDiscountWrap">
+                <div class="metric-head"><span>Discount Impact</span><span id="metricDiscountVal">$0.00</span></div>
+                <div class="metric-track"><div class="metric-fill" id="metricDiscountFill"></div></div>
+              </div>
+              <div class="metric-bar" id="metricSavingsWrap">
+                <div class="metric-head"><span>Savings vs List</span><span id="metricSavingsVal">$0.00</span></div>
+                <div class="metric-track"><div class="metric-fill" id="metricSavingsFill"></div></div>
+              </div>
+              <div class="metric-bar" id="metricWarrantyWrap">
+                <div class="metric-head"><span>Warranty Hours</span><span id="metricWarrantyVal">0.00</span></div>
+                <div class="metric-track"><div class="metric-fill" id="metricWarrantyFill"></div></div>
+              </div>
+              <div class="metric-bar" id="metricMarginWrap">
+                <div class="metric-head"><span>Margin</span><span id="metricMarginVal">0%</span></div>
+                <div class="metric-track"><div class="metric-fill" id="metricMarginFill"></div></div>
+              </div>
             </div>
           </div>
         </div>
@@ -1470,7 +1562,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.4.3';
+const APP_VERSION = 'v1.4.4';
 const APP_BUILD_DATE = '2026-03-09';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -3694,6 +3786,40 @@ window.addEventListener('load', function(){
       });
     }
 
+
+    function updateInvoiceAnalytics(stats){
+      function clampPct(n){
+        n = Number(n || 0);
+        if (!isFinite(n) || n < 0) return 0;
+        if (n > 100) return 100;
+        return n;
+      }
+      function setMetric(key, valueText, pct, extraClass){
+        var wrap = document.getElementById('metric' + key + 'Wrap');
+        var val  = document.getElementById('metric' + key + 'Val');
+        var fill = document.getElementById('metric' + key + 'Fill');
+        if (val) val.textContent = valueText;
+        if (fill) fill.style.width = clampPct(pct) + '%';
+        if (wrap) wrap.className = 'metric-bar' + (extraClass ? (' ' + extraClass) : '');
+      }
+
+      if (!stats) return;
+      var totalBase = Math.max(Number(stats.grand || 0), Number(stats.subtotal || 0), 1);
+      var profitPct = totalBase > 0 ? (Number(stats.profitNet || 0) / totalBase) * 100 : 0;
+      var taxPct = totalBase > 0 ? (Number(stats.tax || 0) / totalBase) * 100 : 0;
+      var discountPct = Number(stats.subtotal || 0) > 0 ? (Number(stats.discountAmt || 0) / Number(stats.subtotal || 1)) * 100 : 0;
+      var savingsPct = Number(stats.subtotal || 0) > 0 ? (Number(stats.savingsTotal || 0) / Number(stats.subtotal || 1)) * 100 : 0;
+      var warrantyPct = Math.min(Number(stats.warrantyHours || 0) * 10, 100);
+      var marginPct = clampPct(stats.margin);
+
+      setMetric('Profit', fmt(stats.profitNet), profitPct, profitPct < 15 ? 'low' : '');
+      setMetric('Tax', fmt(stats.tax), taxPct, '');
+      setMetric('Discount', fmt(stats.discountAmt), discountPct, discountPct >= 25 ? 'warn' : '');
+      setMetric('Savings', fmt(stats.savingsTotal), savingsPct, '');
+      setMetric('Warranty', Number(stats.warrantyHours || 0).toFixed(2), warrantyPct, warrantyPct > 50 ? 'warn' : 'low');
+      setMetric('Margin', marginPct + '%', marginPct, marginPct < 15 ? 'warn' : '');
+    }
+
     function recalcTotals(){
       var rows = rowsToLines();
       var subtotal = 0, profit = 0, partsSubtotal = 0, savingsTotal = 0;
@@ -3821,6 +3947,17 @@ window.addEventListener('load', function(){
       if (pd) pd.textContent = fmt(discountAmt);
       document.getElementById('pGrand').textContent = fmt(grand);
       document.getElementById('pSave').textContent = fmt(savingsTotal);
+
+      updateInvoiceAnalytics({
+        subtotal: subtotal,
+        tax: tax,
+        discountAmt: discountAmt,
+        grand: grand,
+        profitNet: profitNet,
+        savingsTotal: savingsTotal,
+        warrantyHours: warrantyHours,
+        margin: margin
+      });
 
       if (typeof AppLog !== 'undefined' && AppLog && typeof AppLog.info === 'function') {
         var recalcSummary = 'recalcTotals :: sub=' + fmt(subtotal) +
