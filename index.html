@@ -1470,8 +1470,8 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.4.1';
-const APP_BUILD_DATE = '2026-03-08';
+const APP_VERSION = 'v1.4.2';
+const APP_BUILD_DATE = '2026-03-09';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
 /* ---------------- Supabase Cloud Config ---------------- */
@@ -1562,6 +1562,10 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
     state.push('- PaymentTerms=' + getSelectedText('paymentTerms'));
     state.push('- EmailTo=' + getSelectedText('emailTo'));
     state.push('- PaymentMethod=' + getSelectedText('paymentMethod'));
+    state.push('- PaidDate=' + getSelectedText('paidDate'));
+    state.push('- AmountPaid=' + getSelectedText('amountPaid'));
+    state.push('- BalanceDue=' + getSelectedText('balanceDue'));
+    state.push('- ApprovedAt=' + getSelectedText('approvedAtDisplay'));
     state.push('- LineCount=' + getLineCount());
     state.push('- DiscountType=' + discountType);
     state.push('- DiscountInput=' + discountValue);
@@ -2029,6 +2033,30 @@ window.addEventListener('load', function(){
       var m = String(d.getMonth()+1).padStart(2,'0');
       var day = String(d.getDate()).padStart(2,'0');
       return d.getFullYear() + '-' + m + '-' + day;
+    }
+    function compactNowStamp(){
+      var d = new Date();
+      var y = d.getFullYear();
+      var m = String(d.getMonth()+1).padStart(2,'0');
+      var day = String(d.getDate()).padStart(2,'0');
+      var hh = String(d.getHours()).padStart(2,'0');
+      var mm = String(d.getMinutes()).padStart(2,'0');
+      var ss = String(d.getSeconds()).padStart(2,'0');
+      return '' + y + m + day + '-' + hh + mm + ss;
+    }
+    function ensureDocumentNumber(){
+      var invNoEl = document.getElementById('invNo');
+      if(!invNoEl) return '';
+      var existing = String(invNoEl.value || '').trim();
+      if(existing) return existing;
+      var docTypeEl = document.getElementById('docType');
+      var prefix = (docTypeEl && docTypeEl.value === 'Invoice') ? 'INV' : 'EST';
+      var generated = prefix + '-' + compactNowStamp();
+      invNoEl.value = generated;
+      var j = currentJob();
+      if(j) j.invNo = generated;
+      try { if(window.AppLog && typeof window.AppLog.info === 'function') window.AppLog.info('document number generated :: ' + generated); } catch(_) {}
+      return generated;
     }
     function grandTotalNumber(){
       return Number((document.getElementById('grand') && document.getElementById('grand').textContent || '$0').replace(/[^0-9.-]/g,''));
@@ -2761,9 +2789,9 @@ window.addEventListener('load', function(){
 
       // Persist back to the job
       j.lines = lines;
-      j.invNo = $('#invNo').value.trim();
-      j.roNo = $('#roNo').value.trim();
       j.docType = $('#docType').value;
+      j.invNo = $('#invNo').value.trim() || ensureDocumentNumber();
+      j.roNo = $('#roNo').value.trim();
       j.dueDate = $('#dueDate').value;
       j.paymentTerms = $('#paymentTerms').value;
       j.odometer = $('#odometer').value.trim();
@@ -3361,8 +3389,8 @@ window.addEventListener('load', function(){
     ['invNo','roNo','docType','dueDate','paymentTerms','odometer','licensePlate','payLink','emailTo','paymentMethod','paidDate','amountPaid'].forEach(function(id){
       var el = document.getElementById(id);
       if(el){
-        el.addEventListener('input', function(){ if(id==='paymentMethod' || id==='paidDate' || id==='amountPaid') syncPaymentState(); persistLines(); });
-        el.addEventListener('change', function(){ if(id==='paymentMethod' || id==='paidDate' || id==='amountPaid') syncPaymentState(); persistLines(); });
+        el.addEventListener('input', function(){ if(id==='docType') ensureDocumentNumber(); if(id==='paymentMethod' || id==='paidDate' || id==='amountPaid') syncPaymentState(); persistLines(); });
+        el.addEventListener('change', function(){ if(id==='docType') ensureDocumentNumber(); if(id==='paymentMethod' || id==='paidDate' || id==='amountPaid') syncPaymentState(); persistLines(); });
       }
     });
 
@@ -3372,6 +3400,7 @@ window.addEventListener('load', function(){
         j.docType='Invoice';
         document.getElementById('docType').value='Invoice';
       }
+      ensureDocumentNumber();
       j.taxPercentAtSale = Number(document.getElementById('salesTax').value||0);
       if(j.paid){
         syncPaymentState({markUnpaid:true});
@@ -3405,6 +3434,7 @@ window.addEventListener('load', function(){
       var j=ensureJobSelected(); if(!j) return;
       j.docType='Invoice';
       document.getElementById('docType').value='Invoice';
+      ensureDocumentNumber();
       updatePreview();
       saveDB();
       alert('Converted to Invoice.');
