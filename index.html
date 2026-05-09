@@ -181,68 +181,175 @@
       max-width: 120px;
     }
 
-    /* Upper invoice layout cleanup — v1.5.2 workbench pass */
+    /* Upper invoice layout cleanup — v1.5.7 tight cockpit pass */
     #invoice-toolbar {
-      padding: 14px;
+      padding: 10px;
       background:
-        radial-gradient(circle at top left, rgba(11,59,46,0.16), transparent 34%),
-        linear-gradient(135deg, rgba(247,240,228,0.95), rgba(232,216,190,0.92));
-      border-color: rgba(47,37,23,0.25);
+        radial-gradient(circle at 10% 0%, rgba(179,39,45,0.08), transparent 28%),
+        linear-gradient(180deg, #f4e7d2, #e9d6b9);
+      border-color: rgba(16,20,24,0.16);
+      box-shadow: 0 10px 24px rgba(20,16,12,0.12), inset 0 1px 0 rgba(255,255,255,0.58);
     }
-    .toolbar-grid {
+    .invoice-cockpit-grid {
       display: grid;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: 12px;
-      align-items: start;
+      grid-template-columns: minmax(0, 2.05fr) minmax(360px, .95fr);
+      gap: 9px;
+      align-items: stretch;
     }
     .toolbar-section {
-      grid-column: span 6;
-      background: rgba(255,255,255,0.46);
-      border: 1px solid rgba(80,64,42,0.22);
-      border-radius: 16px;
-      padding: 12px;
+      background: linear-gradient(180deg, rgba(255,248,234,0.92), rgba(241,225,199,0.88));
+      border: 1px solid rgba(16,20,24,0.13);
+      border-radius: 14px;
+      padding: 10px;
       min-width: 0;
-      box-shadow: 0 8px 22px rgba(45,31,14,0.08);
-      backdrop-filter: blur(3px);
+      box-shadow: 0 6px 16px rgba(20,16,12,0.08), inset 0 1px 0 rgba(255,255,255,0.68);
     }
-    .toolbar-section.full { grid-column: 1 / -1; }
-    .toolbar-section.third { grid-column: span 4; }
-    .toolbar-section.money-focus {
-      background: linear-gradient(180deg, rgba(255,255,255,0.58), rgba(246,238,223,0.60));
+    .invoice-main-panel,
+    .invoice-money-panel {
+      height: 100%;
     }
     .toolbar-section .section-title {
-      margin-bottom: 9px;
+      margin-bottom: 7px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      color: #24180d;
+      color: #101418;
+      font-size: 12px;
+      letter-spacing: .08em;
     }
-    .toolbar-fields,
-    .vehicle-grid {
+    .invoice-dense-grid,
+    .money-dense-grid {
       display: grid;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: 9px;
+      gap: 7px;
       align-items: end;
     }
-    .toolbar-field,
-    .vehicle-field {
-      grid-column: span 3;
+    .invoice-dense-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+    .money-dense-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .dense-field,
+    .money-field {
       min-width: 0;
+      margin: 0;
     }
-    .toolbar-field.span-2, .vehicle-field.span-2 { grid-column: span 2; }
-    .toolbar-field.span-3, .vehicle-field.span-3 { grid-column: span 3; }
-    .toolbar-field.span-4, .vehicle-field.span-4 { grid-column: span 4; }
-    .toolbar-field.span-5, .vehicle-field.span-5 { grid-column: span 5; }
-    .toolbar-field.span-6, .vehicle-field.span-6 { grid-column: span 6; }
-    .toolbar-field.span-8, .vehicle-field.span-8 { grid-column: span 8; }
-    .toolbar-field.span-12, .vehicle-field.span-12 { grid-column: span 12; }
-    .toolbar-compact-note {
+    .dense-field.s1 { grid-column: span 1; }
+    .dense-field.s2 { grid-column: span 2; }
+    .dense-field.s3 { grid-column: span 3; }
+    .dense-field.s4 { grid-column: span 4; }
+    .dense-field.s5 { grid-column: span 5; }
+    .dense-field.s6 { grid-column: span 6; }
+    .dense-field.s7 { grid-column: span 7; }
+    .dense-field.s8 { grid-column: span 8; }
+    .dense-field.s9 { grid-column: span 9; }
+    .dense-field.s10 { grid-column: span 10; }
+    .dense-field.s12 { grid-column: 1 / -1; }
+    .money-field.m2 { grid-column: span 2; }
+    .money-field.m3 { grid-column: span 3; }
+    .money-field.m4 { grid-column: span 4; }
+    .money-field.m6 { grid-column: 1 / -1; }
+    .money-subhead {
+      grid-column: 1 / -1;
+      margin: 2px 0 -1px;
+      padding: 5px 7px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, rgba(16,20,24,0.08), rgba(179,39,45,0.07));
+      color: #3a2b1e;
       font-size: 10.5px;
-      color: #5b5143;
-      margin-top: 4px;
-      line-height: 1.28;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .08em;
     }
+    #invoice-toolbar label {
+      font-size: 10.8px;
+      font-weight: 850;
+      letter-spacing: .015em;
+      color: #352517;
+      margin-bottom: 2px;
+    }
+    #invoice-toolbar input[type="text"],
+    #invoice-toolbar input[type="number"],
+    #invoice-toolbar input[type="email"],
+    #invoice-toolbar input[type="date"],
+    #invoice-toolbar select {
+      min-height: 32px;
+      padding: 5px 7px;
+      border-radius: 8px;
+      border-color: rgba(16,20,24,0.18);
+      background: rgba(255,252,244,0.92);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.72);
+    }
+    .toolbar-compact-note {
+      font-size: 10px;
+      color: #5b5143;
+      margin-top: 3px;
+      line-height: 1.2;
+    }
+    .vin-inline {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 5px;
+      align-items: center;
+    }
+    .mini-action-btn {
+      border: none;
+      background: #101418;
+      color: #f6ead6;
+      padding: 7px 9px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+    .mini-action-btn:hover { filter: brightness(1.08); }
+    .discount-inline {
+      display: grid;
+      grid-template-columns: 58px minmax(0,1fr);
+      gap: 5px;
+      align-items: center;
+    }
+    .compact-checks {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 3px 6px;
+      padding: 4px 6px;
+      border-radius: 9px;
+      background: rgba(255,255,255,0.42);
+      border: 1px solid rgba(16,20,24,0.08);
+    }
+    .compact-flag {
+      padding: 6px 7px;
+      border-radius: 10px;
+      background: rgba(179,39,45,0.07);
+      border: 1px solid rgba(179,39,45,0.13);
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+    }
+    .compact-flag label { margin: 0 !important; }
+    .vehicle-custom { margin-top: 4px; }
+    #jobTypeRateHint {
+      margin-top: 3px;
+      font-size: 10px;
+      color: #5d4632;
+      font-weight: 750;
+      line-height: 1.18;
+    }
+    @media (max-width: 1180px) {
+      .invoice-cockpit-grid { grid-template-columns: minmax(0,1fr); }
+      .money-dense-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+      .money-field.m2 { grid-column: span 3; }
+      .money-field.m3 { grid-column: span 3; }
+      .money-field.m4 { grid-column: span 4; }
+      .money-field.m6 { grid-column: span 6; }
+    }
+    @media (max-width: 760px) {
+      .invoice-dense-grid,
+      .money-dense-grid { grid-template-columns: minmax(0,1fr); }
+      .dense-field.s1, .dense-field.s2, .dense-field.s3, .dense-field.s4, .dense-field.s5, .dense-field.s6, .dense-field.s7, .dense-field.s8, .dense-field.s9, .dense-field.s10, .dense-field.s12,
+      .money-field.m2, .money-field.m3, .money-field.m4, .money-field.m6 { grid-column: 1 / -1; }
+      .compact-checks { grid-template-columns: 1fr; }
+      .vin-inline { grid-template-columns: 1fr; }
+    }
+
     .hover-help {
       position: relative;
       display: inline-flex;
@@ -1709,46 +1816,47 @@
   <!-- Invoice -->
   <section id="invoice" class="tab">
     <div id="invoice-toolbar" class="card">
-      <div class="toolbar-grid">
-        <section class="toolbar-section full">
-          <div class="section-title">Job / Document</div>
-          <div class="toolbar-fields">
-            <div class="field toolbar-field span-3">
+      <div class="invoice-cockpit-grid">
+        <section class="toolbar-section invoice-main-panel">
+          <div class="section-title">Job / Vehicle / Document</div>
+          <div class="invoice-dense-grid">
+            <div class="field dense-field s3">
               <label for="invCustFilter">Filter by Customer</label>
               <select id="invCustFilter">
                 <option value="">All customers</option>
               </select>
             </div>
-            <div class="field toolbar-field span-4">
+            <div class="field dense-field s4">
               <label for="invJobSearch">Search Jobs</label>
-              <input id="invJobSearch" type="text" placeholder="Type to filter jobs by customer, VIN, notes…" />
+              <input id="invJobSearch" type="text" placeholder="Filter by customer, VIN, notes…" />
             </div>
-            <div class="field toolbar-field span-5">
+            <div class="field dense-field s5">
               <label for="invJob">Job</label>
               <select id="invJob">
                 <option value="">Select job…</option>
               </select>
             </div>
-            <div class="field toolbar-field span-2">
+
+            <div class="field dense-field s2">
               <label for="docType">Type</label>
               <select id="docType">
                 <option>Estimate</option>
                 <option>Invoice</option>
               </select>
             </div>
-            <div class="field toolbar-field span-3">
+            <div class="field dense-field s3">
               <label for="invNo">Document #</label>
-              <input id="invNo" type="text" placeholder="(e.g., 2026-001)" />
+              <input id="invNo" type="text" placeholder="2026-001" />
             </div>
-            <div class="field toolbar-field span-3">
-              <label for="roNo">RO / Work Order #</label>
-              <input id="roNo" type="text" placeholder="(e.g., RO-1024)" />
+            <div class="field dense-field s2">
+              <label for="roNo">RO #</label>
+              <input id="roNo" type="text" placeholder="RO-1024" />
             </div>
-            <div class="field toolbar-field span-2">
+            <div class="field dense-field s2">
               <label for="dueDate">Due Date</label>
               <input id="dueDate" type="date" />
             </div>
-            <div class="field toolbar-field span-2">
+            <div class="field dense-field s3">
               <label for="paymentTerms">Terms <span class="hover-help" tabindex="0" data-help="Terms means when payment is expected. Due on receipt means payment is due when the invoice is given or the vehicle is picked up. Net 7/15/30 gives that many days. Estimate valid 14 days is for quotes before work starts.">?</span></label>
               <select id="paymentTerms">
                 <option value="Due on receipt">Due on receipt</option>
@@ -1758,54 +1866,9 @@
                 <option value="Estimate valid 14 days">Estimate valid 14 days</option>
               </select>
             </div>
-          </div>
-        </section>
 
-        <section class="toolbar-section">
-          <div class="section-title">Vehicle</div>
-          <div class="toolbar-fields">
-            <div class="field toolbar-field span-2">
-              <label for="vehicleYear">Year</label>
-              <select id="vehicleYear"></select>
-            </div>
-            <div class="field toolbar-field span-3">
-              <label for="vehicleMake">Make</label>
-              <select id="vehicleMake"></select>
-              <input id="vehicleMakeCustom" class="vehicle-custom" type="text" placeholder="Custom make" style="display:none;" />
-            </div>
-            <div class="field toolbar-field span-4">
-              <label for="vehicleModel">Model</label>
-              <select id="vehicleModel"></select>
-              <input id="vehicleModelCustom" class="vehicle-custom" type="text" placeholder="Custom model" style="display:none;" />
-            </div>
-            <div class="field toolbar-field span-3">
-              <label for="vehicleEngine">Engine</label>
-              <input id="vehicleEngine" type="text" placeholder="5.9 Cummins / 6.7 Powerstroke" />
-            </div>
-            <div class="field toolbar-field span-6">
-              <label for="invoiceVIN">VIN</label>
-              <div class="vin-inline">
-                <input id="invoiceVIN" type="text" placeholder="17-digit VIN" />
-                <button type="button" id="decodeInvoiceVIN" class="mini-action-btn">Decode VIN</button>
-              </div>
-              <div id="invoiceVinResult" class="toolbar-compact-note">Decoder can fill year, make, model, and engine.</div>
-            </div>
-            <div class="field toolbar-field span-3">
-              <label for="odometer">Odometer</label>
-              <input id="odometer" type="number" step="1" min="0" placeholder="miles" />
-            </div>
-            <div class="field toolbar-field span-3">
-              <label for="licensePlate">License Plate</label>
-              <input id="licensePlate" type="text" placeholder="ABC-1234" />
-            </div>
-          </div>
-        </section>
-
-        <section class="toolbar-section">
-          <div class="section-title">Job Type & Rates <span class="hover-help" tabindex="0" data-help="General Repair and Maintenance use the general rate. Diesel Diagnostic and Electrical / Drivability use the diagnostic rate and the diagnostic minimum when diagnostic hours are entered. Custom and Fabrication leave rates editable.">?</span></div>
-          <div class="toolbar-fields">
-            <div class="field toolbar-field span-5">
-              <label for="jobType">Job Type</label>
+            <div class="field dense-field s3">
+              <label for="jobType">Job Type <span class="hover-help" tabindex="0" data-help="General Repair and Maintenance use the general rate. Diesel Diagnostic and Electrical / Drivability use the diagnostic rate and the diagnostic minimum when diagnostic hours are entered. Custom and Fabrication leave rates editable.">?</span></label>
               <select id="jobType">
                 <option>General Repair</option>
                 <option>Diesel Diagnostic</option>
@@ -1816,57 +1879,111 @@
               </select>
               <div id="jobTypeRateHint">General repair $100/hr · Diagnostics $125/hr</div>
             </div>
-            <div class="field toolbar-field span-3">
-              <label for="laborRate">General Rate</label>
-              <input id="laborRate" type="number" step="0.01" value="100" />
+            <div class="field dense-field s2">
+              <label for="vehicleYear">Year</label>
+              <select id="vehicleYear"></select>
             </div>
-            <div class="field toolbar-field span-4">
-              <label for="diagnosticRate">Diagnostic / Electrical Rate</label>
-              <input id="diagnosticRate" type="number" step="0.01" value="125" />
+            <div class="field dense-field s2">
+              <label for="vehicleMake">Make</label>
+              <select id="vehicleMake"></select>
+              <input id="vehicleMakeCustom" class="vehicle-custom" type="text" placeholder="Custom make" style="display:none;" />
             </div>
-            <div class="field toolbar-field span-4">
-              <label for="minDiagnosticCharge">Diagnostic Minimum</label>
-              <input id="minDiagnosticCharge" type="number" step="0.01" value="150" />
+            <div class="field dense-field s3">
+              <label for="vehicleModel">Model</label>
+              <select id="vehicleModel"></select>
+              <input id="vehicleModelCustom" class="vehicle-custom" type="text" placeholder="Custom model" style="display:none;" />
             </div>
-            <div class="field toolbar-field span-4">
-              <label for="shopSuppliesPercent">Shop Supplies %</label>
-              <input id="shopSuppliesPercent" type="number" step="0.01" value="5" />
-              <div class="toolbar-compact-note">Calculated from labor.</div>
+            <div class="field dense-field s2">
+              <label for="vehicleEngine">Engine</label>
+              <input id="vehicleEngine" type="text" placeholder="6.7 Cummins" />
             </div>
-            <div class="field toolbar-field span-4">
-              <label for="shopSuppliesCap">Supplies Cap</label>
-              <input id="shopSuppliesCap" type="number" step="0.01" value="50" />
+
+            <div class="field dense-field s5">
+              <label for="invoiceVIN">VIN</label>
+              <div class="vin-inline">
+                <input id="invoiceVIN" type="text" placeholder="17-digit VIN" />
+                <button type="button" id="decodeInvoiceVIN" class="mini-action-btn">Decode</button>
+              </div>
+              <div id="invoiceVinResult" class="toolbar-compact-note">Decoder can fill year, make, model, and engine.</div>
+            </div>
+            <div class="field dense-field s2">
+              <label for="odometer">Odometer</label>
+              <input id="odometer" type="number" step="1" min="0" placeholder="miles" />
+            </div>
+            <div class="field dense-field s2">
+              <label for="licensePlate">Plate</label>
+              <input id="licensePlate" type="text" placeholder="ABC-1234" />
+            </div>
+            <div class="field dense-field s3">
+              <label for="emailTo">Email To</label>
+              <input id="emailTo" type="email" placeholder="customer@example.com" />
+            </div>
+            <div class="field dense-field s4">
+              <label for="payLink">Payment Link</label>
+              <input id="payLink" type="text" placeholder="https://pay.yourprovider.com/…" />
+            </div>
+            <div class="field dense-field s3">
+              <label for="approvedAtDisplay">Approved At</label>
+              <input id="approvedAtDisplay" type="text" value="" readonly placeholder="Not approved yet" />
             </div>
           </div>
         </section>
 
-        <section class="toolbar-section third money-focus">
-          <div class="section-title">Parts / Tax</div>
-          <div class="toolbar-fields">
-            <div class="field toolbar-field span-6">
+        <section class="toolbar-section invoice-money-panel">
+          <div class="section-title">Money Rules</div>
+          <div class="money-dense-grid">
+            <div class="money-subhead">Rates & Supplies</div>
+            <div class="field money-field m3">
+              <label for="laborRate">General Rate</label>
+              <input id="laborRate" type="number" step="0.01" value="100" />
+            </div>
+            <div class="field money-field m3">
+              <label for="diagnosticRate">Diagnostic Rate</label>
+              <input id="diagnosticRate" type="number" step="0.01" value="125" />
+            </div>
+            <div class="field money-field m3">
+              <label for="minDiagnosticCharge">Diag Minimum</label>
+              <input id="minDiagnosticCharge" type="number" step="0.01" value="150" />
+            </div>
+            <div class="field money-field m3">
+              <label for="shopSuppliesPercent">Supplies %</label>
+              <input id="shopSuppliesPercent" type="number" step="0.01" value="5" />
+            </div>
+            <div class="field money-field m3">
+              <label for="shopSuppliesCap">Supplies Cap</label>
+              <input id="shopSuppliesCap" type="number" step="0.01" value="50" />
+            </div>
+
+            <div class="money-subhead">Parts, Tax & Discount</div>
+            <div class="field money-field m3">
               <label for="markupFactor">Fallback Markup</label>
               <input id="markupFactor" type="number" step="0.01" value="1.40" />
-              <div class="toolbar-compact-note">Parts use tiered markup unless manually changed.</div>
             </div>
-            <div class="field toolbar-field span-6">
-              <label for="salesTax">Sales Tax (%)</label>
+            <div class="field money-field m3">
+              <label for="salesTax">Sales Tax %</label>
               <input id="salesTax" type="number" step="0.01" value="7" />
             </div>
-            <div class="field toolbar-field span-12">
+            <div class="field money-field m6">
               <label>Tax Buckets <span class="hover-help" tabindex="0" data-help="Check only what should be taxable for the job. Common setup: parts taxable, labor not taxable, shop supplies taxable. This is configurable because tax rules can vary.">?</span></label>
-              <div class="check-stack">
+              <div class="check-stack compact-checks">
                 <label><input type="checkbox" id="taxParts" checked /> Parts</label>
                 <label><input type="checkbox" id="taxLabor" /> Labor</label>
                 <label><input type="checkbox" id="taxShopSupplies" checked /> Supplies</label>
               </div>
             </div>
-          </div>
-        </section>
+            <div class="field money-field m3">
+              <label>Discount</label>
+              <div class="discount-inline">
+                <select id="discountType">
+                  <option value="percent">%</option>
+                  <option value="amount">$</option>
+                </select>
+                <input id="discountValue" type="number" step="0.01" value="0" />
+              </div>
+            </div>
 
-        <section class="toolbar-section third money-focus">
-          <div class="section-title">Deposit / Payment</div>
-          <div class="toolbar-fields">
-            <div class="field toolbar-field span-6">
+            <div class="money-subhead">Deposit & Payment</div>
+            <div class="field money-field m3">
               <label for="depositMode">Deposit Policy <span class="hover-help" tabindex="0" data-help="Parts upfront means the required deposit equals the parts subtotal. 50% of total is useful for large jobs. Custom lets you type your own deposit. No required deposit leaves it at zero.">?</span></label>
               <select id="depositMode">
                 <option value="parts">Parts upfront</option>
@@ -1875,11 +1992,19 @@
                 <option value="none">No required deposit</option>
               </select>
             </div>
-            <div class="field toolbar-field span-6">
+            <div class="field money-field m3">
               <label for="customDeposit">Custom Deposit</label>
               <input id="customDeposit" type="number" step="0.01" min="0" value="0" />
             </div>
-            <div class="field toolbar-field span-6">
+            <div class="field money-field m3">
+              <label for="amountPaid">Amount Paid</label>
+              <input id="amountPaid" type="number" step="0.01" min="0" value="0" />
+            </div>
+            <div class="field money-field m3">
+              <label for="balanceDue">Balance Due</label>
+              <input id="balanceDue" type="text" value="$0.00" readonly />
+            </div>
+            <div class="field money-field m3">
               <label for="paymentMethod">Payment Method</label>
               <select id="paymentMethod">
                 <option value="">Unspecified</option>
@@ -1891,49 +2016,12 @@
                 <option>Financing</option>
               </select>
             </div>
-            <div class="field toolbar-field span-6">
+            <div class="field money-field m3">
               <label for="paidDate">Paid Date</label>
               <input id="paidDate" type="date" />
             </div>
-            <div class="field toolbar-field span-6">
-              <label for="amountPaid">Amount Paid</label>
-              <input id="amountPaid" type="number" step="0.01" min="0" value="0" />
-            </div>
-            <div class="field toolbar-field span-6">
-              <label for="balanceDue">Balance Due</label>
-              <input id="balanceDue" type="text" value="$0.00" readonly />
-            </div>
-          </div>
-        </section>
-
-        <section class="toolbar-section third">
-          <div class="section-title">Customer / Flags</div>
-          <div class="toolbar-fields">
-            <div class="field toolbar-field span-12">
-              <label for="emailTo">Email To</label>
-              <input id="emailTo" type="email" placeholder="customer@example.com" />
-            </div>
-            <div class="field toolbar-field span-12">
-              <label for="payLink">Payment Link</label>
-              <input id="payLink" type="text" placeholder="https://pay.yourprovider.com/…" />
-            </div>
-            <div class="field toolbar-field span-6">
-              <label for="approvedAtDisplay">Approved At</label>
-              <input id="approvedAtDisplay" type="text" value="" readonly placeholder="Not approved yet" />
-            </div>
-            <div class="field toolbar-field span-6">
-              <label>Discount</label>
-              <div style="display:flex; gap:6px; align-items:center;">
-                <select id="discountType" style="height:34px;">
-                  <option value="percent">%</option>
-                  <option value="amount">$</option>
-                </select>
-                <input id="discountValue" type="number" step="0.01" value="0" style="flex:1; min-width:90px;" />
-              </div>
-            </div>
-            <div class="field toolbar-field span-12">
+            <div class="field money-field m6 compact-flag">
               <label><input type="checkbox" id="customerSuppliedParts" /> Customer Supplied Parts <span class="hover-help" tabindex="0" data-help="Use this when the customer provides their own parts. The invoice will include warranty language saying customer-supplied parts are not covered under parts warranty and labor warranty may be limited if the part causes the failure.">?</span></label>
-              <div class="toolbar-compact-note">Adds the customer-supplied-parts warranty limitation to the invoice.</div>
             </div>
           </div>
         </section>
@@ -2405,7 +2493,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.6';
+const APP_VERSION = 'v1.5.7';
 const APP_BUILD_DATE = '2026-05-09';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -2522,7 +2610,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
   function refreshMeta(){
     if (metaEl) metaEl.textContent = getMetaLine();
-    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Americana Dashboard · Money Clarity · Hover Help';
+    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Decal Dashboard · Tight Invoice Cockpit';
     if (titleEl) titleEl.textContent = 'Poppe’s Diesel Co. — Shop Manager ' + APP_VERSION + ' (' + APP_BUILD_DATE + ')';
   }
 
