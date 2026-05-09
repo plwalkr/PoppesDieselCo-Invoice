@@ -181,6 +181,93 @@
       max-width: 120px;
     }
 
+    /* Upper invoice layout cleanup */
+    #invoice-toolbar {
+      padding: 12px;
+    }
+    .toolbar-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 10px;
+      align-items: start;
+    }
+    .toolbar-section {
+      grid-column: span 6;
+      background: rgba(255,255,255,0.28);
+      border: 1px solid rgba(80,64,42,0.22);
+      border-radius: 12px;
+      padding: 10px;
+      min-width: 0;
+    }
+    .toolbar-section.full { grid-column: 1 / -1; }
+    .toolbar-section.third { grid-column: span 4; }
+    .toolbar-section .section-title {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .toolbar-fields,
+    .vehicle-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 8px;
+      align-items: end;
+    }
+    .toolbar-field,
+    .vehicle-field {
+      grid-column: span 3;
+      min-width: 0;
+    }
+    .toolbar-field.span-2, .vehicle-field.span-2 { grid-column: span 2; }
+    .toolbar-field.span-3, .vehicle-field.span-3 { grid-column: span 3; }
+    .toolbar-field.span-4, .vehicle-field.span-4 { grid-column: span 4; }
+    .toolbar-field.span-5, .vehicle-field.span-5 { grid-column: span 5; }
+    .toolbar-field.span-6, .vehicle-field.span-6 { grid-column: span 6; }
+    .toolbar-field.span-8, .vehicle-field.span-8 { grid-column: span 8; }
+    .toolbar-field.span-12, .vehicle-field.span-12 { grid-column: span 12; }
+    .toolbar-compact-note {
+      font-size: 10px;
+      color: #5b5143;
+      margin-top: 3px;
+      line-height: 1.25;
+    }
+    .check-stack {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px 8px;
+      align-items: center;
+    }
+    .check-stack label {
+      margin: 0;
+      font-size: 12px;
+      font-weight: 500;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .vehicle-custom {
+      margin-top: 4px;
+    }
+    #jobTypeRateHint {
+      margin-top: 4px;
+      font-size: 10px;
+      color: #355143;
+      font-weight: 600;
+    }
+    @media (max-width: 1120px) {
+      .toolbar-section,
+      .toolbar-section.third { grid-column: 1 / -1; }
+    }
+    @media (max-width: 760px) {
+      .toolbar-field, .toolbar-field.span-2, .toolbar-field.span-3, .toolbar-field.span-4, .toolbar-field.span-5, .toolbar-field.span-6, .toolbar-field.span-8,
+      .vehicle-field, .vehicle-field.span-2, .vehicle-field.span-3, .vehicle-field.span-4, .vehicle-field.span-5, .vehicle-field.span-6, .vehicle-field.span-8 {
+        grid-column: 1 / -1;
+      }
+      .check-stack { grid-template-columns: 1fr; }
+    }
+
     /* Tables */
     .table-wrap {
       overflow-x: auto;
@@ -955,20 +1042,22 @@
           </div>
         </div>
 
-        <div class="row">
-          <div class="field xsmall">
+        <div class="vehicle-grid">
+          <div class="vehicle-field span-2">
             <label for="jobVehicleYear">Vehicle Year</label>
-            <input id="jobVehicleYear" type="number" step="1" min="1900" placeholder="2013" />
+            <select id="jobVehicleYear"></select>
           </div>
-          <div class="field">
+          <div class="vehicle-field span-3">
             <label for="jobVehicleMake">Make</label>
-            <input id="jobVehicleMake" type="text" placeholder="Ram / Ford / Chevrolet / VW" />
+            <select id="jobVehicleMake"></select>
+            <input id="jobVehicleMakeCustom" class="vehicle-custom" type="text" placeholder="Custom make" style="display:none;" />
           </div>
-          <div class="field">
+          <div class="vehicle-field span-3">
             <label for="jobVehicleModel">Model</label>
-            <input id="jobVehicleModel" type="text" placeholder="2500 / F-250 / Touareg" />
+            <select id="jobVehicleModel"></select>
+            <input id="jobVehicleModelCustom" class="vehicle-custom" type="text" placeholder="Custom model" style="display:none;" />
           </div>
-          <div class="field">
+          <div class="vehicle-field span-4">
             <label for="jobVehicleEngine">Engine</label>
             <input id="jobVehicleEngine" type="text" placeholder="5.9 Cummins / 6.7 Powerstroke / 3.0 TDI" />
           </div>
@@ -1024,203 +1113,226 @@
   <!-- Invoice -->
   <section id="invoice" class="tab">
     <div id="invoice-toolbar" class="card">
-      <div class="row">
-        <div class="field">
-          <label for="invCustFilter">Filter by Customer</label>
-          <select id="invCustFilter">
-            <option value="">All customers</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="invJobSearch">Search Jobs</label>
-          <input id="invJobSearch" type="text" placeholder="Type to filter jobs by customer, VIN, notes…" />
-        </div>
-        <div class="field">
-          <label for="invJob">Job</label>
-          <select id="invJob">
-            <option value="">Select job…</option>
-          </select>
-        </div>
-        <div class="field xsmall">
-          <label for="docType">Type</label>
-          <select id="docType">
-            <option>Estimate</option>
-            <option>Invoice</option>
-          </select>
-        </div>
-        <div class="field xsmall">
-          <label for="invNo">Document #</label>
-          <input id="invNo" type="text" placeholder="(e.g., 2025-001)" />
-        </div>
-        <div class="field xsmall">
-          <label for="roNo">RO / Work Order #</label>
-          <input id="roNo" type="text" placeholder="(e.g., RO-1024)" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="field xsmall">
-          <label for="jobType">Job Type</label>
-          <select id="jobType">
-            <option>General Repair</option>
-            <option>Diesel Diagnostic</option>
-            <option>Electrical / Drivability</option>
-            <option>Maintenance</option>
-            <option>Fabrication</option>
-            <option>Custom</option>
-          </select>
-        </div>
-        <div class="field xsmall">
-          <label for="vehicleYear">Vehicle Year</label>
-          <input id="vehicleYear" type="number" step="1" min="1900" placeholder="2013" />
-        </div>
-        <div class="field">
-          <label for="vehicleMake">Make</label>
-          <input id="vehicleMake" type="text" placeholder="Ram / Ford / Chevy / VW" />
-        </div>
-        <div class="field">
-          <label for="vehicleModel">Model</label>
-          <input id="vehicleModel" type="text" placeholder="2500 / F-250 / Touareg" />
-        </div>
-        <div class="field">
-          <label for="vehicleEngine">Engine</label>
-          <input id="vehicleEngine" type="text" placeholder="5.9 Cummins / 6.7 Powerstroke / 3.0 TDI" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="field xsmall">
-          <label for="dueDate">Due Date</label>
-          <input id="dueDate" type="date" />
-        </div>
-        <div class="field xsmall">
-          <label for="paymentTerms">Payment Terms</label>
-          <select id="paymentTerms">
-            <option value="Due on receipt">Due on receipt</option>
-            <option value="Net 7">Net 7</option>
-            <option value="Net 15">Net 15</option>
-            <option value="Net 30">Net 30</option>
-            <option value="Estimate valid 14 days">Estimate valid 14 days</option>
-          </select>
-        </div>
-        <div class="field xsmall">
-          <label for="odometer">Odometer</label>
-          <input id="odometer" type="number" step="1" min="0" placeholder="miles" />
-        </div>
-        <div class="field xsmall">
-          <label for="licensePlate">License Plate</label>
-          <input id="licensePlate" type="text" placeholder="ABC-1234" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="field xsmall">
-          <label for="laborRate">General Labor Rate ($/hr)</label>
-          <input id="laborRate" type="number" step="0.01" value="100" />
-        </div>
-        <div class="field xsmall">
-          <label for="diagnosticRate">Diagnostic Rate ($/hr)</label>
-          <input id="diagnosticRate" type="number" step="0.01" value="125" />
-        </div>
-        <div class="field xsmall">
-          <label for="minDiagnosticCharge">Minimum Diagnostic Charge</label>
-          <input id="minDiagnosticCharge" type="number" step="0.01" value="150" />
-        </div>
-        <div class="field xsmall">
-          <label for="shopSuppliesPercent">Shop Supplies % of Labor</label>
-          <input id="shopSuppliesPercent" type="number" step="0.01" value="5" />
-        </div>
-        <div class="field xsmall">
-          <label for="shopSuppliesCap">Shop Supplies Cap</label>
-          <input id="shopSuppliesCap" type="number" step="0.01" value="50" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="field xsmall">
-          <label for="markupFactor">Fallback Markup (x cost)</label>
-          <input id="markupFactor" type="number" step="0.01" value="1.40" />
-          <div class="muted">Part rows use tiered markup unless manually changed.</div>
-        </div>
-        <div class="field xsmall">
-          <label for="salesTax">Sales Tax (%)</label>
-          <input id="salesTax" type="number" step="0.01" value="7" />
-        </div>
-        <div class="field xsmall">
-          <label>Tax Buckets</label>
-          <label><input type="checkbox" id="taxParts" checked /> Parts</label>
-          <label><input type="checkbox" id="taxLabor" /> Labor</label>
-          <label><input type="checkbox" id="taxShopSupplies" checked /> Shop supplies</label>
-        </div>
-        <div class="field xsmall">
-          <label>Discount</label>
-          <div style="display:flex; gap:6px; align-items:center;">
-            <select id="discountType" style="height:34px;">
-              <option value="percent">%</option>
-              <option value="amount">$</option>
-            </select>
-            <input id="discountValue" type="number" step="0.01" value="0" style="flex:1; min-width:90px;" />
+      <div class="toolbar-grid">
+        <section class="toolbar-section full">
+          <div class="section-title">Job / Document</div>
+          <div class="toolbar-fields">
+            <div class="field toolbar-field span-3">
+              <label for="invCustFilter">Filter by Customer</label>
+              <select id="invCustFilter">
+                <option value="">All customers</option>
+              </select>
+            </div>
+            <div class="field toolbar-field span-4">
+              <label for="invJobSearch">Search Jobs</label>
+              <input id="invJobSearch" type="text" placeholder="Type to filter jobs by customer, VIN, notes…" />
+            </div>
+            <div class="field toolbar-field span-5">
+              <label for="invJob">Job</label>
+              <select id="invJob">
+                <option value="">Select job…</option>
+              </select>
+            </div>
+            <div class="field toolbar-field span-2">
+              <label for="docType">Type</label>
+              <select id="docType">
+                <option>Estimate</option>
+                <option>Invoice</option>
+              </select>
+            </div>
+            <div class="field toolbar-field span-3">
+              <label for="invNo">Document #</label>
+              <input id="invNo" type="text" placeholder="(e.g., 2026-001)" />
+            </div>
+            <div class="field toolbar-field span-3">
+              <label for="roNo">RO / Work Order #</label>
+              <input id="roNo" type="text" placeholder="(e.g., RO-1024)" />
+            </div>
+            <div class="field toolbar-field span-2">
+              <label for="dueDate">Due Date</label>
+              <input id="dueDate" type="date" />
+            </div>
+            <div class="field toolbar-field span-2">
+              <label for="paymentTerms">Terms</label>
+              <select id="paymentTerms">
+                <option value="Due on receipt">Due on receipt</option>
+                <option value="Net 7">Net 7</option>
+                <option value="Net 15">Net 15</option>
+                <option value="Net 30">Net 30</option>
+                <option value="Estimate valid 14 days">Estimate valid 14 days</option>
+              </select>
+            </div>
           </div>
-        </div>
-        <div class="field">
-          <label for="payLink">Payment Link</label>
-          <input id="payLink" type="text" placeholder="https://pay.yourprovider.com/…" />
-        </div>
-        <div class="field">
-          <label for="emailTo">Email To</label>
-          <input id="emailTo" type="email" placeholder="customer@example.com" />
-        </div>
-      </div>
+        </section>
 
-      <div class="row">
-        <div class="field xsmall">
-          <label for="depositMode">Deposit Policy</label>
-          <select id="depositMode">
-            <option value="parts">Parts upfront</option>
-            <option value="half">50% of total</option>
-            <option value="custom">Custom deposit</option>
-            <option value="none">No required deposit</option>
-          </select>
-        </div>
-        <div class="field xsmall">
-          <label for="customDeposit">Custom Deposit</label>
-          <input id="customDeposit" type="number" step="0.01" min="0" value="0" />
-        </div>
-        <div class="field">
-          <label><input type="checkbox" id="customerSuppliedParts" /> Customer Supplied Parts</label>
-          <div class="muted">Adds the customer-supplied-parts warranty limitation to the invoice.</div>
-        </div>
-      </div>
+        <section class="toolbar-section">
+          <div class="section-title">Vehicle</div>
+          <div class="toolbar-fields">
+            <div class="field toolbar-field span-3">
+              <label for="vehicleYear">Year</label>
+              <select id="vehicleYear"></select>
+            </div>
+            <div class="field toolbar-field span-4">
+              <label for="vehicleMake">Make</label>
+              <select id="vehicleMake"></select>
+              <input id="vehicleMakeCustom" class="vehicle-custom" type="text" placeholder="Custom make" style="display:none;" />
+            </div>
+            <div class="field toolbar-field span-5">
+              <label for="vehicleModel">Model</label>
+              <select id="vehicleModel"></select>
+              <input id="vehicleModelCustom" class="vehicle-custom" type="text" placeholder="Custom model" style="display:none;" />
+            </div>
+            <div class="field toolbar-field span-5">
+              <label for="vehicleEngine">Engine</label>
+              <input id="vehicleEngine" type="text" placeholder="5.9 Cummins / 6.7 Powerstroke / 3.0 TDI" />
+            </div>
+            <div class="field toolbar-field span-3">
+              <label for="odometer">Odometer</label>
+              <input id="odometer" type="number" step="1" min="0" placeholder="miles" />
+            </div>
+            <div class="field toolbar-field span-4">
+              <label for="licensePlate">License Plate</label>
+              <input id="licensePlate" type="text" placeholder="ABC-1234" />
+            </div>
+          </div>
+        </section>
 
-      <div class="row">
-        <div class="field xsmall">
-          <label for="paymentMethod">Payment Method</label>
-          <select id="paymentMethod">
-            <option value="">Unspecified</option>
-            <option>Cash</option>
-            <option>Card</option>
-            <option>Check</option>
-            <option>Bank Transfer</option>
-            <option>Online Invoice</option>
-            <option>Financing</option>
-          </select>
-        </div>
-        <div class="field xsmall">
-          <label for="paidDate">Paid Date</label>
-          <input id="paidDate" type="date" />
-        </div>
-        <div class="field xsmall">
-          <label for="amountPaid">Amount Paid</label>
-          <input id="amountPaid" type="number" step="0.01" min="0" value="0" />
-        </div>
-        <div class="field xsmall">
-          <label for="balanceDue">Balance Due</label>
-          <input id="balanceDue" type="text" value="$0.00" readonly />
-        </div>
-        <div class="field xsmall">
-          <label for="approvedAtDisplay">Approved At</label>
-          <input id="approvedAtDisplay" type="text" value="" readonly placeholder="Not approved yet" />
-        </div>
+        <section class="toolbar-section">
+          <div class="section-title">Job Type & Rates</div>
+          <div class="toolbar-fields">
+            <div class="field toolbar-field span-5">
+              <label for="jobType">Job Type</label>
+              <select id="jobType">
+                <option>General Repair</option>
+                <option>Diesel Diagnostic</option>
+                <option>Electrical / Drivability</option>
+                <option>Maintenance</option>
+                <option>Fabrication</option>
+                <option>Custom</option>
+              </select>
+              <div id="jobTypeRateHint">General repair $100/hr · Diagnostics $125/hr</div>
+            </div>
+            <div class="field toolbar-field span-3">
+              <label for="laborRate">General Rate</label>
+              <input id="laborRate" type="number" step="0.01" value="100" />
+            </div>
+            <div class="field toolbar-field span-4">
+              <label for="diagnosticRate">Diagnostic / Electrical Rate</label>
+              <input id="diagnosticRate" type="number" step="0.01" value="125" />
+            </div>
+            <div class="field toolbar-field span-4">
+              <label for="minDiagnosticCharge">Diagnostic Minimum</label>
+              <input id="minDiagnosticCharge" type="number" step="0.01" value="150" />
+            </div>
+            <div class="field toolbar-field span-4">
+              <label for="shopSuppliesPercent">Shop Supplies %</label>
+              <input id="shopSuppliesPercent" type="number" step="0.01" value="5" />
+              <div class="toolbar-compact-note">Calculated from labor.</div>
+            </div>
+            <div class="field toolbar-field span-4">
+              <label for="shopSuppliesCap">Supplies Cap</label>
+              <input id="shopSuppliesCap" type="number" step="0.01" value="50" />
+            </div>
+          </div>
+        </section>
+
+        <section class="toolbar-section third">
+          <div class="section-title">Parts / Tax</div>
+          <div class="toolbar-fields">
+            <div class="field toolbar-field span-6">
+              <label for="markupFactor">Fallback Markup</label>
+              <input id="markupFactor" type="number" step="0.01" value="1.40" />
+              <div class="toolbar-compact-note">Parts use tiered markup unless manually changed.</div>
+            </div>
+            <div class="field toolbar-field span-6">
+              <label for="salesTax">Sales Tax (%)</label>
+              <input id="salesTax" type="number" step="0.01" value="7" />
+            </div>
+            <div class="field toolbar-field span-12">
+              <label>Tax Buckets</label>
+              <div class="check-stack">
+                <label><input type="checkbox" id="taxParts" checked /> Parts</label>
+                <label><input type="checkbox" id="taxLabor" /> Labor</label>
+                <label><input type="checkbox" id="taxShopSupplies" checked /> Supplies</label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="toolbar-section third">
+          <div class="section-title">Deposit / Payment</div>
+          <div class="toolbar-fields">
+            <div class="field toolbar-field span-6">
+              <label for="depositMode">Deposit Policy</label>
+              <select id="depositMode">
+                <option value="parts">Parts upfront</option>
+                <option value="half">50% of total</option>
+                <option value="custom">Custom deposit</option>
+                <option value="none">No required deposit</option>
+              </select>
+            </div>
+            <div class="field toolbar-field span-6">
+              <label for="customDeposit">Custom Deposit</label>
+              <input id="customDeposit" type="number" step="0.01" min="0" value="0" />
+            </div>
+            <div class="field toolbar-field span-6">
+              <label for="paymentMethod">Payment Method</label>
+              <select id="paymentMethod">
+                <option value="">Unspecified</option>
+                <option>Cash</option>
+                <option>Card</option>
+                <option>Check</option>
+                <option>Bank Transfer</option>
+                <option>Online Invoice</option>
+                <option>Financing</option>
+              </select>
+            </div>
+            <div class="field toolbar-field span-6">
+              <label for="paidDate">Paid Date</label>
+              <input id="paidDate" type="date" />
+            </div>
+            <div class="field toolbar-field span-6">
+              <label for="amountPaid">Amount Paid</label>
+              <input id="amountPaid" type="number" step="0.01" min="0" value="0" />
+            </div>
+            <div class="field toolbar-field span-6">
+              <label for="balanceDue">Balance Due</label>
+              <input id="balanceDue" type="text" value="$0.00" readonly />
+            </div>
+          </div>
+        </section>
+
+        <section class="toolbar-section third">
+          <div class="section-title">Customer / Flags</div>
+          <div class="toolbar-fields">
+            <div class="field toolbar-field span-12">
+              <label for="emailTo">Email To</label>
+              <input id="emailTo" type="email" placeholder="customer@example.com" />
+            </div>
+            <div class="field toolbar-field span-12">
+              <label for="payLink">Payment Link</label>
+              <input id="payLink" type="text" placeholder="https://pay.yourprovider.com/…" />
+            </div>
+            <div class="field toolbar-field span-6">
+              <label for="approvedAtDisplay">Approved At</label>
+              <input id="approvedAtDisplay" type="text" value="" readonly placeholder="Not approved yet" />
+            </div>
+            <div class="field toolbar-field span-6">
+              <label>Discount</label>
+              <div style="display:flex; gap:6px; align-items:center;">
+                <select id="discountType" style="height:34px;">
+                  <option value="percent">%</option>
+                  <option value="amount">$</option>
+                </select>
+                <input id="discountValue" type="number" step="0.01" value="0" style="flex:1; min-width:90px;" />
+              </div>
+            </div>
+            <div class="field toolbar-field span-12">
+              <label><input type="checkbox" id="customerSuppliedParts" /> Customer Supplied Parts</label>
+              <div class="toolbar-compact-note">Adds the customer-supplied-parts warranty limitation to the invoice.</div>
+            </div>
+          </div>
+        </section>
       </div>
 
       <div class="row buttons" style="margin-top:6px;">
@@ -1676,7 +1788,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.0';
+const APP_VERSION = 'v1.5.1';
 const APP_BUILD_DATE = '2026-05-08';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -1791,7 +1903,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
   function refreshMeta(){
     if (metaEl) metaEl.textContent = getMetaLine();
-    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Parts-Only Tax · Cloud Save/Load · Local Backup';
+    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Vehicle Dropdowns · Job-Type Rates · Clean Invoice Layout';
     if (titleEl) titleEl.textContent = 'Poppe’s Diesel Co. — Shop Manager ' + APP_VERSION + ' (' + APP_BUILD_DATE + ')';
   }
 
@@ -2377,6 +2489,237 @@ window.addEventListener('load', function(){
       return true;
     }
 
+    var VEHICLE_MODELS = {
+      'Acura':['CL','ILX','Integra','MDX','NSX','RDX','RL','RLX','RSX','TL','TLX','TSX','ZDX'],
+      'Audi':['A3','A4','A5','A6','A7','A8','Q3','Q5','Q7','Q8','R8','S3','S4','S5','S6','S7','S8','SQ5','TT'],
+      'BMW':['1 Series','2 Series','3 Series','4 Series','5 Series','6 Series','7 Series','8 Series','M2','M3','M4','M5','X1','X2','X3','X4','X5','X6','X7','Z3','Z4'],
+      'Buick':['Cascada','Century','Enclave','Encore','Encore GX','Envision','LaCrosse','LeSabre','Lucerne','Park Avenue','Rainier','Regal','Rendezvous','Verano'],
+      'Cadillac':['ATS','CT4','CT5','CT6','CTS','DeVille','DTS','ELR','Escalade','Escalade ESV','Escalade EXT','Seville','SRX','STS','XLR','XT4','XT5','XT6','XTS'],
+      'Chevrolet':['Astro','Avalanche','Blazer','Bolt EV','C/K 1500','C/K 2500','C/K 3500','Camaro','Caprice','Captiva Sport','Cavalier','Cobalt','Colorado','Corvette','Cruze','Equinox','Express 1500','Express 2500','Express 3500','HHR','Impala','Kodiak C4500','Kodiak C5500','Malibu','Monte Carlo','S-10','Silverado 1500','Silverado 2500HD','Silverado 3500HD','Sonic','Spark','SSR','Suburban','Tahoe','TrailBlazer','Traverse','Trax','Uplander','Volt'],
+      'Chrysler':['200','300','Aspen','Cirrus','Concorde','Crossfire','Pacifica','PT Cruiser','Sebring','Town & Country','Voyager'],
+      'Dodge':['Avenger','Caliber','Caravan','Challenger','Charger','Dakota','Dart','Durango','Grand Caravan','Intrepid','Journey','Magnum','Neon','Nitro','Ram 1500','Ram 2500','Ram 3500','Ram 4500','Ram 5500','Sprinter','Stratus','Viper'],
+      'Ford':['Bronco','Bronco Sport','C-Max','Crown Victoria','E-150','E-250','E-350','E-450','EcoSport','Edge','Escape','Excursion','Expedition','Explorer','F-150','F-250 Super Duty','F-350 Super Duty','F-450 Super Duty','F-550 Super Duty','Fiesta','Five Hundred','Flex','Focus','Freestar','Fusion','Maverick','Mustang','Ranger','Taurus','Thunderbird','Transit','Transit Connect','Windstar'],
+      'Freightliner':['Business Class M2','Cascadia','Columbia','Coronado','FL50','FL60','FL70','FL80','FLD120','M2 106','M2 112','Sprinter'],
+      'Genesis':['G70','G80','G90','GV60','GV70','GV80'],
+      'GMC':['Acadia','Canyon','Envoy','Jimmy','Savana 1500','Savana 2500','Savana 3500','Sierra 1500','Sierra 2500HD','Sierra 3500HD','Sonoma','Suburban','Terrain','Yukon','Yukon XL'],
+      'Honda':['Accord','Civic','Clarity','Crosstour','CR-V','CR-Z','Element','Fit','HR-V','Insight','Odyssey','Passport','Pilot','Ridgeline','S2000'],
+      'Hummer':['H1','H2','H3'],
+      'Hyundai':['Accent','Azera','Elantra','Entourage','Genesis','Ioniq','Kona','Palisade','Santa Cruz','Santa Fe','Sonata','Tiburon','Tucson','Veloster','Venue','Veracruz'],
+      'Infiniti':['EX35','FX35','FX45','G35','G37','I30','I35','JX35','M35','M45','Q40','Q45','Q50','Q60','Q70','QX4','QX30','QX50','QX55','QX56','QX60','QX70','QX80'],
+      'International':['4300','4400','4700','4900','7300','7400','7500','7600','Durastar','HV','LoneStar','LT','MV','ProStar','S-Series','WorkStar'],
+      'Isuzu':['Ascender','Elf','FTR','FVR','Hombre','i-280','i-290','i-350','i-370','NPR','NQR','NRR','Rodeo','Trooper'],
+      'Jeep':['Cherokee','Commander','Compass','Gladiator','Grand Cherokee','Grand Cherokee L','Liberty','Patriot','Renegade','Wagoneer','Grand Wagoneer','Wrangler'],
+      'Kenworth':['T270','T300','T370','T440','T600','T660','T680','T700','T800','T880','W900'],
+      'Kia':['Amanti','Borrego','Cadenza','Carnival','Forte','K5','K900','Niro','Optima','Rio','Rondo','Sedona','Seltos','Sorento','Soul','Spectra','Sportage','Stinger','Telluride'],
+      'Lexus':['CT','ES','GS','GX','HS','IS','LC','LFA','LS','LX','NX','RC','RX','SC','UX'],
+      'Lincoln':['Aviator','Blackwood','Continental','Corsair','LS','Mark LT','MKC','MKS','MKT','MKX','MKZ','Navigator','Nautilus','Town Car','Zephyr'],
+      'Mack':['Anthem','CH','CX','Granite','LR','MD','Pinnacle','RD','TerraPro','Vision'],
+      'Mazda':['3','5','6','626','B-Series','CX-3','CX-30','CX-5','CX-50','CX-7','CX-9','Miata MX-5','MPV','Protege','RX-8','Tribute'],
+      'Mercedes-Benz':['A-Class','C-Class','CL-Class','CLA-Class','CLK-Class','CLS-Class','E-Class','G-Class','GL-Class','GLA-Class','GLB-Class','GLC-Class','GLE-Class','GLK-Class','GLS-Class','M-Class','S-Class','SL-Class','SLC-Class','SLK-Class','Sprinter'],
+      'Mercury':['Cougar','Grand Marquis','Marauder','Mariner','Milan','Montego','Monterey','Mountaineer','Sable'],
+      'Mini':['Clubman','Cooper','Countryman','Paceman'],
+      'Mitsubishi':['3000GT','Diamante','Eclipse','Eclipse Cross','Endeavor','Galant','Lancer','Mirage','Montero','Outlander','Outlander Sport','Raider'],
+      'Nissan':['350Z','370Z','Altima','Armada','Frontier','GT-R','Juke','Kicks','Leaf','Maxima','Murano','NV1500','NV200','NV2500','NV3500','Pathfinder','Quest','Rogue','Rogue Sport','Sentra','Titan','Titan XD','Versa','Xterra','Z'],
+      'Peterbilt':['325','330','337','348','357','359','365','367','379','384','386','387','389','520','567','579'],
+      'Pontiac':['Aztek','Bonneville','Firebird','G3','G5','G6','G8','Grand Am','Grand Prix','GTO','Montana','Solstice','Sunfire','Torrent','Vibe'],
+      'Porsche':['911','Boxster','Cayenne','Cayman','Macan','Panamera','Taycan'],
+      'Ram':['1500','1500 Classic','2500','3500','4500','5500','C/V','Dakota','ProMaster','ProMaster City'],
+      'Saturn':['Aura','Ion','L-Series','Outlook','Relay','S-Series','Sky','Vue'],
+      'Scion':['FR-S','iA','iM','iQ','tC','xA','xB','xD'],
+      'Subaru':['Ascent','Baja','BRZ','Crosstrek','Forester','Impreza','Legacy','Outback','Tribeca','WRX','XV Crosstrek'],
+      'Suzuki':['Aerio','Equator','Forenza','Grand Vitara','Kizashi','Reno','SX4','Verona','Vitara','XL-7'],
+      'Tesla':['Model 3','Model S','Model X','Model Y','Cybertruck'],
+      'Toyota':['4Runner','86','Avalon','C-HR','Camry','Celica','Corolla','Corolla Cross','Crown','Echo','FJ Cruiser','Highlander','Land Cruiser','Matrix','MR2','Prius','RAV4','Sequoia','Sienna','Supra','Tacoma','Tundra','Venza','Yaris'],
+      'Volkswagen':['Arteon','Atlas','Beetle','CC','Eos','Golf','Golf GTI','Golf R','Jetta','Jetta SportWagen','New Beetle','Passat','Phaeton','Rabbit','Routan','Taos','Tiguan','Touareg'],
+      'Volvo':['C30','C70','S40','S60','S70','S80','S90','V40','V50','V60','V70','V90','XC40','XC60','XC70','XC90']
+    };
+
+    function vehicleMakes(){ return Object.keys(VEHICLE_MODELS).sort(); }
+
+    function fillVehicleYearSelect(id){
+      var el = document.getElementById(id);
+      if(!el) return;
+      var current = el.value || '';
+      var nowYear = new Date().getFullYear() + 1;
+      var opts = ['<option value="">Year…</option>'];
+      for(var y=nowYear; y>=1900; y--){ opts.push('<option value="'+y+'">'+y+'</option>'); }
+      el.innerHTML = opts.join('');
+      if(current) setVehicleControlValue(id, current);
+    }
+
+    function fillVehicleMakeSelect(id){
+      var el = document.getElementById(id);
+      if(!el) return;
+      var current = el.value || '';
+      var opts = ['<option value="">Make…</option>'];
+      vehicleMakes().forEach(function(make){ opts.push('<option value="'+escapeHtml(make)+'">'+escapeHtml(make)+'</option>'); });
+      opts.push('<option value="__custom__">Other / Custom</option>');
+      el.innerHTML = opts.join('');
+      if(current) setVehicleControlValue(id, current);
+    }
+
+    function populateVehicleModelSelect(makeId, modelId){
+      var make = getVehicleFieldValue(makeId);
+      var modelEl = document.getElementById(modelId);
+      if(!modelEl) return;
+      var current = getVehicleFieldValue(modelId);
+      var models = VEHICLE_MODELS[make] || [];
+      var opts = ['<option value="">' + (make ? 'Model…' : 'Choose make first…') + '</option>'];
+      models.forEach(function(model){ opts.push('<option value="'+escapeHtml(model)+'">'+escapeHtml(model)+'</option>'); });
+      opts.push('<option value="__custom__">Other / Custom</option>');
+      modelEl.innerHTML = opts.join('');
+      if(current) setVehicleControlValue(modelId, current);
+      syncVehicleCustomField(modelId);
+    }
+
+    function customInputFor(id){ return document.getElementById(id + 'Custom'); }
+
+    function syncVehicleCustomField(id){
+      var el = document.getElementById(id);
+      var custom = customInputFor(id);
+      if(!el || !custom) return;
+      var isCustom = el.value === '__custom__';
+      custom.style.display = isCustom ? '' : 'none';
+      if(isCustom) custom.setAttribute('aria-hidden','false'); else custom.setAttribute('aria-hidden','true');
+    }
+
+    function getVehicleFieldValue(id){
+      var el = document.getElementById(id);
+      if(!el) return '';
+      if(el.tagName === 'SELECT' && el.value === '__custom__'){
+        var custom = customInputFor(id);
+        return custom ? custom.value.trim() : '';
+      }
+      return (el.value || '').trim();
+    }
+
+    function setVehicleControlValue(id, value){
+      var el = document.getElementById(id);
+      if(!el) return;
+      value = String(value || '').trim();
+      if(!value){
+        el.value = '';
+        syncVehicleCustomField(id);
+        if(id.indexOf('Make') > -1) populateVehicleModelSelect(id, id.replace('Make','Model'));
+        return;
+      }
+      var found = false;
+      for(var i=0;i<el.options.length;i++){
+        if(String(el.options[i].value).toLowerCase() === value.toLowerCase()){
+          el.value = el.options[i].value;
+          found = true;
+          break;
+        }
+      }
+      if(!found && el.tagName === 'SELECT'){
+        var custom = customInputFor(id);
+        if(custom){
+          el.value = '__custom__';
+          custom.value = value;
+        } else {
+          var opt = document.createElement('option');
+          opt.value = value;
+          opt.textContent = value;
+          el.appendChild(opt);
+          el.value = value;
+        }
+      } else if(!found) {
+        el.value = value;
+      }
+      syncVehicleCustomField(id);
+      if(id.indexOf('Make') > -1) populateVehicleModelSelect(id, id.replace('Make','Model'));
+    }
+
+    function initVehicleControls(){
+      ['vehicleYear','jobVehicleYear'].forEach(fillVehicleYearSelect);
+      ['vehicleMake','jobVehicleMake'].forEach(fillVehicleMakeSelect);
+      populateVehicleModelSelect('vehicleMake','vehicleModel');
+      populateVehicleModelSelect('jobVehicleMake','jobVehicleModel');
+
+      [
+        ['vehicleMake','vehicleModel'],
+        ['jobVehicleMake','jobVehicleModel']
+      ].forEach(function(pair){
+        var makeEl = document.getElementById(pair[0]);
+        var modelEl = document.getElementById(pair[1]);
+        if(makeEl){
+          makeEl.addEventListener('change', function(){
+            syncVehicleCustomField(pair[0]);
+            populateVehicleModelSelect(pair[0], pair[1]);
+            if(pair[0] === 'vehicleMake') persistLines();
+          });
+        }
+        if(modelEl){
+          modelEl.addEventListener('change', function(){
+            syncVehicleCustomField(pair[1]);
+            if(pair[1] === 'vehicleModel') persistLines();
+          });
+        }
+        [pair[0]+'Custom', pair[1]+'Custom'].forEach(function(cid){
+          var c = document.getElementById(cid);
+          if(c){
+            c.addEventListener('input', function(){
+              if(cid.indexOf('vehicle') === 0) persistLines();
+            });
+          }
+        });
+      });
+      var vYear = document.getElementById('vehicleYear');
+      if(vYear) vYear.addEventListener('change', persistLines);
+    }
+
+    function isDiagnosticJobType(type){
+      type = String(type || '').toLowerCase();
+      return type.indexOf('diagnostic') >= 0 || type.indexOf('electrical') >= 0 || type.indexOf('drivability') >= 0;
+    }
+
+    function applyJobTypeRateDefaults(options){
+      options = options || {};
+      var jobTypeEl = document.getElementById('jobType');
+      var type = jobTypeEl ? jobTypeEl.value : 'General Repair';
+      var laborEl = document.getElementById('laborRate');
+      var diagEl = document.getElementById('diagnosticRate');
+      var hint = document.getElementById('jobTypeRateHint');
+      var generalRate = 100;
+      var diagnosticRate = 125;
+      var custom = type === 'Custom';
+
+      if(!custom){
+        if(laborEl && (options.force || !laborEl.value || Number(laborEl.value) <= 0 || Number(laborEl.value) === 80)) laborEl.value = generalRate.toFixed(2);
+        if(diagEl && (options.force || !diagEl.value || Number(diagEl.value) <= 0 || Number(diagEl.value) === 80 || Number(diagEl.value) === 100)) diagEl.value = diagnosticRate.toFixed(2);
+      }
+
+      if(hint){
+        if(custom) hint.textContent = 'Custom job type: rates are editable and will not be forced.';
+        else if(isDiagnosticJobType(type)) hint.textContent = 'Diagnostic/electrical work defaults to $125/hr with $150 minimum.';
+        else hint.textContent = 'General repair labor defaults to $100/hr; diagnostic lines still use $125/hr.';
+      }
+
+      if(options.updateRows){
+        $all('#lines tbody tr').forEach(function(tr){
+          var typeSel = tr.querySelector('.lType');
+          var unitEl = tr.querySelector('.lUnit');
+          if(!typeSel || !unitEl) return;
+          var old = Number(unitEl.value || 0);
+          if(typeSel.value === 'Labor' && (options.force || old === 0 || old === 80)) unitEl.value = generalRate.toFixed(2);
+          if(typeSel.value === 'Diagnostic' && (options.force || old === 0 || old === 80 || old === 100)) unitEl.value = diagnosticRate.toFixed(2);
+        });
+      }
+    }
+
+    function initJobTypeRateBehavior(){
+      var jobTypeEl = document.getElementById('jobType');
+      if(!jobTypeEl) return;
+      jobTypeEl.addEventListener('change', function(){
+        applyJobTypeRateDefaults({force:true, updateRows:true});
+        persistLines();
+      });
+      applyJobTypeRateDefaults({force:false, updateRows:false});
+    }
+
+    initVehicleControls();
+    initJobTypeRateBehavior();
+
     /* ------ Backup payload (used by export, FS, Supabase) ------ */
     function buildBackupPayload(){
       var payload = {
@@ -2535,9 +2878,9 @@ window.addEventListener('load', function(){
         customerId: $('#jobCustomer').value,
         title: $('#jobTitle').value.trim(),
         vin: $('#jobVIN').value.trim(),
-        vehicleYear: $('#jobVehicleYear').value.trim(),
-        vehicleMake: $('#jobVehicleMake').value.trim(),
-        vehicleModel: $('#jobVehicleModel').value.trim(),
+        vehicleYear: getVehicleFieldValue('jobVehicleYear'),
+        vehicleMake: getVehicleFieldValue('jobVehicleMake'),
+        vehicleModel: getVehicleFieldValue('jobVehicleModel'),
         vehicleEngine: $('#jobVehicleEngine').value.trim(),
         notes: $('#jobNotes').value.trim(),
         status: $('#jobStatus').value,
@@ -2598,6 +2941,13 @@ window.addEventListener('load', function(){
               }
               var summary = (map['Model Year']||'-')+' '+(map['Make']||'-')+' '+(map['Model']||'-');
               box.innerHTML = '<strong>'+summary+'</strong>';
+              setVehicleControlValue('jobVehicleYear', map['Model Year'] || '');
+              setVehicleControlValue('jobVehicleMake', map['Make'] || '');
+              setVehicleControlValue('jobVehicleModel', map['Model'] || '');
+              if(map['Engine Model'] || map['Engine Configuration'] || map['Displacement (L)']){
+                var engBits = [map['Engine Model'], map['Engine Configuration'], map['Displacement (L)'] ? (map['Displacement (L)'] + 'L') : ''].filter(Boolean);
+                document.getElementById('jobVehicleEngine').value = engBits.join(' ');
+              }
               var platformText = (summary+' '+(map['Engine Model']||'')+' '+(map['Engine Manufacturer']||'')).toLowerCase();
               var matched = DB.templates.filter(function(t){
                 var p = t.platform.toLowerCase();
@@ -2895,9 +3245,9 @@ window.addEventListener('load', function(){
       $('#roNo').value = j.roNo||'';
       $('#docType').value = j.docType||'Estimate';
       $('#jobType').value = j.jobType || 'General Repair';
-      $('#vehicleYear').value = j.vehicleYear || '';
-      $('#vehicleMake').value = j.vehicleMake || '';
-      $('#vehicleModel').value = j.vehicleModel || '';
+      setVehicleControlValue('vehicleYear', j.vehicleYear || '');
+      setVehicleControlValue('vehicleMake', j.vehicleMake || '');
+      setVehicleControlValue('vehicleModel', j.vehicleModel || '');
       $('#vehicleEngine').value = j.vehicleEngine || '';
       $('#dueDate').value = j.dueDate||'';
       $('#paymentTerms').value = j.paymentTerms||'Due on receipt';
@@ -3052,7 +3402,7 @@ window.addEventListener('load', function(){
         var ln = lines[i];
         var tr = trs[i];
 
-        if (ln.type === 'Labor' && (!ln.unit || ln.unit === 0)){
+        if (ln.type === 'Labor' && (!ln.unit || ln.unit === 0 || ln.unit === 80)){
           ln.unit = laborRateNow;
           if (tr) {
             var unitElL = tr.querySelector('.lUnit');
@@ -3060,7 +3410,7 @@ window.addEventListener('load', function(){
           }
         }
 
-        if (ln.type === 'Diagnostic' && (!ln.unit || ln.unit === 0)){
+        if (ln.type === 'Diagnostic' && (!ln.unit || ln.unit === 0 || ln.unit === 80 || ln.unit === 100)){
           ln.unit = diagnosticRateNow;
           if (tr) {
             var unitElD = tr.querySelector('.lUnit');
@@ -3092,9 +3442,9 @@ window.addEventListener('load', function(){
       j.invNo = $('#invNo').value.trim() || ensureDocumentNumber();
       j.roNo = $('#roNo').value.trim();
       j.jobType = $('#jobType').value;
-      j.vehicleYear = $('#vehicleYear').value.trim();
-      j.vehicleMake = $('#vehicleMake').value.trim();
-      j.vehicleModel = $('#vehicleModel').value.trim();
+      j.vehicleYear = getVehicleFieldValue('vehicleYear');
+      j.vehicleMake = getVehicleFieldValue('vehicleMake');
+      j.vehicleModel = getVehicleFieldValue('vehicleModel');
       j.vehicleEngine = $('#vehicleEngine').value.trim();
       j.dueDate = $('#dueDate').value;
       j.paymentTerms = $('#paymentTerms').value;
@@ -3722,10 +4072,17 @@ window.addEventListener('load', function(){
     /* ------ Invoice actions buttons ------ */
     document.getElementById('addLabor').addEventListener('click', function(){
       if(!ensureJobSelected(true)) return;
-      addLine('Labor','',1,0,0, Number(document.getElementById('laborRate').value||100), '');
+      applyJobTypeRateDefaults({force:false, updateRows:false});
+      var jt = document.getElementById('jobType') ? document.getElementById('jobType').value : '';
+      if(isDiagnosticJobType(jt)){
+        addLine('Diagnostic','Diesel diagnostic / electrical / drivability',1,0,0, Number(document.getElementById('diagnosticRate').value||125), '');
+      } else {
+        addLine('Labor','',1,0,0, Number(document.getElementById('laborRate').value||100), '');
+      }
     });
     document.getElementById('addDiagnostic').addEventListener('click', function(){
       if(!ensureJobSelected(true)) return;
+      applyJobTypeRateDefaults({force:false, updateRows:false});
       addLine('Diagnostic','Diesel diagnostic / electrical / drivability',1,0,0, Number(document.getElementById('diagnosticRate').value||125), '');
     });
     document.getElementById('addPart').addEventListener('click', function(){
@@ -3734,7 +4091,7 @@ window.addEventListener('load', function(){
     });
     document.getElementById('applyMarkup').addEventListener('click', applyDefaultMarkup);
     document.getElementById('recalc').addEventListener('click', recalcTotals);
-    ['invNo','roNo','docType','jobType','vehicleYear','vehicleMake','vehicleModel','vehicleEngine','dueDate','paymentTerms','odometer','licensePlate','payLink','emailTo','paymentMethod','paidDate','amountPaid','diagnosticRate','minDiagnosticCharge','shopSuppliesPercent','shopSuppliesCap','salesTax','taxParts','taxLabor','taxShopSupplies','depositMode','customDeposit','customerSuppliedParts'].forEach(function(id){
+    ['invNo','roNo','docType','vehicleYear','vehicleMake','vehicleMakeCustom','vehicleModel','vehicleModelCustom','vehicleEngine','dueDate','paymentTerms','odometer','licensePlate','payLink','emailTo','paymentMethod','paidDate','amountPaid','diagnosticRate','minDiagnosticCharge','shopSuppliesPercent','shopSuppliesCap','salesTax','taxParts','taxLabor','taxShopSupplies','depositMode','customDeposit','customerSuppliedParts'].forEach(function(id){
       var el = document.getElementById(id);
       if(el){
         el.addEventListener('input', function(){ if(id==='docType') ensureDocumentNumber(); if(id==='paymentMethod' || id==='paidDate' || id==='amountPaid') syncPaymentState(); persistLines(); });
@@ -4022,7 +4379,7 @@ window.addEventListener('load', function(){
     function setupCostAutoCalc(){
       var tbody = document.querySelector('#lines tbody');
       if (!tbody) return;
-      tbody.addEventListener('input', function(ev){
+      function handleLinePricingEvent(ev){
         var target = ev.target;
         if (!(target.classList.contains('lCost') || target.classList.contains('lMarkup') || target.classList.contains('lType'))) return;
         var tr = target.closest('tr');
@@ -4032,11 +4389,11 @@ window.addEventListener('load', function(){
 
         if (typeSel.value === 'Labor'){
           var lu = tr.querySelector('.lUnit');
-          if (lu && (!lu.value || Number(lu.value) === 0)) lu.value = Number(document.getElementById('laborRate').value || 100).toFixed(2);
+          if (lu && (!lu.value || Number(lu.value) === 0 || Number(lu.value) === 80)) lu.value = Number(document.getElementById('laborRate').value || 100).toFixed(2);
         }
         if (typeSel.value === 'Diagnostic'){
           var du = tr.querySelector('.lUnit');
-          if (du && (!du.value || Number(du.value) === 0)) du.value = Number(document.getElementById('diagnosticRate').value || 125).toFixed(2);
+          if (du && (!du.value || Number(du.value) === 0 || Number(du.value) === 80 || Number(du.value) === 100)) du.value = Number(document.getElementById('diagnosticRate').value || 125).toFixed(2);
         }
         if (typeSel.value === 'Part'){
           var cost = Number(tr.querySelector('.lCost').value || 0);
@@ -4051,7 +4408,9 @@ window.addEventListener('load', function(){
           if (unitEl) unitEl.value = newUnit > 0 ? newUnit.toFixed(2) : '';
         }
         persistLines();
-      });
+      }
+      tbody.addEventListener('input', handleLinePricingEvent);
+      tbody.addEventListener('change', handleLinePricingEvent);
     }
 
 
@@ -4403,6 +4762,7 @@ setupCostAutoCalc();
       pushCheck('database arrays', !!(Array.isArray(DB.customers) && Array.isArray(DB.jobs)), 'customers/jobs arrays');
       pushCheck('supabase config', !!(SUPABASE_URL && SUPABASE_ANON_KEY), 'cloud save keys present');
       pushCheck('invoice math controls', !!(document.getElementById('diagnosticRate') && document.getElementById('minDiagnosticCharge') && document.getElementById('depositMode') && document.getElementById('customerSuppliedParts')), 'diagnostic/deposit/warranty controls present');
+      pushCheck('vehicle dropdowns', !!(document.getElementById('vehicleYear') && document.getElementById('vehicleMake') && document.getElementById('vehicleModel') && document.getElementById('jobVehicleYear')), 'year/make/model dropdowns present');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
       var total = checks.length;
