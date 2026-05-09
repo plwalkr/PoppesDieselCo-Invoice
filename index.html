@@ -1244,6 +1244,12 @@
 
 
 
+    /* v1.5.13 — keep calendar mode controls visible */
+    #schedBackToWeek {
+      background: #101418;
+      color: #fff7ea;
+    }
+
     /* v1.5.12 — polished calendar scheduler: 5-minute controls, cleaner buttons, week/month boards */
     #schedule.tab {
       background:
@@ -2798,6 +2804,7 @@
             <div id="schedMonthTitle" class="muted">Month overview</div>
           </div>
           <div class="schedule-calendar-controls">
+            <button type="button" id="schedBackToWeek" class="tab-btn">← Back to Week</button>
             <button type="button" id="schedPrevMonth" class="tab-btn">← Prev Month</button>
             <button type="button" id="schedThisMonth" class="tab-btn">This Month</button>
             <button type="button" id="schedNextMonth" class="tab-btn">Next Month →</button>
@@ -3506,7 +3513,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.12';
+const APP_VERSION = 'v1.5.13';
 const APP_BUILD_DATE = '2026-05-09';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -5243,13 +5250,20 @@ window.addEventListener('load', function(){
       renderScheduleCalendar(list);
       renderScheduleMonth(list);
       var weekCard = document.querySelector('.schedule-calendar-card');
+      var weekScroll = document.querySelector('.schedule-calendar-scroll');
+      var weekLegend = document.querySelector('.schedule-calendar-legend');
       var monthCard = document.getElementById('scheduleMonthCard');
       var weekBtn = document.getElementById('schedWeekView');
       var monthBtn = document.getElementById('schedMonthView');
-      if(weekCard) weekCard.style.display = scheduleViewMode === 'month' ? 'none' : '';
-      if(monthCard) monthCard.classList.toggle('active', scheduleViewMode === 'month');
-      if(weekBtn) weekBtn.classList.toggle('active-view', scheduleViewMode !== 'month');
-      if(monthBtn) monthBtn.classList.toggle('active-view', scheduleViewMode === 'month');
+      var isMonthView = scheduleViewMode === 'month';
+
+      // Keep the main calendar header visible in both modes so the user can always switch back.
+      if(weekCard) weekCard.style.display = '';
+      if(weekScroll) weekScroll.style.display = isMonthView ? 'none' : '';
+      if(weekLegend) weekLegend.style.display = isMonthView ? 'none' : '';
+      if(monthCard) monthCard.classList.toggle('active', isMonthView);
+      if(weekBtn) weekBtn.classList.toggle('active-view', !isMonthView);
+      if(monthBtn) monthBtn.classList.toggle('active-view', isMonthView);
     }
     function setupScheduleTab(){
       var d=document.getElementById('schedDate'); if(d && !d.value) d.value=todayLocalInputValue();
@@ -5260,6 +5274,7 @@ window.addEventListener('load', function(){
       bind('schedNextWeek', function(){ scheduleSetWeek(scheduleDateInputValue(scheduleAddDays(scheduleWeekStart(scheduleWeekAnchor), 7))); });
       bind('schedWeekView', function(){ scheduleSetView('week'); });
       bind('schedMonthView', function(){ scheduleSetView('month'); });
+      bind('schedBackToWeek', function(){ scheduleSetView('week'); });
       bind('schedPrevMonth', function(){ scheduleSetMonth(scheduleAddMonths(scheduleMonthAnchor, -1)); });
       bind('schedThisMonth', function(){ scheduleSetMonth(scheduleTodayKey()); });
       bind('schedNextMonth', function(){ scheduleSetMonth(scheduleAddMonths(scheduleMonthAnchor, 1)); });
