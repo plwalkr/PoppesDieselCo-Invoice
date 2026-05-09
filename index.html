@@ -1378,7 +1378,7 @@
     }
 
 
-    /* v1.5.15 — calendar-only fullscreen + visible time ruler */
+    /* v1.5.15 — Supabase login + calendar-only fullscreen + visible time ruler */
     .schedule-calendar-grid {
       grid-template-columns: 104px repeat(7, minmax(170px, 1fr)) !important;
     }
@@ -1997,6 +1997,58 @@
       .schedule-calendar-controls .tab-btn { flex: 1 1 auto; }
     }
 
+
+
+    /* v1.5.16 — Supabase auth + backend snapshot controls */
+    .cloud-auth-card {
+      background:
+        linear-gradient(180deg, rgba(255,248,234,0.98), rgba(239,226,202,0.94));
+      border: 1px solid rgba(16,20,24,0.14);
+      border-radius: 16px;
+      padding: 11px;
+      margin-bottom: 10px;
+      box-shadow: 0 8px 18px rgba(20,16,12,0.08), inset 0 1px 0 rgba(255,255,255,0.72);
+    }
+    .cloud-auth-grid {
+      display: grid;
+      grid-template-columns: minmax(180px,1fr) minmax(180px,1fr) auto auto;
+      gap: 8px;
+      align-items: end;
+    }
+    .cloud-status-line {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 12px;
+    }
+    .cloud-status-pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 850;
+      background: rgba(16,20,24,0.08);
+      border: 1px solid rgba(16,20,24,0.12);
+      color: #101418;
+    }
+    .cloud-status-pill.ok {
+      background: rgba(15,106,69,0.12);
+      border-color: rgba(15,106,69,0.24);
+      color: #0f6a45;
+    }
+    .cloud-status-pill.warn {
+      background: rgba(179,39,45,0.10);
+      border-color: rgba(179,39,45,0.24);
+      color: #8f2025;
+    }
+    @media (max-width: 780px) {
+      .cloud-auth-grid {
+        grid-template-columns: minmax(0,1fr);
+      }
+    }
 
     /* Tables */
     .table-wrap {
@@ -3686,17 +3738,37 @@
 
         <hr style="margin:8px 0; border:none; border-top:1px solid var(--border-soft);" />
 
+        <div class="cloud-auth-card">
+          <div class="section-title">Supabase Login / Backend</div>
+          <div class="cloud-auth-grid">
+            <div class="field">
+              <label for="cloudEmail">Email</label>
+              <input id="cloudEmail" type="email" placeholder="your@email.com" autocomplete="username" />
+            </div>
+            <div class="field">
+              <label for="cloudPassword">Password</label>
+              <input id="cloudPassword" type="password" placeholder="Supabase login password" autocomplete="current-password" />
+            </div>
+            <button type="button" id="cloudLoginBtn" class="tab-btn">Login</button>
+            <button type="button" id="cloudLogoutBtn" class="tab-btn">Logout</button>
+          </div>
+          <div class="cloud-status-line">
+            <span id="cloudAuthStatus" class="cloud-status-pill warn">Cloud: not logged in</span>
+            <span id="cloudOrgStatus" class="cloud-status-pill">Org: poppes-diesel-co</span>
+            <span class="muted">Uses the secure Supabase tables you created. Local storage still remains your backup.</span>
+          </div>
+        </div>
+
         <p style="font-size:13px; margin-bottom:6px;">
-          <strong>Supabase Cloud Snapshot</strong> (single row keyed by ID: <code>main</code>):
+          <strong>Supabase Cloud Snapshot</strong> (<code>app_snapshots</code> for Poppe’s Diesel Co.):
         </p>
         <div class="row">
           <button type="button" id="cloudSaveBtn" class="tab-btn">Cloud Save</button>
           <button type="button" id="cloudLoadBtn" class="tab-btn">Cloud Load</button>
         </div>
         <p class="muted">
-          Cloud save/load round-trips the entire app state: customers, jobs, all lines
-          (labor &amp; parts, list/cost/unit/notes), overall notes, internal notes, photos,
-          signatures, settings, UI (where useful), and watermark.
+          This transition mode saves/loads the whole app state into your new Supabase backend.
+          Full table-by-table sync comes later after this login path is proven solid.
         </p>
       </div>
     </div>
@@ -3798,16 +3870,17 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.15';
+const APP_VERSION = 'v1.5.16';
 const APP_BUILD_DATE = '2026-05-09';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
 /* ---------------- Supabase Cloud Config ---------------- */
-var SUPABASE_URL = 'https://hhbrbkyfryjidworupvf.supabase.co';
-var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhoYnJia3lmcnlqaWR3b3J1cHZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0MzI3NTEsImV4cCI6MjA3OTAwODc1MX0.NCU-_2RlP8-5w5w0g10Q5HrFgPW9hyfyN7D87s_BWw';
+var SUPABASE_URL = 'https://nyuyjjhxuysrlyihksau.supabase.co';
+var SUPABASE_ANON_KEY = 'sb_publishable_7NUojF2bKZ8TOOyi8nqBMA_3hv4NCb-';
 
 var supabaseClient = null;
-var SHOP_STATE_ID = 'main';
+var SHOP_ORG_SLUG = 'poppes-diesel-co';
+var shopOrgCache = null;
 
 if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
   try {
@@ -3909,7 +3982,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
     state.push('- SelfTest=' + getSelectedText('selftest'));
     state.push('- Clipboard=' + (!!(navigator.clipboard && navigator.clipboard.writeText) ? 'available' : 'fallback'));
     state.push('- LocalStorage=' + (!!window.localStorage ? 'available' : 'missing'));
-    state.push('- Supabase=' + (supabaseClient ? 'ready' : (SUPABASE_URL && SUPABASE_ANON_KEY ? 'configured-not-ready' : 'not-configured')));
+    state.push('- Supabase=' + (supabaseClient ? 'ready-v1.5.16-app-snapshots' : (SUPABASE_URL && SUPABASE_ANON_KEY ? 'configured-not-ready' : 'not-configured')));
     return state;
   }
 
@@ -6871,15 +6944,136 @@ window.addEventListener('load', function(){
         if (btnQuick)  btnQuick.addEventListener('click', quickSave);
       })();
 
-      /* ---- Supabase Cloud Save/Load buttons ---- */
+      /* ---- Supabase Auth + Cloud Save/Load buttons ---- */
       var cloudSaveBtn = document.getElementById('cloudSaveBtn');
       var cloudLoadBtn = document.getElementById('cloudLoadBtn');
+      var cloudLoginBtn = document.getElementById('cloudLoginBtn');
+      var cloudLogoutBtn = document.getElementById('cloudLogoutBtn');
+      var cloudEmail = document.getElementById('cloudEmail');
+      var cloudPassword = document.getElementById('cloudPassword');
+      var cloudAuthStatus = document.getElementById('cloudAuthStatus');
+      var cloudOrgStatus = document.getElementById('cloudOrgStatus');
 
-      async function cloudSave(){
-        if (!supabaseClient) {
+      async function getSupabaseSession(){
+        if(!supabaseClient || !supabaseClient.auth) return null;
+        try {
+          var res = await supabaseClient.auth.getSession();
+          return res && res.data ? res.data.session : null;
+        } catch(e) {
+          try { AppLog.error('supabase getSession failed', e); } catch(_){}
+          return null;
+        }
+      }
+
+      function setCloudStatus(kind, msg, ok){
+        var el = kind === 'org' ? cloudOrgStatus : cloudAuthStatus;
+        if(!el) return;
+        el.textContent = msg;
+        el.className = 'cloud-status-pill ' + (ok ? 'ok' : 'warn');
+      }
+
+      async function refreshCloudAuthStatus(){
+        if(!supabaseClient){
+          setCloudStatus('auth', 'Cloud: Supabase not configured', false);
+          return null;
+        }
+        var session = await getSupabaseSession();
+        if(session && session.user){
+          setCloudStatus('auth', 'Cloud: logged in as ' + (session.user.email || 'user'), true);
+          if(cloudEmail && !cloudEmail.value && session.user.email) cloudEmail.value = session.user.email;
+        } else {
+          setCloudStatus('auth', 'Cloud: not logged in', false);
+        }
+        return session;
+      }
+
+      async function requireCloudLogin(){
+        var session = await refreshCloudAuthStatus();
+        if(!session || !session.user){
+          alert('Login to Supabase first in Settings & Backup.');
+          return null;
+        }
+        return session;
+      }
+
+      async function getShopOrgId(){
+        if(shopOrgCache && shopOrgCache.id) return shopOrgCache.id;
+        if(!supabaseClient){
           alert('Supabase is not configured in this file.');
+          return null;
+        }
+        var session = await requireCloudLogin();
+        if(!session) return null;
+        try {
+          var result = await supabaseClient
+            .from('organizations')
+            .select('id,name,slug')
+            .eq('slug', SHOP_ORG_SLUG)
+            .single();
+
+          if(result.error){
+            console.error('organization lookup failed', result.error);
+            setCloudStatus('org', 'Org lookup failed', false);
+            alert('Organization lookup failed: ' + result.error.message);
+            return null;
+          }
+          shopOrgCache = result.data;
+          setCloudStatus('org', 'Org: ' + (shopOrgCache.name || SHOP_ORG_SLUG), true);
+          return shopOrgCache.id;
+        } catch(e) {
+          console.error('organization lookup crashed', e);
+          setCloudStatus('org', 'Org lookup crashed', false);
+          alert('Organization lookup crashed: ' + (e.message || e));
+          return null;
+        }
+      }
+
+      async function cloudLogin(){
+        if(!supabaseClient || !supabaseClient.auth){
+          alert('Supabase auth is not available.');
           return;
         }
+        var email = cloudEmail ? cloudEmail.value.trim() : '';
+        var password = cloudPassword ? cloudPassword.value : '';
+        if(!email || !password){
+          alert('Enter your Supabase email and password first.');
+          return;
+        }
+        try {
+          var result = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
+          if(result.error){
+            alert('Login failed: ' + result.error.message);
+            setCloudStatus('auth', 'Cloud: login failed', false);
+            return;
+          }
+          if(cloudPassword) cloudPassword.value = '';
+          shopOrgCache = null;
+          await refreshCloudAuthStatus();
+          await getShopOrgId();
+          AppLog.info('supabase login ok :: ' + email);
+        } catch(e) {
+          alert('Login crashed: ' + (e.message || e));
+          AppLog.error('supabase login crashed', e);
+        }
+      }
+
+      async function cloudLogout(){
+        if(!supabaseClient || !supabaseClient.auth) return;
+        try {
+          await supabaseClient.auth.signOut();
+          shopOrgCache = null;
+          setCloudStatus('org', 'Org: poppes-diesel-co', false);
+          await refreshCloudAuthStatus();
+          AppLog.info('supabase logout ok');
+        } catch(e) {
+          alert('Logout failed: ' + (e.message || e));
+          AppLog.error('supabase logout failed', e);
+        }
+      }
+
+      async function cloudSave(){
+        var orgId = await getShopOrgId();
+        if(!orgId) return;
         try {
           var payload = buildBackupPayload();
           var totalJobs = (payload.db && payload.db.jobs) ? payload.db.jobs.length : 0;
@@ -6892,18 +7086,19 @@ window.addEventListener('load', function(){
           }
 
           var result = await supabaseClient
-            .from('shop_state')
+            .from('app_snapshots')
             .upsert({
-              id: SHOP_STATE_ID,
+              organization_id: orgId,
               data: payload,
               updated_at: new Date().toISOString()
-            });
+            }, { onConflict: 'organization_id' });
 
           if (result.error) {
             console.error('cloudSave error', result.error);
             alert('Cloud save failed: ' + result.error.message);
             return;
           }
+          AppLog.info('cloud save complete :: jobs=' + totalJobs + ' lines=' + totalLines);
           alert('Cloud save complete.\nJobs: ' + totalJobs + '\nTotal lines across all jobs: ' + totalLines);
         } catch (e) {
           console.error('cloudSave threw', e);
@@ -6912,15 +7107,13 @@ window.addEventListener('load', function(){
       }
 
       async function cloudLoadRaw(){
-        if (!supabaseClient) {
-          alert('Supabase is not configured in this file.');
-          return null;
-        }
+        var orgId = await getShopOrgId();
+        if(!orgId) return null;
         try {
           var result = await supabaseClient
-            .from('shop_state')
-            .select('data')
-            .eq('id', SHOP_STATE_ID)
+            .from('app_snapshots')
+            .select('data,updated_at')
+            .eq('organization_id', orgId)
             .single();
 
           if (result.error) {
@@ -6932,6 +7125,7 @@ window.addEventListener('load', function(){
             alert('No cloud snapshot found yet.');
             return null;
           }
+          AppLog.info('cloud load snapshot found :: updated_at=' + (result.data.updated_at || 'unknown'));
           return result.data.data;
         } catch (e) {
           console.error('cloudLoad threw', e);
@@ -6939,6 +7133,9 @@ window.addEventListener('load', function(){
           return null;
         }
       }
+
+      if (cloudLoginBtn) cloudLoginBtn.addEventListener('click', cloudLogin);
+      if (cloudLogoutBtn) cloudLogoutBtn.addEventListener('click', cloudLogout);
 
       if (cloudSaveBtn) {
         cloudSaveBtn.addEventListener('click', async function () {
@@ -6960,7 +7157,9 @@ window.addEventListener('load', function(){
               if (jj.lines && jj.lines.length) totalLines += jj.lines.length;
             }
           }
-          alert('Cloud loaded.\nJobs in snapshot: ' + totalJobs + '\nTotal lines in snapshot: ' + totalLines);
+
+          var ok = confirm('Cloud snapshot found. Apply it to this browser?\n\nJobs in snapshot: ' + totalJobs + '\nTotal lines in snapshot: ' + totalLines + '\n\nThis replaces the local in-browser app state.');
+          if(!ok) return;
 
           if (snap.db) DB = snap.db;
           if (snap.ui) UI = snap.ui;
@@ -6985,9 +7184,20 @@ window.addEventListener('load', function(){
             saveUI(UI);
           }
 
-          alert('Cloud data applied. Check the Invoice tab for your parts + notes.');
+          alert('Cloud data applied.');
         });
       }
+
+      refreshCloudAuthStatus().then(function(){
+        if(supabaseClient && supabaseClient.auth){
+          try {
+            supabaseClient.auth.onAuthStateChange(function(){
+              shopOrgCache = null;
+              refreshCloudAuthStatus();
+            });
+          } catch(_){}
+        }
+      });
 
     })(); // end backup/restore block
 
@@ -7707,12 +7917,13 @@ setupCostAutoCalc();
       pushCheck('copy debug button', !!document.getElementById('debugCopy'), 'copy action wired');
       pushCheck('selected job exists', !UI.lastJobId || DB.jobs.some(function(x){ return x.id === UI.lastJobId; }), UI.lastJobId ? ('lastJobId=' + UI.lastJobId) : 'no saved last job');
       pushCheck('database arrays', !!(Array.isArray(DB.customers) && Array.isArray(DB.jobs)), 'customers/jobs arrays');
-      pushCheck('supabase config', !!(SUPABASE_URL && SUPABASE_ANON_KEY), 'cloud save keys present');
+      pushCheck('supabase config', !!(SUPABASE_URL && SUPABASE_ANON_KEY && String(SUPABASE_URL).indexOf('nyuyjjhxuysrlyihksau')>-1), 'new backend URL and publishable key present');
+      pushCheck('supabase auth controls', !!(document.getElementById('cloudLoginBtn') && document.getElementById('cloudLogoutBtn') && document.getElementById('cloudAuthStatus')), 'login/logout/status controls present');
       pushCheck('invoice math controls', !!(document.getElementById('diagnosticRate') && document.getElementById('minDiagnosticCharge') && document.getElementById('depositMode') && document.getElementById('customerSuppliedParts')), 'diagnostic/deposit/warranty controls present');
       pushCheck('vehicle dropdowns', !!(document.getElementById('vehicleYear') && document.getElementById('vehicleMake') && document.getElementById('vehicleModel') && document.getElementById('jobVehicleYear')), 'year/make/model dropdowns present');
       pushCheck('dashboard command center', !!(document.getElementById('battlePlanSummary') && document.getElementById('dashPipeline') && document.getElementById('dashProfitLeaks')), 'dashboard business intelligence nodes present');
       pushCheck('invoice VIN decoder', !!(document.getElementById('invoiceVIN') && document.getElementById('decodeInvoiceVIN') && document.getElementById('invoiceVinResult')), 'invoice VIN decode controls present');
-      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedFullscreen') && document.getElementById('schedExportIcs')), 'week/month calendar boards, calendar-only fullscreen controls, and iPhone export present');
+      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedFullscreen') && document.getElementById('schedExportIcs')), 'week/month calendar boards, Supabase login + calendar-only fullscreen controls, and iPhone export present');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
       var total = checks.length;
@@ -7750,5 +7961,3 @@ setupCostAutoCalc();
 
 </body>
 </html>
-
-
