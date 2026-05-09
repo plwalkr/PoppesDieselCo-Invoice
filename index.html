@@ -1244,6 +1244,139 @@
 
 
 
+
+    /* v1.5.14 — 2026 schedule polish + full-screen shop board */
+    #schedule.tab {
+      background:
+        radial-gradient(circle at 7% 0%, rgba(179,39,45,0.13), transparent 25%),
+        radial-gradient(circle at 100% 8%, rgba(16,20,24,0.12), transparent 28%),
+        linear-gradient(180deg, #f1e2c8, #e3cbaa);
+      border: 1px solid rgba(16,20,24,0.15);
+    }
+    #schedule .schedule-hero,
+    #schedule .schedule-calendar-card,
+    #schedule .schedule-month-card,
+    #schedule .schedule-card { backdrop-filter: blur(8px); }
+    .schedule-calendar-card,
+    .schedule-month-card {
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255,250,241,0.98), rgba(238,224,200,0.94));
+      border: 1px solid rgba(16,20,24,0.12);
+      box-shadow: 0 18px 42px rgba(20,16,12,0.14), inset 0 1px 0 rgba(255,255,255,0.82);
+    }
+    .schedule-calendar-head,
+    .schedule-month-head {
+      border-radius: 18px;
+      padding: 11px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, rgba(16,20,24,0.96), rgba(27,33,39,0.94));
+      color: #fff7ea;
+      border-bottom: none;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.09);
+    }
+    .schedule-calendar-title .section-title,
+    .schedule-month-head .section-title { color: #fff7ea; letter-spacing: .095em; }
+    #schedWeekRange,
+    #schedMonthTitle { color: rgba(255,247,234,0.72); }
+    .schedule-calendar-controls { gap: 7px; }
+    .schedule-calendar-controls .tab-btn,
+    #schedule .mini-action-btn,
+    #schedule .tab-btn {
+      border: 1px solid rgba(16,20,24,0.10);
+      border-radius: 12px;
+      min-height: 34px;
+      padding: 7px 12px;
+      font-size: 11.5px;
+      font-weight: 950;
+      letter-spacing: .01em;
+      box-shadow: 0 3px 10px rgba(20,16,12,0.12);
+      transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
+    }
+    #schedule .tab-btn:hover,
+    #schedule .mini-action-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 7px 16px rgba(20,16,12,0.16);
+      filter: brightness(1.06);
+    }
+    .schedule-view-toggle {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.13);
+    }
+    .schedule-view-toggle .tab-btn {
+      border-radius: 999px;
+      min-height: 30px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.12);
+      color: #fff7ea;
+      box-shadow: none;
+      border-color: transparent;
+    }
+    .schedule-view-toggle .tab-btn.active-view {
+      background: #b3272d;
+      color: #fff;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.10), 0 8px 18px rgba(179,39,45,0.24);
+    }
+    #schedFullscreen,
+    #schedFullscreenMonth,
+    #schedBackToWeek { background: #b3272d; color: #fff; border-color: rgba(255,255,255,0.14); }
+    .schedule-calendar-scroll {
+      max-height: 650px;
+      overflow: auto;
+      border-radius: 18px;
+      border: 1px solid rgba(16,20,24,0.10);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.36), inset 0 0 34px rgba(16,20,24,0.045);
+      background: rgba(255,255,255,0.30);
+    }
+    .calendar-corner,
+    .calendar-day-head { background: linear-gradient(180deg, #171d23, #101418); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .calendar-day-head.today { background: linear-gradient(180deg, #c7373d, #8f2025); box-shadow: inset 0 -3px 0 rgba(255,255,255,0.12); }
+    .calendar-time-ruler,
+    .calendar-day-lane {
+      background: repeating-linear-gradient(180deg, rgba(16,20,24,0.060) 0 1px, transparent 1px 60px), linear-gradient(180deg, rgba(255,255,255,0.70), rgba(255,255,255,0.28));
+    }
+    .calendar-day-lane.today {
+      background: linear-gradient(180deg, rgba(179,39,45,0.060), rgba(179,39,45,0.018)), repeating-linear-gradient(180deg, rgba(179,39,45,0.13) 0 1px, transparent 1px 60px), linear-gradient(180deg, rgba(255,255,255,0.74), rgba(255,255,255,0.28));
+    }
+    .calendar-event {
+      border-radius: 14px;
+      border: 1px solid rgba(16,20,24,0.10);
+      border-left-width: 7px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,239,224,0.94));
+      box-shadow: 0 9px 18px rgba(20,16,12,0.13), inset 0 1px 0 rgba(255,255,255,0.72);
+    }
+    .calendar-event:hover { transform: translateY(-2px) scale(1.005); box-shadow: 0 14px 26px rgba(20,16,12,0.18); }
+    .calendar-event.selected { outline: 2px solid rgba(179,39,45,0.62); outline-offset: 2px; }
+    body.schedule-fullscreen-active { overflow: hidden; }
+    body.schedule-fullscreen-active header,
+    body.schedule-fullscreen-active .tab-bar { display: none !important; }
+    body.schedule-fullscreen-active main { max-width: none; padding: 0; margin: 0; }
+    #schedule.schedule-fullscreen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: block !important;
+      overflow: auto;
+      border-radius: 0;
+      margin: 0;
+      padding: 12px;
+      background: radial-gradient(circle at 8% 0%, rgba(179,39,45,0.18), transparent 28%), radial-gradient(circle at 92% 4%, rgba(16,20,24,0.24), transparent 28%), linear-gradient(180deg, #ead7b9, #dcc29b);
+    }
+    #schedule.schedule-fullscreen .schedule-hero { position: sticky; top: 0; z-index: 30; margin-bottom: 10px; }
+    #schedule.schedule-fullscreen .schedule-calendar-scroll { max-height: calc(100vh - 238px); }
+    #schedule.schedule-fullscreen .schedule-calendar-grid { min-width: 1320px; }
+    #schedule.schedule-fullscreen .schedule-month-card.active { min-height: calc(100vh - 180px); }
+    #schedule.schedule-fullscreen .month-cell { min-height: 145px; }
+    #schedule.schedule-fullscreen #schedFullscreen,
+    #schedule.schedule-fullscreen #schedFullscreenMonth { background: #101418; }
+    @media (max-width: 900px) {
+      #schedule.schedule-fullscreen { padding: 8px; }
+      #schedule.schedule-fullscreen .schedule-calendar-scroll { max-height: calc(100vh - 210px); }
+    }
+
     /* v1.5.13 — keep calendar mode controls visible */
     #schedBackToWeek {
       background: #101418;
@@ -2781,6 +2914,7 @@
             <button type="button" id="schedPrevWeek" class="tab-btn">← Prev</button>
             <button type="button" id="schedThisWeek" class="tab-btn">Today</button>
             <button type="button" id="schedNextWeek" class="tab-btn">Next →</button>
+            <button type="button" id="schedFullscreen" class="tab-btn">⛶ Full Screen</button>
           </div>
         </div>
         <div class="schedule-calendar-scroll">
@@ -2805,6 +2939,7 @@
           </div>
           <div class="schedule-calendar-controls">
             <button type="button" id="schedBackToWeek" class="tab-btn">← Back to Week</button>
+            <button type="button" id="schedFullscreenMonth" class="tab-btn">⛶ Full Screen</button>
             <button type="button" id="schedPrevMonth" class="tab-btn">← Prev Month</button>
             <button type="button" id="schedThisMonth" class="tab-btn">This Month</button>
             <button type="button" id="schedNextMonth" class="tab-btn">Next Month →</button>
@@ -3513,7 +3648,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.13';
+const APP_VERSION = 'v1.5.14';
 const APP_BUILD_DATE = '2026-05-09';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -3630,7 +3765,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
   function refreshMeta(){
     if (metaEl) metaEl.textContent = getMetaLine();
-    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Decal Dashboard · Polished Calendar Scheduler';
+    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Decal Dashboard · Fullscreen Calendar Scheduler';
     if (titleEl) titleEl.textContent = 'Poppe’s Diesel Co. — Shop Manager ' + APP_VERSION + ' (' + APP_BUILD_DATE + ')';
   }
 
@@ -4867,6 +5002,35 @@ window.addEventListener('load', function(){
       if(UI){ UI.scheduleViewMode = scheduleViewMode; saveUI(UI); }
       renderSchedule();
     }
+    function scheduleIsFullscreen(){
+      var sched = document.getElementById('schedule');
+      return !!(sched && sched.classList.contains('schedule-fullscreen'));
+    }
+    function scheduleApplyFullscreen(on){
+      var sched = document.getElementById('schedule');
+      if(!sched) return;
+      sched.classList.toggle('schedule-fullscreen', !!on);
+      document.body.classList.toggle('schedule-fullscreen-active', !!on);
+      var label = on ? 'Exit Full Screen' : '⛶ Full Screen';
+      ['schedFullscreen','schedFullscreenMonth'].forEach(function(id){
+        var b = document.getElementById(id);
+        if(b) b.textContent = label;
+      });
+      setTimeout(function(){ try { renderSchedule(); } catch(_){} }, 60);
+    }
+    function scheduleToggleFullscreen(){
+      var sched = document.getElementById('schedule');
+      if(!sched) return;
+      var goingFull = !scheduleIsFullscreen();
+      scheduleApplyFullscreen(goingFull);
+      try {
+        if(goingFull && sched.requestFullscreen){
+          sched.requestFullscreen().catch(function(){});
+        } else if(!goingFull && document.fullscreenElement && document.exitFullscreen){
+          document.exitFullscreen().catch(function(){});
+        }
+      } catch(_) {}
+    }
     function scheduleMonthStart(anchor){
       var d = scheduleParseLocalDate(anchor);
       return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -5275,9 +5439,16 @@ window.addEventListener('load', function(){
       bind('schedWeekView', function(){ scheduleSetView('week'); });
       bind('schedMonthView', function(){ scheduleSetView('month'); });
       bind('schedBackToWeek', function(){ scheduleSetView('week'); });
+      bind('schedFullscreen', scheduleToggleFullscreen);
+      bind('schedFullscreenMonth', scheduleToggleFullscreen);
       bind('schedPrevMonth', function(){ scheduleSetMonth(scheduleAddMonths(scheduleMonthAnchor, -1)); });
       bind('schedThisMonth', function(){ scheduleSetMonth(scheduleTodayKey()); });
       bind('schedNextMonth', function(){ scheduleSetMonth(scheduleAddMonths(scheduleMonthAnchor, 1)); });
+      document.addEventListener('fullscreenchange', function(){
+        if(!document.fullscreenElement && scheduleIsFullscreen()){
+          scheduleApplyFullscreen(false);
+        }
+      });
       var job=document.getElementById('schedJob'); if(job) job.addEventListener('change', function(){ scheduleFillFromJob(this.value); });
       ['schedDate','schedStart','schedEnd'].forEach(function(id){ var el=document.getElementById(id); if(el) el.addEventListener('change', function(){ scheduleShowWarning(scheduleOverlapMessage(scheduleFormData())); }); });
       renderSchedule();
@@ -7379,7 +7550,7 @@ setupCostAutoCalc();
       pushCheck('vehicle dropdowns', !!(document.getElementById('vehicleYear') && document.getElementById('vehicleMake') && document.getElementById('vehicleModel') && document.getElementById('jobVehicleYear')), 'year/make/model dropdowns present');
       pushCheck('dashboard command center', !!(document.getElementById('battlePlanSummary') && document.getElementById('dashPipeline') && document.getElementById('dashProfitLeaks')), 'dashboard business intelligence nodes present');
       pushCheck('invoice VIN decoder', !!(document.getElementById('invoiceVIN') && document.getElementById('decodeInvoiceVIN') && document.getElementById('invoiceVinResult')), 'invoice VIN decode controls present');
-      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedExportIcs')), 'week/month calendar boards, controls, and iPhone export present');
+      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedFullscreen') && document.getElementById('schedExportIcs')), 'week/month calendar boards, fullscreen controls, and iPhone export present');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
       var total = checks.length;
