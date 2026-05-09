@@ -15,6 +15,7 @@
       --card: #f7f0e4;
       --accent: #0b3b2e;
       --accent-soft: #164b3c;
+      --accent-2: #8b5a2b;
       --accent-text: #ffffff;
       --danger: #7d1c1c;
       --text-main: #222222;
@@ -954,6 +955,25 @@
           </div>
         </div>
 
+        <div class="row">
+          <div class="field xsmall">
+            <label for="jobVehicleYear">Vehicle Year</label>
+            <input id="jobVehicleYear" type="number" step="1" min="1900" placeholder="2013" />
+          </div>
+          <div class="field">
+            <label for="jobVehicleMake">Make</label>
+            <input id="jobVehicleMake" type="text" placeholder="Ram / Ford / Chevrolet / VW" />
+          </div>
+          <div class="field">
+            <label for="jobVehicleModel">Model</label>
+            <input id="jobVehicleModel" type="text" placeholder="2500 / F-250 / Touareg" />
+          </div>
+          <div class="field">
+            <label for="jobVehicleEngine">Engine</label>
+            <input id="jobVehicleEngine" type="text" placeholder="5.9 Cummins / 6.7 Powerstroke / 3.0 TDI" />
+          </div>
+        </div>
+
         <div id="vinResult" class="muted" style="display:none;"></div>
         <div id="vinSuggest" style="display:none; margin-top:4px;">
           <div class="muted">Suggested service templates:</div>
@@ -1040,6 +1060,36 @@
 
       <div class="row">
         <div class="field xsmall">
+          <label for="jobType">Job Type</label>
+          <select id="jobType">
+            <option>General Repair</option>
+            <option>Diesel Diagnostic</option>
+            <option>Electrical / Drivability</option>
+            <option>Maintenance</option>
+            <option>Fabrication</option>
+            <option>Custom</option>
+          </select>
+        </div>
+        <div class="field xsmall">
+          <label for="vehicleYear">Vehicle Year</label>
+          <input id="vehicleYear" type="number" step="1" min="1900" placeholder="2013" />
+        </div>
+        <div class="field">
+          <label for="vehicleMake">Make</label>
+          <input id="vehicleMake" type="text" placeholder="Ram / Ford / Chevy / VW" />
+        </div>
+        <div class="field">
+          <label for="vehicleModel">Model</label>
+          <input id="vehicleModel" type="text" placeholder="2500 / F-250 / Touareg" />
+        </div>
+        <div class="field">
+          <label for="vehicleEngine">Engine</label>
+          <input id="vehicleEngine" type="text" placeholder="5.9 Cummins / 6.7 Powerstroke / 3.0 TDI" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field xsmall">
           <label for="dueDate">Due Date</label>
           <input id="dueDate" type="date" />
         </div>
@@ -1065,16 +1115,42 @@
 
       <div class="row">
         <div class="field xsmall">
-          <label for="laborRate">Labor Rate ($/hr)</label>
-          <input id="laborRate" type="number" step="0.01" value="80" />
+          <label for="laborRate">General Labor Rate ($/hr)</label>
+          <input id="laborRate" type="number" step="0.01" value="100" />
         </div>
         <div class="field xsmall">
-          <label for="markupFactor">Markup (x cost, parts)</label>
+          <label for="diagnosticRate">Diagnostic Rate ($/hr)</label>
+          <input id="diagnosticRate" type="number" step="0.01" value="125" />
+        </div>
+        <div class="field xsmall">
+          <label for="minDiagnosticCharge">Minimum Diagnostic Charge</label>
+          <input id="minDiagnosticCharge" type="number" step="0.01" value="150" />
+        </div>
+        <div class="field xsmall">
+          <label for="shopSuppliesPercent">Shop Supplies % of Labor</label>
+          <input id="shopSuppliesPercent" type="number" step="0.01" value="5" />
+        </div>
+        <div class="field xsmall">
+          <label for="shopSuppliesCap">Shop Supplies Cap</label>
+          <input id="shopSuppliesCap" type="number" step="0.01" value="50" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field xsmall">
+          <label for="markupFactor">Fallback Markup (x cost)</label>
           <input id="markupFactor" type="number" step="0.01" value="1.40" />
+          <div class="muted">Part rows use tiered markup unless manually changed.</div>
         </div>
         <div class="field xsmall">
           <label for="salesTax">Sales Tax (%)</label>
           <input id="salesTax" type="number" step="0.01" value="7" />
+        </div>
+        <div class="field xsmall">
+          <label>Tax Buckets</label>
+          <label><input type="checkbox" id="taxParts" checked /> Parts</label>
+          <label><input type="checkbox" id="taxLabor" /> Labor</label>
+          <label><input type="checkbox" id="taxShopSupplies" checked /> Shop supplies</label>
         </div>
         <div class="field xsmall">
           <label>Discount</label>
@@ -1093,6 +1169,26 @@
         <div class="field">
           <label for="emailTo">Email To</label>
           <input id="emailTo" type="email" placeholder="customer@example.com" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field xsmall">
+          <label for="depositMode">Deposit Policy</label>
+          <select id="depositMode">
+            <option value="parts">Parts upfront</option>
+            <option value="half">50% of total</option>
+            <option value="custom">Custom deposit</option>
+            <option value="none">No required deposit</option>
+          </select>
+        </div>
+        <div class="field xsmall">
+          <label for="customDeposit">Custom Deposit</label>
+          <input id="customDeposit" type="number" step="0.01" min="0" value="0" />
+        </div>
+        <div class="field">
+          <label><input type="checkbox" id="customerSuppliedParts" /> Customer Supplied Parts</label>
+          <div class="muted">Adds the customer-supplied-parts warranty limitation to the invoice.</div>
         </div>
       </div>
 
@@ -1129,8 +1225,9 @@
 
       <div class="row buttons" style="margin-top:6px;">
         <button type="button" id="addLabor" class="tab-btn">+ Labor Line</button>
+        <button type="button" id="addDiagnostic" class="tab-btn">+ Diagnostic Line</button>
         <button type="button" id="addPart" class="tab-btn">+ Part Line</button>
-        <button type="button" id="applyMarkup" class="tab-btn">Apply Default Markup</button>
+        <button type="button" id="applyMarkup" class="tab-btn">Apply Tiered Markup</button>
         <button type="button" id="quickEstimate" class="tab-btn">Quick Estimate</button>
         <button type="button" id="recalc" class="tab-btn">Recalculate</button>
         <button type="button" id="markPaid" class="tab-btn" style="background:var(--accent);">Mark Paid</button>
@@ -1153,10 +1250,16 @@
           <div class="section-title">Line Items</div>
           <div class="totals-shell">
             <div class="totals-panel">
-              <div class="totals-line"><span>Subtotal:</span> <span id="sub">$0.00</span></div>
-              <div class="totals-line"><span>Tax (Parts only):</span> <span id="tax">$0.00</span></div>
+              <div class="totals-line"><span>Labor Subtotal:</span> <span id="laborSub">$0.00</span></div>
+              <div class="totals-line"><span>Parts Subtotal:</span> <span id="partsSub">$0.00</span></div>
+              <div class="totals-line"><span>Shop Supplies:</span> <span id="shopSup">$0.00</span></div>
+              <div class="totals-line"><span>Subtotal before tax:</span> <span id="sub">$0.00</span></div>
+              <div class="totals-line"><span>Taxable Subtotal:</span> <span id="taxableSub">$0.00</span></div>
+              <div class="totals-line"><span>Sales Tax:</span> <span id="tax">$0.00</span></div>
               <div class="totals-line"><span>Discount:</span> <span id="disc">$0.00</span></div>
+              <div class="totals-line"><span>Deposit Required:</span> <span id="depositDue">$0.00</span></div>
               <div class="totals-line grand"><span>Total:</span> <span id="grand">$0.00</span></div>
+              <div class="totals-line"><span>Balance Due:</span> <span id="balanceDueTotal">$0.00</span></div>
               <div class="totals-line"><span>Total Profit:</span> <span id="profit">$0.00</span></div>
               <div class="totals-line"><span>Total Savings vs List:</span> <span id="save">$0.00</span></div>
               <div class="totals-line"><span>Warranty hours (not billed):</span> <span id="wHours">0.00</span></div>
@@ -1205,6 +1308,7 @@
                 <th>Qty/Hrs</th>
                 <th>List $</th>
                 <th>Cost $</th>
+                <th>Markup %</th>
                 <th>Unit $</th>
                 <th>Line $</th>
                 <th>Line Profit $</th>
@@ -1223,6 +1327,11 @@
         <div style="margin-top:8px;">
           <div class="section-title">Internal Notes (shop-only)</div>
           <textarea id="internalNotes" placeholder="Private notes for you / techs (won’t print)."></textarea>
+        </div>
+
+        <div style="margin-top:8px;">
+          <div class="section-title">Recommended Future Repairs</div>
+          <textarea id="recommendedFutureRepairs" placeholder="Future repairs, maintenance watch-outs, and next-step recommendations."></textarea>
         </div>
 
         <div id="photoSection">
@@ -1297,10 +1406,15 @@
             </table>
 
             <div class="p-totals">
+              <div>Labor: <span id="pLaborSub">$0.00</span></div>
+              <div>Parts: <span id="pPartsSub">$0.00</span></div>
+              <div>Shop Supplies: <span id="pShopSup">$0.00</span></div>
               <div>Subtotal: <span id="pSub">$0.00</span></div>
+              <div>Taxable: <span id="pTaxableSub">$0.00</span></div>
               <div>Tax: <span id="pTax">$0.00</span></div>
               <div>Discount: <span id="pDiscount">$0.00</span></div>
               <div><strong>Total: <span id="pGrand">$0.00</span></strong></div>
+              <div>Deposit Required: <span id="pDepositDue">$0.00</span></div>
               <div>Amount Paid: <span id="pAmountPaid">$0.00</span></div>
               <div>Balance Due: <span id="pBalanceDue">$0.00</span></div>
               <div>Payment Method: <span id="pPaymentMethod">—</span></div>
@@ -1562,8 +1676,8 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.4.4';
-const APP_BUILD_DATE = '2026-03-09';
+const APP_VERSION = 'v1.5.0';
+const APP_BUILD_DATE = '2026-05-08';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
 /* ---------------- Supabase Cloud Config ---------------- */
@@ -1917,7 +2031,7 @@ if (!window.crypto.randomUUID){
 
     imgEl.onerror = function(){
       showFallback();
-      log('Watermark failed to render (image load error). Using fallback text instead.');
+      if(window.AppLog&&AppLog.warn)AppLog.warn('Watermark failed to render (image load error). Using fallback text instead.');
     };
 
     imgEl.src = src;
@@ -1958,10 +2072,10 @@ if (!window.crypto.randomUUID){
       if(!f) return;
       readAsDataURL(f, function(url){
         setWM(url, true);
-        log('Watermark updated.');
+        if(window.AppLog&&AppLog.info)AppLog.info('Watermark updated.');
         up.value='';
       }, function(err){
-        log('Watermark read failed: ' + (err && err.message ? err.message : 'unknown'));
+        if(window.AppLog&&AppLog.warn)AppLog.warn('Watermark read failed: ' + (err && err.message ? err.message : 'unknown')); 
       });
     });
   }
@@ -1970,7 +2084,7 @@ if (!window.crypto.randomUUID){
     btnDefault.addEventListener('click', function(){
       setWM(defaultSvgDataUrl(), false);
       try { localStorage.removeItem(KEY); } catch(_){}
-      log('Watermark set to default.');
+      if(window.AppLog&&AppLog.info)AppLog.info('Watermark set to default.');
     });
   }
 
@@ -1978,7 +2092,7 @@ if (!window.crypto.randomUUID){
     btnClear.addEventListener('click', function(){
       try { localStorage.removeItem(KEY); } catch(_){}
       showFallback();
-      log('Watermark cleared (fallback text will show).');
+      if(window.AppLog&&AppLog.info)AppLog.info('Watermark cleared (fallback text will show).');
     });
   }
 })();
@@ -2015,6 +2129,16 @@ window.addEventListener('load', function(){
         templates: seedTemplates(),
         settings: {
           defaultMarkup: 40,
+          generalLaborRate: 100,
+          diagnosticRate: 125,
+          minimumDiagnosticCharge: 150,
+          shopSuppliesPercent: 5,
+          shopSuppliesCap: 50,
+          taxParts: true,
+          taxLabor: false,
+          taxShopSupplies: true,
+          depositMode: 'parts',
+          customDeposit: 0,
           shopFrom:'Poppe’s Diesel Co.',
           shopReply:'poppedieselco@gmail.com',
           shopSubj:'[Poppe’s Diesel Co.] ',
@@ -2022,7 +2146,7 @@ window.addEventListener('load', function(){
           shopPhone:'',
           shopWebsite:'',
           shopAddress:'Columbus, Indiana',
-          shopDisclaimer:'Labor warranty 30 days on installed parts unless otherwise stated. Customer-supplied parts carry no labor warranty.',
+          shopDisclaimer:'Poppe’s Diesel Co. stands behind repair labor for 30 days from the date of service. Parts warranty depends on the parts supplier or manufacturer. Customer-supplied parts are not covered under parts warranty.',
           showVinTools:true
         }
       };
@@ -2086,6 +2210,22 @@ window.addEventListener('load', function(){
         if(!j.photos) j.photos=[];
         if(!j.signatures) j.signatures={customer:null, manager:null};
         if(!j.docType) j.docType='Estimate';
+        if(typeof j.jobType==='undefined') j.jobType='General Repair';
+        if(typeof j.vehicleYear==='undefined') j.vehicleYear='';
+        if(typeof j.vehicleMake==='undefined') j.vehicleMake='';
+        if(typeof j.vehicleModel==='undefined') j.vehicleModel='';
+        if(typeof j.vehicleEngine==='undefined') j.vehicleEngine='';
+        if(typeof j.recommendedFutureRepairs==='undefined') j.recommendedFutureRepairs='';
+        if(typeof j.customerSuppliedParts==='undefined') j.customerSuppliedParts=false;
+        if(typeof j.diagnosticRate==='undefined') j.diagnosticRate=(DB.settings&&DB.settings.diagnosticRate)||125;
+        if(typeof j.minimumDiagnosticCharge==='undefined') j.minimumDiagnosticCharge=(DB.settings&&DB.settings.minimumDiagnosticCharge)||150;
+        if(typeof j.shopSuppliesPercent==='undefined') j.shopSuppliesPercent=(DB.settings&&DB.settings.shopSuppliesPercent)||5;
+        if(typeof j.shopSuppliesCap==='undefined') j.shopSuppliesCap=(DB.settings&&DB.settings.shopSuppliesCap)||50;
+        if(typeof j.taxParts==='undefined') j.taxParts=(DB.settings&&DB.settings.taxParts)!==false;
+        if(typeof j.taxLabor==='undefined') j.taxLabor=!!(DB.settings&&DB.settings.taxLabor);
+        if(typeof j.taxShopSupplies==='undefined') j.taxShopSupplies=(DB.settings&&DB.settings.taxShopSupplies)!==false;
+        if(typeof j.depositMode==='undefined') j.depositMode=(DB.settings&&DB.settings.depositMode)||'parts';
+        if(typeof j.customDeposit==='undefined') j.customDeposit=0;
         if(typeof j.paid==='undefined') j.paid=false;
         if(typeof j.roNo==='undefined') j.roNo='';
         if(typeof j.dueDate==='undefined') j.dueDate='';
@@ -2103,6 +2243,7 @@ window.addEventListener('load', function(){
           if(typeof j.lines[l].list==='undefined') j.lines[l].list=0;
           if(typeof j.lines[l].cost==='undefined') j.lines[l].cost=0;
           if(typeof j.lines[l].unit==='undefined') j.lines[l].unit=0;
+          if(typeof j.lines[l].markupPct==='undefined') j.lines[l].markupPct=null;
         }
         // Clean out any completely empty placeholder lines from older data
         j.lines = cleanLines(j.lines || []);
@@ -2111,7 +2252,17 @@ window.addEventListener('load', function(){
       if(typeof DB.settings.shopPhone==='undefined') DB.settings.shopPhone='';
       if(typeof DB.settings.shopWebsite==='undefined') DB.settings.shopWebsite='';
       if(typeof DB.settings.shopAddress==='undefined') DB.settings.shopAddress='Columbus, Indiana';
-      if(typeof DB.settings.shopDisclaimer==='undefined') DB.settings.shopDisclaimer='Labor warranty 30 days on installed parts unless otherwise stated. Customer-supplied parts carry no labor warranty.';
+      if(typeof DB.settings.generalLaborRate==='undefined') DB.settings.generalLaborRate=100;
+      if(typeof DB.settings.diagnosticRate==='undefined') DB.settings.diagnosticRate=125;
+      if(typeof DB.settings.minimumDiagnosticCharge==='undefined') DB.settings.minimumDiagnosticCharge=150;
+      if(typeof DB.settings.shopSuppliesPercent==='undefined') DB.settings.shopSuppliesPercent=5;
+      if(typeof DB.settings.shopSuppliesCap==='undefined') DB.settings.shopSuppliesCap=50;
+      if(typeof DB.settings.taxParts==='undefined') DB.settings.taxParts=true;
+      if(typeof DB.settings.taxLabor==='undefined') DB.settings.taxLabor=false;
+      if(typeof DB.settings.taxShopSupplies==='undefined') DB.settings.taxShopSupplies=true;
+      if(typeof DB.settings.depositMode==='undefined') DB.settings.depositMode='parts';
+      if(typeof DB.settings.customDeposit==='undefined') DB.settings.customDeposit=0;
+      if(typeof DB.settings.shopDisclaimer==='undefined') DB.settings.shopDisclaimer='Poppe’s Diesel Co. stands behind repair labor for 30 days from the date of service. Parts warranty depends on the parts supplier or manufacturer. Customer-supplied parts are not covered under parts warranty.';
       if(typeof DB.settings.showVinTools==='undefined') DB.settings.showVinTools=true;
       saveDB();
     }
@@ -2313,7 +2464,7 @@ window.addEventListener('load', function(){
       $all('.tab').forEach(function(t){ t.classList.remove('active'); });
       document.getElementById(UI.activeTab).classList.add('active');
       $all('.tab-btn[data-tab]').forEach(function(x){
-        if(x.getAttribute('data-tab')===UI.activeTab) x.classList.add('active-tab');
+        x.classList.toggle('active-tab', x.getAttribute('data-tab')===UI.activeTab);
       });
     }
 
@@ -2384,8 +2535,13 @@ window.addEventListener('load', function(){
         customerId: $('#jobCustomer').value,
         title: $('#jobTitle').value.trim(),
         vin: $('#jobVIN').value.trim(),
+        vehicleYear: $('#jobVehicleYear').value.trim(),
+        vehicleMake: $('#jobVehicleMake').value.trim(),
+        vehicleModel: $('#jobVehicleModel').value.trim(),
+        vehicleEngine: $('#jobVehicleEngine').value.trim(),
         notes: $('#jobNotes').value.trim(),
         status: $('#jobStatus').value,
+        jobType:'General Repair',
         lines: [],
         paid:false, paidAt:null,
         docType:'Estimate',
@@ -2481,18 +2637,16 @@ window.addEventListener('load', function(){
       for(var i=0;i<tpl.items.length;i++){
         var it = tpl.items[i];
         if(it.type === 'Labor'){
-          addLine('Labor', it.desc || '', it.qty || 1, 0, 0, Number($('#laborRate').value || 80), '');
+          addLine('Labor', it.desc || '', it.qty || 1, 0, 0, Number($('#laborRate').value || 100), '');
         } else {
           var cost = Number(it.cost || 0);
-          var mu = typeof it.markup === 'number'
-            ? (it.markup/100)
-            : (Number($('#defaultMarkup').value||DB.settings.defaultMarkup||40)/100);
-          var unit = cost * (1+mu);
+          var markupPct = typeof it.markup === 'number' ? it.markup : partMarkupPercentForCost(cost);
+          var unit = partUnitFromCostAndMarkup(cost, markupPct);
           var desc = it.desc || '';
           if(it.vendor || it.part){
             desc += ' — ' + [it.vendor, it.part].filter(Boolean).join(' ');
           }
-          addLine('Part', desc, 1, 0, cost, unit, '');
+          addLine('Part', desc, 1, 0, cost, unit, '', {markupPct:markupPct});
         }
       }
       persistLines();
@@ -2663,8 +2817,13 @@ window.addEventListener('load', function(){
           customerId:cust.id,
           title:'Quick Estimate',
           vin:'',
+          vehicleYear:'',
+          vehicleMake:'',
+          vehicleModel:'',
+          vehicleEngine:'',
           notes:'',
           status:'Open',
+          jobType:'General Repair',
           lines:[],
           paid:false, paidAt:null,
           docType:'Estimate',
@@ -2705,8 +2864,18 @@ window.addEventListener('load', function(){
 
       j.lines = cleanLines(j.lines || []);
 
-      $('#laborRate').value = (j.laborRate != null) ? j.laborRate : 80;
+      $('#laborRate').value = (j.laborRate != null) ? j.laborRate : (DB.settings.generalLaborRate || 100);
+      $('#diagnosticRate').value = (j.diagnosticRate != null) ? j.diagnosticRate : (DB.settings.diagnosticRate || 125);
+      $('#minDiagnosticCharge').value = (j.minimumDiagnosticCharge != null) ? j.minimumDiagnosticCharge : (DB.settings.minimumDiagnosticCharge || 150);
+      $('#shopSuppliesPercent').value = (j.shopSuppliesPercent != null) ? j.shopSuppliesPercent : (DB.settings.shopSuppliesPercent || 5);
+      $('#shopSuppliesCap').value = (j.shopSuppliesCap != null) ? j.shopSuppliesCap : (DB.settings.shopSuppliesCap || 50);
       $('#salesTax').value  = (j.salesTaxPct != null) ? j.salesTaxPct : 7;
+      $('#taxParts').checked = (j.taxParts !== false);
+      $('#taxLabor').checked = !!j.taxLabor;
+      $('#taxShopSupplies').checked = (j.taxShopSupplies !== false);
+      $('#depositMode').value = j.depositMode || (DB.settings.depositMode || 'parts');
+      $('#customDeposit').value = (j.customDeposit != null) ? j.customDeposit : 0;
+      $('#customerSuppliedParts').checked = !!j.customerSuppliedParts;
       $('#markupFactor').value = (j.markupFactor != null) ? j.markupFactor : getMarkupFactor();
       var dt = document.getElementById('discountType');
       if (dt) dt.value = (j.discountType || 'percent');
@@ -2717,7 +2886,7 @@ window.addEventListener('load', function(){
       for(var i=0;i<(j.lines||[]).length;i++){
         var l=j.lines[i];
         // IMPORTANT: skipPersist so we don't overwrite j.lines while building rows
-        addLine(l.type,l.desc,l.qty,l.list,l.cost,l.unit,l.note,{skipPersist:true});
+        addLine(l.type,l.desc,l.qty,l.list,l.cost,l.unit,l.note,{skipPersist:true, markupPct:l.markupPct});
       }
       // Single persist after DOM matches full j.lines
       persistLines();
@@ -2725,6 +2894,11 @@ window.addEventListener('load', function(){
       $('#invNo').value = j.invNo||'';
       $('#roNo').value = j.roNo||'';
       $('#docType').value = j.docType||'Estimate';
+      $('#jobType').value = j.jobType || 'General Repair';
+      $('#vehicleYear').value = j.vehicleYear || '';
+      $('#vehicleMake').value = j.vehicleMake || '';
+      $('#vehicleModel').value = j.vehicleModel || '';
+      $('#vehicleEngine').value = j.vehicleEngine || '';
       $('#dueDate').value = j.dueDate||'';
       $('#paymentTerms').value = j.paymentTerms||'Due on receipt';
       $('#odometer').value = j.odometer||'';
@@ -2740,6 +2914,7 @@ window.addEventListener('load', function(){
         : ((c && c.email) ? c.email : '');
       $('#overallNotes').value = j.overallNotes||'';
       $('#internalNotes').value = j.internalNotes||'';
+      $('#recommendedFutureRepairs').value = j.recommendedFutureRepairs||'';
       renderPhotoGrid();
       $('#photosOnPdf').checked = j.photosOnPdf!==false;
       updatePreview();
@@ -2786,24 +2961,44 @@ window.addEventListener('load', function(){
       });
     }
 
+    function partMarkupPercentForCost(cost){
+      cost = Number(cost || 0);
+      if (!isFinite(cost) || cost <= 0) return Number(DB && DB.settings && DB.settings.defaultMarkup || 40);
+      if (cost < 100) return 40;
+      if (cost < 500) return 30;
+      if (cost < 1000) return 20;
+      return 15;
+    }
+
+    function partUnitFromCostAndMarkup(cost, markupPct){
+      cost = Number(cost || 0);
+      markupPct = Number(markupPct || 0);
+      if (!isFinite(cost) || cost <= 0) return 0;
+      if (!isFinite(markupPct)) markupPct = partMarkupPercentForCost(cost);
+      return cost * (1 + (markupPct / 100));
+    }
+
     // *** addLine now has options, with skipPersist flag ***
     function addLine(type, desc, qty, list, cost, unit, note, options){
       options = options || {};
       var tr = document.createElement('tr');
-      var descPH = type==='Labor' ? "e.g., Diagnostics / R&R" : "e.g., Fuel Filter (FF63009) — Fleetguard";
-      var qtyPH  = type==='Labor' ? "hrs (e.g., 1.5)"       : "qty (e.g., 1)";
-      var listPH = type==='Labor' ? "optional list/MSRP"    : "store list MSRP";
-      var costPH = type==='Labor' ? "shop cost (optional)"  : "your cost (e.g., 32.00)";
-      var unitPH = type==='Labor' ? "$/hr (auto or manual)" : "customer price";
+      var isDiag = type === 'Diagnostic';
+      var descPH = isDiag ? "e.g., Diesel drivability / electrical diagnostic" : (type==='Labor' ? "e.g., R&R / repair labor" : "e.g., Fuel Filter (FF63009) — Fleetguard");
+      var qtyPH  = (type==='Labor' || isDiag) ? "hrs (e.g., 1.5)"       : "qty (e.g., 1)";
+      var listPH = (type==='Labor' || isDiag) ? "optional list/MSRP"    : "store list MSRP";
+      var costPH = (type==='Labor' || isDiag) ? "shop cost (optional)"  : "your cost (e.g., 32.00)";
+      var unitPH = isDiag ? "diagnostic $/hr" : (type==='Labor' ? "general $/hr" : "customer price");
+      var markupVal = (options && options.markupPct != null) ? Number(options.markupPct) : (type === 'Part' ? partMarkupPercentForCost(cost) : 0);
 
       tr.className = 'draggable-row';
       tr.innerHTML =
         '<td class="drag-col"><button class="tab-btn handle" title="Drag to reorder">↕</button></td>' +
-        '<td><select class="lType"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Part'?'selected':'')+'>Part</option><option '+(type==='Warranty'?'selected':'')+'>Warranty</option></select></td>' +
+        '<td><select class="lType"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Diagnostic'?'selected':'')+'>Diagnostic</option><option '+(type==='Part'?'selected':'')+'>Part</option><option '+(type==='Warranty'?'selected':'')+'>Warranty</option></select></td>' +
         '<td><div class="desc-wrap"><input class="lDesc" value="'+(desc||'')+'" placeholder="'+descPH+'"/><textarea class="lNote" placeholder="Tech note for this line (prints)">'+(note||'')+'</textarea></div></td>' +
         '<td><input class="lQty" type="number" step="0.01" value="'+(qty||1)+'" placeholder="'+qtyPH+'"/></td>' +
         '<td><input class="lList" type="number" step="0.01" value="'+(((list!=null)?list:0))+'" placeholder="'+listPH+'"/></td>' +
         '<td><input class="lCost" type="number" step="0.01" value="'+(((cost!=null)?cost:0))+'" placeholder="'+costPH+'"/></td>' +
+        '<td><input class="lMarkup" type="number" step="0.01" value="'+(markupVal||0)+'" placeholder="markup %"/></td>' +
         '<td><input class="lUnit" type="number" step="0.01" value="'+(unit||0)+'" placeholder="'+unitPH+'"/><div class="calc-hint">—</div></td>' +
         '<td class="lLine">$0.00</td>' +
         '<td class="lProfit">$0.00</td>' +
@@ -2815,7 +3010,7 @@ window.addEventListener('load', function(){
         persistLines();
       });
       ['change','input'].forEach(function(evt){
-        ['.lType','.lDesc','.lQty','.lList','.lCost','.lUnit','.lNote'].forEach(function(sel){
+        ['.lType','.lDesc','.lQty','.lList','.lCost','.lMarkup','.lUnit','.lNote'].forEach(function(sel){
           tr.querySelector(sel).addEventListener(evt, persistLines);
         });
       });
@@ -2833,6 +3028,7 @@ window.addEventListener('load', function(){
           qty:  Number(tr.querySelector('.lQty').value||0),
           list: Number(tr.querySelector('.lList').value||0),
           cost: Number(tr.querySelector('.lCost').value||0),
+          markupPct: Number(tr.querySelector('.lMarkup') ? tr.querySelector('.lMarkup').value : 0),
           unit: Number(tr.querySelector('.lUnit').value||0),
           note: (tr.querySelector('.lNote') ? tr.querySelector('.lNote').value : '').trim()
         });
@@ -2847,16 +3043,15 @@ window.addEventListener('load', function(){
       // Pull current rows from DOM
       var lines = rowsToLines();
 
-      // Auto-fill Labor and Part unit pricing before saving
-      var laborRateNow = Number($('#laborRate').value || 80);
-      var factor = Number($('#markupFactor').value || 1.40); // x cost for parts
+      // Auto-fill Labor, Diagnostic, and Part unit pricing before saving
+      var laborRateNow = Number($('#laborRate').value || 100);
+      var diagnosticRateNow = Number($('#diagnosticRate').value || 125);
       var trs = $all('#lines tbody tr');
 
       for (var i = 0; i < lines.length; i++){
         var ln = lines[i];
         var tr = trs[i];
 
-        // For Labor: if unit is empty/zero, use current labor rate
         if (ln.type === 'Labor' && (!ln.unit || ln.unit === 0)){
           ln.unit = laborRateNow;
           if (tr) {
@@ -2865,13 +3060,25 @@ window.addEventListener('load', function(){
           }
         }
 
-        // For Part: if cost is set and unit empty/zero, apply markup factor
-        if (ln.type === 'Part' && ln.cost > 0 && (!ln.unit || ln.unit === 0)){
-          var newUnit = ln.cost * factor;
-          ln.unit = newUnit;
+        if (ln.type === 'Diagnostic' && (!ln.unit || ln.unit === 0)){
+          ln.unit = diagnosticRateNow;
           if (tr) {
-            var unitElP = tr.querySelector('.lUnit');
-            if (unitElP) unitElP.value = newUnit.toFixed(2);
+            var unitElD = tr.querySelector('.lUnit');
+            if (unitElD) unitElD.value = diagnosticRateNow.toFixed(2);
+          }
+        }
+
+        if (ln.type === 'Part' && ln.cost > 0){
+          if (!ln.markupPct || ln.markupPct === 0) ln.markupPct = partMarkupPercentForCost(ln.cost);
+          if (!ln.unit || ln.unit === 0){
+            var newUnit = partUnitFromCostAndMarkup(ln.cost, ln.markupPct);
+            ln.unit = newUnit;
+            if (tr) {
+              var unitElP = tr.querySelector('.lUnit');
+              if (unitElP) unitElP.value = newUnit.toFixed(2);
+              var markupElP = tr.querySelector('.lMarkup');
+              if (markupElP) markupElP.value = Number(ln.markupPct).toFixed(2).replace(/\.00$/,'');
+            }
           }
         }
       }
@@ -2884,6 +3091,11 @@ window.addEventListener('load', function(){
       j.docType = $('#docType').value;
       j.invNo = $('#invNo').value.trim() || ensureDocumentNumber();
       j.roNo = $('#roNo').value.trim();
+      j.jobType = $('#jobType').value;
+      j.vehicleYear = $('#vehicleYear').value.trim();
+      j.vehicleMake = $('#vehicleMake').value.trim();
+      j.vehicleModel = $('#vehicleModel').value.trim();
+      j.vehicleEngine = $('#vehicleEngine').value.trim();
       j.dueDate = $('#dueDate').value;
       j.paymentTerms = $('#paymentTerms').value;
       j.odometer = $('#odometer').value.trim();
@@ -2897,8 +3109,19 @@ window.addEventListener('load', function(){
       j.emailTo = $('#emailTo').value.trim();
       j.overallNotes = $('#overallNotes').value || '';
       j.internalNotes = $('#internalNotes').value || '';
+      j.recommendedFutureRepairs = $('#recommendedFutureRepairs').value || '';
       j.photosOnPdf = $('#photosOnPdf').checked;
-      j.laborRate = Number($('#laborRate').value || 80);
+      j.laborRate = Number($('#laborRate').value || 100);
+      j.diagnosticRate = Number($('#diagnosticRate').value || 125);
+      j.minimumDiagnosticCharge = Number($('#minDiagnosticCharge').value || 150);
+      j.shopSuppliesPercent = Number($('#shopSuppliesPercent').value || 5);
+      j.shopSuppliesCap = Number($('#shopSuppliesCap').value || 50);
+      j.taxParts = $('#taxParts').checked;
+      j.taxLabor = $('#taxLabor').checked;
+      j.taxShopSupplies = $('#taxShopSupplies').checked;
+      j.depositMode = $('#depositMode').value;
+      j.customDeposit = Number($('#customDeposit').value || 0);
+      j.customerSuppliedParts = $('#customerSuppliedParts').checked;
       j.salesTaxPct = Number($('#salesTax').value || 0);
       j.markupFactor = Number($('#markupFactor').value || 1.40);
       j.discountType = ($('#discountType') ? $('#discountType').value : 'percent');
@@ -2940,7 +3163,15 @@ window.addEventListener('load', function(){
         : (t==='Estimate' ? (j && j.approved ? 'Approved':'Pending Approval') : 'Unpaid');
       var c = j ? findCustomer(j.customerId) : null;
       document.getElementById('pCust').textContent = c?c.name:'—';
-      document.getElementById('pVeh').textContent = c?(c.vehicle||''):'';
+      var vehBits = [];
+      if(j && j.vehicleYear) vehBits.push(j.vehicleYear);
+      if(j && j.vehicleMake) vehBits.push(j.vehicleMake);
+      if(j && j.vehicleModel) vehBits.push(j.vehicleModel);
+      if(j && j.vehicleEngine) vehBits.push('Engine: ' + j.vehicleEngine);
+      if(!vehBits.length && c && c.vehicle) vehBits.push(c.vehicle);
+      if(j && j.vin) vehBits.push('VIN: ' + j.vin);
+      if(j && j.jobType) vehBits.push('Job Type: ' + j.jobType);
+      document.getElementById('pVeh').textContent = vehBits.join(' • ');
       var plateBits = [];
       if($('#licensePlate').value.trim()) plateBits.push('Plate: ' + $('#licensePlate').value.trim());
       if($('#odometer').value.trim()) plateBits.push('Odometer: ' + $('#odometer').value.trim() + ' mi');
@@ -3002,6 +3233,19 @@ window.addEventListener('load', function(){
         }
       }
 
+      if(j && j._calc){
+        if(Number(j._calc.diagnosticAdjustment || 0) > 0){
+          var trAdj = document.createElement('tr');
+          trAdj.innerHTML = '<td>Diagnostic minimum adjustment</td><td>—</td><td>—</td><td>'+fmt(j._calc.diagnosticAdjustment)+'</td>';
+          tbody.appendChild(trAdj);
+        }
+        if(Number(j._calc.shopSupplies || 0) > 0){
+          var trShop = document.createElement('tr');
+          trShop.innerHTML = '<td>Shop supplies / consumables</td><td>1</td><td>'+fmt(j._calc.shopSupplies)+'</td><td>'+fmt(j._calc.shopSupplies)+'</td>';
+          tbody.appendChild(trShop);
+        }
+      }
+
       var pApproval = document.getElementById('pApprovalBlock'); pApproval.innerHTML='';
       if(j && j.approvedAt){
         pApproval.innerHTML = '<div style="margin-top:8px; font-size:11px;"><strong>Estimate Approved:</strong> ' + escapeHtml(isoDateToLocalText(j.approvedAt)) + '</div>';
@@ -3014,8 +3258,16 @@ window.addEventListener('load', function(){
       }
 
       var pDisc = document.getElementById('pDisclaimerBlock'); pDisc.innerHTML='';
-      if(DB.settings.shopDisclaimer && DB.settings.shopDisclaimer.trim()){
-        pDisc.innerHTML = '<div style="margin-top:10px; padding-top:8px; border-top:1px solid #ddd; font-size:10.5px; white-space:pre-wrap; line-height:1.35;"><strong>Warranty / Policy</strong><br>' + escapeHtml(DB.settings.shopDisclaimer.trim()) + '</div>';
+      var policyText = DB.settings.shopDisclaimer || '';
+      if(j && j.customerSuppliedParts){
+        policyText += (policyText ? '\\n\\n' : '') + 'Customer-supplied parts are not covered under parts warranty. Labor warranty may be limited if failure is caused by part quality, fitment, incorrect application, or part defect.';
+      }
+      if(policyText && policyText.trim()){
+        pDisc.innerHTML = '<div style="margin-top:10px; padding-top:8px; border-top:1px solid #ddd; font-size:10.5px; white-space:pre-wrap; line-height:1.35;"><strong>Warranty / Policy</strong><br>' + escapeHtml(policyText.trim()) + '</div>';
+      }
+
+      if(j && j.recommendedFutureRepairs && j.recommendedFutureRepairs.trim()){
+        pDisc.innerHTML += '<div style="margin-top:10px; padding-top:8px; border-top:1px solid #ddd; font-size:10.5px; white-space:pre-wrap; line-height:1.35;"><strong>Recommended Future Repairs</strong><br>' + escapeHtml(j.recommendedFutureRepairs.trim()) + '</div>';
       }
 
       function setSig(role){
@@ -3127,7 +3379,7 @@ window.addEventListener('load', function(){
         var partsCost = Number(document.getElementById('qePartsCost').value||0);
         var mu = Number(document.getElementById('qeMarkup').value||40)/100;
         var hours = Number(document.getElementById('qeHours').value||1.5);
-        var laborRate = Number(document.getElementById('laborRate').value||80);
+        var laborRate = Number(document.getElementById('laborRate').value||100);
 
         if(mode==='replace'){
           document.querySelector('#lines tbody').innerHTML='';
@@ -3138,7 +3390,7 @@ window.addEventListener('load', function(){
 
         if(partsCost>0){
           var sell = partsCost*(1+mu);
-          addLine('Part', title?('Parts — '+title):'Parts', 1, 0, partsCost, sell, '', {skipPersist:true});
+          addLine('Part', title?('Parts — '+title):'Parts', 1, 0, partsCost, sell, '', {skipPersist:true, markupPct:(mu*100)});
         }
         persistLines();
         close();
@@ -3470,7 +3722,11 @@ window.addEventListener('load', function(){
     /* ------ Invoice actions buttons ------ */
     document.getElementById('addLabor').addEventListener('click', function(){
       if(!ensureJobSelected(true)) return;
-      addLine('Labor','',1,0,0, Number(document.getElementById('laborRate').value||80), '');
+      addLine('Labor','',1,0,0, Number(document.getElementById('laborRate').value||100), '');
+    });
+    document.getElementById('addDiagnostic').addEventListener('click', function(){
+      if(!ensureJobSelected(true)) return;
+      addLine('Diagnostic','Diesel diagnostic / electrical / drivability',1,0,0, Number(document.getElementById('diagnosticRate').value||125), '');
     });
     document.getElementById('addPart').addEventListener('click', function(){
       if(!ensureJobSelected(true)) return;
@@ -3478,7 +3734,7 @@ window.addEventListener('load', function(){
     });
     document.getElementById('applyMarkup').addEventListener('click', applyDefaultMarkup);
     document.getElementById('recalc').addEventListener('click', recalcTotals);
-    ['invNo','roNo','docType','dueDate','paymentTerms','odometer','licensePlate','payLink','emailTo','paymentMethod','paidDate','amountPaid'].forEach(function(id){
+    ['invNo','roNo','docType','jobType','vehicleYear','vehicleMake','vehicleModel','vehicleEngine','dueDate','paymentTerms','odometer','licensePlate','payLink','emailTo','paymentMethod','paidDate','amountPaid','diagnosticRate','minDiagnosticCharge','shopSuppliesPercent','shopSuppliesCap','salesTax','taxParts','taxLabor','taxShopSupplies','depositMode','customDeposit','customerSuppliedParts'].forEach(function(id){
       var el = document.getElementById(id);
       if(el){
         el.addEventListener('input', function(){ if(id==='docType') ensureDocumentNumber(); if(id==='paymentMethod' || id==='paidDate' || id==='amountPaid') syncPaymentState(); persistLines(); });
@@ -3722,12 +3978,14 @@ window.addEventListener('load', function(){
 
     /* ------ Keep overall notes synced ------ */
     (function(){
-      var on = document.getElementById('overallNotes');
-      if(on){
-        on.addEventListener('input', function(){
-          persistLines();
-        });
-      }
+      ['overallNotes','recommendedFutureRepairs'].forEach(function(id){
+        var on = document.getElementById(id);
+        if(on){
+          on.addEventListener('input', function(){
+            persistLines();
+          });
+        }
+      });
     })();
 
 
@@ -3747,17 +4005,16 @@ window.addEventListener('load', function(){
     }
 
     function applyDefaultMarkup(){
-      var factor = getMarkupFactor(); // e.g. 1.40 for 40% over cost
-      var mu = factor - 1;            // markup as fraction
       $all('#lines tbody tr').forEach(function(tr){
         var typeSel = tr.querySelector('.lType');
         if (!typeSel || typeSel.value !== 'Part') return;
         var cost = Number(tr.querySelector('.lCost').value || 0);
-        var newUnit = cost * factor;
-        if (newUnit > 0){
-          var unitEl = tr.querySelector('.lUnit');
-          if (unitEl) unitEl.value = newUnit.toFixed(2);
-        }
+        var markup = partMarkupPercentForCost(cost);
+        var markupEl = tr.querySelector('.lMarkup');
+        var unitEl = tr.querySelector('.lUnit');
+        if (markupEl) markupEl.value = Number(markup).toFixed(2).replace(/\.00$/,'');
+        var newUnit = partUnitFromCostAndMarkup(cost, markup);
+        if (unitEl) unitEl.value = newUnit > 0 ? newUnit.toFixed(2) : '';
       });
       persistLines();
     }
@@ -3767,20 +4024,31 @@ window.addEventListener('load', function(){
       if (!tbody) return;
       tbody.addEventListener('input', function(ev){
         var target = ev.target;
-        if (!target.classList.contains('lCost')) return;
+        if (!(target.classList.contains('lCost') || target.classList.contains('lMarkup') || target.classList.contains('lType'))) return;
         var tr = target.closest('tr');
         if (!tr) return;
         var typeSel = tr.querySelector('.lType');
-        if (typeSel && typeSel.value !== 'Part') return; // only auto-calc parts
-        var cost = Number(target.value || 0);
-        var factor = getMarkupFactor();
-        var unitEl = tr.querySelector('.lUnit');
-        if (!unitEl) return;
-        var newUnit = cost * factor;
-        if (newUnit > 0){
-          unitEl.value = newUnit.toFixed(2);
-        } else {
-          unitEl.value = '';
+        if (!typeSel) return;
+
+        if (typeSel.value === 'Labor'){
+          var lu = tr.querySelector('.lUnit');
+          if (lu && (!lu.value || Number(lu.value) === 0)) lu.value = Number(document.getElementById('laborRate').value || 100).toFixed(2);
+        }
+        if (typeSel.value === 'Diagnostic'){
+          var du = tr.querySelector('.lUnit');
+          if (du && (!du.value || Number(du.value) === 0)) du.value = Number(document.getElementById('diagnosticRate').value || 125).toFixed(2);
+        }
+        if (typeSel.value === 'Part'){
+          var cost = Number(tr.querySelector('.lCost').value || 0);
+          var markupEl = tr.querySelector('.lMarkup');
+          var markup = Number(markupEl && markupEl.value || 0);
+          if (!markup || markup <= 0){
+            markup = partMarkupPercentForCost(cost);
+            if (markupEl) markupEl.value = Number(markup).toFixed(2).replace(/\.00$/,'');
+          }
+          var unitEl = tr.querySelector('.lUnit');
+          var newUnit = partUnitFromCostAndMarkup(cost, markup);
+          if (unitEl) unitEl.value = newUnit > 0 ? newUnit.toFixed(2) : '';
         }
         persistLines();
       });
@@ -3822,76 +4090,118 @@ window.addEventListener('load', function(){
 
     function recalcTotals(){
       var rows = rowsToLines();
-      var subtotal = 0, profit = 0, partsSubtotal = 0, savingsTotal = 0;
-      var laborRate = Number($('#laborRate').value || 80);
-      var muDefault = getMarkupFactor() - 1; // compare against current factor
+      var subtotalBeforeDiscount = 0;
+      var generalLaborTotal = 0;
+      var diagnosticRaw = 0;
+      var diagnosticHours = 0;
+      var partsSubtotal = 0;
+      var savingsTotal = 0;
+      var profit = 0;
       var trs = $all('#lines tbody tr');
       var warrantyHours = 0;
+
+      var laborRate = Number($('#laborRate').value || 100);
+      var diagnosticRate = Number($('#diagnosticRate').value || 125);
+      var minimumDiagnosticCharge = Number($('#minDiagnosticCharge').value || 150);
+      var shopSuppliesPercent = Number($('#shopSuppliesPercent').value || 5) / 100;
+      var shopSuppliesCap = Number($('#shopSuppliesCap').value || 50);
+
+      if (!isFinite(shopSuppliesPercent) || shopSuppliesPercent < 0) shopSuppliesPercent = 0;
+      if (!isFinite(shopSuppliesCap) || shopSuppliesCap < 0) shopSuppliesCap = 0;
 
       for (var i = 0; i < rows.length; i++){
         var r = rows[i];
         var isWarranty = (r.type === 'Warranty');
+        var tr = trs[i];
 
-        // If labor line with no unit, default to laborRate and sync UI
         if (r.type === 'Labor' && (!r.unit || r.unit === 0)) {
           r.unit = laborRate;
-          if (trs[i]) {
-            var uEl = trs[i].querySelector('.lUnit');
+          if (tr) {
+            var uEl = tr.querySelector('.lUnit');
             if (uEl) uEl.value = r.unit.toFixed(2);
           }
         }
 
-        if (isWarranty) {
-          warrantyHours += (r.qty || 0);
-        }
-
-        var lineTotal = isWarranty ? 0 : (r.qty * r.unit);
-        if (!isWarranty) {
-          subtotal += lineTotal;
-        }
-
-        if (r.type === 'Part' && !isWarranty) {
-          partsSubtotal += lineTotal;
-          var list = Number(r.list || 0);
-          if (list > r.unit) {
-            savingsTotal += (list - r.unit) * (r.qty || 1);
+        if (r.type === 'Diagnostic' && (!r.unit || r.unit === 0)) {
+          r.unit = diagnosticRate;
+          if (tr) {
+            var dEl = tr.querySelector('.lUnit');
+            if (dEl) dEl.value = r.unit.toFixed(2);
           }
         }
 
-        var lineProfit = isWarranty ? 0 : (r.qty * (r.unit - (r.cost || 0)));
-        r.profit = lineProfit;
-        if (!isWarranty) {
-          profit += lineProfit;
+        if (r.type === 'Part') {
+          if (!r.markupPct || r.markupPct === 0) r.markupPct = partMarkupPercentForCost(r.cost);
+          if (r.cost > 0 && (!r.unit || r.unit === 0)) {
+            r.unit = partUnitFromCostAndMarkup(r.cost, r.markupPct);
+            if (tr) {
+              var pUnit = tr.querySelector('.lUnit');
+              if (pUnit) pUnit.value = r.unit.toFixed(2);
+              var pMarkup = tr.querySelector('.lMarkup');
+              if (pMarkup) pMarkup.value = Number(r.markupPct).toFixed(2).replace(/\.00$/,'');
+            }
+          }
         }
 
-        var tr = trs[i];
-        if (!tr) continue;
-        var lineCell = tr.querySelector('.lLine');
-        if (lineCell) lineCell.textContent = fmt(lineTotal);
-        var profitCell = tr.querySelector('.lProfit');
-        if (profitCell) profitCell.textContent = fmt(lineProfit);
+        if (isWarranty) warrantyHours += (r.qty || 0);
 
-        var hint = tr.querySelector('.calc-hint');
-        if (hint){
-          if (isWarranty) {
-            hint.className = 'calc-hint ok';
-            hint.textContent = 'Warranty hours (not billed)';
-          } else {
-            var up = (r.unit - (r.cost || 0));
-            var per = (r.cost > 0) ? Math.round((up / r.cost) * 100) : 100;
-            var cls = (r.cost > 0 && (up / r.cost) >= muDefault) ? 'ok' : (r.cost > 0 ? 'warn' : 'ok');
-            // dollars of profit for this line
-            var dollars = fmt(up * (r.qty || 1));
-            var perTxt = r.cost > 0 ? '(+' + per + '%)' : '(set cost for %)';
-            hint.className = 'calc-hint ' + cls;
-            hint.textContent = dollars + ' ' + perTxt;
+        var lineTotal = 0;
+        if (r.type === 'Labor') {
+          lineTotal = (r.qty || 0) * (r.unit || laborRate);
+          generalLaborTotal += lineTotal;
+        } else if (r.type === 'Diagnostic') {
+          var diagLine = (r.qty || 0) * (r.unit || diagnosticRate);
+          diagnosticRaw += diagLine;
+          diagnosticHours += (r.qty || 0);
+          lineTotal = diagLine;
+        } else if (r.type === 'Part') {
+          lineTotal = (r.qty || 0) * (r.unit || 0);
+          partsSubtotal += lineTotal;
+          var list = Number(r.list || 0);
+          if (list > r.unit) savingsTotal += (list - r.unit) * (r.qty || 1);
+        }
+
+        var lineProfit = isWarranty ? 0 : ((r.qty || 0) * ((r.unit || 0) - (r.cost || 0)));
+        if (!isWarranty) profit += lineProfit;
+
+        if (tr) {
+          var lineCell = tr.querySelector('.lLine');
+          if (lineCell) lineCell.textContent = fmt(lineTotal);
+          var profitCell = tr.querySelector('.lProfit');
+          if (profitCell) profitCell.textContent = fmt(lineProfit);
+
+          var hint = tr.querySelector('.calc-hint');
+          if (hint){
+            if (isWarranty) {
+              hint.className = 'calc-hint ok';
+              hint.textContent = 'Warranty hours (not billed)';
+            } else if (r.type === 'Diagnostic') {
+              hint.className = 'calc-hint ok';
+              hint.textContent = diagnosticHours > 0 && diagnosticRaw < minimumDiagnosticCharge ? 'Diagnostic minimum will apply' : 'Diagnostic rate';
+            } else if (r.type === 'Labor') {
+              hint.className = 'calc-hint ok';
+              hint.textContent = 'General labor rate';
+            } else {
+              var up = (r.unit - (r.cost || 0));
+              var per = (r.cost > 0) ? Math.round((up / r.cost) * 100) : 0;
+              var dollars = fmt(up * (r.qty || 1));
+              hint.className = 'calc-hint ' + (per >= 15 ? 'ok' : 'warn');
+              hint.textContent = dollars + ' (+' + per + '%)';
+            }
           }
         }
       }
 
-      var taxPct = Number($('#salesTax').value || 0);
+      var diagnosticLaborTotal = diagnosticHours > 0 ? Math.max(diagnosticRaw, minimumDiagnosticCharge) : 0;
+      var diagnosticAdjustment = Math.max(0, diagnosticLaborTotal - diagnosticRaw);
+      profit += diagnosticAdjustment;
+      var laborSubtotal = generalLaborTotal + diagnosticLaborTotal;
+      var shopSupplies = Math.min(laborSubtotal * shopSuppliesPercent, shopSuppliesCap);
+      subtotalBeforeDiscount = laborSubtotal + partsSubtotal + shopSupplies;
 
-      // Discount (applied before tax). Supports % or flat $ off.
+      var taxPct = Number($('#salesTax').value || 0);
+      if (!isFinite(taxPct) || taxPct < 0) taxPct = 0;
+
       var discTypeEl = document.getElementById('discountType');
       var discValEl  = document.getElementById('discountValue');
       var discType = discTypeEl ? discTypeEl.value : 'percent';
@@ -3899,32 +4209,48 @@ window.addEventListener('load', function(){
       if (!isFinite(discInput) || discInput < 0) discInput = 0;
 
       var discountAmt = 0;
-      if (discType === 'amount'){
-        discountAmt = Math.min(discInput, subtotal);
-      } else {
-        discountAmt = subtotal * (discInput / 100);
-      }
+      if (discType === 'amount') discountAmt = Math.min(discInput, subtotalBeforeDiscount);
+      else discountAmt = subtotalBeforeDiscount * (discInput / 100);
       if (!isFinite(discountAmt) || discountAmt < 0) discountAmt = 0;
-      if (discountAmt > subtotal) discountAmt = subtotal;
+      if (discountAmt > subtotalBeforeDiscount) discountAmt = subtotalBeforeDiscount;
 
-      // Reduce parts subtotal proportionally so parts-only tax stays sensible.
-      var partsAfter = partsSubtotal;
-      if (subtotal > 0 && discountAmt > 0){
-        var partsShare = partsSubtotal / subtotal;
-        partsAfter = Math.max(0, partsSubtotal - (discountAmt * partsShare));
-      }
+      var discountRatio = subtotalBeforeDiscount > 0 ? (discountAmt / subtotalBeforeDiscount) : 0;
+      var taxableSubtotal = 0;
+      if (document.getElementById('taxParts').checked) taxableSubtotal += partsSubtotal * (1 - discountRatio);
+      if (document.getElementById('taxLabor').checked) taxableSubtotal += laborSubtotal * (1 - discountRatio);
+      if (document.getElementById('taxShopSupplies').checked) taxableSubtotal += shopSupplies * (1 - discountRatio);
 
-      var tax = partsAfter * (taxPct / 100); // parts-only tax (after discount)
-      var grand = (subtotal - discountAmt) + tax;
+      var tax = taxableSubtotal * (taxPct / 100);
+      var subtotalAfterDiscount = subtotalBeforeDiscount - discountAmt;
+      var grand = subtotalAfterDiscount + tax;
 
-      // Discount reduces revenue, not cost.
-      var profitNet = profit - discountAmt;
+      var depositMode = document.getElementById('depositMode').value || 'parts';
+      var customDeposit = Number(document.getElementById('customDeposit').value || 0);
+      if (!isFinite(customDeposit) || customDeposit < 0) customDeposit = 0;
+      var depositRequired = 0;
+      if (depositMode === 'parts') depositRequired = partsSubtotal;
+      else if (depositMode === 'half') depositRequired = grand * 0.5;
+      else if (depositMode === 'custom') depositRequired = customDeposit;
+      depositRequired = Math.min(Math.max(0, depositRequired), grand);
 
-      document.getElementById('sub').textContent = fmt(subtotal);
+      var amountPaid = Number(document.getElementById('amountPaid').value || 0);
+      if (!isFinite(amountPaid) || amountPaid < 0) amountPaid = 0;
+      var balanceDue = Math.max(0, grand - amountPaid);
+
+      var profitNet = profit - discountAmt + shopSupplies;
+
+      document.getElementById('laborSub').textContent = fmt(laborSubtotal);
+      document.getElementById('partsSub').textContent = fmt(partsSubtotal);
+      document.getElementById('shopSup').textContent = fmt(shopSupplies);
+      document.getElementById('sub').textContent = fmt(subtotalAfterDiscount);
+      document.getElementById('taxableSub').textContent = fmt(taxableSubtotal);
       document.getElementById('tax').textContent = fmt(tax);
       var dEl = document.getElementById('disc');
       if (dEl) dEl.textContent = fmt(discountAmt);
+      document.getElementById('depositDue').textContent = fmt(depositRequired);
       document.getElementById('grand').textContent = fmt(grand);
+      document.getElementById('balanceDue').value = fmt(balanceDue);
+      document.getElementById('balanceDueTotal').textContent = fmt(balanceDue);
       document.getElementById('profit').textContent = fmt(profitNet);
       document.getElementById('save').textContent = fmt(savingsTotal);
 
@@ -3937,19 +4263,50 @@ window.addEventListener('load', function(){
 
       var wEl = document.getElementById('wHours');
       if (wEl) wEl.textContent = warrantyHours.toFixed(2);
-
       var pwEl = document.getElementById('pWHours');
       if (pwEl) pwEl.textContent = warrantyHours.toFixed(2);
 
-      document.getElementById('pSub').textContent = fmt(subtotal);
+      document.getElementById('pLaborSub').textContent = fmt(laborSubtotal);
+      document.getElementById('pPartsSub').textContent = fmt(partsSubtotal);
+      document.getElementById('pShopSup').textContent = fmt(shopSupplies);
+      document.getElementById('pSub').textContent = fmt(subtotalAfterDiscount);
+      document.getElementById('pTaxableSub').textContent = fmt(taxableSubtotal);
       document.getElementById('pTax').textContent = fmt(tax);
       var pd = document.getElementById('pDiscount');
       if (pd) pd.textContent = fmt(discountAmt);
       document.getElementById('pGrand').textContent = fmt(grand);
+      document.getElementById('pDepositDue').textContent = fmt(depositRequired);
       document.getElementById('pSave').textContent = fmt(savingsTotal);
 
+      var j = currentJob();
+      if (j){
+        j._calc = {
+          generalLaborTotal: generalLaborTotal,
+          diagnosticRaw: diagnosticRaw,
+          diagnosticHours: diagnosticHours,
+          diagnosticLaborTotal: diagnosticLaborTotal,
+          diagnosticAdjustment: diagnosticAdjustment,
+          laborSubtotal: laborSubtotal,
+          partsSubtotal: partsSubtotal,
+          shopSupplies: shopSupplies,
+          taxableSubtotal: taxableSubtotal,
+          tax: tax,
+          discountAmt: discountAmt,
+          subtotal: subtotalAfterDiscount,
+          grand: grand,
+          depositRequired: depositRequired,
+          balanceDue: balanceDue,
+          profitNet: profitNet,
+          savingsTotal: savingsTotal,
+          warrantyHours: warrantyHours,
+          margin: margin
+        };
+        j.balanceDue = balanceDue;
+        j.depositRequired = depositRequired;
+      }
+
       updateInvoiceAnalytics({
-        subtotal: subtotal,
+        subtotal: subtotalAfterDiscount,
         tax: tax,
         discountAmt: discountAmt,
         grand: grand,
@@ -3960,21 +4317,27 @@ window.addEventListener('load', function(){
       });
 
       if (typeof AppLog !== 'undefined' && AppLog && typeof AppLog.info === 'function') {
-        var recalcSummary = 'recalcTotals :: sub=' + fmt(subtotal) +
+        var recalcSummary = 'recalcTotals :: labor=' + fmt(laborSubtotal) +
                             ' parts=' + fmt(partsSubtotal) +
+                            ' shop=' + fmt(shopSupplies) +
+                            ' taxable=' + fmt(taxableSubtotal) +
                             ' tax=' + fmt(tax) +
-                            ' savings=' + fmt(savingsTotal);
+                            ' deposit=' + fmt(depositRequired) +
+                            ' balance=' + fmt(balanceDue);
         if (window.__lastRecalcSummary !== recalcSummary) {
           window.__lastRecalcSummary = recalcSummary;
           AppLog.info(recalcSummary);
         }
 
-        var discountPct = subtotal > 0 ? (discountAmt / subtotal) * 100 : 0;
+        if (diagnosticHours > 0 && diagnosticAdjustment > 0) {
+          AppLog.once('diag-minimum-applied-' + Math.round(diagnosticAdjustment * 100), 'info', 'diagnostic minimum applied :: added ' + fmt(diagnosticAdjustment));
+        }
+        var discountPct = subtotalBeforeDiscount > 0 ? (discountAmt / subtotalBeforeDiscount) * 100 : 0;
         if (discountPct >= 50) {
           AppLog.once('warn-high-discount-' + Math.round(discountPct), 'warn', 'high discount detected :: ' + Math.round(discountPct) + '% (' + discType + '=' + discInput + ')');
         }
-        if (grand > 0 && Math.abs(profitNet - grand) < 0.005) {
-          AppLog.once('warn-profit-equals-grand', 'warn', 'profit equals grand total :: internal cost inputs may be zero or not tracked yet');
+        if (depositMode === 'parts' && partsSubtotal > 0 && amountPaid < partsSubtotal) {
+          AppLog.once('deposit-parts-upfront-' + Math.round(partsSubtotal * 100), 'warn', 'parts-upfront deposit not fully paid yet :: required ' + fmt(partsSubtotal));
         }
         var docNoEl = document.getElementById('invNo');
         var docNoVal = docNoEl ? String(docNoEl.value || '').trim() : '';
@@ -4006,7 +4369,7 @@ window.addEventListener('load', function(){
         });
       }
             // Keep totals + job fields synced when these inputs change
-      ['laborRate','salesTax','discountValue'].forEach(function(id){
+      ['laborRate','diagnosticRate','minDiagnosticCharge','shopSuppliesPercent','shopSuppliesCap','salesTax','customDeposit','discountValue'].forEach(function(id){
         var el2 = document.getElementById(id);
         if(!el2) return;
         el2.addEventListener('input', function(){
@@ -4032,13 +4395,14 @@ setupCostAutoCalc();
       pushCheck('localStorage', !!window.localStorage, 'browser storage');
       pushCheck('querySelector', !!document.querySelector, 'DOM selector support');
       pushCheck('createElement', !!document.createElement, 'DOM creation support');
-      pushCheck('invoice totals nodes', !!(document.getElementById('sub') && document.getElementById('tax') && document.getElementById('grand')), 'subtotal/tax/grand DOM nodes');
+      pushCheck('invoice totals nodes', !!(document.getElementById('laborSub') && document.getElementById('partsSub') && document.getElementById('shopSup') && document.getElementById('tax') && document.getElementById('grand')), 'labor/parts/shop/tax/grand DOM nodes');
       pushCheck('invoice lines table', !!document.querySelector('#lines tbody'), 'invoice lines tbody exists');
       pushCheck('debug logger', !!(window.AppLog && typeof window.AppLog.info === 'function'), 'AppLog available');
       pushCheck('copy debug button', !!document.getElementById('debugCopy'), 'copy action wired');
       pushCheck('selected job exists', !UI.lastJobId || DB.jobs.some(function(x){ return x.id === UI.lastJobId; }), UI.lastJobId ? ('lastJobId=' + UI.lastJobId) : 'no saved last job');
       pushCheck('database arrays', !!(Array.isArray(DB.customers) && Array.isArray(DB.jobs)), 'customers/jobs arrays');
       pushCheck('supabase config', !!(SUPABASE_URL && SUPABASE_ANON_KEY), 'cloud save keys present');
+      pushCheck('invoice math controls', !!(document.getElementById('diagnosticRate') && document.getElementById('minDiagnosticCharge') && document.getElementById('depositMode') && document.getElementById('customerSuppliedParts')), 'diagnostic/deposit/warranty controls present');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
       var total = checks.length;
