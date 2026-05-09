@@ -1761,13 +1761,15 @@
               <div class="totals-line"><span>Labor Subtotal:</span> <span id="laborSub">$0.00</span></div>
               <div class="totals-line"><span>Parts Subtotal:</span> <span id="partsSub">$0.00</span></div>
               <div class="totals-line"><span>Shop Supplies:</span> <span id="shopSup">$0.00</span></div>
-              <div class="totals-line"><span>Subtotal before tax:</span> <span id="sub">$0.00</span></div>
+              <div class="totals-line"><span>Gross Subtotal:</span> <span id="grossSub">$0.00</span></div>
+              <div class="totals-line"><span>Discount:</span> <span id="disc">$0.00</span></div>
+              <div class="totals-line"><span>Net Subtotal before tax:</span> <span id="sub">$0.00</span></div>
               <div class="totals-line"><span>Taxable Subtotal:</span> <span id="taxableSub">$0.00</span></div>
               <div class="totals-line"><span>Sales Tax:</span> <span id="tax">$0.00</span></div>
-              <div class="totals-line"><span>Discount:</span> <span id="disc">$0.00</span></div>
               <div class="totals-line"><span>Deposit Required:</span> <span id="depositDue">$0.00</span></div>
               <div class="totals-line grand"><span>Total:</span> <span id="grand">$0.00</span></div>
               <div class="totals-line"><span>Balance Due:</span> <span id="balanceDueTotal">$0.00</span></div>
+              <div class="totals-line"><span>Overpayment / Credit:</span> <span id="overpayTotal">$0.00</span></div>
               <div class="totals-line"><span>Total Profit:</span> <span id="profit">$0.00</span></div>
               <div class="totals-line"><span>Total Savings vs List:</span> <span id="save">$0.00</span></div>
               <div class="totals-line"><span>Warranty hours (not billed):</span> <span id="wHours">0.00</span></div>
@@ -1917,14 +1919,16 @@
               <div>Labor: <span id="pLaborSub">$0.00</span></div>
               <div>Parts: <span id="pPartsSub">$0.00</span></div>
               <div>Shop Supplies: <span id="pShopSup">$0.00</span></div>
-              <div>Subtotal: <span id="pSub">$0.00</span></div>
+              <div>Gross Subtotal: <span id="pGrossSub">$0.00</span></div>
+              <div>Discount: <span id="pDiscount">$0.00</span></div>
+              <div>Net Subtotal: <span id="pSub">$0.00</span></div>
               <div>Taxable: <span id="pTaxableSub">$0.00</span></div>
               <div>Tax: <span id="pTax">$0.00</span></div>
-              <div>Discount: <span id="pDiscount">$0.00</span></div>
               <div><strong>Total: <span id="pGrand">$0.00</span></strong></div>
               <div>Deposit Required: <span id="pDepositDue">$0.00</span></div>
               <div>Amount Paid: <span id="pAmountPaid">$0.00</span></div>
               <div>Balance Due: <span id="pBalanceDue">$0.00</span></div>
+              <div>Overpayment / Credit: <span id="pOverpay">$0.00</span></div>
               <div>Payment Method: <span id="pPaymentMethod">—</span></div>
               <div>Savings: <span id="pSave">$0.00</span></div>
               <div>Warranty hours (not billed): <span id="pWHours">0.00</span></div>
@@ -2184,7 +2188,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.3';
+const APP_VERSION = 'v1.5.4';
 const APP_BUILD_DATE = '2026-05-08';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -2283,9 +2287,11 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
     state.push('- LineCount=' + getLineCount());
     state.push('- DiscountType=' + discountType);
     state.push('- DiscountInput=' + discountValue);
-    state.push('- Subtotal=' + getSelectedText('sub'));
-    state.push('- Tax=' + getSelectedText('tax'));
+    state.push('- GrossSubtotal=' + getSelectedText('grossSub'));
     state.push('- Discount=' + getSelectedText('disc'));
+    state.push('- NetSubtotalBeforeTax=' + getSelectedText('sub'));
+    state.push('- Tax=' + getSelectedText('tax'));
+    state.push('- OverpaymentCredit=' + getSelectedText('overpayTotal'));
     state.push('- Grand=' + getSelectedText('grand'));
     state.push('- Profit=' + getSelectedText('profit'));
     state.push('- Savings=' + getSelectedText('save'));
@@ -2299,7 +2305,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
   function refreshMeta(){
     if (metaEl) metaEl.textContent = getMetaLine();
-    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Dashboard Command Center · Hover Help · Clean Invoice Workflow';
+    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Dashboard Command Center · Money Clarity · Hover Help';
     if (titleEl) titleEl.textContent = 'Poppe’s Diesel Co. — Shop Manager ' + APP_VERSION + ' (' + APP_BUILD_DATE + ')';
   }
 
@@ -4301,6 +4307,8 @@ window.addEventListener('load', function(){
       document.getElementById('balanceDue').value = fmt(bal);
       document.getElementById('pAmountPaid').textContent = fmt(amountPaid);
       document.getElementById('pBalanceDue').textContent = fmt(bal);
+      var pOverpayEl = document.getElementById('pOverpay');
+      if (pOverpayEl) pOverpayEl.textContent = fmt(Math.max(0, amountPaid - grandNum));
       document.getElementById('pPaymentMethod').textContent = $('#paymentMethod').value || '—';
       document.getElementById('pPaidMeta').textContent = (j && j.paidAt ? isoDateToLocalText(j.paidAt) : (bal > 0 ? 'Unpaid / Partial' : '—'));
       var approvedAtEl = document.getElementById('approvedAtDisplay');
@@ -5244,7 +5252,7 @@ window.addEventListener('load', function(){
         var isWarranty = (r.type === 'Warranty');
         var tr = trs[i];
 
-        if (r.type === 'Labor' && (!r.unit || r.unit === 0)) {
+        if (r.type === 'Labor' && (!r.unit || r.unit === 0 || Number(r.unit) === 80)) {
           r.unit = laborRate;
           if (tr) {
             var uEl = tr.querySelector('.lUnit');
@@ -5252,7 +5260,7 @@ window.addEventListener('load', function(){
           }
         }
 
-        if (r.type === 'Diagnostic' && (!r.unit || r.unit === 0)) {
+        if (r.type === 'Diagnostic' && (!r.unit || r.unit === 0 || Number(r.unit) === 80 || Number(r.unit) === 100)) {
           r.unit = diagnosticRate;
           if (tr) {
             var dEl = tr.querySelector('.lUnit');
@@ -5366,12 +5374,15 @@ window.addEventListener('load', function(){
       var amountPaid = Number(document.getElementById('amountPaid').value || 0);
       if (!isFinite(amountPaid) || amountPaid < 0) amountPaid = 0;
       var balanceDue = Math.max(0, grand - amountPaid);
+      var overpaymentCredit = Math.max(0, amountPaid - grand);
 
       var profitNet = profit - discountAmt + shopSupplies;
 
       document.getElementById('laborSub').textContent = fmt(laborSubtotal);
       document.getElementById('partsSub').textContent = fmt(partsSubtotal);
       document.getElementById('shopSup').textContent = fmt(shopSupplies);
+      var grossSubEl = document.getElementById('grossSub');
+      if (grossSubEl) grossSubEl.textContent = fmt(subtotalBeforeDiscount);
       document.getElementById('sub').textContent = fmt(subtotalAfterDiscount);
       document.getElementById('taxableSub').textContent = fmt(taxableSubtotal);
       document.getElementById('tax').textContent = fmt(tax);
@@ -5381,6 +5392,8 @@ window.addEventListener('load', function(){
       document.getElementById('grand').textContent = fmt(grand);
       document.getElementById('balanceDue').value = fmt(balanceDue);
       document.getElementById('balanceDueTotal').textContent = fmt(balanceDue);
+      var overpayEl = document.getElementById('overpayTotal');
+      if (overpayEl) overpayEl.textContent = fmt(overpaymentCredit);
       document.getElementById('profit').textContent = fmt(profitNet);
       document.getElementById('save').textContent = fmt(savingsTotal);
 
@@ -5399,6 +5412,8 @@ window.addEventListener('load', function(){
       document.getElementById('pLaborSub').textContent = fmt(laborSubtotal);
       document.getElementById('pPartsSub').textContent = fmt(partsSubtotal);
       document.getElementById('pShopSup').textContent = fmt(shopSupplies);
+      var pGrossSubEl = document.getElementById('pGrossSub');
+      if (pGrossSubEl) pGrossSubEl.textContent = fmt(subtotalBeforeDiscount);
       document.getElementById('pSub').textContent = fmt(subtotalAfterDiscount);
       document.getElementById('pTaxableSub').textContent = fmt(taxableSubtotal);
       document.getElementById('pTax').textContent = fmt(tax);
@@ -5406,6 +5421,10 @@ window.addEventListener('load', function(){
       if (pd) pd.textContent = fmt(discountAmt);
       document.getElementById('pGrand').textContent = fmt(grand);
       document.getElementById('pDepositDue').textContent = fmt(depositRequired);
+      var pOverpayFromCalc = document.getElementById('pOverpay');
+      if (pOverpayFromCalc) pOverpayFromCalc.textContent = fmt(overpaymentCredit);
+      var pBalanceFromCalc = document.getElementById('pBalanceDue');
+      if (pBalanceFromCalc) pBalanceFromCalc.textContent = fmt(balanceDue);
       document.getElementById('pSave').textContent = fmt(savingsTotal);
 
       var j = currentJob();
@@ -5422,10 +5441,12 @@ window.addEventListener('load', function(){
           taxableSubtotal: taxableSubtotal,
           tax: tax,
           discountAmt: discountAmt,
+          grossSubtotal: subtotalBeforeDiscount,
           subtotal: subtotalAfterDiscount,
           grand: grand,
           depositRequired: depositRequired,
           balanceDue: balanceDue,
+          overpaymentCredit: overpaymentCredit,
           profitNet: profitNet,
           savingsTotal: savingsTotal,
           warrantyHours: warrantyHours,
