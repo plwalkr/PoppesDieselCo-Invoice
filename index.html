@@ -243,20 +243,223 @@
       margin-top: 4px;
       line-height: 1.28;
     }
-    .info-card {
-      background: rgba(11,59,46,0.08);
-      border: 1px solid rgba(11,59,46,0.18);
-      border-radius: 12px;
-      padding: 8px 10px;
+    .hover-help {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 17px;
+      height: 17px;
+      margin-left: 5px;
+      border-radius: 999px;
+      background: rgba(11,59,46,0.12);
+      border: 1px solid rgba(11,59,46,0.32);
+      color: var(--accent);
       font-size: 11px;
-      line-height: 1.35;
-      color: #26372f;
+      font-weight: 800;
+      cursor: help;
+      vertical-align: middle;
+      line-height: 1;
+      z-index: 15;
     }
-    .info-card strong { color: #0b3b2e; }
-    .info-card.warning {
-      background: rgba(179,139,0,0.10);
-      border-color: rgba(179,139,0,0.26);
-      color: #403319;
+    .hover-help::after {
+      content: attr(data-help);
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 8px);
+      transform: translateX(-50%) translateY(4px);
+      width: min(310px, 82vw);
+      padding: 9px 11px;
+      border-radius: 12px;
+      background: #1a1208;
+      color: #fff7ed;
+      font-size: 11.5px;
+      font-weight: 500;
+      line-height: 1.35;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .16s ease, transform .16s ease;
+      white-space: normal;
+      z-index: 80;
+    }
+    .hover-help::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 2px);
+      transform: translateX(-50%);
+      border-width: 6px 6px 0 6px;
+      border-style: solid;
+      border-color: #1a1208 transparent transparent transparent;
+      opacity: 0;
+      transition: opacity .16s ease;
+      z-index: 81;
+    }
+    .hover-help:hover::after,
+    .hover-help:focus::after,
+    .hover-help:hover::before,
+    .hover-help:focus::before {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .hover-help:focus { outline: 2px solid rgba(11,59,46,0.35); outline-offset: 2px; }
+
+    /* Dashboard command center */
+    .dashboard-shell { display: grid; gap: 12px; }
+    .dashboard-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.8fr) minmax(260px, .8fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+    .battle-card {
+      background: linear-gradient(135deg, #1a1208, var(--accent));
+      color: #fff7ed;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+    }
+    .battle-eyebrow {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      opacity: .78;
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+    .battle-title { font-size: 23px; font-weight: 850; margin-bottom: 7px; }
+    .battle-copy { font-size: 13px; line-height: 1.45; max-width: 900px; }
+    .health-card {
+      background: var(--card);
+      border: 1px solid var(--border-soft);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.14);
+    }
+    .health-score {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      font-weight: 900;
+      color: var(--accent);
+      margin-top: 4px;
+    }
+    .health-score .big { font-size: 42px; line-height: .95; }
+    .health-track {
+      height: 11px;
+      width: 100%;
+      background: rgba(0,0,0,0.10);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0 7px;
+    }
+    .health-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+      border-radius: 999px;
+      transition: width .2s ease;
+    }
+    .dashboard-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .dash-kpi {
+      background: var(--card);
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      padding: 12px;
+      min-height: 96px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+    }
+    .dash-kpi .kpi-label {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #5a4b39;
+      font-weight: 850;
+      margin-bottom: 7px;
+    }
+    .dash-kpi .kpi-value {
+      font-size: 21px;
+      font-weight: 900;
+      color: #1e1a14;
+      word-break: break-word;
+    }
+    .dash-kpi .kpi-sub { margin-top: 5px; font-size: 11px; color: #655847; line-height: 1.25; }
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
+      gap: 12px;
+    }
+    .dashboard-card {
+      background: var(--card);
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+      min-width: 0;
+    }
+    .dashboard-card .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 9px;
+    }
+    .dashboard-card .card-title {
+      font-size: 13px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: #2b1a0a;
+    }
+    .pipeline-list { display: grid; gap: 8px; }
+    .pipeline-row { display: grid; grid-template-columns: 130px 1fr 92px; gap: 8px; align-items: center; font-size: 12px; }
+    .pipeline-bar { height: 10px; background: rgba(0,0,0,0.10); border-radius: 999px; overflow: hidden; }
+    .pipeline-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-soft)); border-radius: 999px; }
+    .dashboard-list { display: grid; gap: 7px; }
+    .dash-list-item {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 8px;
+      align-items: start;
+      background: rgba(255,255,255,0.42);
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 12px;
+      padding: 8px 9px;
+      font-size: 12px;
+    }
+    .dash-list-item strong { display: block; font-size: 12.5px; margin-bottom: 2px; color: #1f1a13; }
+    .dash-list-item .soft { color: #5b5143; font-size: 11px; line-height: 1.25; }
+    .dash-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 3px 7px;
+      background: rgba(11,59,46,0.11);
+      border: 1px solid rgba(11,59,46,0.22);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+    .dash-pill.warn { background: rgba(179,139,0,0.13); color: #6a4900; border-color: rgba(179,139,0,0.25); }
+    .dash-pill.bad { background: rgba(125,28,28,0.11); color: #7d1c1c; border-color: rgba(125,28,28,0.22); }
+    .mini-split { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .empty-dash { font-size: 12px; color: #665846; padding: 9px; border-radius: 12px; background: rgba(255,255,255,0.36); }
+    @media (max-width: 1100px) {
+      .dashboard-kpis { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .dashboard-grid, .dashboard-hero { grid-template-columns: minmax(0,1fr); }
+    }
+    @media (max-width: 680px) {
+      .dashboard-kpis, .mini-split { grid-template-columns: minmax(0,1fr); }
+      .pipeline-row { grid-template-columns: minmax(0,1fr); }
+      .dash-list-item { grid-template-columns: minmax(0,1fr); }
     }
     .vin-inline {
       display: grid;
@@ -1026,40 +1229,117 @@
 
   <!-- Dashboard -->
   <section id="dashboard" class="tab active">
-    <div class="grid-2">
-      <div class="card">
-        <div class="section-title">Shop Snapshot</div>
-        <div class="row">
-          <div class="field">
-            <label>Open jobs</label>
-            <div id="openJobs" style="font-size:22px; font-weight:700;">0</div>
-          </div>
-          <div class="field">
-            <label>Unpaid invoices</label>
-            <div id="unpaid" style="font-size:22px; font-weight:700;">0</div>
-          </div>
+    <div class="dashboard-shell">
+      <div class="dashboard-hero">
+        <div class="battle-card">
+          <div class="battle-eyebrow">Owner Command Center</div>
+          <div class="battle-title">Today’s Battle Plan</div>
+          <div id="battlePlanSummary" class="battle-copy">No shop data yet. Add customers, jobs, and invoices to light up the command center.</div>
         </div>
-        <div class="row">
-          <div class="field">
-            <label>Revenue this month</label>
-            <div id="revMonth" style="font-size:18px; font-weight:600;">$0.00</div>
-          </div>
-          <div class="field">
-            <label>Estimated profit (month)</label>
-            <div id="profitMonth" style="font-size:18px; font-weight:600;">$0.00</div>
-          </div>
+        <div class="health-card">
+          <div class="section-title">Shop Health</div>
+          <div class="health-score"><span id="dashHealthScore" class="big">100</span><span>/100</span></div>
+          <div class="health-track"><div id="dashHealthFill" class="health-fill"></div></div>
+          <div id="dashHealthLabel" class="muted">Clean data, healthy margins, and low collection risk.</div>
         </div>
-        <p class="muted">Based on job totals and profit estimates from current database.</p>
       </div>
 
-      <div class="card">
-        <div class="section-title">Quick Notes</div>
-        <p style="font-size:13px; line-height:1.4;">
-          Use the <strong>Customers</strong> tab to add vehicles & contact info, then the
-          <strong>Jobs</strong> tab to start a new ticket. Build the estimate/invoice in the
-          <strong>Invoice</strong> tab, and keep your data safe with the
-          <strong>Settings &amp; Backup</strong> tab (local JSON backup, flash-drive save, and Supabase cloud snapshot).
-        </p>
+      <div class="dashboard-kpis">
+        <div class="dash-kpi">
+          <div class="kpi-label">Open Job Value</div>
+          <div id="dashOpenJobValue" class="kpi-value">$0.00</div>
+          <div id="dashOpenJobSub" class="kpi-sub">0 active jobs</div>
+        </div>
+        <div class="dash-kpi">
+          <div class="kpi-label">Deposit Needed</div>
+          <div id="dashDepositNeeded" class="kpi-value">$0.00</div>
+          <div class="kpi-sub">Parts money not collected yet</div>
+        </div>
+        <div class="dash-kpi">
+          <div class="kpi-label">Unpaid Balance</div>
+          <div id="dashUnpaidBalance" class="kpi-value">$0.00</div>
+          <div id="dashUnpaidSub" class="kpi-sub">0 unpaid invoices</div>
+        </div>
+        <div class="dash-kpi">
+          <div class="kpi-label">Cash Collected</div>
+          <div id="dashCashCollected" class="kpi-value">$0.00</div>
+          <div class="kpi-sub">Payments logged this month</div>
+        </div>
+        <div class="dash-kpi">
+          <div class="kpi-label">Month Revenue</div>
+          <div id="revMonth" class="kpi-value">$0.00</div>
+          <div class="kpi-sub">Based on current job totals</div>
+        </div>
+        <div class="dash-kpi">
+          <div class="kpi-label">Month Profit</div>
+          <div id="profitMonth" class="kpi-value">$0.00</div>
+          <div class="kpi-sub">Estimated from tracked costs</div>
+        </div>
+        <div class="dash-kpi">
+          <div class="kpi-label">Average Margin</div>
+          <div id="dashAvgMargin" class="kpi-value">0%</div>
+          <div class="kpi-sub">Across jobs with totals</div>
+        </div>
+        <div class="dash-kpi">
+          <div class="kpi-label">Parts Money at Risk</div>
+          <div id="dashPartsRisk" class="kpi-value">$0.00</div>
+          <div class="kpi-sub">Parts-upfront policy guardrail</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="dashboard-card">
+          <div class="card-head">
+            <div class="card-title">Job Flow Board</div>
+            <span class="dash-pill">Count + value</span>
+          </div>
+          <div id="dashPipeline" class="pipeline-list"></div>
+        </div>
+
+        <div class="dashboard-card">
+          <div class="card-head">
+            <div class="card-title">Profit Leaks</div>
+            <span class="dash-pill bad">Money radar</span>
+          </div>
+          <div id="dashProfitLeaks" class="dashboard-list"></div>
+        </div>
+
+        <div class="dashboard-card">
+          <div class="card-head">
+            <div class="card-title">Parts Deposit Tracker</div>
+            <span class="dash-pill warn">Do not finance parts</span>
+          </div>
+          <div id="dashDepositTracker" class="dashboard-list"></div>
+        </div>
+
+        <div class="dashboard-card">
+          <div class="card-head">
+            <div class="card-title">Follow-Up Opportunities</div>
+            <span class="dash-pill">Future repairs</span>
+          </div>
+          <div id="dashFollowUps" class="dashboard-list"></div>
+        </div>
+
+        <div class="dashboard-card">
+          <div class="card-head">
+            <div class="card-title">Job Type Mix</div>
+            <span class="dash-pill">What sells</span>
+          </div>
+          <div id="dashTopJobTypes" class="dashboard-list"></div>
+        </div>
+
+        <div class="dashboard-card">
+          <div class="card-head">
+            <div class="card-title">Recent Activity</div>
+            <span class="dash-pill">Latest jobs</span>
+          </div>
+          <div id="dashRecentActivity" class="dashboard-list"></div>
+        </div>
+      </div>
+
+      <div style="display:none;">
+        <span id="openJobs">0</span>
+        <span id="unpaid">0</span>
       </div>
     </div>
   </section>
@@ -1252,7 +1532,7 @@
               <input id="dueDate" type="date" />
             </div>
             <div class="field toolbar-field span-2">
-              <label for="paymentTerms">Terms</label>
+              <label for="paymentTerms">Terms <span class="hover-help" tabindex="0" data-help="Terms means when payment is expected. Due on receipt means payment is due when the invoice is given or the vehicle is picked up. Net 7/15/30 gives that many days. Estimate valid 14 days is for quotes before work starts.">?</span></label>
               <select id="paymentTerms">
                 <option value="Due on receipt">Due on receipt</option>
                 <option value="Net 7">Net 7</option>
@@ -1260,9 +1540,6 @@
                 <option value="Net 30">Net 30</option>
                 <option value="Estimate valid 14 days">Estimate valid 14 days</option>
               </select>
-            </div>
-            <div class="field toolbar-field span-12">
-              <div class="info-card"><strong>Terms = when payment is expected.</strong> “Due on receipt” means payment is due when the invoice is given / vehicle is picked up. “Net 7/15/30” gives that many days. “Estimate valid 14 days” is for quotes before work starts.</div>
             </div>
           </div>
         </section>
@@ -1308,7 +1585,7 @@
         </section>
 
         <section class="toolbar-section">
-          <div class="section-title">Job Type & Rates</div>
+          <div class="section-title">Job Type & Rates <span class="hover-help" tabindex="0" data-help="General Repair and Maintenance use the general rate. Diesel Diagnostic and Electrical / Drivability use the diagnostic rate and the diagnostic minimum when diagnostic hours are entered. Custom and Fabrication leave rates editable.">?</span></div>
           <div class="toolbar-fields">
             <div class="field toolbar-field span-5">
               <label for="jobType">Job Type</label>
@@ -1343,9 +1620,6 @@
               <label for="shopSuppliesCap">Supplies Cap</label>
               <input id="shopSuppliesCap" type="number" step="0.01" value="50" />
             </div>
-            <div class="field toolbar-field span-12">
-              <div class="info-card"><strong>Rate helper:</strong> General Repair and Maintenance use the general rate. Diesel Diagnostic and Electrical / Drivability use the diagnostic rate and the $150 minimum when diagnostic hours are entered.</div>
-            </div>
           </div>
         </section>
 
@@ -1362,15 +1636,12 @@
               <input id="salesTax" type="number" step="0.01" value="7" />
             </div>
             <div class="field toolbar-field span-12">
-              <label>Tax Buckets</label>
+              <label>Tax Buckets <span class="hover-help" tabindex="0" data-help="Check only what should be taxable for the job. Common setup: parts taxable, labor not taxable, shop supplies taxable. This is configurable because tax rules can vary.">?</span></label>
               <div class="check-stack">
                 <label><input type="checkbox" id="taxParts" checked /> Parts</label>
                 <label><input type="checkbox" id="taxLabor" /> Labor</label>
                 <label><input type="checkbox" id="taxShopSupplies" checked /> Supplies</label>
               </div>
-            </div>
-            <div class="field toolbar-field span-12">
-              <div class="info-card"><strong>Tax buckets:</strong> Check only what should be taxable. Common setup is parts taxable, labor not taxable, supplies taxable — but you can change it per job.</div>
             </div>
           </div>
         </section>
@@ -1379,7 +1650,7 @@
           <div class="section-title">Deposit / Payment</div>
           <div class="toolbar-fields">
             <div class="field toolbar-field span-6">
-              <label for="depositMode">Deposit Policy</label>
+              <label for="depositMode">Deposit Policy <span class="hover-help" tabindex="0" data-help="Parts upfront means the required deposit equals the parts subtotal. 50% of total is useful for large jobs. Custom lets you type your own deposit. No required deposit leaves it at zero.">?</span></label>
               <select id="depositMode">
                 <option value="parts">Parts upfront</option>
                 <option value="half">50% of total</option>
@@ -1390,9 +1661,6 @@
             <div class="field toolbar-field span-6">
               <label for="customDeposit">Custom Deposit</label>
               <input id="customDeposit" type="number" step="0.01" min="0" value="0" />
-            </div>
-            <div class="field toolbar-field span-12">
-              <div class="info-card warning"><strong>Deposit policy:</strong> “Parts upfront” means the required deposit equals the parts subtotal. “50% of total” is useful for big jobs. “Custom” lets you type your own number.</div>
             </div>
             <div class="field toolbar-field span-6">
               <label for="paymentMethod">Payment Method</label>
@@ -1447,7 +1715,7 @@
               </div>
             </div>
             <div class="field toolbar-field span-12">
-              <label><input type="checkbox" id="customerSuppliedParts" /> Customer Supplied Parts</label>
+              <label><input type="checkbox" id="customerSuppliedParts" /> Customer Supplied Parts <span class="hover-help" tabindex="0" data-help="Use this when the customer provides their own parts. The invoice will include warranty language saying customer-supplied parts are not covered under parts warranty and labor warranty may be limited if the part causes the failure.">?</span></label>
               <div class="toolbar-compact-note">Adds the customer-supplied-parts warranty limitation to the invoice.</div>
             </div>
           </div>
@@ -1916,7 +2184,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.2';
+const APP_VERSION = 'v1.5.3';
 const APP_BUILD_DATE = '2026-05-08';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -2031,7 +2299,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
   function refreshMeta(){
     if (metaEl) metaEl.textContent = getMetaLine();
-    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Vehicle Dropdowns · Job-Type Rates · Clean Invoice Layout';
+    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Dashboard Command Center · Hover Help · Clean Invoice Workflow';
     if (titleEl) titleEl.textContent = 'Poppe’s Diesel Co. — Shop Manager ' + APP_VERSION + ' (' + APP_BUILD_DATE + ')';
   }
 
@@ -2865,27 +3133,331 @@ window.addEventListener('load', function(){
     }
 
     /* ------ Render helpers ------ */
-    function renderDashboard(){
-      var openJobs = 0, unpaid = 0, revMonth = 0, profitMonth = 0;
-      var now = new Date();
-      var ym = now.getFullYear() + '-' + (now.getMonth()+1);
-      for(var i=0;i<DB.jobs.length;i++){
-        var j = DB.jobs[i];
-        if(j.status==='Open') openJobs++;
-        if(j.docType==='Invoice' && !j.paid) unpaid++;
-        var subtotal = sumLines(j.lines, 'subtotal');
-        var profit = sumLines(j.lines, 'profit');
-        var d = j.createdAt ? new Date(j.createdAt) : now;
-        var key = d.getFullYear() + '-' + (d.getMonth()+1);
-        if(key===ym){
-          revMonth += subtotal;
-          profitMonth += profit;
+    function dashboardSafeText(v){ return String(v == null ? '' : v); }
+
+    function daysSinceIso(v){
+      if(!v) return 0;
+      try{
+        var d = new Date(v);
+        if(isNaN(d.getTime())) return 0;
+        return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86400000));
+      }catch(_){ return 0; }
+    }
+
+    function calcJobFinancials(j){
+      j = j || {};
+      var lines = Array.isArray(j.lines) ? j.lines : [];
+      var laborRate = Number(j.laborRate || (DB.settings && DB.settings.generalLaborRate) || 100);
+      var diagnosticRate = Number(j.diagnosticRate || (DB.settings && DB.settings.diagnosticRate) || 125);
+      var minimumDiagnosticCharge = Number(j.minimumDiagnosticCharge || (DB.settings && DB.settings.minimumDiagnosticCharge) || 150);
+      var shopSuppliesPercent = Number(j.shopSuppliesPercent != null ? j.shopSuppliesPercent : ((DB.settings && DB.settings.shopSuppliesPercent) || 5)) / 100;
+      var shopSuppliesCap = Number(j.shopSuppliesCap != null ? j.shopSuppliesCap : ((DB.settings && DB.settings.shopSuppliesCap) || 50));
+      var taxPct = Number(j.salesTaxPct != null ? j.salesTaxPct : 7);
+      var taxParts = j.taxParts !== false;
+      var taxLabor = !!j.taxLabor;
+      var taxShopSupplies = j.taxShopSupplies !== false;
+      var generalLaborTotal = 0;
+      var diagnosticRaw = 0;
+      var diagnosticHours = 0;
+      var partsSubtotal = 0;
+      var savingsTotal = 0;
+      var profit = 0;
+      var warrantyHours = 0;
+      var lowMarginLines = 0;
+      var partsBelowCost = 0;
+      var partsNoMarkup = 0;
+      var laborBelowDefault = 0;
+      var diagnosticBelowDefault = 0;
+
+      for(var i=0;i<lines.length;i++){
+        var r = lines[i] || {};
+        var type = r.type || 'Part';
+        var qty = Number(r.qty || 0);
+        var cost = Number(r.cost || 0);
+        var unit = Number(r.unit || 0);
+        if(type === 'Labor' && (!unit || unit === 80)) unit = laborRate;
+        if(type === 'Diagnostic' && (!unit || unit === 80 || unit === 100)) unit = diagnosticRate;
+        if(type === 'Part'){
+          var markupPct = Number(r.markupPct || 0);
+          if(cost > 0 && (!unit || unit === 0)){
+            if(!markupPct || markupPct <= 0) markupPct = partMarkupPercentForCost(cost);
+            unit = partUnitFromCostAndMarkup(cost, markupPct);
+          }
+        }
+        if(type === 'Warranty') warrantyHours += qty;
+        if(type === 'Labor'){
+          generalLaborTotal += qty * unit;
+          if(unit > 0 && unit < 100) laborBelowDefault += 1;
+        } else if(type === 'Diagnostic'){
+          diagnosticRaw += qty * unit;
+          diagnosticHours += qty;
+          if(unit > 0 && unit < 125) diagnosticBelowDefault += 1;
+        } else if(type === 'Part'){
+          var lineTotal = qty * unit;
+          partsSubtotal += lineTotal;
+          if(cost > 0 && unit <= cost) partsBelowCost += 1;
+          if(cost > 0 && unit > cost && ((unit - cost) / cost) < 0.15) partsNoMarkup += 1;
+          var list = Number(r.list || 0);
+          if(list > unit) savingsTotal += (list - unit) * (qty || 1);
+        }
+        if(type !== 'Warranty'){
+          var lineProfit = qty * (unit - cost);
+          profit += lineProfit;
+          if((qty * unit) > 0 && lineProfit / (qty * unit) < 0.15) lowMarginLines += 1;
         }
       }
-      $('#openJobs').textContent = openJobs;
-      $('#unpaid').textContent = unpaid;
-      $('#revMonth').textContent = fmt(revMonth);
-      $('#profitMonth').textContent = fmt(profitMonth);
+
+      var diagnosticLaborTotal = diagnosticHours > 0 ? Math.max(diagnosticRaw, minimumDiagnosticCharge) : 0;
+      var diagnosticAdjustment = Math.max(0, diagnosticLaborTotal - diagnosticRaw);
+      profit += diagnosticAdjustment;
+      var laborSubtotal = generalLaborTotal + diagnosticLaborTotal;
+      var shopSupplies = Math.min(Math.max(0, laborSubtotal * shopSuppliesPercent), Math.max(0, shopSuppliesCap));
+      var subtotalBeforeDiscount = laborSubtotal + partsSubtotal + shopSupplies;
+
+      var discType = j.discountType || 'percent';
+      var discInput = Number(j.discountValue || 0);
+      if(!isFinite(discInput) || discInput < 0) discInput = 0;
+      var discountAmt = discType === 'amount' ? Math.min(discInput, subtotalBeforeDiscount) : subtotalBeforeDiscount * (discInput / 100);
+      if(!isFinite(discountAmt) || discountAmt < 0) discountAmt = 0;
+      if(discountAmt > subtotalBeforeDiscount) discountAmt = subtotalBeforeDiscount;
+      var discountRatio = subtotalBeforeDiscount > 0 ? discountAmt / subtotalBeforeDiscount : 0;
+
+      var taxableSubtotal = 0;
+      if(taxParts) taxableSubtotal += partsSubtotal * (1 - discountRatio);
+      if(taxLabor) taxableSubtotal += laborSubtotal * (1 - discountRatio);
+      if(taxShopSupplies) taxableSubtotal += shopSupplies * (1 - discountRatio);
+      var tax = taxableSubtotal * (taxPct / 100);
+      var subtotal = subtotalBeforeDiscount - discountAmt;
+      var grand = subtotal + tax;
+
+      var depositMode = j.depositMode || (DB.settings && DB.settings.depositMode) || 'parts';
+      var customDeposit = Number(j.customDeposit || 0);
+      var depositRequired = 0;
+      if(depositMode === 'parts') depositRequired = partsSubtotal;
+      else if(depositMode === 'half') depositRequired = grand * 0.5;
+      else if(depositMode === 'custom') depositRequired = customDeposit;
+      depositRequired = Math.min(Math.max(0, depositRequired), Math.max(0, grand));
+
+      var amountPaid = Number(j.amountPaid || 0);
+      if(!isFinite(amountPaid) || amountPaid < 0) amountPaid = 0;
+      var balanceDue = Math.max(0, grand - amountPaid);
+      var profitNet = profit - discountAmt + shopSupplies;
+      var margin = grand > 0 ? Math.round((profitNet / grand) * 100) : 0;
+
+      return {
+        laborSubtotal: laborSubtotal,
+        partsSubtotal: partsSubtotal,
+        shopSupplies: shopSupplies,
+        taxableSubtotal: taxableSubtotal,
+        tax: tax,
+        discountAmt: discountAmt,
+        subtotal: subtotal,
+        grand: grand,
+        depositRequired: depositRequired,
+        amountPaid: amountPaid,
+        balanceDue: balanceDue,
+        profitNet: profitNet,
+        savingsTotal: savingsTotal,
+        warrantyHours: warrantyHours,
+        margin: margin,
+        diagnosticHours: diagnosticHours,
+        diagnosticRaw: diagnosticRaw,
+        diagnosticAdjustment: diagnosticAdjustment,
+        lowMarginLines: lowMarginLines,
+        partsBelowCost: partsBelowCost,
+        partsNoMarkup: partsNoMarkup,
+        laborBelowDefault: laborBelowDefault,
+        diagnosticBelowDefault: diagnosticBelowDefault
+      };
+    }
+
+    function dashboardStageForJob(j, f){
+      var status = j.status || 'Open';
+      if(j.docType === 'Estimate' && !j.approvedAt && !j.approved) return 'Waiting Approval';
+      if(f.depositRequired > 0 && f.amountPaid < f.depositRequired) return 'Deposit Needed';
+      if(status === 'In Progress') return 'In Progress';
+      if(status === 'Done' && f.balanceDue > 0) return 'Ready / Unpaid';
+      if(j.docType === 'Invoice' && f.balanceDue > 0) return 'Unpaid Invoice';
+      if(status === 'Done' || j.paid) return 'Closed / Paid';
+      if(f.partsSubtotal > 0 && f.amountPaid >= f.depositRequired && status === 'Open') return 'Ready to Order';
+      return 'Open Work';
+    }
+
+    function renderDashList(id, items, emptyText){
+      var el = document.getElementById(id);
+      if(!el) return;
+      if(!items || !items.length){
+        el.innerHTML = '<div class="empty-dash">'+escapeHtml(emptyText || 'Nothing to show yet.')+'</div>';
+        return;
+      }
+      el.innerHTML = items.map(function(item){
+        return '<div class="dash-list-item">' +
+          '<div><strong>'+escapeHtml(item.title || '')+'</strong><div class="soft">'+escapeHtml(item.sub || '')+'</div></div>' +
+          '<span class="dash-pill '+escapeHtml(item.level || '')+'">'+escapeHtml(item.value || '')+'</span>' +
+        '</div>';
+      }).join('');
+    }
+
+    function renderDashboard(){
+      var jobs = Array.isArray(DB.jobs) ? DB.jobs : [];
+      var now = new Date();
+      var ym = now.getFullYear() + '-' + (now.getMonth()+1);
+      var openJobs = 0, unpaid = 0, revMonth = 0, profitMonth = 0, cashMonth = 0;
+      var openJobValue = 0, depositNeeded = 0, unpaidBalance = 0, partsRisk = 0;
+      var totalMargin = 0, marginCount = 0;
+      var pipeline = {};
+      var jobTypeMap = {};
+      var leaks = [];
+      var depositItems = [];
+      var followUps = [];
+      var activity = [];
+      var staleUnpaid = 0, oldOpen = 0, missingInfo = 0, lowMarginJobCount = 0;
+
+      function addPipeline(stage, f){
+        if(!pipeline[stage]) pipeline[stage] = {count:0, value:0};
+        pipeline[stage].count += 1;
+        pipeline[stage].value += f.grand || 0;
+      }
+
+      jobs.forEach(function(j){
+        var f = calcJobFinancials(j);
+        var c = findCustomer(j.customerId);
+        var customerName = c ? c.name : 'No customer';
+        var title = (j.title || 'Untitled job');
+        var created = j.createdAt ? new Date(j.createdAt) : now;
+        var key = created.getFullYear() + '-' + (created.getMonth()+1);
+        var active = (j.status || 'Open') !== 'Done' && !j.paid;
+        var stage = dashboardStageForJob(j, f);
+        addPipeline(stage, f);
+
+        if(active){ openJobs++; openJobValue += f.grand; }
+        if(j.docType === 'Invoice' && f.balanceDue > 0){ unpaid++; unpaidBalance += f.balanceDue; }
+        if(f.depositRequired > f.amountPaid){
+          var need = f.depositRequired - f.amountPaid;
+          depositNeeded += need;
+          if((j.depositMode || 'parts') === 'parts') partsRisk += Math.min(need, f.partsSubtotal || need);
+          depositItems.push({
+            title: customerName,
+            sub: title + ' • required ' + fmt(f.depositRequired) + ' • paid ' + fmt(f.amountPaid),
+            value: fmt(need),
+            level: need > 500 ? 'bad' : 'warn'
+          });
+        }
+        if(key === ym){ revMonth += f.grand; profitMonth += f.profitNet; }
+        var paidDate = j.paidAt ? new Date(j.paidAt) : null;
+        if(paidDate && !isNaN(paidDate.getTime())){
+          var pkey = paidDate.getFullYear() + '-' + (paidDate.getMonth()+1);
+          if(pkey === ym) cashMonth += f.amountPaid;
+        }
+        if(f.grand > 0){ totalMargin += f.margin; marginCount++; }
+        var jt = j.jobType || 'General Repair';
+        if(!jobTypeMap[jt]) jobTypeMap[jt] = {count:0, value:0};
+        jobTypeMap[jt].count += 1;
+        jobTypeMap[jt].value += f.grand;
+
+        var age = daysSinceIso(j.createdAt);
+        if(f.balanceDue > 0 && age > 14) staleUnpaid++;
+        if(active && age > 14) oldOpen++;
+        if(!c || !c.email || !j.vin) missingInfo++;
+        if(f.grand > 0 && f.margin < 15) lowMarginJobCount++;
+
+        if(f.margin < 15 && f.grand > 0) leaks.push({title: customerName, sub: title + ' • low margin job', value: f.margin + '%', level:'bad'});
+        if(f.partsBelowCost > 0) leaks.push({title: customerName, sub: title + ' • part line at/below cost', value:String(f.partsBelowCost), level:'bad'});
+        if(f.partsNoMarkup > 0) leaks.push({title: customerName, sub: title + ' • low parts markup', value:String(f.partsNoMarkup), level:'warn'});
+        if(f.laborBelowDefault > 0) leaks.push({title: customerName, sub: title + ' • labor below $100/hr', value:String(f.laborBelowDefault), level:'warn'});
+        if(f.diagnosticBelowDefault > 0) leaks.push({title: customerName, sub: title + ' • diagnostic below $125/hr', value:String(f.diagnosticBelowDefault), level:'warn'});
+        if(f.discountAmt > 0 && f.subtotal > 0 && (f.discountAmt / (f.subtotal + f.discountAmt)) > .20) leaks.push({title: customerName, sub: title + ' • discount over 20%', value:fmt(f.discountAmt), level:'warn'});
+        if(f.depositRequired > 0 && f.amountPaid < f.depositRequired) leaks.push({title: customerName, sub: title + ' • deposit not fully collected', value:fmt(f.depositRequired - f.amountPaid), level:'bad'});
+        if(j.customerSuppliedParts && !String(j.overallNotes || '').toLowerCase().includes('customer-supplied')) leaks.push({title: customerName, sub: title + ' • customer-supplied parts flag is on', value:'Warranty', level:'warn'});
+
+        if(j.recommendedFutureRepairs && j.recommendedFutureRepairs.trim()){
+          followUps.push({
+            title: customerName,
+            sub: title + ' • ' + j.recommendedFutureRepairs.trim().slice(0,120),
+            value: age ? (age + 'd') : 'New',
+            level: age > 21 ? 'warn' : ''
+          });
+        }
+        activity.push({
+          title: customerName,
+          sub: title + ' • ' + stage,
+          value: fmt(f.grand),
+          level: f.balanceDue > 0 ? 'warn' : ''
+        });
+      });
+
+      var avgMargin = marginCount ? Math.round(totalMargin / marginCount) : 0;
+      var health = 100;
+      health -= Math.min(24, staleUnpaid * 6);
+      health -= Math.min(18, oldOpen * 3);
+      health -= Math.min(20, lowMarginJobCount * 4);
+      health -= Math.min(15, depositItems.length * 5);
+      health -= Math.min(10, missingInfo * 2);
+      health = Math.max(0, Math.min(100, Math.round(health)));
+
+      var set = function(id, val){ var el = document.getElementById(id); if(el) el.textContent = val; };
+      set('openJobs', openJobs);
+      set('unpaid', unpaid);
+      set('dashOpenJobValue', fmt(openJobValue));
+      set('dashOpenJobSub', openJobs + ' active job' + (openJobs === 1 ? '' : 's'));
+      set('dashDepositNeeded', fmt(depositNeeded));
+      set('dashUnpaidBalance', fmt(unpaidBalance));
+      set('dashUnpaidSub', unpaid + ' unpaid invoice' + (unpaid === 1 ? '' : 's'));
+      set('dashCashCollected', fmt(cashMonth));
+      set('revMonth', fmt(revMonth));
+      set('profitMonth', fmt(profitMonth));
+      set('dashAvgMargin', avgMargin + '%');
+      set('dashPartsRisk', fmt(partsRisk));
+      set('dashHealthScore', String(health));
+      var hf = document.getElementById('dashHealthFill');
+      if(hf) hf.style.width = health + '%';
+      set('dashHealthLabel', health >= 85 ? 'Strong. Keep collecting deposits and protecting margin.' : (health >= 70 ? 'Good, but there are a few leaks to clean up.' : 'Needs attention. Check deposits, unpaid balances, and low-margin work.'));
+
+      var battle = document.getElementById('battlePlanSummary');
+      if(battle){
+        if(!jobs.length){
+          battle.textContent = 'No jobs are logged yet. Add customers, create jobs, and the dashboard will start showing money, deposits, follow-ups, and profit leaks.';
+        } else {
+          battle.textContent = 'You have ' + openJobs + ' active job' + (openJobs === 1 ? '' : 's') + ' worth ' + fmt(openJobValue) + '. ' +
+            'Deposits still needed: ' + fmt(depositNeeded) + '. Unpaid invoice balance: ' + fmt(unpaidBalance) + '. ' +
+            'This month shows ' + fmt(revMonth) + ' revenue and ' + fmt(profitMonth) + ' estimated profit. ' +
+            (partsRisk > 0 ? 'Parts risk is ' + fmt(partsRisk) + ' — collect before ordering.' : 'Parts-upfront exposure looks clean.');
+        }
+      }
+
+      var pipeEl = document.getElementById('dashPipeline');
+      if(pipeEl){
+        var stages = ['Waiting Approval','Deposit Needed','Ready to Order','Open Work','In Progress','Ready / Unpaid','Unpaid Invoice','Closed / Paid'];
+        var maxVal = 1;
+        stages.forEach(function(s){ if(pipeline[s]) maxVal = Math.max(maxVal, pipeline[s].value); });
+        pipeEl.innerHTML = stages.map(function(s){
+          var p = pipeline[s] || {count:0,value:0};
+          var pct = Math.max(3, Math.round((p.value / maxVal) * 100));
+          return '<div class="pipeline-row"><strong>'+escapeHtml(s)+'</strong><div class="pipeline-bar"><div class="pipeline-fill" style="width:'+pct+'%"></div></div><span>'+p.count+' • '+fmt(p.value)+'</span></div>';
+        }).join('');
+      }
+
+      leaks.sort(function(a,b){
+        var av = Number(String(a.value||'').replace(/[^0-9.-]/g,'')) || 0;
+        var bv = Number(String(b.value||'').replace(/[^0-9.-]/g,'')) || 0;
+        return bv - av;
+      });
+      renderDashList('dashProfitLeaks', leaks.slice(0,8), 'No obvious profit leaks found. Mighty fine.');
+      depositItems.sort(function(a,b){ return Number(String(b.value).replace(/[^0-9.-]/g,'')) - Number(String(a.value).replace(/[^0-9.-]/g,'')); });
+      renderDashList('dashDepositTracker', depositItems.slice(0,8), 'No unpaid deposits required right now.');
+      followUps.sort(function(a,b){ return Number(String(b.value).replace(/[^0-9.-]/g,'')) - Number(String(a.value).replace(/[^0-9.-]/g,'')); });
+      renderDashList('dashFollowUps', followUps.slice(0,8), 'No future-repair follow-ups entered yet. Add recommendations on invoices to build this list.');
+
+      var typeItems = Object.keys(jobTypeMap).map(function(k){ return { title:k, sub:jobTypeMap[k].count + ' job' + (jobTypeMap[k].count === 1 ? '' : 's'), value:fmt(jobTypeMap[k].value), level:'' }; });
+      typeItems.sort(function(a,b){ return Number(String(b.value).replace(/[^0-9.-]/g,'')) - Number(String(a.value).replace(/[^0-9.-]/g,'')); });
+      renderDashList('dashTopJobTypes', typeItems.slice(0,6), 'No job type data yet.');
+
+      activity.sort(function(a,b){
+        var aj = jobs.find(function(j){ var c=findCustomer(j.customerId); return (c?c.name:'No customer') === a.title && (j.title||'Untitled job') === (a.sub||'').split(' • ')[0]; });
+        var bj = jobs.find(function(j){ var c=findCustomer(j.customerId); return (c?c.name:'No customer') === b.title && (j.title||'Untitled job') === (b.sub||'').split(' • ')[0]; });
+        return new Date((bj&&bj.createdAt)||0) - new Date((aj&&aj.createdAt)||0);
+      });
+      renderDashList('dashRecentActivity', activity.slice(0,7), 'No recent jobs yet.');
     }
 
     function renderSettings(){
@@ -4963,6 +5535,7 @@ setupCostAutoCalc();
       pushCheck('supabase config', !!(SUPABASE_URL && SUPABASE_ANON_KEY), 'cloud save keys present');
       pushCheck('invoice math controls', !!(document.getElementById('diagnosticRate') && document.getElementById('minDiagnosticCharge') && document.getElementById('depositMode') && document.getElementById('customerSuppliedParts')), 'diagnostic/deposit/warranty controls present');
       pushCheck('vehicle dropdowns', !!(document.getElementById('vehicleYear') && document.getElementById('vehicleMake') && document.getElementById('vehicleModel') && document.getElementById('jobVehicleYear')), 'year/make/model dropdowns present');
+      pushCheck('dashboard command center', !!(document.getElementById('battlePlanSummary') && document.getElementById('dashPipeline') && document.getElementById('dashProfitLeaks')), 'dashboard business intelligence nodes present');
       pushCheck('invoice VIN decoder', !!(document.getElementById('invoiceVIN') && document.getElementById('decodeInvoiceVIN') && document.getElementById('invoiceVinResult')), 'invoice VIN decode controls present');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
