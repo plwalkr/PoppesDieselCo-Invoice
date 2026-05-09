@@ -1242,6 +1242,241 @@
       .schedule-actions .tab-btn { flex: 1 1 140px; }
     }
 
+
+    /* v1.5.11 — real shop calendar board */
+    .schedule-calendar-card {
+      border-radius: 20px;
+      padding: 12px;
+      background:
+        linear-gradient(180deg, rgba(255,248,234,0.99), rgba(239,226,202,0.96));
+      border: 1px solid rgba(16,20,24,0.14);
+      box-shadow: 0 12px 28px rgba(20,16,12,0.10), inset 0 1px 0 rgba(255,255,255,0.76);
+      min-width: 0;
+    }
+    .schedule-calendar-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+      padding-bottom: 9px;
+      border-bottom: 1px solid rgba(16,20,24,0.10);
+    }
+    .schedule-calendar-title {
+      display: grid;
+      gap: 2px;
+    }
+    .schedule-calendar-title .section-title {
+      margin: 0;
+      color: #101418;
+    }
+    #schedWeekRange {
+      font-size: 12px;
+      color: #5d4e3d;
+      font-weight: 800;
+    }
+    .schedule-calendar-controls {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .schedule-calendar-controls .tab-btn {
+      min-height: 34px;
+      border-radius: 11px;
+      padding: 7px 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .schedule-calendar-scroll {
+      overflow-x: auto;
+      padding-bottom: 4px;
+      border-radius: 15px;
+      border: 1px solid rgba(16,20,24,0.10);
+      background: rgba(255,255,255,0.34);
+    }
+    .schedule-calendar-grid {
+      display: grid;
+      grid-template-columns: 72px repeat(7, minmax(158px, 1fr));
+      min-width: 1230px;
+      align-items: stretch;
+    }
+    .calendar-corner,
+    .calendar-day-head {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: linear-gradient(180deg, #171d23, #101418);
+      color: #fff7ea;
+      border-right: 1px solid rgba(255,255,255,0.10);
+      border-bottom: 1px solid rgba(16,20,24,0.22);
+      padding: 9px 8px;
+      min-height: 58px;
+      display: grid;
+      align-content: center;
+      gap: 2px;
+    }
+    .calendar-corner {
+      left: 0;
+      z-index: 3;
+      text-align: center;
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 950;
+      color: #e9d9c0;
+    }
+    .calendar-day-head strong {
+      display: block;
+      font-size: 13px;
+      letter-spacing: .03em;
+    }
+    .calendar-day-head span {
+      display: block;
+      font-size: 11px;
+      color: #e9d9c0;
+      font-weight: 750;
+    }
+    .calendar-day-head.today {
+      background: linear-gradient(180deg, #b3272d, #7d1c1c);
+    }
+    .calendar-time-ruler,
+    .calendar-day-lane {
+      min-height: 780px;
+      position: relative;
+      background:
+        repeating-linear-gradient(180deg, rgba(16,20,24,0.055) 0 1px, transparent 1px 60px),
+        linear-gradient(180deg, rgba(255,255,255,0.56), rgba(255,255,255,0.18));
+      border-right: 1px solid rgba(16,20,24,0.10);
+    }
+    .calendar-time-ruler {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background:
+        repeating-linear-gradient(180deg, rgba(16,20,24,0.08) 0 1px, transparent 1px 60px),
+        linear-gradient(180deg, #f6ead7, #ead5b5);
+      border-right: 1px solid rgba(16,20,24,0.18);
+    }
+    .calendar-hour-label {
+      position: absolute;
+      left: 8px;
+      transform: translateY(-8px);
+      font-size: 10.5px;
+      font-weight: 900;
+      color: #5a4634;
+      white-space: nowrap;
+    }
+    .calendar-day-lane.today {
+      background:
+        linear-gradient(180deg, rgba(179,39,45,0.055), rgba(179,39,45,0.025)),
+        repeating-linear-gradient(180deg, rgba(179,39,45,0.13) 0 1px, transparent 1px 60px),
+        linear-gradient(180deg, rgba(255,255,255,0.62), rgba(255,255,255,0.20));
+    }
+    .calendar-empty-day {
+      position: absolute;
+      top: 14px;
+      left: 10px;
+      right: 10px;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px dashed rgba(16,20,24,0.14);
+      color: #71604c;
+      font-size: 11px;
+      background: rgba(255,255,255,0.42);
+    }
+    .calendar-event {
+      position: absolute;
+      left: 7px;
+      right: 7px;
+      min-height: 38px;
+      padding: 7px 8px;
+      border-radius: 13px;
+      border: 1px solid rgba(16,20,24,0.12);
+      border-left: 6px solid #276993;
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 7px 14px rgba(20,16,12,0.13);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
+    }
+    .calendar-event:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(20,16,12,0.18);
+      filter: saturate(1.04);
+      z-index: 5;
+    }
+    .calendar-event.selected {
+      outline: 2px solid rgba(179,39,45,0.55);
+      outline-offset: 1px;
+      z-index: 6;
+    }
+    .calendar-event .ev-time {
+      font-size: 10.5px;
+      font-weight: 950;
+      color: #101418;
+      margin-bottom: 2px;
+    }
+    .calendar-event .ev-title {
+      font-size: 11.5px;
+      font-weight: 950;
+      color: #181512;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .calendar-event .ev-soft {
+      font-size: 10.5px;
+      color: #625545;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .calendar-event.st-Scheduled { border-left-color:#276993; }
+    .calendar-event.st-Confirmed { border-left-color:#0f6a45; }
+    .calendar-event.st-InProgress { border-left-color:#b36b00; }
+    .calendar-event.st-WaitingParts { border-left-color:#9b4d00; }
+    .calendar-event.st-Done { border-left-color:#626262; opacity:.82; }
+    .calendar-event.st-Canceled { border-left-color:#7d1c1c; opacity:.75; text-decoration: line-through; }
+    .schedule-calendar-legend {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 10.5px;
+      color: #5d4e3d;
+      font-weight: 850;
+    }
+    .legend-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.55);
+      border: 1px solid rgba(16,20,24,0.08);
+    }
+    .legend-dot::before {
+      content:'';
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: #276993;
+    }
+    .legend-dot.confirmed::before { background:#0f6a45; }
+    .legend-dot.progress::before { background:#b36b00; }
+    .legend-dot.parts::before { background:#9b4d00; }
+    .legend-dot.done::before { background:#626262; }
+    .legend-dot.canceled::before { background:#7d1c1c; }
+    @media (max-width: 760px) {
+      .schedule-calendar-grid { min-width: 1080px; grid-template-columns: 62px repeat(7, minmax(145px, 1fr)); }
+      .calendar-corner, .calendar-day-head { min-height: 52px; padding: 8px 6px; }
+      .schedule-calendar-controls .tab-btn { flex: 1 1 auto; }
+    }
+
+
     /* Tables */
     .table-wrap {
       overflow-x: auto;
@@ -2177,8 +2412,8 @@
       <div class="schedule-hero">
         <div class="schedule-banner">
           <div class="schedule-eyebrow">Scheduling Command Center</div>
-          <div class="schedule-title">Shop Calendar</div>
-          <div class="schedule-copy">Book jobs, keep drop-offs visible, spot overdue work, and send a clean appointment message or calendar invite to an iPhone. Built for big visibility and no guessing.</div>
+          <div class="schedule-title">Shop Calendar Board</div>
+          <div class="schedule-copy">Run the week like a real shop board: day columns, time blocks, color-coded jobs, overlap warnings, appointment messages, and iPhone calendar export.</div>
         </div>
         <div class="schedule-count-card">
           <div class="section-title">Today</div>
@@ -2291,6 +2526,32 @@
         <div class="schedule-mini attn"><strong id="schedMiniAttention">0</strong><span>Needs Attention</span></div>
         <div class="schedule-mini overdue"><strong id="schedMiniOverdue">0</strong><span>Overdue Open</span></div>
         <div class="schedule-mini done"><strong id="schedMiniDone">0</strong><span>Done</span></div>
+      </div>
+
+
+      <div class="schedule-calendar-card">
+        <div class="schedule-calendar-head">
+          <div class="schedule-calendar-title">
+            <div class="section-title">Weekly Shop Calendar <span class="hover-help" tabindex="0" data-help="This is the main scheduling board. Each day is a column and each job card is placed by start/end time so overlaps and heavy days are easy to see.">?</span></div>
+            <div id="schedWeekRange">This week</div>
+          </div>
+          <div class="schedule-calendar-controls">
+            <button type="button" id="schedPrevWeek" class="tab-btn">← Previous Week</button>
+            <button type="button" id="schedThisWeek" class="tab-btn">This Week</button>
+            <button type="button" id="schedNextWeek" class="tab-btn">Next Week →</button>
+          </div>
+        </div>
+        <div class="schedule-calendar-scroll">
+          <div id="schedCalendarGrid" class="schedule-calendar-grid"></div>
+        </div>
+        <div class="schedule-calendar-legend">
+          <span class="legend-dot">Scheduled</span>
+          <span class="legend-dot confirmed">Confirmed</span>
+          <span class="legend-dot progress">In Progress</span>
+          <span class="legend-dot parts">Waiting Parts</span>
+          <span class="legend-dot done">Done</span>
+          <span class="legend-dot canceled">Canceled</span>
+        </div>
       </div>
 
       <div class="schedule-main-grid">
@@ -2993,7 +3254,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.10';
+const APP_VERSION = 'v1.5.11';
 const APP_BUILD_DATE = '2026-05-09';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -3110,7 +3371,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
   function refreshMeta(){
     if (metaEl) metaEl.textContent = getMetaLine();
-    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Decal Dashboard · Scheduling Command Center';
+    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Decal Dashboard · Real Calendar Scheduler';
     if (titleEl) titleEl.textContent = 'Poppe’s Diesel Co. — Shop Manager ' + APP_VERSION + ' (' + APP_BUILD_DATE + ')';
   }
 
@@ -4304,6 +4565,37 @@ window.addEventListener('load', function(){
     }
     function scheduleDateKey(d){ return String(d || '').slice(0,10); }
     function scheduleTodayKey(){ return todayLocalInputValue(); }
+    var scheduleWeekAnchor = (UI && UI.scheduleWeekAnchor) ? UI.scheduleWeekAnchor : scheduleTodayKey();
+    function scheduleParseLocalDate(v){
+      try { return new Date(String(v || scheduleTodayKey()) + 'T00:00:00'); } catch(_) { return new Date(); }
+    }
+    function scheduleDateInputValue(d){
+      var y=d.getFullYear();
+      var m=String(d.getMonth()+1).padStart(2,'0');
+      var day=String(d.getDate()).padStart(2,'0');
+      return y + '-' + m + '-' + day;
+    }
+    function scheduleAddDays(date, days){
+      var d = new Date(date.getTime());
+      d.setDate(d.getDate() + days);
+      return d;
+    }
+    function scheduleWeekStart(anchor){
+      var d = scheduleParseLocalDate(anchor);
+      var dow = d.getDay(); // Sunday = 0
+      return scheduleAddDays(d, -dow);
+    }
+    function scheduleNiceDate(d){
+      try { return d.toLocaleDateString(undefined, {month:'short', day:'numeric'}); } catch(_) { return scheduleDateInputValue(d); }
+    }
+    function scheduleNiceDay(d){
+      try { return d.toLocaleDateString(undefined, {weekday:'short'}); } catch(_) { return ''; }
+    }
+    function scheduleSetWeek(anchor){
+      scheduleWeekAnchor = anchor || scheduleTodayKey();
+      if(UI){ UI.scheduleWeekAnchor = scheduleWeekAnchor; saveUI(UI); }
+      renderSchedule();
+    }
     function scheduleTimeToMinutes(t){
       if(!t || String(t).indexOf(':') < 0) return null;
       var p = String(t).split(':');
@@ -4523,6 +4815,87 @@ window.addEventListener('load', function(){
         el.appendChild(item);
       });
     }
+
+    function renderScheduleCalendar(list){
+      var grid = document.getElementById('schedCalendarGrid');
+      if(!grid) return;
+      var start = scheduleWeekStart(scheduleWeekAnchor || scheduleTodayKey());
+      var end = scheduleAddDays(start, 6);
+      var range = document.getElementById('schedWeekRange');
+      if(range) range.textContent = scheduleNiceDate(start) + ' – ' + scheduleNiceDate(end);
+      var today = scheduleTodayKey();
+      var hoursStart = 7;
+      var hoursEnd = 20;
+      var pxPerMinute = 1;
+      var minHeight = (hoursEnd - hoursStart) * 60 * pxPerMinute;
+      var html = '<div class="calendar-corner">Time</div>';
+      var days = [];
+      for(var i=0;i<7;i++){
+        var d = scheduleAddDays(start, i);
+        var key = scheduleDateInputValue(d);
+        days.push({date:d, key:key});
+        html += '<div class="calendar-day-head '+(key===today?'today':'')+'"><strong>'+escapeHtml(scheduleNiceDay(d))+'</strong><span>'+escapeHtml(scheduleNiceDate(d))+'</span></div>';
+      }
+      html += '<div class="calendar-time-ruler" style="min-height:'+minHeight+'px">';
+      for(var h=hoursStart; h<=hoursEnd; h++){
+        var labelHour = h === 0 ? 12 : (h > 12 ? h-12 : h);
+        var ampm = h >= 12 ? 'PM' : 'AM';
+        html += '<div class="calendar-hour-label" style="top:'+((h-hoursStart)*60*pxPerMinute)+'px">'+labelHour+' '+ampm+'</div>';
+      }
+      html += '</div>';
+      days.forEach(function(day){
+        var dayItems = (list||[]).filter(function(s){ return s.date === day.key; }).sort(function(a,b){ return scheduleDateObj(a) - scheduleDateObj(b); });
+        html += '<div class="calendar-day-lane '+(day.key===today?'today':'')+'" data-date="'+escapeHtml(day.key)+'" style="min-height:'+minHeight+'px">';
+        if(!dayItems.length){
+          html += '<div class="calendar-empty-day">Open schedule</div>';
+        }
+        dayItems.forEach(function(s, idx){
+          var startMin = scheduleTimeToMinutes(s.start);
+          var endMin = scheduleTimeToMinutes(s.end);
+          var unslotted = startMin == null;
+          if(unslotted) startMin = (hoursStart*60) + (idx * 46);
+          if(endMin == null || endMin <= startMin) endMin = startMin + 60;
+          var top = Math.max(0, (startMin - hoursStart*60) * pxPerMinute);
+          var height = Math.max(38, Math.min(minHeight - top - 4, (endMin - startMin) * pxPerMinute));
+          if(top > minHeight - 42){ top = minHeight - 42; height = 38; }
+          var time = (s.start || 'No time') + (s.end ? ('–' + s.end) : '');
+          var title = s.title || 'Shop appointment';
+          var cust = s.customerName || 'Walk-in';
+          var meta = [s.type, s.priority, s.vehicle].filter(Boolean).join(' • ');
+          html += '<div class="calendar-event '+scheduleStatusClass(s.status)+(s.id===selectedScheduleId?' selected':'')+'" data-schedule-id="'+escapeHtml(s.id)+'" style="top:'+top+'px;height:'+height+'px">'+
+            '<div class="ev-time">'+escapeHtml(time)+'</div>'+
+            '<div class="ev-title">'+escapeHtml(cust)+' — '+escapeHtml(title)+'</div>'+
+            '<div class="ev-soft">'+escapeHtml(meta || (s.status || 'Scheduled'))+'</div>'+
+          '</div>';
+        });
+        html += '</div>';
+      });
+      grid.innerHTML = html;
+      $all('.calendar-event', grid).forEach(function(el){
+        el.addEventListener('click', function(){
+          scheduleLoadForm(el.getAttribute('data-schedule-id'));
+        });
+      });
+      $all('.calendar-day-lane', grid).forEach(function(lane){
+        lane.addEventListener('dblclick', function(ev){
+          if(ev.target && ev.target.classList && ev.target.classList.contains('calendar-event')) return;
+          var date = lane.getAttribute('data-date');
+          var dateEl = document.getElementById('schedDate');
+          if(dateEl) dateEl.value = date;
+          var rect = lane.getBoundingClientRect();
+          var y = Math.max(0, ev.clientY - rect.top);
+          var minutes = Math.round((hoursStart*60 + y/pxPerMinute) / 15) * 15;
+          var hh = Math.floor(minutes/60), mm = minutes % 60;
+          var startEl = document.getElementById('schedStart');
+          var endEl = document.getElementById('schedEnd');
+          if(startEl) startEl.value = String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0');
+          var endMinutes = minutes + 60;
+          if(endEl) endEl.value = String(Math.floor(endMinutes/60)).padStart(2,'0') + ':' + String(endMinutes%60).padStart(2,'0');
+          scheduleShowWarning('');
+        });
+      });
+    }
+
     function renderSchedule(){
       renderScheduleJobOptions();
       var list = (DB.schedules || []).slice().sort(function(a,b){ return scheduleDateObj(a) - scheduleDateObj(b); });
@@ -4540,11 +4913,15 @@ window.addEventListener('load', function(){
       setText('schedMiniToday', todayList.length); setText('schedMiniWeek', weekList.length); setText('schedMiniAttention', attention.length); setText('schedMiniOverdue', overdue.length); setText('schedMiniDone', done.length);
       renderScheduleList(document.getElementById('schedTodayList'), todayList.concat(overdue).slice(0,10), 'Nothing urgent. The road is clear.');
       renderScheduleList(document.getElementById('schedTimeline'), list.slice(0,30), 'No scheduled appointments yet. Add one above.');
+      renderScheduleCalendar(list);
     }
     function setupScheduleTab(){
       var d=document.getElementById('schedDate'); if(d && !d.value) d.value=todayLocalInputValue();
       var bind=function(id,fn){ var el=document.getElementById(id); if(el) el.addEventListener('click',fn); };
       bind('schedSave', scheduleSave); bind('schedClear', scheduleClearForm); bind('schedDelete', scheduleDelete); bind('schedExportIcs', scheduleDownloadIcs); bind('schedEmailIphone', scheduleEmail); bind('schedCopyMessage', scheduleCopyMessage);
+      bind('schedPrevWeek', function(){ scheduleSetWeek(scheduleDateInputValue(scheduleAddDays(scheduleWeekStart(scheduleWeekAnchor), -7))); });
+      bind('schedThisWeek', function(){ scheduleSetWeek(scheduleTodayKey()); });
+      bind('schedNextWeek', function(){ scheduleSetWeek(scheduleDateInputValue(scheduleAddDays(scheduleWeekStart(scheduleWeekAnchor), 7))); });
       var job=document.getElementById('schedJob'); if(job) job.addEventListener('change', function(){ scheduleFillFromJob(this.value); });
       ['schedDate','schedStart','schedEnd'].forEach(function(id){ var el=document.getElementById(id); if(el) el.addEventListener('change', function(){ scheduleShowWarning(scheduleOverlapMessage(scheduleFormData())); }); });
       renderSchedule();
@@ -6646,7 +7023,7 @@ setupCostAutoCalc();
       pushCheck('vehicle dropdowns', !!(document.getElementById('vehicleYear') && document.getElementById('vehicleMake') && document.getElementById('vehicleModel') && document.getElementById('jobVehicleYear')), 'year/make/model dropdowns present');
       pushCheck('dashboard command center', !!(document.getElementById('battlePlanSummary') && document.getElementById('dashPipeline') && document.getElementById('dashProfitLeaks')), 'dashboard business intelligence nodes present');
       pushCheck('invoice VIN decoder', !!(document.getElementById('invoiceVIN') && document.getElementById('decodeInvoiceVIN') && document.getElementById('invoiceVinResult')), 'invoice VIN decode controls present');
-      pushCheck('schedule tab', !!(document.getElementById('schedule') && document.getElementById('schedSave') && document.getElementById('schedExportIcs') && document.getElementById('schedTimeline')), 'schedule controls and timeline present');
+      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedPrevWeek') && document.getElementById('schedExportIcs')), 'weekly calendar board, controls, and iPhone export present');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
       var total = checks.length;
