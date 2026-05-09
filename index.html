@@ -1243,6 +1243,238 @@
     }
 
 
+
+    /* v1.5.12 — polished calendar scheduler: 5-minute controls, cleaner buttons, week/month boards */
+    #schedule.tab {
+      background:
+        radial-gradient(circle at 5% 0%, rgba(179,39,45,0.10), transparent 26%),
+        linear-gradient(180deg, #efe0c6, #e5d1b0);
+    }
+    .schedule-hero {
+      position: sticky;
+      top: 66px;
+      z-index: 8;
+      box-shadow: 0 12px 22px rgba(20,16,12,0.12);
+    }
+    .schedule-calendar-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .schedule-calendar-card::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 8px;
+      background: linear-gradient(90deg, #101418 0 72%, #b3272d 72% 100%);
+      pointer-events: none;
+    }
+    .schedule-calendar-head {
+      padding-top: 5px;
+    }
+    .schedule-calendar-controls {
+      gap: 6px;
+    }
+    .schedule-calendar-controls .tab-btn,
+    #schedule .tab-btn,
+    #schedule .mini-action-btn {
+      border-radius: 10px;
+      min-height: 32px;
+      padding: 7px 10px;
+      font-size: 11.5px;
+      font-weight: 900;
+      letter-spacing: .01em;
+      box-shadow: 0 2px 7px rgba(20,16,12,0.10);
+    }
+    #schedule .tab-btn:hover,
+    #schedule .mini-action-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+    }
+    .schedule-view-toggle {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(16,20,24,0.08);
+      border: 1px solid rgba(16,20,24,0.10);
+    }
+    .schedule-view-toggle .tab-btn {
+      border-radius: 999px;
+      min-height: 30px;
+      padding: 6px 10px;
+      box-shadow: none;
+      background: rgba(255,255,255,0.65);
+      color: #101418;
+    }
+    .schedule-view-toggle .tab-btn.active-view {
+      background: #101418;
+      color: #fff7ea;
+    }
+    .schedule-calendar-scroll {
+      max-height: 620px;
+      overflow: auto;
+      scroll-behavior: smooth;
+      box-shadow: inset 0 0 0 1px rgba(16,20,24,0.08);
+    }
+    .schedule-calendar-grid.compact-hours .calendar-time-ruler,
+    .schedule-calendar-grid.compact-hours .calendar-day-lane {
+      min-height: 660px !important;
+    }
+    .schedule-calendar-grid.compact-hours .calendar-hour-label:nth-child(even) {
+      opacity: .58;
+    }
+    .calendar-day-head,
+    .calendar-corner {
+      position: sticky;
+      top: 0;
+    }
+    .calendar-event {
+      border-radius: 11px;
+      padding: 6px 7px;
+    }
+    .calendar-event .ev-time {
+      font-size: 10px;
+    }
+    .calendar-event .ev-title {
+      font-size: 11px;
+    }
+    .calendar-event .ev-soft {
+      font-size: 10px;
+    }
+
+    .schedule-month-card {
+      display: none;
+      border-radius: 20px;
+      padding: 12px;
+      background: linear-gradient(180deg, rgba(255,248,234,0.99), rgba(239,226,202,0.96));
+      border: 1px solid rgba(16,20,24,0.14);
+      box-shadow: 0 12px 28px rgba(20,16,12,0.10), inset 0 1px 0 rgba(255,255,255,0.76);
+      min-width: 0;
+    }
+    .schedule-month-card.active {
+      display: block;
+    }
+    .schedule-month-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+      padding-bottom: 9px;
+      border-bottom: 1px solid rgba(16,20,24,0.10);
+    }
+    .schedule-month-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0,1fr));
+      gap: 8px;
+    }
+    .month-dow {
+      background: #101418;
+      color: #fff7ea;
+      border-radius: 12px;
+      padding: 8px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+    .month-cell {
+      min-height: 118px;
+      border-radius: 15px;
+      background: rgba(255,255,255,0.60);
+      border: 1px solid rgba(16,20,24,0.10);
+      padding: 8px;
+      display: grid;
+      align-content: start;
+      gap: 6px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.65);
+      cursor: pointer;
+    }
+    .month-cell:hover {
+      outline: 2px solid rgba(179,39,45,0.25);
+      outline-offset: 1px;
+    }
+    .month-cell.other-month {
+      opacity: .48;
+    }
+    .month-cell.today {
+      background: linear-gradient(180deg, rgba(179,39,45,0.11), rgba(255,255,255,0.60));
+      border-color: rgba(179,39,45,0.28);
+    }
+    .month-date {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-weight: 950;
+      color: #101418;
+      font-size: 12px;
+    }
+    .month-count {
+      border-radius: 999px;
+      background: #101418;
+      color: #fff7ea;
+      font-size: 10px;
+      padding: 2px 6px;
+      font-weight: 900;
+    }
+    .month-mini {
+      border-left: 4px solid #276993;
+      border-radius: 9px;
+      padding: 4px 5px;
+      background: rgba(255,255,255,0.78);
+      font-size: 10px;
+      line-height: 1.18;
+      overflow: hidden;
+    }
+    .month-mini strong {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 10.5px;
+      color: #181512;
+    }
+    .month-mini span {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #665747;
+    }
+    .month-mini.st-Confirmed { border-left-color:#0f6a45; }
+    .month-mini.st-InProgress { border-left-color:#b36b00; }
+    .month-mini.st-WaitingParts { border-left-color:#9b4d00; }
+    .month-mini.st-Done { border-left-color:#626262; opacity:.82; }
+    .month-mini.st-Canceled { border-left-color:#7d1c1c; opacity:.75; text-decoration:line-through; }
+    .month-more {
+      font-size: 10px;
+      font-weight: 900;
+      color: #8f2025;
+    }
+
+    @media (max-width: 900px) {
+      .schedule-hero {
+        position: static;
+      }
+      .schedule-month-grid {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+      }
+      .month-dow {
+        display: none;
+      }
+    }
+    @media (max-width: 560px) {
+      .schedule-month-grid {
+        grid-template-columns: minmax(0,1fr);
+      }
+      .month-cell {
+        min-height: 96px;
+      }
+    }
+
     /* v1.5.11 — real shop calendar board */
     .schedule-calendar-card {
       border-radius: 20px;
@@ -2452,11 +2684,11 @@
           </div>
           <div class="schedule-field s2">
             <label for="schedStart">Start</label>
-            <input id="schedStart" type="time" />
+            <input id="schedStart" type="time" / step="300">
           </div>
           <div class="schedule-field s2">
             <label for="schedEnd">End <span class="hover-help" tabindex="0" data-help="End time helps the schedule warn you when two jobs overlap. Use a rough block if you do not know the exact time.">?</span></label>
-            <input id="schedEnd" type="time" />
+            <input id="schedEnd" type="time" / step="300">
           </div>
           <div class="schedule-field s2">
             <label for="schedPriority">Priority</label>
@@ -2536,13 +2768,17 @@
             <div id="schedWeekRange">This week</div>
           </div>
           <div class="schedule-calendar-controls">
-            <button type="button" id="schedPrevWeek" class="tab-btn">← Previous Week</button>
-            <button type="button" id="schedThisWeek" class="tab-btn">This Week</button>
-            <button type="button" id="schedNextWeek" class="tab-btn">Next Week →</button>
+            <div class="schedule-view-toggle" aria-label="Calendar view">
+              <button type="button" id="schedWeekView" class="tab-btn active-view">Week</button>
+              <button type="button" id="schedMonthView" class="tab-btn">Month</button>
+            </div>
+            <button type="button" id="schedPrevWeek" class="tab-btn">← Prev</button>
+            <button type="button" id="schedThisWeek" class="tab-btn">Today</button>
+            <button type="button" id="schedNextWeek" class="tab-btn">Next →</button>
           </div>
         </div>
         <div class="schedule-calendar-scroll">
-          <div id="schedCalendarGrid" class="schedule-calendar-grid"></div>
+          <div id="schedCalendarGrid" class="schedule-calendar-grid compact-hours"></div>
         </div>
         <div class="schedule-calendar-legend">
           <span class="legend-dot">Scheduled</span>
@@ -2552,6 +2788,22 @@
           <span class="legend-dot done">Done</span>
           <span class="legend-dot canceled">Canceled</span>
         </div>
+      </div>
+
+
+      <div id="scheduleMonthCard" class="schedule-month-card">
+        <div class="schedule-month-head">
+          <div>
+            <div class="section-title">Month View <span class="hover-help" tabindex="0" data-help="Use this for the bigger picture: busy weeks, overloaded days, and customer work stacking up. Click a day to jump the week board to that date.">?</span></div>
+            <div id="schedMonthTitle" class="muted">Month overview</div>
+          </div>
+          <div class="schedule-calendar-controls">
+            <button type="button" id="schedPrevMonth" class="tab-btn">← Prev Month</button>
+            <button type="button" id="schedThisMonth" class="tab-btn">This Month</button>
+            <button type="button" id="schedNextMonth" class="tab-btn">Next Month →</button>
+          </div>
+        </div>
+        <div id="schedMonthGrid" class="schedule-month-grid"></div>
       </div>
 
       <div class="schedule-main-grid">
@@ -3254,7 +3506,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.11';
+const APP_VERSION = 'v1.5.12';
 const APP_BUILD_DATE = '2026-05-09';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -3371,7 +3623,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
   function refreshMeta(){
     if (metaEl) metaEl.textContent = getMetaLine();
-    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Decal Dashboard · Real Calendar Scheduler';
+    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Decal Dashboard · Polished Calendar Scheduler';
     if (titleEl) titleEl.textContent = 'Poppe’s Diesel Co. — Shop Manager ' + APP_VERSION + ' (' + APP_BUILD_DATE + ')';
   }
 
@@ -4566,6 +4818,8 @@ window.addEventListener('load', function(){
     function scheduleDateKey(d){ return String(d || '').slice(0,10); }
     function scheduleTodayKey(){ return todayLocalInputValue(); }
     var scheduleWeekAnchor = (UI && UI.scheduleWeekAnchor) ? UI.scheduleWeekAnchor : scheduleTodayKey();
+    var scheduleMonthAnchor = (UI && UI.scheduleMonthAnchor) ? UI.scheduleMonthAnchor : scheduleTodayKey();
+    var scheduleViewMode = (UI && UI.scheduleViewMode) ? UI.scheduleViewMode : 'week';
     function scheduleParseLocalDate(v){
       try { return new Date(String(v || scheduleTodayKey()) + 'T00:00:00'); } catch(_) { return new Date(); }
     }
@@ -4595,6 +4849,33 @@ window.addEventListener('load', function(){
       scheduleWeekAnchor = anchor || scheduleTodayKey();
       if(UI){ UI.scheduleWeekAnchor = scheduleWeekAnchor; saveUI(UI); }
       renderSchedule();
+    }
+    function scheduleSetMonth(anchor){
+      scheduleMonthAnchor = anchor || scheduleTodayKey();
+      if(UI){ UI.scheduleMonthAnchor = scheduleMonthAnchor; saveUI(UI); }
+      renderSchedule();
+    }
+    function scheduleSetView(mode){
+      scheduleViewMode = mode || 'week';
+      if(UI){ UI.scheduleViewMode = scheduleViewMode; saveUI(UI); }
+      renderSchedule();
+    }
+    function scheduleMonthStart(anchor){
+      var d = scheduleParseLocalDate(anchor);
+      return new Date(d.getFullYear(), d.getMonth(), 1);
+    }
+    function scheduleAddMonths(anchor, months){
+      var d = scheduleParseLocalDate(anchor);
+      return scheduleDateInputValue(new Date(d.getFullYear(), d.getMonth() + months, 1));
+    }
+    function scheduleRoundTimeValue(t){
+      if(!t) return '';
+      var m = scheduleTimeToMinutes(t);
+      if(m == null) return t;
+      var rounded = Math.round(m / 5) * 5;
+      var hh = Math.floor(rounded / 60) % 24;
+      var mm = rounded % 60;
+      return String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0');
     }
     function scheduleTimeToMinutes(t){
       if(!t || String(t).indexOf(':') < 0) return null;
@@ -4884,7 +5165,7 @@ window.addEventListener('load', function(){
           if(dateEl) dateEl.value = date;
           var rect = lane.getBoundingClientRect();
           var y = Math.max(0, ev.clientY - rect.top);
-          var minutes = Math.round((hoursStart*60 + y/pxPerMinute) / 15) * 15;
+          var minutes = Math.round((hoursStart*60 + y/pxPerMinute) / 5) * 5;
           var hh = Math.floor(minutes/60), mm = minutes % 60;
           var startEl = document.getElementById('schedStart');
           var endEl = document.getElementById('schedEnd');
@@ -4892,6 +5173,52 @@ window.addEventListener('load', function(){
           var endMinutes = minutes + 60;
           if(endEl) endEl.value = String(Math.floor(endMinutes/60)).padStart(2,'0') + ':' + String(endMinutes%60).padStart(2,'0');
           scheduleShowWarning('');
+        });
+      });
+    }
+
+
+    function renderScheduleMonth(list){
+      var grid = document.getElementById('schedMonthGrid');
+      if(!grid) return;
+      var anchor = scheduleMonthStart(scheduleMonthAnchor || scheduleTodayKey());
+      var monthTitle = document.getElementById('schedMonthTitle');
+      try {
+        if(monthTitle) monthTitle.textContent = anchor.toLocaleDateString(undefined, {month:'long', year:'numeric'});
+      } catch(_) {
+        if(monthTitle) monthTitle.textContent = scheduleDateInputValue(anchor).slice(0,7);
+      }
+      var firstDow = anchor.getDay();
+      var start = scheduleAddDays(anchor, -firstDow);
+      var today = scheduleTodayKey();
+      var html = '';
+      ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(function(d){ html += '<div class="month-dow">'+d+'</div>'; });
+      for(var i=0;i<42;i++){
+        var d = scheduleAddDays(start, i);
+        var key = scheduleDateInputValue(d);
+        var inMonth = d.getMonth() === anchor.getMonth();
+        var dayItems = (list||[]).filter(function(s){ return s.date === key; }).sort(function(a,b){ return scheduleDateObj(a) - scheduleDateObj(b); });
+        html += '<div class="month-cell '+(!inMonth?'other-month ':'')+(key===today?'today':'')+'" data-month-date="'+escapeHtml(key)+'">';
+        html += '<div class="month-date"><span>'+d.getDate()+'</span>'+(dayItems.length?'<span class="month-count">'+dayItems.length+'</span>':'')+'</div>';
+        dayItems.slice(0,3).forEach(function(s){
+          html += '<div class="month-mini '+scheduleStatusClass(s.status)+'" data-schedule-id="'+escapeHtml(s.id)+'"><strong>'+escapeHtml((s.start?s.start+' ':'')+(s.customerName||'Walk-in'))+'</strong><span>'+escapeHtml(s.title||s.type||'Appointment')+'</span></div>';
+        });
+        if(dayItems.length > 3) html += '<div class="month-more">+'+(dayItems.length-3)+' more</div>';
+        html += '</div>';
+      }
+      grid.innerHTML = html;
+      $all('.month-cell', grid).forEach(function(cell){
+        cell.addEventListener('click', function(ev){
+          var mini = ev.target && ev.target.closest ? ev.target.closest('.month-mini') : null;
+          if(mini){
+            scheduleLoadForm(mini.getAttribute('data-schedule-id'));
+            return;
+          }
+          var date = cell.getAttribute('data-month-date');
+          scheduleSetWeek(date);
+          scheduleSetView('week');
+          var dateEl = document.getElementById('schedDate');
+          if(dateEl) dateEl.value = date;
         });
       });
     }
@@ -4914,6 +5241,15 @@ window.addEventListener('load', function(){
       renderScheduleList(document.getElementById('schedTodayList'), todayList.concat(overdue).slice(0,10), 'Nothing urgent. The road is clear.');
       renderScheduleList(document.getElementById('schedTimeline'), list.slice(0,30), 'No scheduled appointments yet. Add one above.');
       renderScheduleCalendar(list);
+      renderScheduleMonth(list);
+      var weekCard = document.querySelector('.schedule-calendar-card');
+      var monthCard = document.getElementById('scheduleMonthCard');
+      var weekBtn = document.getElementById('schedWeekView');
+      var monthBtn = document.getElementById('schedMonthView');
+      if(weekCard) weekCard.style.display = scheduleViewMode === 'month' ? 'none' : '';
+      if(monthCard) monthCard.classList.toggle('active', scheduleViewMode === 'month');
+      if(weekBtn) weekBtn.classList.toggle('active-view', scheduleViewMode !== 'month');
+      if(monthBtn) monthBtn.classList.toggle('active-view', scheduleViewMode === 'month');
     }
     function setupScheduleTab(){
       var d=document.getElementById('schedDate'); if(d && !d.value) d.value=todayLocalInputValue();
@@ -4922,6 +5258,11 @@ window.addEventListener('load', function(){
       bind('schedPrevWeek', function(){ scheduleSetWeek(scheduleDateInputValue(scheduleAddDays(scheduleWeekStart(scheduleWeekAnchor), -7))); });
       bind('schedThisWeek', function(){ scheduleSetWeek(scheduleTodayKey()); });
       bind('schedNextWeek', function(){ scheduleSetWeek(scheduleDateInputValue(scheduleAddDays(scheduleWeekStart(scheduleWeekAnchor), 7))); });
+      bind('schedWeekView', function(){ scheduleSetView('week'); });
+      bind('schedMonthView', function(){ scheduleSetView('month'); });
+      bind('schedPrevMonth', function(){ scheduleSetMonth(scheduleAddMonths(scheduleMonthAnchor, -1)); });
+      bind('schedThisMonth', function(){ scheduleSetMonth(scheduleTodayKey()); });
+      bind('schedNextMonth', function(){ scheduleSetMonth(scheduleAddMonths(scheduleMonthAnchor, 1)); });
       var job=document.getElementById('schedJob'); if(job) job.addEventListener('change', function(){ scheduleFillFromJob(this.value); });
       ['schedDate','schedStart','schedEnd'].forEach(function(id){ var el=document.getElementById(id); if(el) el.addEventListener('change', function(){ scheduleShowWarning(scheduleOverlapMessage(scheduleFormData())); }); });
       renderSchedule();
@@ -7023,7 +7364,7 @@ setupCostAutoCalc();
       pushCheck('vehicle dropdowns', !!(document.getElementById('vehicleYear') && document.getElementById('vehicleMake') && document.getElementById('vehicleModel') && document.getElementById('jobVehicleYear')), 'year/make/model dropdowns present');
       pushCheck('dashboard command center', !!(document.getElementById('battlePlanSummary') && document.getElementById('dashPipeline') && document.getElementById('dashProfitLeaks')), 'dashboard business intelligence nodes present');
       pushCheck('invoice VIN decoder', !!(document.getElementById('invoiceVIN') && document.getElementById('decodeInvoiceVIN') && document.getElementById('invoiceVinResult')), 'invoice VIN decode controls present');
-      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedPrevWeek') && document.getElementById('schedExportIcs')), 'weekly calendar board, controls, and iPhone export present');
+      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedExportIcs')), 'week/month calendar boards, controls, and iPhone export present');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
       var total = checks.length;
@@ -7061,5 +7402,3 @@ setupCostAutoCalc();
 
 </body>
 </html>
-
-
