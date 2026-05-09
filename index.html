@@ -886,6 +886,126 @@
       .line-actions { justify-content: flex-start; }
     }
 
+
+    /* Invoice cockpit v1.5.8 — row-filled layout, fewer dead gaps */
+    #invoice-toolbar {
+      padding: 10px;
+    }
+    .invoice-cockpit-grid {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) !important;
+      gap: 8px !important;
+      align-items: stretch;
+    }
+    .invoice-main-panel,
+    .invoice-money-panel {
+      width: 100%;
+      height: auto;
+    }
+    .toolbar-section {
+      padding: 9px 10px;
+    }
+    .toolbar-section .section-title {
+      margin-bottom: 6px;
+      min-height: 0;
+      padding-bottom: 5px;
+      border-bottom: 1px solid rgba(16,20,24,0.10);
+    }
+    .invoice-dense-grid,
+    .money-dense-grid {
+      gap: 6px !important;
+    }
+    .money-dense-grid {
+      grid-template-columns: repeat(15, minmax(0, 1fr)) !important;
+    }
+    .money-field.m2 { grid-column: span 2; }
+    .money-field.m3 { grid-column: span 3; }
+    .money-field.m4 { grid-column: span 4; }
+    .money-field.m6 { grid-column: span 6; }
+    .money-field.m9 { grid-column: span 9; }
+    .money-field.m12 { grid-column: span 12; }
+    .money-field.m15 { grid-column: 1 / -1; }
+    .money-subhead { grid-column: 1 / -1; }
+    #invoice-toolbar input[type="text"],
+    #invoice-toolbar input[type="number"],
+    #invoice-toolbar input[type="email"],
+    #invoice-toolbar input[type="date"],
+    #invoice-toolbar select {
+      min-height: 31px;
+      padding: 5px 7px;
+    }
+    #invoice-toolbar label {
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .document-actions-bar {
+      display: grid !important;
+      grid-template-columns: 150px repeat(5, minmax(0, 1fr));
+      gap: 7px !important;
+      align-items: center;
+      margin-top: 8px;
+      padding: 8px;
+    }
+    .document-actions-bar .action-label {
+      margin-right: 0;
+    }
+    .document-actions-bar .tab-btn {
+      width: 100%;
+      min-height: 33px;
+      border-radius: 10px;
+      padding: 7px 8px;
+      font-weight: 850;
+    }
+    #recentJobsWrap {
+      border-radius: 14px;
+      margin-top: 8px;
+    }
+    .line-workbench-head {
+      display: grid !important;
+      grid-template-columns: minmax(260px, .75fr) minmax(420px, 1.25fr);
+      gap: 10px;
+      align-items: center;
+      padding: 9px;
+    }
+    .line-actions {
+      display: grid !important;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 6px;
+      width: 100%;
+    }
+    .line-actions .tab-btn {
+      width: 100%;
+      min-height: 33px;
+      padding: 7px 8px;
+      white-space: nowrap;
+    }
+    @media (max-width: 1180px) {
+      .money-dense-grid { grid-template-columns: repeat(12, minmax(0, 1fr)) !important; }
+      .money-field.m3 { grid-column: span 3; }
+      .money-field.m6 { grid-column: span 6; }
+      .money-field.m12 { grid-column: 1 / -1; }
+      .document-actions-bar { grid-template-columns: repeat(3, minmax(0,1fr)); }
+      .document-actions-bar .action-label { grid-column: 1 / -1; }
+      .line-workbench-head { grid-template-columns: minmax(0,1fr); }
+    }
+    @media (max-width: 760px) {
+      .invoice-dense-grid,
+      .money-dense-grid,
+      .line-actions,
+      .document-actions-bar {
+        grid-template-columns: minmax(0,1fr) !important;
+      }
+      .dense-field,
+      .dense-field.s1, .dense-field.s2, .dense-field.s3, .dense-field.s4, .dense-field.s5, .dense-field.s6, .dense-field.s7, .dense-field.s8, .dense-field.s9, .dense-field.s10, .dense-field.s12,
+      .money-field,
+      .money-field.m2, .money-field.m3, .money-field.m4, .money-field.m6, .money-field.m9, .money-field.m12, .money-field.m15,
+      .money-subhead {
+        grid-column: 1 / -1 !important;
+      }
+    }
+
     /* Tables */
     .table-wrap {
       overflow-x: auto;
@@ -1918,11 +2038,11 @@
               <label for="emailTo">Email To</label>
               <input id="emailTo" type="email" placeholder="customer@example.com" />
             </div>
-            <div class="field dense-field s4">
+            <div class="field dense-field s7">
               <label for="payLink">Payment Link</label>
               <input id="payLink" type="text" placeholder="https://pay.yourprovider.com/…" />
             </div>
-            <div class="field dense-field s3">
+            <div class="field dense-field s5">
               <label for="approvedAtDisplay">Approved At</label>
               <input id="approvedAtDisplay" type="text" value="" readonly placeholder="Not approved yet" />
             </div>
@@ -2020,7 +2140,7 @@
               <label for="paidDate">Paid Date</label>
               <input id="paidDate" type="date" />
             </div>
-            <div class="field money-field m6 compact-flag">
+            <div class="field money-field m12 compact-flag">
               <label><input type="checkbox" id="customerSuppliedParts" /> Customer Supplied Parts <span class="hover-help" tabindex="0" data-help="Use this when the customer provides their own parts. The invoice will include warranty language saying customer-supplied parts are not covered under parts warranty and labor warranty may be limited if the part causes the failure.">?</span></label>
             </div>
           </div>
@@ -2493,7 +2613,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.7';
+const APP_VERSION = 'v1.5.8';
 const APP_BUILD_DATE = '2026-05-09';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -2610,7 +2730,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
   function refreshMeta(){
     if (metaEl) metaEl.textContent = getMetaLine();
-    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Decal Dashboard · Tight Invoice Cockpit';
+    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Decal Dashboard · Row-Filled Invoice Cockpit';
     if (titleEl) titleEl.textContent = 'Poppe’s Diesel Co. — Shop Manager ' + APP_VERSION + ' (' + APP_BUILD_DATE + ')';
   }
 
