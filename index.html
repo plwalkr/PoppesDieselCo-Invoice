@@ -1007,6 +1007,47 @@
     }
 
 
+
+    /* v1.5.10 — Line item buttons readability fix */
+    .line-actions {
+      display: flex !important;
+      flex-wrap: wrap;
+      gap: 8px;
+      width: 100%;
+      justify-content: flex-end;
+      align-items: center;
+    }
+    .line-actions .tab-btn {
+      width: auto !important;
+      min-width: max-content;
+      min-height: 36px;
+      padding: 8px 13px;
+      white-space: nowrap;
+      overflow: visible;
+      text-overflow: clip;
+      line-height: 1.15;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .line-workbench-head {
+      grid-template-columns: minmax(250px, .6fr) minmax(0, 1.4fr) !important;
+      align-items: center;
+    }
+    @media (max-width: 1180px) {
+      .line-actions {
+        justify-content: flex-start;
+      }
+      .line-workbench-head {
+        grid-template-columns: minmax(0,1fr) !important;
+      }
+    }
+    @media (max-width: 560px) {
+      .line-actions .tab-btn {
+        flex: 1 1 160px;
+        white-space: normal;
+      }
+    }
+
     /* Scheduling tab — high-visibility shop calendar */
     #schedule.tab {
       background:
@@ -2510,12 +2551,12 @@
             <div class="muted">Add labor, diagnostic, and parts lines here. Totals update as you type.</div>
           </div>
           <div class="line-actions">
-            <button type="button" id="addLabor" class="tab-btn primary-money">+ Labor</button>
-            <button type="button" id="addDiagnostic" class="tab-btn diagnostic-money">+ Diagnostic</button>
-            <button type="button" id="addPart" class="tab-btn parts-money">+ Part</button>
-            <button type="button" id="applyMarkup" class="tab-btn">Apply Tiered Markup</button>
+            <button type="button" id="addLabor" class="tab-btn primary-money">+ Add Labor</button>
+            <button type="button" id="addDiagnostic" class="tab-btn diagnostic-money">+ Add Diagnostic</button>
+            <button type="button" id="addPart" class="tab-btn parts-money">+ Add Part</button>
+            <button type="button" id="applyMarkup" class="tab-btn">Apply Markup</button>
             <button type="button" id="quickEstimate" class="tab-btn">Quick Estimate</button>
-            <button type="button" id="recalc" class="tab-btn">Recalculate</button>
+            <button type="button" id="recalc" class="tab-btn">Recalc Totals</button>
           </div>
         </div>
 
@@ -2952,7 +2993,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.9';
+const APP_VERSION = 'v1.5.10';
 const APP_BUILD_DATE = '2026-05-09';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
