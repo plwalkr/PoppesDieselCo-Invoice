@@ -1377,6 +1377,156 @@
       #schedule.schedule-fullscreen .schedule-calendar-scroll { max-height: calc(100vh - 210px); }
     }
 
+
+    /* v1.5.15 — calendar-only fullscreen + visible time ruler */
+    .schedule-calendar-grid {
+      grid-template-columns: 104px repeat(7, minmax(170px, 1fr)) !important;
+    }
+    .schedule-calendar-grid.compact-hours {
+      grid-template-columns: 104px repeat(7, minmax(170px, 1fr)) !important;
+    }
+    .calendar-corner {
+      width: 104px;
+      min-width: 104px;
+      text-align: center;
+      z-index: 9;
+    }
+    .calendar-time-ruler {
+      width: 104px;
+      min-width: 104px;
+      z-index: 8;
+      overflow: visible;
+      background:
+        repeating-linear-gradient(180deg, rgba(16,20,24,0.10) 0 1px, transparent 1px 60px),
+        linear-gradient(180deg, #f7ead5, #e4cca8) !important;
+      box-shadow: 5px 0 14px rgba(20,16,12,0.08);
+    }
+    .calendar-hour-label {
+      left: 0 !important;
+      right: 10px;
+      width: auto;
+      transform: translateY(5px) !important;
+      text-align: right;
+      font-size: 12px !important;
+      font-weight: 950 !important;
+      color: #101418 !important;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(255,250,241,0.78);
+      border: 1px solid rgba(16,20,24,0.08);
+      box-shadow: 0 1px 4px rgba(20,16,12,0.08);
+    }
+    .calendar-day-head {
+      z-index: 7;
+    }
+
+    /* Override old whole-page fullscreen: only the calendar card/month card becomes the board */
+    body.schedule-fullscreen-active,
+    body.calendar-only-fullscreen-active {
+      overflow: hidden;
+    }
+    body.calendar-only-fullscreen-active header,
+    body.calendar-only-fullscreen-active .tab-bar,
+    body.calendar-only-fullscreen-active main {
+      display: initial;
+    }
+    #schedule.schedule-fullscreen {
+      position: static !important;
+      inset: auto !important;
+      z-index: auto !important;
+      overflow: visible !important;
+      border-radius: 12px !important;
+      margin-top: 4px !important;
+      padding: 10px !important;
+    }
+    #schedule.schedule-fullscreen .schedule-hero {
+      position: sticky;
+      top: 0;
+      z-index: 8;
+    }
+    .schedule-calendar-card.schedule-calendar-fullscreen,
+    .schedule-month-card.schedule-calendar-fullscreen {
+      position: fixed !important;
+      inset: 10px !important;
+      z-index: 9999 !important;
+      margin: 0 !important;
+      padding: 14px !important;
+      overflow: hidden !important;
+      border-radius: 26px !important;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(179,39,45,0.16), transparent 28%),
+        radial-gradient(circle at 92% 4%, rgba(16,20,24,0.18), transparent 28%),
+        linear-gradient(180deg, rgba(255,250,241,0.99), rgba(236,221,195,0.98)) !important;
+      box-shadow:
+        0 30px 80px rgba(0,0,0,0.38),
+        inset 0 1px 0 rgba(255,255,255,0.86) !important;
+      display: flex !important;
+      flex-direction: column;
+    }
+    .schedule-calendar-card.schedule-calendar-fullscreen .schedule-calendar-head,
+    .schedule-month-card.schedule-calendar-fullscreen .schedule-month-head {
+      flex: 0 0 auto;
+      margin-bottom: 10px;
+    }
+    .schedule-calendar-card.schedule-calendar-fullscreen .schedule-calendar-scroll {
+      flex: 1 1 auto;
+      max-height: none !important;
+      height: auto !important;
+      min-height: 0;
+      border-radius: 18px;
+    }
+    .schedule-calendar-card.schedule-calendar-fullscreen .schedule-calendar-legend {
+      flex: 0 0 auto;
+      margin-top: 10px;
+    }
+    .schedule-calendar-card.schedule-calendar-fullscreen .schedule-calendar-grid {
+      min-width: 1360px !important;
+      grid-template-columns: 112px repeat(7, minmax(178px, 1fr)) !important;
+    }
+    .schedule-calendar-card.schedule-calendar-fullscreen .calendar-corner,
+    .schedule-calendar-card.schedule-calendar-fullscreen .calendar-time-ruler {
+      width: 112px;
+      min-width: 112px;
+    }
+    .schedule-calendar-card.schedule-calendar-fullscreen .calendar-time-ruler,
+    .schedule-calendar-card.schedule-calendar-fullscreen .calendar-day-lane {
+      min-height: 900px !important;
+    }
+    .schedule-month-card.schedule-calendar-fullscreen #schedMonthGrid {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
+      padding: 2px;
+    }
+    .schedule-month-card.schedule-calendar-fullscreen .month-cell {
+      min-height: 150px;
+    }
+    .schedule-calendar-card.schedule-calendar-fullscreen #schedFullscreen,
+    .schedule-month-card.schedule-calendar-fullscreen #schedFullscreenMonth {
+      background: #101418 !important;
+    }
+    @media (max-width: 760px) {
+      .schedule-calendar-grid,
+      .schedule-calendar-grid.compact-hours {
+        grid-template-columns: 88px repeat(7, minmax(145px, 1fr)) !important;
+      }
+      .calendar-corner,
+      .calendar-time-ruler {
+        width: 88px;
+        min-width: 88px;
+      }
+      .calendar-hour-label {
+        font-size: 11px !important;
+        right: 6px;
+      }
+      .schedule-calendar-card.schedule-calendar-fullscreen,
+      .schedule-month-card.schedule-calendar-fullscreen {
+        inset: 6px !important;
+        padding: 8px !important;
+        border-radius: 18px !important;
+      }
+    }
+
     /* v1.5.13 — keep calendar mode controls visible */
     #schedBackToWeek {
       background: #101418;
@@ -3648,7 +3798,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.14';
+const APP_VERSION = 'v1.5.15';
 const APP_BUILD_DATE = '2026-05-09';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -3765,7 +3915,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
   function refreshMeta(){
     if (metaEl) metaEl.textContent = getMetaLine();
-    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Decal Dashboard · Fullscreen Calendar Scheduler';
+    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Decal Dashboard · Calendar-Only Fullscreen Scheduler';
     if (titleEl) titleEl.textContent = 'Poppe’s Diesel Co. — Shop Manager ' + APP_VERSION + ' (' + APP_BUILD_DATE + ')';
   }
 
@@ -4998,19 +5148,32 @@ window.addEventListener('load', function(){
       renderSchedule();
     }
     function scheduleSetView(mode){
+      var wasFull = scheduleIsFullscreen();
+      if(wasFull) scheduleApplyFullscreen(false);
       scheduleViewMode = mode || 'week';
       if(UI){ UI.scheduleViewMode = scheduleViewMode; saveUI(UI); }
       renderSchedule();
+      if(wasFull) setTimeout(function(){ scheduleApplyFullscreen(true); }, 80);
+    }
+    function scheduleFullscreenTarget(){
+      var weekCard = document.querySelector('.schedule-calendar-card');
+      var monthCard = document.getElementById('scheduleMonthCard');
+      if(scheduleViewMode === 'month' && monthCard) return monthCard;
+      return weekCard || monthCard;
     }
     function scheduleIsFullscreen(){
-      var sched = document.getElementById('schedule');
-      return !!(sched && sched.classList.contains('schedule-fullscreen'));
+      return !!document.querySelector('.schedule-calendar-fullscreen');
     }
     function scheduleApplyFullscreen(on){
-      var sched = document.getElementById('schedule');
-      if(!sched) return;
-      sched.classList.toggle('schedule-fullscreen', !!on);
-      document.body.classList.toggle('schedule-fullscreen-active', !!on);
+      var weekCard = document.querySelector('.schedule-calendar-card');
+      var monthCard = document.getElementById('scheduleMonthCard');
+      [weekCard, monthCard].forEach(function(el){
+        if(el) el.classList.remove('schedule-calendar-fullscreen');
+      });
+      document.body.classList.toggle('calendar-only-fullscreen-active', !!on);
+      document.body.classList.remove('schedule-fullscreen-active');
+      var target = scheduleFullscreenTarget();
+      if(on && target) target.classList.add('schedule-calendar-fullscreen');
       var label = on ? 'Exit Full Screen' : '⛶ Full Screen';
       ['schedFullscreen','schedFullscreenMonth'].forEach(function(id){
         var b = document.getElementById(id);
@@ -5019,13 +5182,12 @@ window.addEventListener('load', function(){
       setTimeout(function(){ try { renderSchedule(); } catch(_){} }, 60);
     }
     function scheduleToggleFullscreen(){
-      var sched = document.getElementById('schedule');
-      if(!sched) return;
       var goingFull = !scheduleIsFullscreen();
+      var target = scheduleFullscreenTarget();
       scheduleApplyFullscreen(goingFull);
       try {
-        if(goingFull && sched.requestFullscreen){
-          sched.requestFullscreen().catch(function(){});
+        if(goingFull && target && target.requestFullscreen){
+          target.requestFullscreen().catch(function(){});
         } else if(!goingFull && document.fullscreenElement && document.exitFullscreen){
           document.exitFullscreen().catch(function(){});
         }
@@ -7550,7 +7712,7 @@ setupCostAutoCalc();
       pushCheck('vehicle dropdowns', !!(document.getElementById('vehicleYear') && document.getElementById('vehicleMake') && document.getElementById('vehicleModel') && document.getElementById('jobVehicleYear')), 'year/make/model dropdowns present');
       pushCheck('dashboard command center', !!(document.getElementById('battlePlanSummary') && document.getElementById('dashPipeline') && document.getElementById('dashProfitLeaks')), 'dashboard business intelligence nodes present');
       pushCheck('invoice VIN decoder', !!(document.getElementById('invoiceVIN') && document.getElementById('decodeInvoiceVIN') && document.getElementById('invoiceVinResult')), 'invoice VIN decode controls present');
-      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedFullscreen') && document.getElementById('schedExportIcs')), 'week/month calendar boards, fullscreen controls, and iPhone export present');
+      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedFullscreen') && document.getElementById('schedExportIcs')), 'week/month calendar boards, calendar-only fullscreen controls, and iPhone export present');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
       var total = checks.length;
@@ -7588,3 +7750,5 @@ setupCostAutoCalc();
 
 </body>
 </html>
+
+
