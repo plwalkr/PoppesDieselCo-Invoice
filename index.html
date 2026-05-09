@@ -181,38 +181,48 @@
       max-width: 120px;
     }
 
-    /* Upper invoice layout cleanup */
+    /* Upper invoice layout cleanup — v1.5.2 workbench pass */
     #invoice-toolbar {
-      padding: 12px;
+      padding: 14px;
+      background:
+        radial-gradient(circle at top left, rgba(11,59,46,0.16), transparent 34%),
+        linear-gradient(135deg, rgba(247,240,228,0.95), rgba(232,216,190,0.92));
+      border-color: rgba(47,37,23,0.25);
     }
     .toolbar-grid {
       display: grid;
       grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: 10px;
+      gap: 12px;
       align-items: start;
     }
     .toolbar-section {
       grid-column: span 6;
-      background: rgba(255,255,255,0.28);
+      background: rgba(255,255,255,0.46);
       border: 1px solid rgba(80,64,42,0.22);
-      border-radius: 12px;
-      padding: 10px;
+      border-radius: 16px;
+      padding: 12px;
       min-width: 0;
+      box-shadow: 0 8px 22px rgba(45,31,14,0.08);
+      backdrop-filter: blur(3px);
     }
     .toolbar-section.full { grid-column: 1 / -1; }
     .toolbar-section.third { grid-column: span 4; }
+    .toolbar-section.money-focus {
+      background: linear-gradient(180deg, rgba(255,255,255,0.58), rgba(246,238,223,0.60));
+    }
     .toolbar-section .section-title {
-      margin-bottom: 8px;
+      margin-bottom: 9px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
+      color: #24180d;
     }
     .toolbar-fields,
     .vehicle-grid {
       display: grid;
       grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: 8px;
+      gap: 9px;
       align-items: end;
     }
     .toolbar-field,
@@ -228,10 +238,96 @@
     .toolbar-field.span-8, .vehicle-field.span-8 { grid-column: span 8; }
     .toolbar-field.span-12, .vehicle-field.span-12 { grid-column: span 12; }
     .toolbar-compact-note {
-      font-size: 10px;
+      font-size: 10.5px;
       color: #5b5143;
-      margin-top: 3px;
-      line-height: 1.25;
+      margin-top: 4px;
+      line-height: 1.28;
+    }
+    .info-card {
+      background: rgba(11,59,46,0.08);
+      border: 1px solid rgba(11,59,46,0.18);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 11px;
+      line-height: 1.35;
+      color: #26372f;
+    }
+    .info-card strong { color: #0b3b2e; }
+    .info-card.warning {
+      background: rgba(179,139,0,0.10);
+      border-color: rgba(179,139,0,0.26);
+      color: #403319;
+    }
+    .vin-inline {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 6px;
+      align-items: center;
+    }
+    .mini-action-btn {
+      border: none;
+      background: var(--accent);
+      color: var(--accent-text);
+      padding: 7px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .mini-action-btn:hover { filter: brightness(1.07); }
+    .document-actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 14px;
+      background: rgba(26,18,8,0.08);
+      border: 1px solid rgba(26,18,8,0.14);
+    }
+    .document-actions-bar .action-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #2b1a0a;
+      margin-right: 4px;
+    }
+    .line-workbench-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(11,59,46,0.10), rgba(255,255,255,0.30));
+      border: 1px solid rgba(11,59,46,0.16);
+    }
+    .line-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      justify-content: flex-end;
+    }
+    .line-actions .tab-btn {
+      border-radius: 10px;
+      padding: 8px 11px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    }
+    .line-actions .primary-money { background: var(--accent); }
+    .line-actions .diagnostic-money { background: #23354a; }
+    .line-actions .parts-money { background: #574018; }
+    .money-pulse {
+      animation: moneyPulse 0.38s ease-out;
+    }
+    @keyframes moneyPulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 rgba(11,59,46,0); }
+      40% { transform: scale(1.012); box-shadow: 0 0 0 4px rgba(11,59,46,0.12); }
+      100% { transform: scale(1); box-shadow: 0 0 0 rgba(11,59,46,0); }
     }
     .check-stack {
       display: grid;
@@ -252,9 +348,9 @@
     }
     #jobTypeRateHint {
       margin-top: 4px;
-      font-size: 10px;
+      font-size: 10.5px;
       color: #355143;
-      font-weight: 600;
+      font-weight: 700;
     }
     @media (max-width: 1120px) {
       .toolbar-section,
@@ -266,6 +362,9 @@
         grid-column: 1 / -1;
       }
       .check-stack { grid-template-columns: 1fr; }
+      .vin-inline { grid-template-columns: 1fr; }
+      .document-actions-bar .action-label { width: 100%; }
+      .line-actions { justify-content: flex-start; }
     }
 
     /* Tables */
@@ -1162,35 +1261,46 @@
                 <option value="Estimate valid 14 days">Estimate valid 14 days</option>
               </select>
             </div>
+            <div class="field toolbar-field span-12">
+              <div class="info-card"><strong>Terms = when payment is expected.</strong> “Due on receipt” means payment is due when the invoice is given / vehicle is picked up. “Net 7/15/30” gives that many days. “Estimate valid 14 days” is for quotes before work starts.</div>
+            </div>
           </div>
         </section>
 
         <section class="toolbar-section">
           <div class="section-title">Vehicle</div>
           <div class="toolbar-fields">
-            <div class="field toolbar-field span-3">
+            <div class="field toolbar-field span-2">
               <label for="vehicleYear">Year</label>
               <select id="vehicleYear"></select>
             </div>
-            <div class="field toolbar-field span-4">
+            <div class="field toolbar-field span-3">
               <label for="vehicleMake">Make</label>
               <select id="vehicleMake"></select>
               <input id="vehicleMakeCustom" class="vehicle-custom" type="text" placeholder="Custom make" style="display:none;" />
             </div>
-            <div class="field toolbar-field span-5">
+            <div class="field toolbar-field span-4">
               <label for="vehicleModel">Model</label>
               <select id="vehicleModel"></select>
               <input id="vehicleModelCustom" class="vehicle-custom" type="text" placeholder="Custom model" style="display:none;" />
             </div>
-            <div class="field toolbar-field span-5">
+            <div class="field toolbar-field span-3">
               <label for="vehicleEngine">Engine</label>
-              <input id="vehicleEngine" type="text" placeholder="5.9 Cummins / 6.7 Powerstroke / 3.0 TDI" />
+              <input id="vehicleEngine" type="text" placeholder="5.9 Cummins / 6.7 Powerstroke" />
+            </div>
+            <div class="field toolbar-field span-6">
+              <label for="invoiceVIN">VIN</label>
+              <div class="vin-inline">
+                <input id="invoiceVIN" type="text" placeholder="17-digit VIN" />
+                <button type="button" id="decodeInvoiceVIN" class="mini-action-btn">Decode VIN</button>
+              </div>
+              <div id="invoiceVinResult" class="toolbar-compact-note">Decoder can fill year, make, model, and engine.</div>
             </div>
             <div class="field toolbar-field span-3">
               <label for="odometer">Odometer</label>
               <input id="odometer" type="number" step="1" min="0" placeholder="miles" />
             </div>
-            <div class="field toolbar-field span-4">
+            <div class="field toolbar-field span-3">
               <label for="licensePlate">License Plate</label>
               <input id="licensePlate" type="text" placeholder="ABC-1234" />
             </div>
@@ -1233,10 +1343,13 @@
               <label for="shopSuppliesCap">Supplies Cap</label>
               <input id="shopSuppliesCap" type="number" step="0.01" value="50" />
             </div>
+            <div class="field toolbar-field span-12">
+              <div class="info-card"><strong>Rate helper:</strong> General Repair and Maintenance use the general rate. Diesel Diagnostic and Electrical / Drivability use the diagnostic rate and the $150 minimum when diagnostic hours are entered.</div>
+            </div>
           </div>
         </section>
 
-        <section class="toolbar-section third">
+        <section class="toolbar-section third money-focus">
           <div class="section-title">Parts / Tax</div>
           <div class="toolbar-fields">
             <div class="field toolbar-field span-6">
@@ -1256,10 +1369,13 @@
                 <label><input type="checkbox" id="taxShopSupplies" checked /> Supplies</label>
               </div>
             </div>
+            <div class="field toolbar-field span-12">
+              <div class="info-card"><strong>Tax buckets:</strong> Check only what should be taxable. Common setup is parts taxable, labor not taxable, supplies taxable — but you can change it per job.</div>
+            </div>
           </div>
         </section>
 
-        <section class="toolbar-section third">
+        <section class="toolbar-section third money-focus">
           <div class="section-title">Deposit / Payment</div>
           <div class="toolbar-fields">
             <div class="field toolbar-field span-6">
@@ -1274,6 +1390,9 @@
             <div class="field toolbar-field span-6">
               <label for="customDeposit">Custom Deposit</label>
               <input id="customDeposit" type="number" step="0.01" min="0" value="0" />
+            </div>
+            <div class="field toolbar-field span-12">
+              <div class="info-card warning"><strong>Deposit policy:</strong> “Parts upfront” means the required deposit equals the parts subtotal. “50% of total” is useful for big jobs. “Custom” lets you type your own number.</div>
             </div>
             <div class="field toolbar-field span-6">
               <label for="paymentMethod">Payment Method</label>
@@ -1335,13 +1454,8 @@
         </section>
       </div>
 
-      <div class="row buttons" style="margin-top:6px;">
-        <button type="button" id="addLabor" class="tab-btn">+ Labor Line</button>
-        <button type="button" id="addDiagnostic" class="tab-btn">+ Diagnostic Line</button>
-        <button type="button" id="addPart" class="tab-btn">+ Part Line</button>
-        <button type="button" id="applyMarkup" class="tab-btn">Apply Tiered Markup</button>
-        <button type="button" id="quickEstimate" class="tab-btn">Quick Estimate</button>
-        <button type="button" id="recalc" class="tab-btn">Recalculate</button>
+      <div class="document-actions-bar">
+        <div class="action-label">Document Actions</div>
         <button type="button" id="markPaid" class="tab-btn" style="background:var(--accent);">Mark Paid</button>
         <button type="button" id="approve" class="tab-btn">Approve Estimate</button>
         <button type="button" id="convert" class="tab-btn">Convert to Invoice</button>
@@ -1358,8 +1472,22 @@
     <div class="grid-2" style="margin-top:8px;">
       <!-- Lines + totals -->
       <div class="card">
+        <div class="line-workbench-head">
+          <div>
+            <div class="section-title">Line Items</div>
+            <div class="muted">Add labor, diagnostic, and parts lines here. Totals update as you type.</div>
+          </div>
+          <div class="line-actions">
+            <button type="button" id="addLabor" class="tab-btn primary-money">+ Labor</button>
+            <button type="button" id="addDiagnostic" class="tab-btn diagnostic-money">+ Diagnostic</button>
+            <button type="button" id="addPart" class="tab-btn parts-money">+ Part</button>
+            <button type="button" id="applyMarkup" class="tab-btn">Apply Tiered Markup</button>
+            <button type="button" id="quickEstimate" class="tab-btn">Quick Estimate</button>
+            <button type="button" id="recalc" class="tab-btn">Recalculate</button>
+          </div>
+        </div>
+
         <div style="display:flex; flex-direction:column; align-items:stretch; gap:8px; margin-bottom:10px;">
-          <div class="section-title">Line Items</div>
           <div class="totals-shell">
             <div class="totals-panel">
               <div class="totals-line"><span>Labor Subtotal:</span> <span id="laborSub">$0.00</span></div>
@@ -1788,7 +1916,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.1';
+const APP_VERSION = 'v1.5.2';
 const APP_BUILD_DATE = '2026-05-08';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -2981,6 +3109,67 @@ window.addEventListener('load', function(){
       xhr.send(null);
     });
 
+    function decodeInvoiceVinIntoVehicle(){
+      var vinEl = document.getElementById('invoiceVIN');
+      var box = document.getElementById('invoiceVinResult');
+      if(!vinEl || !box) return;
+      var vin = vinEl.value.trim();
+      box.textContent = 'Decoding…';
+      if(!vin || vin.length < 11){
+        box.textContent = 'Enter a valid VIN first. 17 digits is best.';
+        return;
+      }
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', 'https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/'+encodeURIComponent(vin)+'?format=json', true);
+      xhr.onreadystatechange = function(){
+        if(xhr.readyState === 4){
+          if(xhr.status >= 200 && xhr.status < 300){
+            try{
+              var data = JSON.parse(xhr.responseText || '{}');
+              var map = {}, i, r;
+              for(i=0;i<(data.Results || []).length;i++){
+                r = data.Results[i];
+                if(r.Variable && r.Value) map[r.Variable] = r.Value;
+              }
+              var year = map['Model Year'] || '';
+              var make = map['Make'] || '';
+              var model = map['Model'] || '';
+              var engBits = [
+                map['Engine Model'],
+                map['Engine Configuration'],
+                map['Displacement (L)'] ? (map['Displacement (L)'] + 'L') : ''
+              ].filter(Boolean);
+              setVehicleControlValue('vehicleYear', year);
+              setVehicleControlValue('vehicleMake', make);
+              setVehicleControlValue('vehicleModel', model);
+              if(engBits.length) document.getElementById('vehicleEngine').value = engBits.join(' ');
+              var j = ensureJobSelected(true);
+              if(j){
+                j.vin = vin;
+                j.vehicleYear = getVehicleFieldValue('vehicleYear');
+                j.vehicleMake = getVehicleFieldValue('vehicleMake');
+                j.vehicleModel = getVehicleFieldValue('vehicleModel');
+                j.vehicleEngine = document.getElementById('vehicleEngine').value.trim();
+              }
+              box.innerHTML = '<strong>VIN decoded:</strong> ' + escapeHtml([year, make, model].filter(Boolean).join(' ') || 'vehicle found');
+              persistLines();
+            }catch(e){
+              box.textContent = 'VIN parse failed.';
+              if(window.AppLog) AppLog.error('invoice VIN parse failed', e);
+            }
+          } else {
+            box.textContent = 'VIN decode failed.';
+          }
+        }
+      };
+      xhr.send(null);
+    }
+
+    (function(){
+      var btn = document.getElementById('decodeInvoiceVIN');
+      if(btn) btn.addEventListener('click', decodeInvoiceVinIntoVehicle);
+    })();
+
     function applyTemplate(tpl){
       if(!tpl || !tpl.items) return;
       ensureJobSelected(true);
@@ -3238,8 +3427,7 @@ window.addEventListener('load', function(){
         // IMPORTANT: skipPersist so we don't overwrite j.lines while building rows
         addLine(l.type,l.desc,l.qty,l.list,l.cost,l.unit,l.note,{skipPersist:true, markupPct:l.markupPct});
       }
-      // Single persist after DOM matches full j.lines
-      persistLines();
+      // Wait to persist until all invoice fields below are populated.
 
       $('#invNo').value = j.invNo||'';
       $('#roNo').value = j.roNo||'';
@@ -3249,6 +3437,7 @@ window.addEventListener('load', function(){
       setVehicleControlValue('vehicleMake', j.vehicleMake || '');
       setVehicleControlValue('vehicleModel', j.vehicleModel || '');
       $('#vehicleEngine').value = j.vehicleEngine || '';
+      $('#invoiceVIN').value = j.vin || '';
       $('#dueDate').value = j.dueDate||'';
       $('#paymentTerms').value = j.paymentTerms||'Due on receipt';
       $('#odometer').value = j.odometer||'';
@@ -3267,8 +3456,8 @@ window.addEventListener('load', function(){
       $('#recommendedFutureRepairs').value = j.recommendedFutureRepairs||'';
       renderPhotoGrid();
       $('#photosOnPdf').checked = j.photosOnPdf!==false;
-      updatePreview();
-      recalcTotals();
+      applyJobTypeRateDefaults({force:false, updateRows:true});
+      persistLines();
       syncPaymentState();
       updateInvoiceActionButtons();
     }
@@ -3446,6 +3635,7 @@ window.addEventListener('load', function(){
       j.vehicleMake = getVehicleFieldValue('vehicleMake');
       j.vehicleModel = getVehicleFieldValue('vehicleModel');
       j.vehicleEngine = $('#vehicleEngine').value.trim();
+      j.vin = $('#invoiceVIN').value.trim();
       j.dueDate = $('#dueDate').value;
       j.paymentTerms = $('#paymentTerms').value;
       j.odometer = $('#odometer').value.trim();
@@ -4091,7 +4281,7 @@ window.addEventListener('load', function(){
     });
     document.getElementById('applyMarkup').addEventListener('click', applyDefaultMarkup);
     document.getElementById('recalc').addEventListener('click', recalcTotals);
-    ['invNo','roNo','docType','vehicleYear','vehicleMake','vehicleMakeCustom','vehicleModel','vehicleModelCustom','vehicleEngine','dueDate','paymentTerms','odometer','licensePlate','payLink','emailTo','paymentMethod','paidDate','amountPaid','diagnosticRate','minDiagnosticCharge','shopSuppliesPercent','shopSuppliesCap','salesTax','taxParts','taxLabor','taxShopSupplies','depositMode','customDeposit','customerSuppliedParts'].forEach(function(id){
+    ['invNo','roNo','docType','vehicleYear','vehicleMake','vehicleMakeCustom','vehicleModel','vehicleModelCustom','vehicleEngine','invoiceVIN','dueDate','paymentTerms','odometer','licensePlate','payLink','emailTo','paymentMethod','paidDate','amountPaid','diagnosticRate','minDiagnosticCharge','shopSuppliesPercent','shopSuppliesCap','salesTax','taxParts','taxLabor','taxShopSupplies','depositMode','customDeposit','customerSuppliedParts'].forEach(function(id){
       var el = document.getElementById(id);
       if(el){
         el.addEventListener('input', function(){ if(id==='docType') ensureDocumentNumber(); if(id==='paymentMethod' || id==='paidDate' || id==='amountPaid') syncPaymentState(); persistLines(); });
@@ -4414,6 +4604,15 @@ window.addEventListener('load', function(){
     }
 
 
+    function flashMoneyUpdate(){
+      var panel = document.querySelector('.totals-panel');
+      if(!panel) return;
+      panel.classList.remove('money-pulse');
+      // Force reflow so repeated money changes still visibly pulse.
+      void panel.offsetWidth;
+      panel.classList.add('money-pulse');
+    }
+
     function updateInvoiceAnalytics(stats){
       function clampPct(n){
         n = Number(n || 0);
@@ -4674,6 +4873,7 @@ window.addEventListener('load', function(){
         warrantyHours: warrantyHours,
         margin: margin
       });
+      flashMoneyUpdate();
 
       if (typeof AppLog !== 'undefined' && AppLog && typeof AppLog.info === 'function') {
         var recalcSummary = 'recalcTotals :: labor=' + fmt(laborSubtotal) +
@@ -4763,6 +4963,7 @@ setupCostAutoCalc();
       pushCheck('supabase config', !!(SUPABASE_URL && SUPABASE_ANON_KEY), 'cloud save keys present');
       pushCheck('invoice math controls', !!(document.getElementById('diagnosticRate') && document.getElementById('minDiagnosticCharge') && document.getElementById('depositMode') && document.getElementById('customerSuppliedParts')), 'diagnostic/deposit/warranty controls present');
       pushCheck('vehicle dropdowns', !!(document.getElementById('vehicleYear') && document.getElementById('vehicleMake') && document.getElementById('vehicleModel') && document.getElementById('jobVehicleYear')), 'year/make/model dropdowns present');
+      pushCheck('invoice VIN decoder', !!(document.getElementById('invoiceVIN') && document.getElementById('decodeInvoiceVIN') && document.getElementById('invoiceVinResult')), 'invoice VIN decode controls present');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
       var total = checks.length;
