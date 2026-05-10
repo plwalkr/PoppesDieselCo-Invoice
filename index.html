@@ -1378,7 +1378,7 @@
     }
 
 
-    /* v1.5.15 — Supabase login + calendar-only fullscreen + visible time ruler */
+    /* v1.5.15 — appointment popover + Supabase login + calendar-only fullscreen + visible time ruler */
     .schedule-calendar-grid {
       grid-template-columns: 104px repeat(7, minmax(170px, 1fr)) !important;
     }
@@ -2047,6 +2047,232 @@
     @media (max-width: 780px) {
       .cloud-auth-grid {
         grid-template-columns: minmax(0,1fr);
+      }
+    }
+
+
+    /* v1.5.17 — calendar appointment popover + current-time line */
+    .calendar-day-lane {
+      isolation: isolate;
+    }
+    .calendar-now-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 0;
+      border-top: 3px solid #b3272d;
+      z-index: 7;
+      pointer-events: none;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.55), 0 0 14px rgba(179,39,45,0.35);
+    }
+    .calendar-now-line::before {
+      content: attr(data-time);
+      position: absolute;
+      left: 6px;
+      top: -13px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #b3272d;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 950;
+      letter-spacing: .02em;
+      box-shadow: 0 4px 10px rgba(20,16,12,0.20);
+      white-space: nowrap;
+    }
+    .calendar-now-line::after {
+      content: '';
+      position: absolute;
+      right: 5px;
+      top: -5px;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #b3272d;
+      box-shadow: 0 0 0 3px rgba(179,39,45,0.18);
+    }
+    .schedule-popover-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 10050;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(8,10,12,0.48);
+      backdrop-filter: blur(4px);
+    }
+    .schedule-popover-backdrop.active {
+      display: flex;
+    }
+    .schedule-popover {
+      width: min(960px, 96vw);
+      max-height: min(86vh, 860px);
+      overflow: auto;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 5% 0%, rgba(179,39,45,0.10), transparent 26%),
+        linear-gradient(180deg, #fff8ea, #ecd8b8);
+      border: 1px solid rgba(16,20,24,0.18);
+      box-shadow: 0 28px 70px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.82);
+      color: #101418;
+    }
+    .schedule-popover-head {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 14px 15px;
+      background: linear-gradient(135deg, #12171d, #1b2229);
+      color: #fff7ea;
+      border-radius: 23px 23px 0 0;
+      box-shadow: inset 0 -1px 0 rgba(255,255,255,0.09);
+    }
+    .schedule-popover-title {
+      display: grid;
+      gap: 2px;
+    }
+    .schedule-popover-title strong {
+      font-size: 16px;
+      letter-spacing: .02em;
+    }
+    .schedule-popover-title span {
+      font-size: 11.5px;
+      color: rgba(255,247,234,0.72);
+      font-weight: 750;
+    }
+    .schedule-popover-actions {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .schedule-popover-actions .tab-btn,
+    .schedule-popover-close {
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 11px;
+      min-height: 34px;
+      padding: 7px 11px;
+      font-size: 11.5px;
+      font-weight: 950;
+      background: #fff7ea;
+      color: #101418;
+      cursor: pointer;
+    }
+    .schedule-popover-actions .primary {
+      background: #b3272d;
+      color: #fff;
+    }
+    .schedule-popover-actions .danger {
+      background: #101418;
+      color: #fff;
+    }
+    .schedule-popover-close {
+      width: 36px;
+      padding: 0;
+      display: inline-grid;
+      place-items: center;
+      font-size: 18px;
+      line-height: 1;
+    }
+    .schedule-popover-body {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+    .schedule-popover-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0,1fr));
+      gap: 9px;
+      align-items: end;
+    }
+    .schedule-popover .field {
+      min-width: 0;
+      margin: 0;
+    }
+    .schedule-popover .field.span-2 { grid-column: span 2; }
+    .schedule-popover .field.span-3 { grid-column: span 3; }
+    .schedule-popover .field.span-4 { grid-column: span 4; }
+    .schedule-popover .field.span-5 { grid-column: span 5; }
+    .schedule-popover .field.span-6 { grid-column: span 6; }
+    .schedule-popover .field.span-8 { grid-column: span 8; }
+    .schedule-popover .field.span-12 { grid-column: 1 / -1; }
+    .schedule-popover label {
+      font-size: 10.8px;
+      text-transform: uppercase;
+      letter-spacing: .055em;
+      font-weight: 900;
+      color: #4e3c2a;
+    }
+    .schedule-popover input,
+    .schedule-popover select,
+    .schedule-popover textarea {
+      min-height: 36px;
+      border-radius: 11px;
+      background: #fffaf0;
+      border: 1px solid rgba(16,20,24,0.18);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.78);
+    }
+    .schedule-popover textarea {
+      min-height: 90px;
+    }
+    .schedule-popover-summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 8px;
+    }
+    .schedule-popover-metric {
+      border-radius: 15px;
+      padding: 9px;
+      background: rgba(255,255,255,0.56);
+      border: 1px solid rgba(16,20,24,0.10);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.70);
+    }
+    .schedule-popover-metric span {
+      display: block;
+      font-size: 10px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: #6b5945;
+      margin-bottom: 3px;
+    }
+    .schedule-popover-metric strong {
+      display: block;
+      font-size: 13px;
+      color: #101418;
+      word-break: break-word;
+    }
+    @media (max-width: 780px) {
+      .schedule-popover-backdrop {
+        padding: 8px;
+        align-items: stretch;
+      }
+      .schedule-popover {
+        width: 100%;
+        max-height: calc(100vh - 16px);
+        border-radius: 18px;
+      }
+      .schedule-popover-head {
+        border-radius: 17px 17px 0 0;
+      }
+      .schedule-popover-grid,
+      .schedule-popover-summary {
+        grid-template-columns: minmax(0,1fr);
+      }
+      .schedule-popover .field,
+      .schedule-popover .field.span-2,
+      .schedule-popover .field.span-3,
+      .schedule-popover .field.span-4,
+      .schedule-popover .field.span-5,
+      .schedule-popover .field.span-6,
+      .schedule-popover .field.span-8,
+      .schedule-popover .field.span-12 {
+        grid-column: 1 / -1;
       }
     }
 
@@ -3775,6 +4001,127 @@
   </section>
 </main>
 
+
+<!-- Schedule Appointment Popover -->
+<div id="schedulePopoverBackdrop" class="schedule-popover-backdrop" aria-hidden="true">
+  <div class="schedule-popover" role="dialog" aria-modal="true" aria-labelledby="schedulePopoverTitle">
+    <div class="schedule-popover-head">
+      <div class="schedule-popover-title">
+        <strong id="schedulePopoverTitle">Appointment Details</strong>
+        <span id="schedulePopoverSub">Click outside this window to close.</span>
+      </div>
+      <div class="schedule-popover-actions">
+        <button type="button" id="schedulePopoverSave" class="tab-btn primary">Save Changes</button>
+        <button type="button" id="schedulePopoverIcs" class="tab-btn">iPhone Invite</button>
+        <button type="button" id="schedulePopoverDelete" class="tab-btn danger">Delete</button>
+        <button type="button" id="schedulePopoverClose" class="schedule-popover-close" aria-label="Close">×</button>
+      </div>
+    </div>
+    <div class="schedule-popover-body">
+      <div class="schedule-popover-summary">
+        <div class="schedule-popover-metric"><span>Customer</span><strong id="spMetricCustomer">—</strong></div>
+        <div class="schedule-popover-metric"><span>Date / Time</span><strong id="spMetricTime">—</strong></div>
+        <div class="schedule-popover-metric"><span>Status</span><strong id="spMetricStatus">—</strong></div>
+        <div class="schedule-popover-metric"><span>Vehicle</span><strong id="spMetricVehicle">—</strong></div>
+      </div>
+
+      <div class="schedule-popover-grid">
+        <div class="field span-6">
+          <label for="spTitle">Appointment / Work Needed</label>
+          <input id="spTitle" type="text" />
+        </div>
+        <div class="field span-3">
+          <label for="spType">Category</label>
+          <select id="spType">
+            <option>General Repair</option>
+            <option>Diesel Diagnostic</option>
+            <option>Electrical / Drivability</option>
+            <option>Maintenance</option>
+            <option>Fabrication</option>
+            <option>Pickup / Delivery</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field span-3">
+          <label for="spPriority">Priority</label>
+          <select id="spPriority">
+            <option>Low</option>
+            <option selected>Normal</option>
+            <option>High</option>
+            <option>Urgent</option>
+          </select>
+        </div>
+
+        <div class="field span-3">
+          <label for="spDate">Date</label>
+          <input id="spDate" type="date" />
+        </div>
+        <div class="field span-2">
+          <label for="spStart">Start</label>
+          <input id="spStart" type="time" step="300" />
+        </div>
+        <div class="field span-2">
+          <label for="spEnd">End</label>
+          <input id="spEnd" type="time" step="300" />
+        </div>
+        <div class="field span-3">
+          <label for="spStatus">Status</label>
+          <select id="spStatus">
+            <option>Scheduled</option>
+            <option>Confirmed</option>
+            <option>In Progress</option>
+            <option>Waiting Parts</option>
+            <option>Done</option>
+            <option>Canceled</option>
+          </select>
+        </div>
+        <div class="field span-2">
+          <label for="spDropoff">Drop-off / Pickup</label>
+          <select id="spDropoff">
+            <option></option>
+            <option>Drop-off</option>
+            <option>Pickup</option>
+            <option>Waiting</option>
+            <option>Mobile / Offsite</option>
+          </select>
+        </div>
+
+        <div class="field span-4">
+          <label for="spCustomer">Customer</label>
+          <input id="spCustomer" type="text" />
+        </div>
+        <div class="field span-4">
+          <label for="spPhone">Phone</label>
+          <input id="spPhone" type="text" />
+        </div>
+        <div class="field span-4">
+          <label for="spEmail">Email / iPhone</label>
+          <input id="spEmail" type="email" />
+        </div>
+
+        <div class="field span-5">
+          <label for="spVehicle">Vehicle</label>
+          <input id="spVehicle" type="text" />
+        </div>
+        <div class="field span-3">
+          <label for="spTech">Assigned Tech</label>
+          <input id="spTech" type="text" />
+        </div>
+        <div class="field span-4">
+          <label for="spJob">Linked Job</label>
+          <select id="spJob"></select>
+        </div>
+
+        <div class="field span-12">
+          <label for="spNotes">Notes</label>
+          <textarea id="spNotes" placeholder="Parts status, customer request, diagnosis plan, reminders, etc."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <!-- Debug panel -->
 <div id="debug">
   <div id="debugMeta"></div>
@@ -3870,7 +4217,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.16';
+const APP_VERSION = 'v1.5.17';
 const APP_BUILD_DATE = '2026-05-09';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -5503,6 +5850,184 @@ window.addEventListener('load', function(){
       });
     }
 
+
+    var activeSchedulePopoverId = null;
+
+    function scheduleNowLabel(d){
+      var h = d.getHours();
+      var m = d.getMinutes();
+      var hour = h === 0 ? 12 : (h > 12 ? h - 12 : h);
+      return hour + ':' + String(m).padStart(2,'0') + (h >= 12 ? ' PM' : ' AM');
+    }
+
+    function scheduleRefreshPopoverMetrics(s){
+      if(!s) return;
+      var mc = document.getElementById('spMetricCustomer');
+      var mt = document.getElementById('spMetricTime');
+      var ms = document.getElementById('spMetricStatus');
+      var mv = document.getElementById('spMetricVehicle');
+      if(mc) mc.textContent = s.customerName || 'Walk-in';
+      if(mt) mt.textContent = (s.date || 'No date') + ' · ' + (s.start || 'No time') + (s.end ? ('–' + s.end) : '');
+      if(ms) ms.textContent = s.status || 'Scheduled';
+      if(mv) mv.textContent = s.vehicle || 'No vehicle listed';
+    }
+
+    function scheduleFillJobSelectForPopover(selectedId){
+      var sel = document.getElementById('spJob');
+      if(!sel) return;
+      var html = '<option value="">No linked job</option>';
+      (DB.jobs || []).forEach(function(j){
+        var cust = (DB.customers || []).find(function(c){ return c.id === j.customerId; });
+        var label = (cust ? cust.name + ' — ' : '') + (j.title || 'Untitled Job');
+        html += '<option value="'+escapeHtml(j.id)+'" '+(j.id===selectedId?'selected':'')+'>'+escapeHtml(label)+'</option>';
+      });
+      sel.innerHTML = html;
+    }
+
+    function scheduleOpenPopover(id){
+      var s = (DB.appointments || []).find(function(x){ return x.id === id; });
+      if(!s) return;
+      activeSchedulePopoverId = id;
+      selectedScheduleId = id;
+
+      scheduleFillJobSelectForPopover(s.jobId || '');
+      var set = function(id, val){ var el = document.getElementById(id); if(el) el.value = val || ''; };
+      set('spTitle', s.title || '');
+      set('spType', s.type || 'General Repair');
+      set('spPriority', s.priority || 'Normal');
+      set('spDate', s.date || '');
+      set('spStart', s.start || '');
+      set('spEnd', s.end || '');
+      set('spStatus', s.status || 'Scheduled');
+      set('spDropoff', s.dropoff || '');
+      set('spCustomer', s.customerName || '');
+      set('spPhone', s.phone || '');
+      set('spEmail', s.email || '');
+      set('spVehicle', s.vehicle || '');
+      set('spTech', s.tech || '');
+      set('spJob', s.jobId || '');
+      set('spNotes', s.notes || '');
+
+      var title = document.getElementById('schedulePopoverTitle');
+      var sub = document.getElementById('schedulePopoverSub');
+      if(title) title.textContent = s.customerName ? (s.customerName + ' — Appointment') : 'Appointment Details';
+      if(sub) sub.textContent = (s.date || 'No date') + ' · ' + (s.start || 'No time') + (s.status ? (' · ' + s.status) : '');
+      scheduleRefreshPopoverMetrics(s);
+
+      var backdrop = document.getElementById('schedulePopoverBackdrop');
+      if(backdrop){
+        backdrop.classList.add('active');
+        backdrop.setAttribute('aria-hidden','false');
+      }
+      try { scheduleLoadForm(id); } catch(_){}
+      renderSchedule();
+    }
+
+    function scheduleClosePopover(){
+      var backdrop = document.getElementById('schedulePopoverBackdrop');
+      if(backdrop){
+        backdrop.classList.remove('active');
+        backdrop.setAttribute('aria-hidden','true');
+      }
+      activeSchedulePopoverId = null;
+    }
+
+    function scheduleReadPopoverAppointment(){
+      if(!activeSchedulePopoverId) return null;
+      var existing = (DB.appointments || []).find(function(x){ return x.id === activeSchedulePopoverId; });
+      if(!existing) return null;
+      var val = function(id){ var el = document.getElementById(id); return el ? el.value : ''; };
+      var jobId = val('spJob');
+      existing.title = val('spTitle') || 'Shop Appointment';
+      existing.type = val('spType') || 'General Repair';
+      existing.priority = val('spPriority') || 'Normal';
+      existing.date = val('spDate') || scheduleTodayKey();
+      existing.start = scheduleRoundTimeValue(val('spStart'));
+      existing.end = scheduleRoundTimeValue(val('spEnd'));
+      existing.status = val('spStatus') || 'Scheduled';
+      existing.dropoff = val('spDropoff');
+      existing.customerName = val('spCustomer');
+      existing.phone = val('spPhone');
+      existing.email = val('spEmail');
+      existing.vehicle = val('spVehicle');
+      existing.tech = val('spTech');
+      existing.jobId = jobId || '';
+      existing.notes = val('spNotes');
+      existing.updatedAt = new Date().toISOString();
+
+      if(jobId){
+        var j = (DB.jobs || []).find(function(x){ return x.id === jobId; });
+        if(j){
+          existing.customerId = j.customerId || existing.customerId || '';
+          if(!existing.customerName){
+            var c = (DB.customers || []).find(function(x){ return x.id === j.customerId; });
+            existing.customerName = c ? c.name : existing.customerName;
+          }
+        }
+      }
+
+      return existing;
+    }
+
+    function scheduleSavePopover(){
+      var s = scheduleReadPopoverAppointment();
+      if(!s) return;
+      saveDB();
+      selectedScheduleId = s.id;
+      scheduleRefreshPopoverMetrics(s);
+      renderSchedule();
+      scheduleShowWarning('');
+      try { AppLog.info('schedule popover saved :: ' + (s.customerName || s.title || s.id)); } catch(_){}
+    }
+
+    function scheduleDeletePopover(){
+      if(!activeSchedulePopoverId) return;
+      var s = (DB.appointments || []).find(function(x){ return x.id === activeSchedulePopoverId; });
+      if(!s) return;
+      var ok = confirm('Delete this appointment?\n\n' + (s.customerName || 'Appointment') + ' — ' + (s.title || ''));
+      if(!ok) return;
+      DB.appointments = (DB.appointments || []).filter(function(x){ return x.id !== activeSchedulePopoverId; });
+      if(selectedScheduleId === activeSchedulePopoverId) selectedScheduleId = null;
+      saveDB();
+      scheduleClosePopover();
+      renderSchedule();
+    }
+
+    function scheduleDownloadPopoverIcs(){
+      if(activeSchedulePopoverId){
+        selectedScheduleId = activeSchedulePopoverId;
+        scheduleDownloadIcs();
+      }
+    }
+
+    function scheduleSetupPopoverEvents(){
+      var backdrop = document.getElementById('schedulePopoverBackdrop');
+      if(!backdrop || backdrop.getAttribute('data-wired') === '1') return;
+      backdrop.setAttribute('data-wired','1');
+
+      backdrop.addEventListener('click', function(ev){
+        if(ev.target === backdrop) scheduleClosePopover();
+      });
+      var close = document.getElementById('schedulePopoverClose');
+      var save = document.getElementById('schedulePopoverSave');
+      var del = document.getElementById('schedulePopoverDelete');
+      var ics = document.getElementById('schedulePopoverIcs');
+      if(close) close.addEventListener('click', scheduleClosePopover);
+      if(save) save.addEventListener('click', scheduleSavePopover);
+      if(del) del.addEventListener('click', scheduleDeletePopover);
+      if(ics) ics.addEventListener('click', scheduleDownloadPopoverIcs);
+
+      ['spStart','spEnd'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el) el.addEventListener('change', function(){ el.value = scheduleRoundTimeValue(el.value); });
+      });
+
+      document.addEventListener('keydown', function(ev){
+        if(ev.key === 'Escape' && backdrop.classList.contains('active')) scheduleClosePopover();
+      });
+    }
+
+
     function renderScheduleCalendar(list){
       var grid = document.getElementById('schedCalendarGrid');
       if(!grid) return;
@@ -5533,6 +6058,14 @@ window.addEventListener('load', function(){
       days.forEach(function(day){
         var dayItems = (list||[]).filter(function(s){ return s.date === day.key; }).sort(function(a,b){ return scheduleDateObj(a) - scheduleDateObj(b); });
         html += '<div class="calendar-day-lane '+(day.key===today?'today':'')+'" data-date="'+escapeHtml(day.key)+'" style="min-height:'+minHeight+'px">';
+        if(day.key===today){
+          var now = new Date();
+          var nowMin = now.getHours()*60 + now.getMinutes();
+          if(nowMin >= hoursStart*60 && nowMin <= hoursEnd*60){
+            var nowTop = Math.max(0, Math.min(minHeight, (nowMin - hoursStart*60) * pxPerMinute));
+            html += '<div class="calendar-now-line" data-time="'+escapeHtml(scheduleNowLabel(now))+'" style="top:'+nowTop+'px"></div>';
+          }
+        }
         if(!dayItems.length){
           html += '<div class="calendar-empty-day">Open schedule</div>';
         }
@@ -5560,7 +6093,7 @@ window.addEventListener('load', function(){
       grid.innerHTML = html;
       $all('.calendar-event', grid).forEach(function(el){
         el.addEventListener('click', function(){
-          scheduleLoadForm(el.getAttribute('data-schedule-id'));
+          scheduleOpenPopover(el.getAttribute('data-schedule-id'));
         });
       });
       $all('.calendar-day-lane', grid).forEach(function(lane){
@@ -5617,7 +6150,7 @@ window.addEventListener('load', function(){
         cell.addEventListener('click', function(ev){
           var mini = ev.target && ev.target.closest ? ev.target.closest('.month-mini') : null;
           if(mini){
-            scheduleLoadForm(mini.getAttribute('data-schedule-id'));
+            scheduleOpenPopover(mini.getAttribute('data-schedule-id'));
             return;
           }
           var date = cell.getAttribute('data-month-date');
@@ -5686,6 +6219,7 @@ window.addEventListener('load', function(){
       });
       var job=document.getElementById('schedJob'); if(job) job.addEventListener('change', function(){ scheduleFillFromJob(this.value); });
       ['schedDate','schedStart','schedEnd'].forEach(function(id){ var el=document.getElementById(id); if(el) el.addEventListener('change', function(){ scheduleShowWarning(scheduleOverlapMessage(scheduleFormData())); }); });
+      scheduleSetupPopoverEvents();
       renderSchedule();
     }
 
@@ -7923,7 +8457,7 @@ setupCostAutoCalc();
       pushCheck('vehicle dropdowns', !!(document.getElementById('vehicleYear') && document.getElementById('vehicleMake') && document.getElementById('vehicleModel') && document.getElementById('jobVehicleYear')), 'year/make/model dropdowns present');
       pushCheck('dashboard command center', !!(document.getElementById('battlePlanSummary') && document.getElementById('dashPipeline') && document.getElementById('dashProfitLeaks')), 'dashboard business intelligence nodes present');
       pushCheck('invoice VIN decoder', !!(document.getElementById('invoiceVIN') && document.getElementById('decodeInvoiceVIN') && document.getElementById('invoiceVinResult')), 'invoice VIN decode controls present');
-      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedFullscreen') && document.getElementById('schedExportIcs')), 'week/month calendar boards, Supabase login + calendar-only fullscreen controls, and iPhone export present');
+      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedFullscreen') && document.getElementById('schedExportIcs') && document.getElementById('schedulePopoverBackdrop')), 'week/month boards, appointment popover, current-time line support, fullscreen controls, and iPhone export present');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
       var total = checks.length;
@@ -7961,3 +8495,5 @@ setupCostAutoCalc();
 
 </body>
 </html>
+
+
