@@ -3251,11 +3251,11 @@
           </div>
           <div class="schedule-field s2">
             <label for="schedStart">Start</label>
-            <input id="schedStart" type="time" / step="300">
+            <input id="schedStart" type="time" step="300" />
           </div>
           <div class="schedule-field s2">
             <label for="schedEnd">End <span class="hover-help" tabindex="0" data-help="End time helps the schedule warn you when two jobs overlap. Use a rough block if you do not know the exact time.">?</span></label>
-            <input id="schedEnd" type="time" / step="300">
+            <input id="schedEnd" type="time" step="300" />
           </div>
           <div class="schedule-field s2">
             <label for="schedPriority">Priority</label>
@@ -4217,7 +4217,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.17';
+const APP_VERSION = 'v1.5.18';
 const APP_BUILD_DATE = '2026-05-09';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -5885,8 +5885,9 @@ window.addEventListener('load', function(){
     }
 
     function scheduleOpenPopover(id){
-      var s = (DB.appointments || []).find(function(x){ return x.id === id; });
-      if(!s) return;
+      var s = (DB.schedules || []).find(function(x){ return x.id === id; });
+      if(!s && DB.appointments) s = (DB.appointments || []).find(function(x){ return x.id === id; });
+      if(!s) { try { AppLog.warn('schedule popover: appointment not found :: ' + id); } catch(_){} return; }
       activeSchedulePopoverId = id;
       selectedScheduleId = id;
 
@@ -5899,12 +5900,12 @@ window.addEventListener('load', function(){
       set('spStart', s.start || '');
       set('spEnd', s.end || '');
       set('spStatus', s.status || 'Scheduled');
-      set('spDropoff', s.dropoff || '');
+      set('spDropoff', s.location || s.dropoff || '');
       set('spCustomer', s.customerName || '');
       set('spPhone', s.phone || '');
       set('spEmail', s.email || '');
       set('spVehicle', s.vehicle || '');
-      set('spTech', s.tech || '');
+      set('spTech', s.assignedTo || s.tech || '');
       set('spJob', s.jobId || '');
       set('spNotes', s.notes || '');
 
@@ -5934,7 +5935,7 @@ window.addEventListener('load', function(){
 
     function scheduleReadPopoverAppointment(){
       if(!activeSchedulePopoverId) return null;
-      var existing = (DB.appointments || []).find(function(x){ return x.id === activeSchedulePopoverId; });
+      var existing = (DB.schedules || []).find(function(x){ return x.id === activeSchedulePopoverId; });
       if(!existing) return null;
       var val = function(id){ var el = document.getElementById(id); return el ? el.value : ''; };
       var jobId = val('spJob');
@@ -5945,12 +5946,12 @@ window.addEventListener('load', function(){
       existing.start = scheduleRoundTimeValue(val('spStart'));
       existing.end = scheduleRoundTimeValue(val('spEnd'));
       existing.status = val('spStatus') || 'Scheduled';
-      existing.dropoff = val('spDropoff');
+      existing.location = val('spDropoff');
       existing.customerName = val('spCustomer');
       existing.phone = val('spPhone');
       existing.email = val('spEmail');
       existing.vehicle = val('spVehicle');
-      existing.tech = val('spTech');
+      existing.assignedTo = val('spTech');
       existing.jobId = jobId || '';
       existing.notes = val('spNotes');
       existing.updatedAt = new Date().toISOString();
@@ -5982,11 +5983,11 @@ window.addEventListener('load', function(){
 
     function scheduleDeletePopover(){
       if(!activeSchedulePopoverId) return;
-      var s = (DB.appointments || []).find(function(x){ return x.id === activeSchedulePopoverId; });
+      var s = (DB.schedules || []).find(function(x){ return x.id === activeSchedulePopoverId; });
       if(!s) return;
       var ok = confirm('Delete this appointment?\n\n' + (s.customerName || 'Appointment') + ' — ' + (s.title || ''));
       if(!ok) return;
-      DB.appointments = (DB.appointments || []).filter(function(x){ return x.id !== activeSchedulePopoverId; });
+      DB.schedules = (DB.schedules || []).filter(function(x){ return x.id !== activeSchedulePopoverId; });
       if(selectedScheduleId === activeSchedulePopoverId) selectedScheduleId = null;
       saveDB();
       scheduleClosePopover();
@@ -6027,6 +6028,35 @@ window.addEventListener('load', function(){
       });
     }
 
+
+
+    /* v1.5.18 — robust appointment click wiring */
+    function scheduleWireCalendarClickDelegation(){
+      var grid = document.getElementById('schedCalendarGrid');
+      if(grid && grid.getAttribute('data-click-wired') !== '1'){
+        grid.setAttribute('data-click-wired','1');
+        grid.addEventListener('click', function(ev){
+          var card = ev.target && ev.target.closest ? ev.target.closest('.calendar-event') : null;
+          if(!card) return;
+          ev.preventDefault();
+          ev.stopPropagation();
+          scheduleOpenPopover(card.getAttribute('data-schedule-id'));
+        });
+      }
+
+      var monthGrid = document.getElementById('schedMonthGrid');
+      if(monthGrid && monthGrid.getAttribute('data-click-wired') !== '1'){
+        monthGrid.setAttribute('data-click-wired','1');
+        monthGrid.addEventListener('click', function(ev){
+          var mini = ev.target && ev.target.closest ? ev.target.closest('.month-mini') : null;
+          if(mini){
+            ev.preventDefault();
+            ev.stopPropagation();
+            scheduleOpenPopover(mini.getAttribute('data-schedule-id'));
+          }
+        });
+      }
+    }
 
     function renderScheduleCalendar(list){
       var grid = document.getElementById('schedCalendarGrid');
@@ -6196,6 +6226,7 @@ window.addEventListener('load', function(){
       if(monthCard) monthCard.classList.toggle('active', isMonthView);
       if(weekBtn) weekBtn.classList.toggle('active-view', !isMonthView);
       if(monthBtn) monthBtn.classList.toggle('active-view', isMonthView);
+      try { scheduleWireCalendarClickDelegation(); } catch(_){}
     }
     function setupScheduleTab(){
       var d=document.getElementById('schedDate'); if(d && !d.value) d.value=todayLocalInputValue();
@@ -6220,6 +6251,7 @@ window.addEventListener('load', function(){
       var job=document.getElementById('schedJob'); if(job) job.addEventListener('change', function(){ scheduleFillFromJob(this.value); });
       ['schedDate','schedStart','schedEnd'].forEach(function(id){ var el=document.getElementById(id); if(el) el.addEventListener('change', function(){ scheduleShowWarning(scheduleOverlapMessage(scheduleFormData())); }); });
       scheduleSetupPopoverEvents();
+      scheduleWireCalendarClickDelegation();
       renderSchedule();
     }
 
@@ -8457,7 +8489,7 @@ setupCostAutoCalc();
       pushCheck('vehicle dropdowns', !!(document.getElementById('vehicleYear') && document.getElementById('vehicleMake') && document.getElementById('vehicleModel') && document.getElementById('jobVehicleYear')), 'year/make/model dropdowns present');
       pushCheck('dashboard command center', !!(document.getElementById('battlePlanSummary') && document.getElementById('dashPipeline') && document.getElementById('dashProfitLeaks')), 'dashboard business intelligence nodes present');
       pushCheck('invoice VIN decoder', !!(document.getElementById('invoiceVIN') && document.getElementById('decodeInvoiceVIN') && document.getElementById('invoiceVinResult')), 'invoice VIN decode controls present');
-      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedFullscreen') && document.getElementById('schedExportIcs') && document.getElementById('schedulePopoverBackdrop')), 'week/month boards, appointment popover, current-time line support, fullscreen controls, and iPhone export present');
+      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedFullscreen') && document.getElementById('schedExportIcs') && document.getElementById('schedulePopoverBackdrop')), 'week/month boards, appointment popover, robust click wiring, current-time line support, fullscreen controls, and iPhone export present');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
       var total = checks.length;
