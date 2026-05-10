@@ -1378,7 +1378,7 @@
     }
 
 
-    /* v1.5.15 — appointment popover + Supabase login + calendar-only fullscreen + visible time ruler */
+    /* v1.5.15 — month-safe calendar fullscreen + appointment popover + Supabase login + visible time ruler */
     .schedule-calendar-grid {
       grid-template-columns: 104px repeat(7, minmax(170px, 1fr)) !important;
     }
@@ -2291,6 +2291,20 @@
     }
     .schedule-calendar-fullscreen .schedule-popover-head {
       border-radius: 20px 20px 0 0;
+    }
+
+
+    /* v1.5.20 — Month view stays visible inside calendar board fullscreen */
+    .schedule-month-card.schedule-calendar-fullscreen.active,
+    .schedule-month-card.schedule-calendar-fullscreen {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    .schedule-month-card.schedule-calendar-fullscreen #schedMonthGrid {
+      display: grid !important;
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      overflow: auto !important;
     }
 
     /* Tables */
@@ -4234,7 +4248,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.19';
+const APP_VERSION = 'v1.5.20';
 const APP_BUILD_DATE = '2026-05-09';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -5587,10 +5601,25 @@ window.addEventListener('load', function(){
     function scheduleSetView(mode){
       var wasFull = scheduleIsFullscreen();
       if(wasFull) scheduleApplyFullscreen(false);
+
+      // If an older/native browser fullscreen is active, leave it before swapping Week/Month.
+      // The app now uses CSS board-mode fullscreen so both views can switch reliably.
+      try {
+        if(document.fullscreenElement && document.exitFullscreen){
+          document.exitFullscreen().catch(function(){});
+        }
+      } catch(_) {}
+
       scheduleViewMode = mode || 'week';
       if(UI){ UI.scheduleViewMode = scheduleViewMode; saveUI(UI); }
       renderSchedule();
-      if(wasFull) setTimeout(function(){ scheduleApplyFullscreen(true); }, 80);
+
+      if(wasFull) {
+        setTimeout(function(){
+          renderSchedule();
+          scheduleApplyFullscreen(true);
+        }, 90);
+      }
     }
     function scheduleFullscreenTarget(){
       var weekCard = document.querySelector('.schedule-calendar-card');
@@ -5621,15 +5650,20 @@ window.addEventListener('load', function(){
     }
     function scheduleToggleFullscreen(){
       var goingFull = !scheduleIsFullscreen();
-      var target = scheduleFullscreenTarget();
-      scheduleApplyFullscreen(goingFull);
+
+      // Use CSS board-mode fullscreen only. Native requestFullscreen traps the visible
+      // element, which breaks switching between Week and Month boards.
       try {
-        if(goingFull && target && target.requestFullscreen){
-          target.requestFullscreen().then(function(){ schedulePlacePopoverForMode(); }).catch(function(){ schedulePlacePopoverForMode(); });
-        } else if(!goingFull && document.fullscreenElement && document.exitFullscreen){
+        if(document.fullscreenElement && document.exitFullscreen){
           document.exitFullscreen().catch(function(){});
         }
       } catch(_) {}
+
+      scheduleApplyFullscreen(goingFull);
+      setTimeout(function(){
+        renderSchedule();
+        schedulePlacePopoverForMode();
+      }, 80);
     }
     function scheduleMonthStart(anchor){
       var d = scheduleParseLocalDate(anchor);
@@ -6284,9 +6318,7 @@ window.addEventListener('load', function(){
       bind('schedThisMonth', function(){ scheduleSetMonth(scheduleTodayKey()); });
       bind('schedNextMonth', function(){ scheduleSetMonth(scheduleAddMonths(scheduleMonthAnchor, 1)); });
       document.addEventListener('fullscreenchange', function(){
-        if(!document.fullscreenElement && scheduleIsFullscreen()){
-          scheduleApplyFullscreen(false);
-        }
+        // If the browser exits old/native fullscreen, keep the app's CSS board mode stable.
         schedulePlacePopoverForMode();
       });
       var job=document.getElementById('schedJob'); if(job) job.addEventListener('change', function(){ scheduleFillFromJob(this.value); });
@@ -8530,7 +8562,7 @@ setupCostAutoCalc();
       pushCheck('vehicle dropdowns', !!(document.getElementById('vehicleYear') && document.getElementById('vehicleMake') && document.getElementById('vehicleModel') && document.getElementById('jobVehicleYear')), 'year/make/model dropdowns present');
       pushCheck('dashboard command center', !!(document.getElementById('battlePlanSummary') && document.getElementById('dashPipeline') && document.getElementById('dashProfitLeaks')), 'dashboard business intelligence nodes present');
       pushCheck('invoice VIN decoder', !!(document.getElementById('invoiceVIN') && document.getElementById('decodeInvoiceVIN') && document.getElementById('invoiceVinResult')), 'invoice VIN decode controls present');
-      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedFullscreen') && document.getElementById('schedExportIcs') && document.getElementById('schedulePopoverBackdrop')), 'week/month boards, appointment popover usable in fullscreen, robust click wiring, current-time line support, fullscreen controls, and iPhone export present');
+      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedFullscreen') && document.getElementById('schedExportIcs') && document.getElementById('schedulePopoverBackdrop')), 'week/month boards, month-safe fullscreen, appointment popover usable in fullscreen, robust click wiring, current-time line support, and iPhone export present');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
       var total = checks.length;
@@ -8568,3 +8600,5 @@ setupCostAutoCalc();
 
 </body>
 </html>
+
+
