@@ -2276,6 +2276,23 @@
       }
     }
 
+
+    /* v1.5.19 — show appointment popover inside calendar-only fullscreen */
+    .schedule-calendar-fullscreen .schedule-popover-backdrop {
+      position: absolute !important;
+      inset: 0 !important;
+      z-index: 100000 !important;
+      padding: 16px !important;
+      border-radius: inherit;
+    }
+    .schedule-calendar-fullscreen .schedule-popover {
+      max-height: calc(100% - 28px) !important;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.82);
+    }
+    .schedule-calendar-fullscreen .schedule-popover-head {
+      border-radius: 20px 20px 0 0;
+    }
+
     /* Tables */
     .table-wrap {
       overflow-x: auto;
@@ -4217,7 +4234,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.18';
+const APP_VERSION = 'v1.5.19';
 const APP_BUILD_DATE = '2026-05-09';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -5594,6 +5611,7 @@ window.addEventListener('load', function(){
       document.body.classList.remove('schedule-fullscreen-active');
       var target = scheduleFullscreenTarget();
       if(on && target) target.classList.add('schedule-calendar-fullscreen');
+      schedulePlacePopoverForMode();
       var label = on ? 'Exit Full Screen' : '⛶ Full Screen';
       ['schedFullscreen','schedFullscreenMonth'].forEach(function(id){
         var b = document.getElementById(id);
@@ -5607,7 +5625,7 @@ window.addEventListener('load', function(){
       scheduleApplyFullscreen(goingFull);
       try {
         if(goingFull && target && target.requestFullscreen){
-          target.requestFullscreen().catch(function(){});
+          target.requestFullscreen().then(function(){ schedulePlacePopoverForMode(); }).catch(function(){ schedulePlacePopoverForMode(); });
         } else if(!goingFull && document.fullscreenElement && document.exitFullscreen){
           document.exitFullscreen().catch(function(){});
         }
@@ -5884,6 +5902,27 @@ window.addEventListener('load', function(){
       sel.innerHTML = html;
     }
 
+
+    function scheduleActiveFullscreenBoard(){
+      return document.fullscreenElement ||
+        document.querySelector('.schedule-calendar-card.schedule-calendar-fullscreen') ||
+        document.querySelector('.schedule-month-card.schedule-calendar-fullscreen');
+    }
+
+    function schedulePlacePopoverForMode(){
+      var backdrop = document.getElementById('schedulePopoverBackdrop');
+      if(!backdrop) return null;
+
+      var fullBoard = scheduleActiveFullscreenBoard();
+      if(fullBoard && fullBoard.appendChild && !fullBoard.contains(backdrop)){
+        fullBoard.appendChild(backdrop);
+      } else if(!fullBoard && backdrop.parentNode !== document.body){
+        document.body.appendChild(backdrop);
+      }
+      return backdrop;
+    }
+
+
     function scheduleOpenPopover(id){
       var s = (DB.schedules || []).find(function(x){ return x.id === id; });
       if(!s && DB.appointments) s = (DB.appointments || []).find(function(x){ return x.id === id; });
@@ -5915,7 +5954,7 @@ window.addEventListener('load', function(){
       if(sub) sub.textContent = (s.date || 'No date') + ' · ' + (s.start || 'No time') + (s.status ? (' · ' + s.status) : '');
       scheduleRefreshPopoverMetrics(s);
 
-      var backdrop = document.getElementById('schedulePopoverBackdrop');
+      var backdrop = schedulePlacePopoverForMode();
       if(backdrop){
         backdrop.classList.add('active');
         backdrop.setAttribute('aria-hidden','false');
@@ -5931,6 +5970,7 @@ window.addEventListener('load', function(){
         backdrop.setAttribute('aria-hidden','true');
       }
       activeSchedulePopoverId = null;
+      if(!scheduleActiveFullscreenBoard()) schedulePlacePopoverForMode();
     }
 
     function scheduleReadPopoverAppointment(){
@@ -6247,6 +6287,7 @@ window.addEventListener('load', function(){
         if(!document.fullscreenElement && scheduleIsFullscreen()){
           scheduleApplyFullscreen(false);
         }
+        schedulePlacePopoverForMode();
       });
       var job=document.getElementById('schedJob'); if(job) job.addEventListener('change', function(){ scheduleFillFromJob(this.value); });
       ['schedDate','schedStart','schedEnd'].forEach(function(id){ var el=document.getElementById(id); if(el) el.addEventListener('change', function(){ scheduleShowWarning(scheduleOverlapMessage(scheduleFormData())); }); });
@@ -8489,7 +8530,7 @@ setupCostAutoCalc();
       pushCheck('vehicle dropdowns', !!(document.getElementById('vehicleYear') && document.getElementById('vehicleMake') && document.getElementById('vehicleModel') && document.getElementById('jobVehicleYear')), 'year/make/model dropdowns present');
       pushCheck('dashboard command center', !!(document.getElementById('battlePlanSummary') && document.getElementById('dashPipeline') && document.getElementById('dashProfitLeaks')), 'dashboard business intelligence nodes present');
       pushCheck('invoice VIN decoder', !!(document.getElementById('invoiceVIN') && document.getElementById('decodeInvoiceVIN') && document.getElementById('invoiceVinResult')), 'invoice VIN decode controls present');
-      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedFullscreen') && document.getElementById('schedExportIcs') && document.getElementById('schedulePopoverBackdrop')), 'week/month boards, appointment popover, robust click wiring, current-time line support, fullscreen controls, and iPhone export present');
+      pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedFullscreen') && document.getElementById('schedExportIcs') && document.getElementById('schedulePopoverBackdrop')), 'week/month boards, appointment popover usable in fullscreen, robust click wiring, current-time line support, fullscreen controls, and iPhone export present');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
       var total = checks.length;
@@ -8527,5 +8568,3 @@ setupCostAutoCalc();
 
 </body>
 </html>
-
-
