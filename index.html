@@ -2887,6 +2887,176 @@
     z-index: 1;
   }
 
+
+    /* v1.5.22 — comfort input patch: more room, expandable line notes, sane settings layout */
+    #invoice-toolbar label,
+    #settings label,
+    #lines label {
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+      line-height: 1.2;
+    }
+
+    #invoice-toolbar input[type="text"],
+    #invoice-toolbar input[type="number"],
+    #invoice-toolbar input[type="email"],
+    #invoice-toolbar input[type="date"],
+    #invoice-toolbar select,
+    #settings input[type="text"],
+    #settings input[type="number"],
+    #settings input[type="email"],
+    #settings textarea,
+    #settings select {
+      min-height: 38px !important;
+      padding: 8px 10px !important;
+      font-size: 14px;
+      line-height: 1.25;
+    }
+
+    #settings textarea {
+      min-height: 92px;
+    }
+
+    #settings .row > .field.small,
+    #settings .row > .field.xsmall {
+      max-width: none;
+      min-width: 210px;
+      flex: 1 1 210px;
+    }
+
+    .settings-subtitle {
+      margin: 14px 0 7px;
+      padding: 7px 9px;
+      border-radius: 12px;
+      background: linear-gradient(90deg, rgba(16,20,24,0.08), rgba(179,39,45,0.07));
+      color: #2b1a0a;
+      font-size: 11px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .settings-rate-grid,
+    .settings-info-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 9px;
+      align-items: end;
+      margin-bottom: 8px;
+    }
+    .settings-field { min-width: 0; }
+    .settings-field.s3 { grid-column: span 3; }
+    .settings-field.s4 { grid-column: span 4; }
+    .settings-field.s6 { grid-column: span 6; }
+    .settings-field.s12 { grid-column: 1 / -1; }
+    .settings-checks {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      min-height: 38px;
+      padding: 8px 10px;
+      border: 1px solid rgba(16,20,24,0.12);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.42);
+    }
+    .settings-checks label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin: 0;
+      font-size: 12px;
+      font-weight: 750;
+    }
+    .settings-summary {
+      margin-top: 8px;
+      padding: 10px 11px;
+      border-radius: 14px;
+      background: #1f1f1f;
+      color: #fff7ea;
+      font-size: 12px;
+      line-height: 1.45;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .settings-summary strong { color: #ffffff; }
+
+    #lines {
+      min-width: 1240px;
+      table-layout: fixed;
+    }
+    #lines th,
+    #lines td {
+      padding: 8px 8px;
+      vertical-align: top;
+    }
+    #lines th:nth-child(1), #lines td:nth-child(1) { width: 44px; }
+    #lines th:nth-child(2), #lines td:nth-child(2) { width: 116px !important; }
+    #lines th:nth-child(3), #lines td:nth-child(3) { width: 390px; min-width: 390px; }
+    #lines th:nth-child(4), #lines td:nth-child(4) { width: 96px; }
+    #lines th:nth-child(5), #lines td:nth-child(5),
+    #lines th:nth-child(6), #lines td:nth-child(6),
+    #lines th:nth-child(7), #lines td:nth-child(7),
+    #lines th:nth-child(8), #lines td:nth-child(8),
+    #lines th:nth-child(9), #lines td:nth-child(9),
+    #lines th:nth-child(10), #lines td:nth-child(10) { width: 112px; }
+    #lines th:nth-child(11), #lines td:nth-child(11) { width: 58px; }
+
+    #lines input,
+    #lines select,
+    #lines textarea {
+      width: 100%;
+      min-height: 38px;
+      padding: 8px 9px;
+      font-size: 14px;
+      line-height: 1.25;
+      border-radius: 10px;
+    }
+    #lines select.lType {
+      min-width: 100% !important;
+    }
+    #lines .desc-wrap {
+      gap: 7px;
+      width: 100%;
+    }
+    #lines .desc-wrap .lDesc {
+      min-height: 58px;
+      white-space: pre-wrap;
+      resize: vertical;
+      overflow: auto;
+    }
+    #lines .desc-wrap .lNote {
+      min-height: 88px !important;
+      width: 100% !important;
+      resize: vertical;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+    #lines .lDesc,
+    #lines .lNote {
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 900px) {
+      .settings-rate-grid,
+      .settings-info-grid {
+        grid-template-columns: repeat(6, minmax(0,1fr));
+      }
+      .settings-field.s3 { grid-column: span 3; }
+      .settings-field.s4,
+      .settings-field.s6 { grid-column: span 6; }
+    }
+    @media (max-width: 620px) {
+      .settings-rate-grid,
+      .settings-info-grid {
+        grid-template-columns: minmax(0,1fr);
+      }
+      .settings-field.s3,
+      .settings-field.s4,
+      .settings-field.s6,
+      .settings-field.s12 { grid-column: 1 / -1; }
+    }
+
     /* ---------- Mobile UX hardening (iPhone/iOS Safari) ---------- */
     html, body { overflow-x: hidden; }
     /* Prevent Safari from auto-resizing text */
@@ -3894,54 +4064,118 @@
     <div class="grid-2">
       <div class="card">
         <div class="section-title">Shop Defaults</div>
-        <div class="row">
-          <div class="field small">
-            <label for="defaultMarkup">Default markup % (parts)</label>
+
+        <div class="settings-subtitle">Rates & Money Rules</div>
+        <div class="settings-rate-grid">
+          <div class="settings-field s3">
+            <label for="settingGeneralLaborRate">General Labor Rate ($/hr)</label>
+            <input id="settingGeneralLaborRate" type="number" step="0.01" value="100" />
+          </div>
+          <div class="settings-field s3">
+            <label for="settingDiagnosticRate">Diesel / Electrical Diagnostic Rate ($/hr)</label>
+            <input id="settingDiagnosticRate" type="number" step="0.01" value="125" />
+          </div>
+          <div class="settings-field s3">
+            <label for="settingMinDiagnosticCharge">Minimum Diagnostic Charge ($)</label>
+            <input id="settingMinDiagnosticCharge" type="number" step="0.01" value="150" />
+          </div>
+          <div class="settings-field s3">
+            <label for="defaultMarkup">Default Parts Markup (%)</label>
             <input id="defaultMarkup" type="number" step="0.01" value="40" />
           </div>
+
+          <div class="settings-field s3">
+            <label for="settingShopSuppliesPercent">Shop Supplies (%)</label>
+            <input id="settingShopSuppliesPercent" type="number" step="0.01" value="5" />
+          </div>
+          <div class="settings-field s3">
+            <label for="settingShopSuppliesCap">Shop Supplies Cap ($)</label>
+            <input id="settingShopSuppliesCap" type="number" step="0.01" value="50" />
+          </div>
+          <div class="settings-field s3">
+            <label for="settingSalesTax">Sales Tax (%)</label>
+            <input id="settingSalesTax" type="number" step="0.01" value="7" />
+          </div>
+          <div class="settings-field s3">
+            <label for="settingDepositMode">Default Deposit Policy</label>
+            <select id="settingDepositMode">
+              <option value="parts">Parts upfront</option>
+              <option value="half">50% of total</option>
+              <option value="custom">Custom deposit</option>
+              <option value="none">No required deposit</option>
+            </select>
+          </div>
+
+          <div class="settings-field s3">
+            <label for="settingCustomDeposit">Default Custom Deposit ($)</label>
+            <input id="settingCustomDeposit" type="number" step="0.01" value="0" />
+          </div>
+          <div class="settings-field s6">
+            <label>Default Tax Buckets</label>
+            <div class="settings-checks">
+              <label><input type="checkbox" id="settingTaxParts" checked /> Parts</label>
+              <label><input type="checkbox" id="settingTaxLabor" /> Labor</label>
+              <label><input type="checkbox" id="settingTaxShopSupplies" checked /> Supplies</label>
+            </div>
+          </div>
+          <div class="settings-field s3">
+            <label for="settingWarrantyLaborDays">Labor Warranty Days</label>
+            <input id="settingWarrantyLaborDays" type="number" step="1" value="30" />
+          </div>
         </div>
-        <div class="row">
-          <div class="field">
-            <label for="shopFrom">Shop Name / From line</label>
+        <div id="settingsRateSummary" class="settings-summary"></div>
+
+        <div class="settings-subtitle">Public Shop Info</div>
+        <div class="settings-info-grid">
+          <div class="settings-field s6">
+            <label for="shopFrom">Shop Name / From Line</label>
             <input id="shopFrom" type="text" placeholder="Poppe’s Diesel Co." />
           </div>
-        </div>
-        <div class="row">
-          <div class="field">
-            <label for="shopReply">Reply-To Email</label>
-            <input id="shopReply" type="email" placeholder="poppedieselco@gmail.com" />
+          <div class="settings-field s6">
+            <label for="shopLegalName">Legal / Business Name</label>
+            <input id="shopLegalName" type="text" placeholder="Poppe’s Diesel Co. LLC" />
           </div>
-        </div>
-        <div class="row">
-          <div class="field">
-            <label for="shopSubj">Email Subject Prefix</label>
-            <input id="shopSubj" type="text" placeholder="[Poppe’s Diesel Co.] " />
+          <div class="settings-field s6">
+            <label for="shopTagline">Tagline</label>
+            <input id="shopTagline" type="text" placeholder="Built in the garage, backed by freedom." />
           </div>
-        </div>
-        <div class="row">
-          <div class="field">
-            <label for="shopFooter">Email Footer</label>
-            <textarea id="shopFooter" placeholder="Thank you for supporting local."></textarea>
+          <div class="settings-field s6">
+            <label for="shopServiceArea">Service Area</label>
+            <input id="shopServiceArea" type="text" placeholder="Columbus, Indiana and surrounding area" />
           </div>
-        </div>
-        <div class="row">
-          <div class="field">
+          <div class="settings-field s4">
             <label for="shopPhone">Shop Phone</label>
             <input id="shopPhone" type="text" placeholder="(812) 555-1212" />
           </div>
-          <div class="field">
+          <div class="settings-field s4">
+            <label for="shopReply">Reply-To Email</label>
+            <input id="shopReply" type="email" placeholder="poppedieselco@gmail.com" />
+          </div>
+          <div class="settings-field s4">
             <label for="shopWebsite">Shop Website</label>
             <input id="shopWebsite" type="text" placeholder="poppesdieselco.com" />
           </div>
-        </div>
-        <div class="row">
-          <div class="field">
+          <div class="settings-field s6">
+            <label for="shopSubj">Email Subject Prefix</label>
+            <input id="shopSubj" type="text" placeholder="[Poppe’s Diesel Co.] " />
+          </div>
+          <div class="settings-field s6">
             <label for="shopAddress">Shop Address / Location</label>
             <textarea id="shopAddress" placeholder="Columbus, Indiana"></textarea>
           </div>
-        </div>
-        <div class="row">
-          <div class="field">
+          <div class="settings-field s6">
+            <label for="shopFooter">Email Footer</label>
+            <textarea id="shopFooter" placeholder="Thank you for supporting local."></textarea>
+          </div>
+          <div class="settings-field s6">
+            <label for="shopPaymentPolicy">Payment Policy</label>
+            <textarea id="shopPaymentPolicy" placeholder="Payment due on receipt / at pickup unless otherwise approved."></textarea>
+          </div>
+          <div class="settings-field s6">
+            <label for="shopPartsPolicy">Parts / Customer-Supplied Parts Policy</label>
+            <textarea id="shopPartsPolicy" placeholder="Parts upfront. Customer supplied parts carry no parts warranty."></textarea>
+          </div>
+          <div class="settings-field s6">
             <label for="shopDisclaimer">Warranty / Disclaimer Block</label>
             <textarea id="shopDisclaimer" placeholder="Example: Labor warranty 30 days on installed parts unless otherwise stated. Customer-supplied parts carry no labor warranty."></textarea>
           </div>
@@ -4248,8 +4482,8 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.21';
-const APP_BUILD_DATE = '2026-05-09';
+const APP_VERSION = 'v1.5.22';
+const APP_BUILD_DATE = '2026-06-08';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
 /* ---------------- Supabase Cloud Config ---------------- */
@@ -4360,13 +4594,13 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
     state.push('- SelfTest=' + getSelectedText('selftest'));
     state.push('- Clipboard=' + (!!(navigator.clipboard && navigator.clipboard.writeText) ? 'available' : 'fallback'));
     state.push('- LocalStorage=' + (!!window.localStorage ? 'available' : 'missing'));
-    state.push('- Supabase=' + (supabaseClient ? 'ready-v1.5.16-app-snapshots' : (SUPABASE_URL && SUPABASE_ANON_KEY ? 'configured-not-ready' : 'not-configured')));
+    state.push('- Supabase=' + (supabaseClient ? 'ready-v1.5.22-app-snapshots' : (SUPABASE_URL && SUPABASE_ANON_KEY ? 'configured-not-ready' : 'not-configured')));
     return state;
   }
 
   function refreshMeta(){
     if (metaEl) metaEl.textContent = getMetaLine();
-    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · PDF Letter Layout Fix · Calendar-Only Fullscreen Scheduler';
+    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Comfort Inputs · Editable Rates · Shop Settings';
     if (titleEl) titleEl.textContent = 'Poppe’s Diesel Co. — Shop Manager ' + APP_VERSION + ' (' + APP_BUILD_DATE + ')';
   }
 
@@ -4710,12 +4944,19 @@ window.addEventListener('load', function(){
           minimumDiagnosticCharge: 150,
           shopSuppliesPercent: 5,
           shopSuppliesCap: 50,
+          salesTaxPct: 7,
           taxParts: true,
           taxLabor: false,
           taxShopSupplies: true,
           depositMode: 'parts',
           customDeposit: 0,
+          warrantyLaborDays: 30,
           shopFrom:'Poppe’s Diesel Co.',
+          shopLegalName:'Poppe’s Diesel Co. LLC',
+          shopTagline:'Built in the garage, backed by freedom.',
+          shopServiceArea:'Columbus, Indiana and surrounding area',
+          shopPaymentPolicy:'Payment is due on receipt / at vehicle pickup unless otherwise approved. Parts may require deposit before ordering.',
+          shopPartsPolicy:'Parts upfront is the standard policy. Customer-supplied parts are not covered under parts warranty, and labor warranty may be limited if the supplied part causes the failure.',
           shopReply:'poppedieselco@gmail.com',
           shopSubj:'[Poppe’s Diesel Co.] ',
           shopFooter:'Thank you for supporting local.',
@@ -4856,11 +5097,18 @@ window.addEventListener('load', function(){
       if(typeof DB.settings.minimumDiagnosticCharge==='undefined') DB.settings.minimumDiagnosticCharge=150;
       if(typeof DB.settings.shopSuppliesPercent==='undefined') DB.settings.shopSuppliesPercent=5;
       if(typeof DB.settings.shopSuppliesCap==='undefined') DB.settings.shopSuppliesCap=50;
+      if(typeof DB.settings.salesTaxPct==='undefined') DB.settings.salesTaxPct=7;
       if(typeof DB.settings.taxParts==='undefined') DB.settings.taxParts=true;
       if(typeof DB.settings.taxLabor==='undefined') DB.settings.taxLabor=false;
       if(typeof DB.settings.taxShopSupplies==='undefined') DB.settings.taxShopSupplies=true;
       if(typeof DB.settings.depositMode==='undefined') DB.settings.depositMode='parts';
       if(typeof DB.settings.customDeposit==='undefined') DB.settings.customDeposit=0;
+      if(typeof DB.settings.warrantyLaborDays==='undefined') DB.settings.warrantyLaborDays=30;
+      if(typeof DB.settings.shopLegalName==='undefined') DB.settings.shopLegalName='Poppe’s Diesel Co. LLC';
+      if(typeof DB.settings.shopTagline==='undefined') DB.settings.shopTagline='Built in the garage, backed by freedom.';
+      if(typeof DB.settings.shopServiceArea==='undefined') DB.settings.shopServiceArea='Columbus, Indiana and surrounding area';
+      if(typeof DB.settings.shopPaymentPolicy==='undefined') DB.settings.shopPaymentPolicy='Payment is due on receipt / at vehicle pickup unless otherwise approved. Parts may require deposit before ordering.';
+      if(typeof DB.settings.shopPartsPolicy==='undefined') DB.settings.shopPartsPolicy='Parts upfront is the standard policy. Customer-supplied parts are not covered under parts warranty, and labor warranty may be limited if the supplied part causes the failure.';
       if(typeof DB.settings.shopDisclaimer==='undefined') DB.settings.shopDisclaimer='Poppe’s Diesel Co. stands behind repair labor for 30 days from the date of service. Parts warranty depends on the parts supplier or manufacturer. Customer-supplied parts are not covered under parts warranty.';
       if(typeof DB.settings.showVinTools==='undefined') DB.settings.showVinTools=true;
       saveDB();
@@ -4869,6 +5117,22 @@ window.addEventListener('load', function(){
     /* ------ Global helpers ------ */
     function $(sel, root){ return (root||document).querySelector(sel); }
     function $all(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
+    function autoGrowTextarea(el){
+      if(!el || el.tagName !== 'TEXTAREA') return;
+      try {
+        el.style.height = 'auto';
+        var min = parseFloat(window.getComputedStyle(el).minHeight) || 0;
+        el.style.height = Math.max(el.scrollHeight + 2, min) + 'px';
+      } catch(_) {}
+    }
+    function wireAutoGrowTextareas(root){
+      $all('textarea', root || document).forEach(function(el){
+        if(el.dataset && el.dataset.autogrowWired === '1') { autoGrowTextarea(el); return; }
+        if(el.dataset) el.dataset.autogrowWired = '1';
+        el.addEventListener('input', function(){ autoGrowTextarea(el); });
+        setTimeout(function(){ autoGrowTextarea(el); }, 0);
+      });
+    }
     function fmt(n){ return "$"+Number(n||0).toFixed(2); }
     function todayLocalInputValue(){
       var d = new Date();
@@ -5166,30 +5430,36 @@ window.addEventListener('load', function(){
       var type = jobTypeEl ? jobTypeEl.value : 'General Repair';
       var laborEl = document.getElementById('laborRate');
       var diagEl = document.getElementById('diagnosticRate');
+      var minDiagEl = document.getElementById('minDiagnosticCharge');
       var hint = document.getElementById('jobTypeRateHint');
-      var generalRate = 100;
-      var diagnosticRate = 125;
-      var custom = type === 'Custom';
+      var generalRate = Number((DB.settings && DB.settings.generalLaborRate) || 100);
+      var diagnosticRate = Number((DB.settings && DB.settings.diagnosticRate) || 125);
+      var minDiag = Number((DB.settings && DB.settings.minimumDiagnosticCharge) || 150);
+      var custom = type === 'Custom' || type === 'Fabrication';
 
-      if(!custom){
-        if(laborEl && (options.force || !laborEl.value || Number(laborEl.value) <= 0 || Number(laborEl.value) === 80)) laborEl.value = generalRate.toFixed(2);
-        if(diagEl && (options.force || !diagEl.value || Number(diagEl.value) <= 0 || Number(diagEl.value) === 80 || Number(diagEl.value) === 100)) diagEl.value = diagnosticRate.toFixed(2);
-      }
+      // Do not fight the user. Only fill empty/invalid rate boxes from Settings.
+      if(laborEl && (!laborEl.value || !isFinite(Number(laborEl.value)))) laborEl.value = generalRate.toFixed(2);
+      if(diagEl && (!diagEl.value || !isFinite(Number(diagEl.value)))) diagEl.value = diagnosticRate.toFixed(2);
+      if(minDiagEl && (!minDiagEl.value || !isFinite(Number(minDiagEl.value)))) minDiagEl.value = minDiag.toFixed(2);
 
       if(hint){
-        if(custom) hint.textContent = 'Custom job type: rates are editable and will not be forced.';
-        else if(isDiagnosticJobType(type)) hint.textContent = 'Diagnostic/electrical work defaults to $125/hr with $150 minimum.';
-        else hint.textContent = 'General repair labor defaults to $100/hr; diagnostic lines still use $125/hr.';
+        var laborNow = Number(laborEl && laborEl.value || generalRate);
+        var diagNow = Number(diagEl && diagEl.value || diagnosticRate);
+        var minNow = Number(minDiagEl && minDiagEl.value || minDiag);
+        if(custom) hint.textContent = 'Custom/fabrication job: rates stay editable. Current labor $' + laborNow.toFixed(2) + '/hr · diagnostic $' + diagNow.toFixed(2) + '/hr.';
+        else if(isDiagnosticJobType(type)) hint.textContent = 'Diagnostic/electrical work uses the editable diagnostic rate: $' + diagNow.toFixed(2) + '/hr with $' + minNow.toFixed(2) + ' minimum.';
+        else hint.textContent = 'General repair uses the editable labor rate: $' + laborNow.toFixed(2) + '/hr. Diagnostic lines use $' + diagNow.toFixed(2) + '/hr.';
       }
 
+      // Kept for legacy callers, but only fills truly blank/zero rows.
       if(options.updateRows){
         $all('#lines tbody tr').forEach(function(tr){
           var typeSel = tr.querySelector('.lType');
           var unitEl = tr.querySelector('.lUnit');
           if(!typeSel || !unitEl) return;
           var old = Number(unitEl.value || 0);
-          if(typeSel.value === 'Labor' && (options.force || old === 0 || old === 80)) unitEl.value = generalRate.toFixed(2);
-          if(typeSel.value === 'Diagnostic' && (options.force || old === 0 || old === 80 || old === 100)) unitEl.value = diagnosticRate.toFixed(2);
+          if(typeSel.value === 'Labor' && (!old || old <= 0)) unitEl.value = Number(laborEl.value || generalRate).toFixed(2);
+          if(typeSel.value === 'Diagnostic' && (!old || old <= 0)) unitEl.value = Number(diagEl.value || diagnosticRate).toFixed(2);
         });
       }
     }
@@ -5198,7 +5468,7 @@ window.addEventListener('load', function(){
       var jobTypeEl = document.getElementById('jobType');
       if(!jobTypeEl) return;
       jobTypeEl.addEventListener('change', function(){
-        applyJobTypeRateDefaults({force:true, updateRows:true});
+        applyJobTypeRateDefaults({force:false, updateRows:false});
         persistLines();
       });
       applyJobTypeRateDefaults({force:false, updateRows:false});
@@ -6330,7 +6600,25 @@ window.addEventListener('load', function(){
 
     function renderSettings(){
       $('#defaultMarkup').value = DB.settings.defaultMarkup != null ? DB.settings.defaultMarkup : 40;
+      var sgr = document.getElementById('settingGeneralLaborRate'); if(sgr) sgr.value = DB.settings.generalLaborRate != null ? DB.settings.generalLaborRate : 100;
+      var sdr = document.getElementById('settingDiagnosticRate'); if(sdr) sdr.value = DB.settings.diagnosticRate != null ? DB.settings.diagnosticRate : 125;
+      var smd = document.getElementById('settingMinDiagnosticCharge'); if(smd) smd.value = DB.settings.minimumDiagnosticCharge != null ? DB.settings.minimumDiagnosticCharge : 150;
+      var ssp = document.getElementById('settingShopSuppliesPercent'); if(ssp) ssp.value = DB.settings.shopSuppliesPercent != null ? DB.settings.shopSuppliesPercent : 5;
+      var ssc = document.getElementById('settingShopSuppliesCap'); if(ssc) ssc.value = DB.settings.shopSuppliesCap != null ? DB.settings.shopSuppliesCap : 50;
+      var stx = document.getElementById('settingSalesTax'); if(stx) stx.value = DB.settings.salesTaxPct != null ? DB.settings.salesTaxPct : 7;
+      var sdm = document.getElementById('settingDepositMode'); if(sdm) sdm.value = DB.settings.depositMode || 'parts';
+      var scd = document.getElementById('settingCustomDeposit'); if(scd) scd.value = DB.settings.customDeposit != null ? DB.settings.customDeposit : 0;
+      var swd = document.getElementById('settingWarrantyLaborDays'); if(swd) swd.value = DB.settings.warrantyLaborDays != null ? DB.settings.warrantyLaborDays : 30;
+      var stp = document.getElementById('settingTaxParts'); if(stp) stp.checked = DB.settings.taxParts !== false;
+      var stl = document.getElementById('settingTaxLabor'); if(stl) stl.checked = !!DB.settings.taxLabor;
+      var sts = document.getElementById('settingTaxShopSupplies'); if(sts) sts.checked = DB.settings.taxShopSupplies !== false;
+
       $('#shopFrom').value   = DB.settings.shopFrom   || '';
+      var sln = document.getElementById('shopLegalName'); if(sln) sln.value = DB.settings.shopLegalName || '';
+      var stg = document.getElementById('shopTagline'); if(stg) stg.value = DB.settings.shopTagline || '';
+      var ssa = document.getElementById('shopServiceArea'); if(ssa) ssa.value = DB.settings.shopServiceArea || '';
+      var spp = document.getElementById('shopPaymentPolicy'); if(spp) spp.value = DB.settings.shopPaymentPolicy || '';
+      var spr = document.getElementById('shopPartsPolicy'); if(spr) spr.value = DB.settings.shopPartsPolicy || '';
       $('#shopReply').value  = DB.settings.shopReply  || '';
       $('#shopSubj').value   = DB.settings.shopSubj   || '';
       $('#shopFooter').value = DB.settings.shopFooter || '';
@@ -6339,7 +6627,26 @@ window.addEventListener('load', function(){
       $('#shopAddress').value = DB.settings.shopAddress || '';
       $('#shopDisclaimer').value = DB.settings.shopDisclaimer || '';
       $('#showVinTools').checked = DB.settings.showVinTools !== false;
+      renderSettingsRateSummary();
+      wireAutoGrowTextareas(document.getElementById('settings'));
       applySettingsVisibility();
+    }
+
+    function renderSettingsRateSummary(){
+      var el = document.getElementById('settingsRateSummary');
+      if(!el || !DB || !DB.settings) return;
+      var taxBits = [];
+      if(DB.settings.taxParts !== false) taxBits.push('parts');
+      if(DB.settings.taxLabor) taxBits.push('labor');
+      if(DB.settings.taxShopSupplies !== false) taxBits.push('shop supplies');
+      if(!taxBits.length) taxBits.push('nothing selected');
+      var depositLabel = {
+        parts: 'parts upfront',
+        half: '50% of total',
+        custom: 'custom deposit',
+        none: 'no required deposit'
+      }[DB.settings.depositMode || 'parts'] || (DB.settings.depositMode || 'parts');
+      el.innerHTML = '<strong>Current shop defaults:</strong> General labor $' + Number(DB.settings.generalLaborRate || 0).toFixed(2) + '/hr · Diesel/electrical diagnostic $' + Number(DB.settings.diagnosticRate || 0).toFixed(2) + '/hr · Diagnostic minimum $' + Number(DB.settings.minimumDiagnosticCharge || 0).toFixed(2) + ' · Parts markup ' + Number(DB.settings.defaultMarkup || 0).toFixed(2).replace(/\.00$/,'') + '% · Shop supplies ' + Number(DB.settings.shopSuppliesPercent || 0).toFixed(2).replace(/\.00$/,'') + '% capped at $' + Number(DB.settings.shopSuppliesCap || 0).toFixed(2) + ' · Sales tax ' + Number(DB.settings.salesTaxPct || 0).toFixed(2).replace(/\.00$/,'') + '% on ' + taxBits.join(', ') + ' · Deposit policy: ' + depositLabel + ' · Labor warranty ' + Number(DB.settings.warrantyLaborDays || 0).toFixed(0) + ' days.';
     }
 
     // Stubbed photo grid renderer to avoid init crashes when legacy photo features are not present
@@ -6850,7 +7157,7 @@ window.addEventListener('load', function(){
       $('#minDiagnosticCharge').value = (j.minimumDiagnosticCharge != null) ? j.minimumDiagnosticCharge : (DB.settings.minimumDiagnosticCharge || 150);
       $('#shopSuppliesPercent').value = (j.shopSuppliesPercent != null) ? j.shopSuppliesPercent : (DB.settings.shopSuppliesPercent || 5);
       $('#shopSuppliesCap').value = (j.shopSuppliesCap != null) ? j.shopSuppliesCap : (DB.settings.shopSuppliesCap || 50);
-      $('#salesTax').value  = (j.salesTaxPct != null) ? j.salesTaxPct : 7;
+      $('#salesTax').value  = (j.salesTaxPct != null) ? j.salesTaxPct : (DB.settings.salesTaxPct != null ? DB.settings.salesTaxPct : 7);
       $('#taxParts').checked = (j.taxParts !== false);
       $('#taxLabor').checked = !!j.taxLabor;
       $('#taxShopSupplies').checked = (j.taxShopSupplies !== false);
@@ -6975,7 +7282,7 @@ window.addEventListener('load', function(){
       tr.innerHTML =
         '<td class="drag-col"><button class="tab-btn handle" title="Drag to reorder">↕</button></td>' +
         '<td><select class="lType"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Diagnostic'?'selected':'')+'>Diagnostic</option><option '+(type==='Part'?'selected':'')+'>Part</option><option '+(type==='Warranty'?'selected':'')+'>Warranty</option></select></td>' +
-        '<td><div class="desc-wrap"><input class="lDesc" value="'+(desc||'')+'" placeholder="'+descPH+'"/><textarea class="lNote" placeholder="Tech note for this line (prints)">'+(note||'')+'</textarea></div></td>' +
+        '<td><div class="desc-wrap"><textarea class="lDesc" placeholder="'+descPH+'">'+(desc||'')+'</textarea><textarea class="lNote" placeholder="Tech note for this line (prints)">'+(note||'')+'</textarea></div></td>' +
         '<td><input class="lQty" type="number" step="0.01" value="'+(qty||1)+'" placeholder="'+qtyPH+'"/></td>' +
         '<td><input class="lList" type="number" step="0.01" value="'+(((list!=null)?list:0))+'" placeholder="'+listPH+'"/></td>' +
         '<td><input class="lCost" type="number" step="0.01" value="'+(((cost!=null)?cost:0))+'" placeholder="'+costPH+'"/></td>' +
@@ -6985,6 +7292,7 @@ window.addEventListener('load', function(){
         '<td class="lProfit">$0.00</td>' +
         '<td><button type="button" class="tab-btn lDel">X</button></td>';
       document.querySelector('#lines tbody').appendChild(tr);
+      wireAutoGrowTextareas(tr);
       makeRowDraggable(tr);
       tr.querySelector('.lDel').addEventListener('click', function(){
         tr.remove();
@@ -7159,7 +7467,11 @@ window.addEventListener('load', function(){
       if($('#odometer').value.trim()) plateBits.push('Odometer: ' + $('#odometer').value.trim() + ' mi');
       document.getElementById('pPlateOdo').textContent = plateBits.join(' • ');
       document.getElementById('pShopName').textContent = DB.settings.shopFrom || 'Poppe’s Diesel Co.';
-      document.getElementById('pShopAddress').textContent = DB.settings.shopAddress || '';
+      var addrBits = [];
+      if(DB.settings.shopTagline) addrBits.push(DB.settings.shopTagline);
+      if(DB.settings.shopAddress) addrBits.push(DB.settings.shopAddress);
+      if(DB.settings.shopServiceArea) addrBits.push(DB.settings.shopServiceArea);
+      document.getElementById('pShopAddress').textContent = addrBits.join(' · ');
       var contactBits = [];
       if(DB.settings.shopPhone) contactBits.push(DB.settings.shopPhone);
       if(DB.settings.shopReply) contactBits.push(DB.settings.shopReply);
@@ -7242,7 +7554,11 @@ window.addEventListener('load', function(){
       }
 
       var pDisc = document.getElementById('pDisclaimerBlock'); pDisc.innerHTML='';
-      var policyText = DB.settings.shopDisclaimer || '';
+      var policyBits = [];
+      if(DB.settings.shopPaymentPolicy) policyBits.push(DB.settings.shopPaymentPolicy);
+      if(DB.settings.shopPartsPolicy) policyBits.push(DB.settings.shopPartsPolicy);
+      if(DB.settings.shopDisclaimer) policyBits.push(DB.settings.shopDisclaimer);
+      var policyText = policyBits.join('\n\n');
       if(j && j.customerSuppliedParts){
         policyText += (policyText ? '\\n\\n' : '') + 'Customer-supplied parts are not covered under parts warranty. Labor warranty may be limited if failure is caused by part quality, fitment, incorrect application, or part defect.';
       }
@@ -7388,6 +7704,49 @@ window.addEventListener('load', function(){
       }
     })();
 
+    function applyInvoiceRateToLineItems(kind){
+      var rateId = (kind === 'diagnostic') ? 'diagnosticRate' : 'laborRate';
+      var lineType = (kind === 'diagnostic') ? 'Diagnostic' : 'Labor';
+      var rateEl = document.getElementById(rateId);
+      if(!rateEl) return;
+      var rate = Number(rateEl.value);
+      if(!isFinite(rate)) rate = 0;
+      $all('#lines tbody tr').forEach(function(tr){
+        var typeSel = tr.querySelector('.lType');
+        var unitEl = tr.querySelector('.lUnit');
+        if(typeSel && unitEl && typeSel.value === lineType){
+          unitEl.value = rate.toFixed(2);
+        }
+      });
+    }
+
+    function syncCurrentInvoiceDefaultsFromSettings(options){
+      options = options || {};
+      var map = [
+        ['laborRate','generalLaborRate',100],
+        ['diagnosticRate','diagnosticRate',125],
+        ['minDiagnosticCharge','minimumDiagnosticCharge',150],
+        ['shopSuppliesPercent','shopSuppliesPercent',5],
+        ['shopSuppliesCap','shopSuppliesCap',50],
+        ['salesTax','salesTaxPct',7],
+        ['customDeposit','customDeposit',0]
+      ];
+      map.forEach(function(pair){
+        var el = document.getElementById(pair[0]);
+        if(!el) return;
+        if(options.force || !el.value){
+          el.value = (DB.settings[pair[1]] != null) ? DB.settings[pair[1]] : pair[2];
+        }
+      });
+      var dep = document.getElementById('depositMode');
+      if(dep && (options.force || !dep.value)) dep.value = DB.settings.depositMode || 'parts';
+      var tp = document.getElementById('taxParts'); if(tp && options.force) tp.checked = DB.settings.taxParts !== false;
+      var tl = document.getElementById('taxLabor'); if(tl && options.force) tl.checked = !!DB.settings.taxLabor;
+      var ts = document.getElementById('taxShopSupplies'); if(ts && options.force) ts.checked = DB.settings.taxShopSupplies !== false;
+      applyJobTypeRateDefaults({force:false, updateRows:false});
+    }
+
+
     /* ------ Back to Top ------ */
     (function(){
       var btn = document.getElementById('toTop');
@@ -7401,19 +7760,47 @@ window.addEventListener('load', function(){
     })();
 
     /* ------ Settings bindings ------ */
-    document.getElementById('defaultMarkup').addEventListener('input', function(){
-      DB.settings.defaultMarkup = Number(this.value||40);
-      saveDB();
-      recalcTotals();
-    });
-    document.getElementById('shopFrom').addEventListener('input', function(){ DB.settings.shopFrom=this.value; saveDB(); });
-    document.getElementById('shopReply').addEventListener('input', function(){ DB.settings.shopReply=this.value; saveDB(); });
-    document.getElementById('shopSubj').addEventListener('input', function(){ DB.settings.shopSubj=this.value; saveDB(); });
-    document.getElementById('shopFooter').addEventListener('input', function(){ DB.settings.shopFooter=this.value; saveDB(); updatePreview(); });
-    document.getElementById('shopPhone').addEventListener('input', function(){ DB.settings.shopPhone=this.value; saveDB(); updatePreview(); });
-    document.getElementById('shopWebsite').addEventListener('input', function(){ DB.settings.shopWebsite=this.value; saveDB(); updatePreview(); });
-    document.getElementById('shopAddress').addEventListener('input', function(){ DB.settings.shopAddress=this.value; saveDB(); updatePreview(); });
-    document.getElementById('shopDisclaimer').addEventListener('input', function(){ DB.settings.shopDisclaimer=this.value; saveDB(); updatePreview(); });
+    function bindSettingInput(id, settingKey, fallback, after){
+      var el = document.getElementById(id);
+      if(!el) return;
+      var evt = (el.type === 'checkbox' || el.tagName === 'SELECT') ? 'change' : 'input';
+      el.addEventListener(evt, function(){
+        if(el.type === 'checkbox') DB.settings[settingKey] = !!el.checked;
+        else if(el.type === 'number') DB.settings[settingKey] = Number(el.value || fallback || 0);
+        else DB.settings[settingKey] = el.value;
+        saveDB();
+        renderSettingsRateSummary();
+        if(typeof after === 'function') after(el);
+      });
+    }
+
+    bindSettingInput('defaultMarkup', 'defaultMarkup', 40, function(){ recalcTotals(); });
+    bindSettingInput('settingGeneralLaborRate', 'generalLaborRate', 100, function(){ syncCurrentInvoiceDefaultsFromSettings({force:false}); });
+    bindSettingInput('settingDiagnosticRate', 'diagnosticRate', 125, function(){ syncCurrentInvoiceDefaultsFromSettings({force:false}); });
+    bindSettingInput('settingMinDiagnosticCharge', 'minimumDiagnosticCharge', 150, function(){ syncCurrentInvoiceDefaultsFromSettings({force:false}); });
+    bindSettingInput('settingShopSuppliesPercent', 'shopSuppliesPercent', 5, function(){ syncCurrentInvoiceDefaultsFromSettings({force:false}); });
+    bindSettingInput('settingShopSuppliesCap', 'shopSuppliesCap', 50, function(){ syncCurrentInvoiceDefaultsFromSettings({force:false}); });
+    bindSettingInput('settingSalesTax', 'salesTaxPct', 7, function(){ syncCurrentInvoiceDefaultsFromSettings({force:false}); });
+    bindSettingInput('settingDepositMode', 'depositMode', 'parts', function(){ syncCurrentInvoiceDefaultsFromSettings({force:false}); });
+    bindSettingInput('settingCustomDeposit', 'customDeposit', 0, function(){ syncCurrentInvoiceDefaultsFromSettings({force:false}); });
+    bindSettingInput('settingWarrantyLaborDays', 'warrantyLaborDays', 30);
+    bindSettingInput('settingTaxParts', 'taxParts', true);
+    bindSettingInput('settingTaxLabor', 'taxLabor', false);
+    bindSettingInput('settingTaxShopSupplies', 'taxShopSupplies', true);
+
+    bindSettingInput('shopFrom', 'shopFrom', '', function(){ updatePreview(); });
+    bindSettingInput('shopLegalName', 'shopLegalName', '', function(){ updatePreview(); });
+    bindSettingInput('shopTagline', 'shopTagline', '', function(){ updatePreview(); });
+    bindSettingInput('shopServiceArea', 'shopServiceArea', '', function(){ updatePreview(); });
+    bindSettingInput('shopPaymentPolicy', 'shopPaymentPolicy', '', function(){ updatePreview(); });
+    bindSettingInput('shopPartsPolicy', 'shopPartsPolicy', '', function(){ updatePreview(); });
+    bindSettingInput('shopReply', 'shopReply', '', function(){ updatePreview(); });
+    bindSettingInput('shopSubj', 'shopSubj', '', function(){ updatePreview(); });
+    bindSettingInput('shopFooter', 'shopFooter', '', function(){ updatePreview(); });
+    bindSettingInput('shopPhone', 'shopPhone', '', function(){ updatePreview(); });
+    bindSettingInput('shopWebsite', 'shopWebsite', '', function(){ updatePreview(); });
+    bindSettingInput('shopAddress', 'shopAddress', '', function(){ updatePreview(); });
+    bindSettingInput('shopDisclaimer', 'shopDisclaimer', '', function(){ updatePreview(); });
     document.getElementById('showVinTools').addEventListener('change', function(){ DB.settings.showVinTools=this.checked; saveDB(); applySettingsVisibility(); });
 
     /* ------ Backup & Restore + Flash-drive FS ------ */
@@ -8554,6 +8941,9 @@ window.addEventListener('load', function(){
         var el2 = document.getElementById(id);
         if(!el2) return;
         el2.addEventListener('input', function(){
+          if(id === 'laborRate') applyInvoiceRateToLineItems('labor');
+          if(id === 'diagnosticRate') applyInvoiceRateToLineItems('diagnostic');
+          applyJobTypeRateDefaults({force:false, updateRows:false});
           persistLines();
         });
       });
@@ -8628,5 +9018,4 @@ setupCostAutoCalc();
 
 </body>
 </html>
-
 
