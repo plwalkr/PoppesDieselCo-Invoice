@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>Poppe’s Diesel Co. — Shop Manager</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
   <!-- Supabase client (v2 UMD) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -3299,6 +3299,59 @@
       * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
 
+    /* v1.5.26: scoped interaction/layout fixes; preserve invoice print styling. */
+    @media screen {
+      html, body { overflow-x: clip; }
+      main { padding: 16px 16px 64px; }
+      .tab-bar { flex-wrap: nowrap; overflow-x: auto; padding: 2px 0 10px; }
+      .tab-bar .tab-btn { flex: 0 0 auto; min-height: 44px; border-radius: 10px; }
+      .tab-bar .active-tab { box-shadow: inset 0 -3px 0 #d9b575; }
+      .tab-btn, .mini-btn { min-height: 40px; }
+      input:not([type="checkbox"]):not([type="file"]), select { min-height: 44px; }
+      input[type="date"], input[type="time"], input[type="tel"], input[type="password"] {
+        width: 100%; padding: 8px 10px; border: 1px solid #b5a185;
+        border-radius: 6px; background: #fdf8ef; color: var(--text-main);
+      }
+      button:focus-visible, a:focus-visible { outline: 3px solid #0b3b2e; outline-offset: 3px; }
+      #invoice .table-wrap { overflow-x: auto !important; max-width: 100% !important; }
+      #lines { min-width: 1220px !important; }
+      #lines input, #lines select { min-width: 74px; }
+      #lines .lType { min-width: 112px; }
+      #preview .p-totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 8px; }
+      #preview .p-totals div { min-width: 0; padding: 6px; border-bottom: 1px solid #ddd; text-align: left; }
+      #lines textarea, #settings textarea, #overallNotes, #internalNotes,
+      #recommendedFutureRepairs, #jobNotes, #schedNotes, #spNotes {
+        overflow-y: auto !important; resize: vertical !important;
+        scrollbar-width: auto; max-height: 420px;
+      }
+      #lines .desc-wrap .lDesc, #lines .desc-wrap .lNote { overflow-y: auto !important; }
+      textarea::-webkit-scrollbar { display: block !important; }
+      .save-status { margin: 0 0 12px; padding: 10px 14px; border: 1px solid #c3b59f;
+        border-radius: 8px; background: #f7f0e4; font-size: 13px; color: #0b3b2e; }
+      .save-status.error { color: #7d1c1c; border: 2px solid #7d1c1c; font-weight: 600; }
+      .table-scroll-hint { font-size: 12px; color: #5d4632; margin: 8px 0; }
+      @media (max-width: 760px) {
+        header { position: static; padding: 12px; }
+        header .title-block h1 { font-size: 18px; }
+        main { padding: 10px 8px 48px; }
+        .tab-bar { position: sticky; top: 0; z-index: 19; background: var(--bg); }
+        .tab { padding: 8px; }
+        #invoice-toolbar { padding: 8px; }
+        .toolbar-section { padding: 10px; }
+        input, select, textarea { font-size: 16px !important; }
+        .invoice-dense-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+        #invoice-toolbar .dense-field { min-width: 0 !important; }
+        #invoice-toolbar .dense-field.s2 { grid-column: span 1 !important; }
+        .money-dense-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+        .money-field.m2, .money-field.m3 { grid-column: span 1 !important; min-width: 0 !important; }
+        .money-field.m6, .money-subhead { grid-column: 1 / -1 !important; }
+        .document-actions-bar { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+        .document-actions-bar .tab-btn { white-space: normal; min-height: 44px; }
+        #lines { min-width: 1160px !important; }
+        .grid-2 > *, .card { min-width: 0; }
+      }
+    }
+    @media print { .save-status, .table-scroll-hint { display: none !important; } }
 </style>
 </head>
 <body>
@@ -3316,15 +3369,16 @@
 </header>
 
 <main>
+  <div id="saveStatus" class="save-status" role="status" aria-live="polite">Records are saved on this browser. Use Settings &amp; Backup to keep a separate copy.</div>
   <!-- Tab buttons -->
-  <div class="tab-bar">
+  <nav class="tab-bar" aria-label="Shop sections">
     <button class="tab-btn active-tab" data-tab="dashboard">Dashboard</button>
     <button class="tab-btn" data-tab="customers">Customers</button>
     <button class="tab-btn" data-tab="jobs">Jobs</button>
     <button class="tab-btn" data-tab="schedule">Schedule</button>
     <button class="tab-btn" data-tab="invoice">Invoice / Estimate</button>
     <button class="tab-btn" data-tab="settings">Settings & Backup</button>
-  </div>
+  </nav>
 
   <!-- Dashboard -->
   <section id="dashboard" class="tab active">
@@ -3585,7 +3639,7 @@
               <th>Customer</th>
               <th>Title</th>
               <th>Status</th>
-              <th>Subtotal</th>
+              <th>Total</th>
               <th>Profit</th>
               <th>Open</th>
             </tr>
@@ -4691,8 +4745,8 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.25';
-const APP_BUILD_DATE = '2026-06-14';
+const APP_VERSION = 'v1.5.26';
+const APP_BUILD_DATE = '2026-10-05';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
 /* ---------------- Supabase Cloud Config ---------------- */
@@ -4809,7 +4863,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
   function refreshMeta(){
     if (metaEl) metaEl.textContent = getMetaLine();
-    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Document Intake Foundation · Historical PDF Totals · Smart PDF Line Import';
+    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Invoice Workflow & Input Reliability';
     if (titleEl) titleEl.textContent = 'Poppe’s Diesel Co. — Shop Manager ' + APP_VERSION + ' (' + APP_BUILD_DATE + ')';
   }
 
@@ -5121,22 +5175,48 @@ window.addEventListener('load', function(){
   guard('init', function(){
 
     var STORAGE_KEY = 'poppe_shop_db_v112';
+    // Save the job owning the form, not the selector value changed by a browser event.
+    var loadedInvoiceId = null;
+    var storageLoadFailed = false;
+    var localSaveHealthy = true;
+
+    function showSaveStatus(ok, message){
+      var status = document.getElementById('saveStatus');
+      if(!status) return;
+      status.classList.toggle('error', !ok);
+      if(status.textContent !== message) status.textContent = message;
+    }
 
     function loadDB(){
       try {
         var s = localStorage.getItem(STORAGE_KEY);
-        return s ? JSON.parse(s) : null;
+        if(!s) return null;
+        var data = JSON.parse(s);
+        if(!data || !Array.isArray(data.customers) || !Array.isArray(data.jobs) || (data.settings != null && (typeof data.settings !== 'object' || Array.isArray(data.settings)))) {
+          throw new Error('Stored database has an invalid structure');
+        }
+        return data;
       } catch(e){
         AppLog.error('localStorage load failed', e);
+        storageLoadFailed = true;
+        localSaveHealthy = false;
+        showSaveStatus(false, 'Stored records could not be read. Existing storage is protected from overwrite. Restore a known backup in Settings & Backup; export any new work before reloading.');
         return null;
       }
     }
 
     function saveDB(){
+      if(storageLoadFailed) return false;
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+        localSaveHealthy = true;
+        showSaveStatus(true, 'Saved on this browser. Use Settings & Backup to keep a separate copy.');
+        return true;
       } catch(e){
+        localSaveHealthy = false;
+        showSaveStatus(false, 'Changes are not saved to this browser. Export a backup in Settings & Backup before closing or reloading. Storage may be full or unavailable.');
         AppLog.error('localStorage save failed', e);
+        return false;
       }
     }
 
@@ -5350,6 +5430,7 @@ window.addEventListener('load', function(){
     function $all(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
     function autoGrowTextarea(el){
       if(!el || el.tagName !== 'TEXTAREA') return;
+      if(!el.getClientRects().length) return;
       try {
         el.style.overflowY = 'hidden';
         el.style.resize = 'none';
@@ -5368,6 +5449,32 @@ window.addEventListener('load', function(){
       });
     }
     function fmt(n){ return "$"+Number(n||0).toFixed(2); }
+    // Let the page scroll instead of changing focused money/quantity controls.
+    document.addEventListener('wheel', function(ev){
+      var el = ev.target;
+      if(el && el.matches && el.matches('input[type="number"]') && document.activeElement === el) el.blur();
+    }, {capture:true, passive:true});
+    document.querySelectorAll('.tab-btn[data-tab]').forEach(function(button){
+      button.setAttribute('aria-current', button.classList.contains('active-tab') ? 'page' : 'false');
+      button.addEventListener('click', function(){
+        document.querySelectorAll('.tab-btn[data-tab]').forEach(function(other){
+          other.setAttribute('aria-current', other === button ? 'page' : 'false');
+        });
+      });
+    });
+    var lineScroller = document.querySelector('#lines').closest('.table-wrap');
+    lineScroller.tabIndex = 0;
+    lineScroller.setAttribute('role', 'region');
+    lineScroller.setAttribute('aria-label', 'Invoice line items, scroll horizontally for pricing columns');
+    var scrollHint = document.createElement('p');
+    scrollHint.className = 'table-scroll-hint';
+    scrollHint.textContent = 'Scroll across line items for cost, markup, and pricing. Keyboard: focus the table area and use left/right arrows.';
+    lineScroller.before(scrollHint);
+    ['overallNotes','internalNotes','recommendedFutureRepairs'].forEach(function(id, i){
+      document.getElementById(id).setAttribute('aria-label', ['Technician overall notes','Internal notes (shop only)','Recommended future repairs'][i]);
+    });
+    document.getElementById('discountType').setAttribute('aria-label', 'Discount type');
+    document.getElementById('discountValue').setAttribute('aria-label', 'Discount value');
     function todayLocalInputValue(){
       var d = new Date();
       var m = String(d.getMonth()+1).padStart(2,'0');
@@ -5416,7 +5523,7 @@ window.addEventListener('load', function(){
       var methodEl = document.getElementById('paymentMethod');
       var amount = Number(amountEl && amountEl.value || 0);
       if(!isFinite(amount) || amount < 0) amount = 0;
-      if(amountEl) amountEl.value = String(amount % 1 === 0 ? amount : amount.toFixed(2));
+      // Preserve intermediate decimal input while the user is typing.
       if(options.markPaid){
         amount = grand;
         if(amountEl) amountEl.value = grand.toFixed(2);
@@ -5434,7 +5541,7 @@ window.addEventListener('load', function(){
       if(amount >= grand && grand > 0){
         j.paid = true;
         if(paidDateEl && !paidDateEl.value) paidDateEl.value = todayLocalInputValue();
-      } else if(amount <= 0 && !(paidDateEl && paidDateEl.value)){
+      } else {
         j.paid = false;
       }
       j.amountPaid = amount;
@@ -6915,6 +7022,7 @@ window.addEventListener('load', function(){
         b.classList.add('active-tab');
         UI.activeTab = id;
         saveUI(UI);
+        wireAutoGrowTextareas(document.getElementById(id));
         try{ window.scrollTo(0,0); }catch(_){}
       });
     });
@@ -6923,6 +7031,7 @@ window.addEventListener('load', function(){
       document.getElementById(UI.activeTab).classList.add('active');
       $all('.tab-btn[data-tab]').forEach(function(x){
         x.classList.toggle('active-tab', x.getAttribute('data-tab')===UI.activeTab);
+        x.setAttribute('aria-current', x.getAttribute('data-tab')===UI.activeTab ? 'page' : 'false');
       });
     }
 
@@ -6949,10 +7058,10 @@ window.addEventListener('load', function(){
       DB.customers.forEach(function(c){
         var tr = document.createElement('tr');
         tr.innerHTML =
-          '<td>'+c.name+'</td>'+
-          '<td>'+(c.phone||'')+'</td>'+
-          '<td>'+(c.email||'')+'</td>'+
-          '<td>'+(c.vehicle||'')+'</td>'+
+          '<td>'+escapeHtml(c.name)+'</td>'+
+          '<td>'+escapeHtml(c.phone||'')+'</td>'+
+          '<td>'+escapeHtml(c.email||'')+'</td>'+
+          '<td>'+escapeHtml(c.vehicle||'')+'</td>'+
           '<td><button class="tab-btn" data-delc="'+c.id+'">Delete</button></td>';
         tb.appendChild(tr);
       });
@@ -6979,7 +7088,7 @@ window.addEventListener('load', function(){
     function renderJobCustomer(){
       var sel = $('#jobCustomer');
       var opts = ['<option value="">Select...</option>'];
-      DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+c.name+'</option>'); });
+      DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+escapeHtml(c.name)+'</option>'); });
       sel.innerHTML = opts.join('');
       renderInvFilters();
       renderInvJobOptions();
@@ -7021,12 +7130,11 @@ window.addEventListener('load', function(){
       $('#vinResult').style.display='none';
       $('#vinSuggest').style.display='none';
       saveDB();
-      if(DB.jobs.length===1){
-        $('#invJob').value = j.id;
-        loadInvoice(j.id);
-        UI.lastJobId = j.id;
-        saveUI(UI);
-      }
+      persistLines();
+      loadInvoice(j.id);
+      UI.lastJobId = j.id;
+      saveUI(UI);
+      document.querySelector('[data-tab="invoice"]').click();
     });
 
     // VIN decode
@@ -7212,15 +7320,16 @@ window.addEventListener('load', function(){
       var tb = $('#jobsTable tbody'); tb.innerHTML='';
       DB.jobs.forEach(function(j){
         var c = findCustomer(j.customerId);
-        var subtotal = sumLines(j.lines, 'subtotal');
-        var profit   = sumLines(j.lines, 'profit');
+        var financials = calcJobFinancials(j);
+        var subtotal = financials.grand;
+        var profit   = financials.profitNet;
         var badge = j.status==='Open' ? 'badge-open' : (j.status==='In Progress'?'badge-ip':'badge-done');
         var tr = document.createElement('tr');
         tr.innerHTML =
           '<td>'+j.id.slice(0,8)+'</td>'+
-          '<td>'+(c?c.name:'—')+'</td>'+
-          '<td>'+j.title+'</td>'+
-          '<td><span class="badge '+badge+'">'+j.status+'</span></td>'+
+          '<td>'+escapeHtml(c?c.name:'—')+'</td>'+
+          '<td>'+escapeHtml(j.title)+'</td>'+
+          '<td><span class="badge '+badge+'">'+escapeHtml(j.status)+'</span></td>'+
           '<td>'+fmt(subtotal)+'</td>'+
           '<td>'+fmt(profit)+'</td>'+
           '<td><button class="tab-btn" data-open="'+j.id+'">Open</button></td>';
@@ -7248,13 +7357,16 @@ window.addEventListener('load', function(){
     /* ------ Invoice filters & selectors ------ */
     function renderInvFilters(){
       var sel = $('#invCustFilter');
+      var previous = sel.value;
       var opts = ['<option value="">All customers</option>'];
-      DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+c.name+'</option>'); });
+      DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+escapeHtml(c.name)+'</option>'); });
       sel.innerHTML = opts.join('');
+      sel.value = previous;
     }
 
     function renderInvJobOptions(){
       var invSel = $('#invJob');
+      var previous = loadedInvoiceId || invSel.value;
       var cid = $('#invCustFilter').value || '';
       var q = ($('#invJobSearch').value || '').trim().toLowerCase();
       var jobs = DB.jobs.filter(function(j){
@@ -7264,12 +7376,16 @@ window.addEventListener('load', function(){
         var fields = [(cust?cust.name:''), (j.title||''), (j.vin||''), (j.notes||''), (j.overallNotes||'')].join(' | ');
         return matchesAllTokens(fields, q);
       });
+      // Keep the open document reachable when a filter hides it.
+      var openJob = DB.jobs.find(function(j){ return j.id === previous; });
+      if(openJob && !jobs.some(function(j){ return j.id === previous; })) jobs.unshift(openJob);
       var opts = ['<option value="">Select job…</option>'];
       jobs.forEach(function(j){
         var c = findCustomer(j.customerId);
-        opts.push('<option value="'+j.id+'">'+(c?c.name:'—')+' — '+j.title+'</option>');
+        opts.push('<option value="'+j.id+'">'+escapeHtml(c?c.name:'—')+' — '+escapeHtml(j.title)+'</option>');
       });
       invSel.innerHTML = opts.join('');
+      invSel.value = previous;
     }
 
     function renderRecentJobs(){
@@ -7285,10 +7401,10 @@ window.addEventListener('load', function(){
         var custName = c?c.name:'—';
         var created = j.createdAt ? new Date(j.createdAt).toLocaleDateString() : '';
         var status = j.status || 'Open';
-        var total = fmt(sumLines(j.lines,'subtotal'));
+        var total = fmt(calcJobFinancials(j).grand);
         card.innerHTML =
-          '<div class="recent-job-title">'+custName+'</div>'+
-          '<div class="recent-job-meta">'+j.title+'</div>'+
+          '<div class="recent-job-title">'+escapeHtml(custName)+'</div>'+
+          '<div class="recent-job-meta">'+escapeHtml(j.title)+'</div>'+
           '<div class="recent-job-meta">'+created+' • '+status+' • '+total+'</div>';
         card.addEventListener('click', function(){
           try{ persistLines(); }catch(_){}
@@ -7319,6 +7435,9 @@ window.addEventListener('load', function(){
       try{ persistLines(); }catch(_){}
       var id = this.value;
       if(!id){
+        loadedInvoiceId = null;
+        UI.lastJobId = null;
+        saveUI(UI);
         $('#lines tbody').innerHTML='';
         updatePreview();
         recalcTotals();
@@ -7370,13 +7489,14 @@ window.addEventListener('load', function(){
         $('#invJob').value=j.id;
         UI.lastJobId=j.id;
         saveUI(UI);
+        loadInvoice(j.id);
       }
       if(!j) alert('Pick a job in the "Select job…" dropdown first.');
       return j;
     }
 
     function currentJob(){
-      var id = $('#invJob').value;
+      var id = loadedInvoiceId;
       var i;
       for(i=0;i<DB.jobs.length;i++){
         if(DB.jobs[i].id===id) return DB.jobs[i];
@@ -7385,9 +7505,11 @@ window.addEventListener('load', function(){
     }
 
     function loadInvoice(id){
-      var j = currentJob();
-      if(!j) j = DB.jobs.filter(function(x){ return x.id===id; })[0];
+      var j = DB.jobs.find(function(x){ return x.id===id; });
       if(!j) return;
+      loadedInvoiceId = id;
+      renderInvJobOptions();
+      $('#invJob').value = id;
 
       j.lines = cleanLines(j.lines || []);
 
@@ -7449,6 +7571,7 @@ window.addEventListener('load', function(){
       syncPaymentState();
       updateInvoiceActionButtons();
       updateImportedTotalsStatus(j);
+      wireAutoGrowTextareas(document.getElementById('invoice'));
     }
 
     function makeRowDraggable(tr){
@@ -7523,8 +7646,8 @@ window.addEventListener('load', function(){
       tr.innerHTML =
         '<td class="drag-col"><button class="tab-btn handle" title="Drag to reorder">↕</button></td>' +
         '<td><select class="lType"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Diagnostic'?'selected':'')+'>Diagnostic</option><option '+(type==='Part'?'selected':'')+'>Part</option><option '+(type==='Adjustment'?'selected':'')+'>Adjustment</option><option '+(type==='Warranty'?'selected':'')+'>Warranty</option></select></td>' +
-        '<td><div class="desc-wrap"><textarea class="lDesc" placeholder="'+descPH+'">'+(desc||'')+'</textarea><textarea class="lNote" placeholder="Tech note for this line (prints)">'+(note||'')+'</textarea></div></td>' +
-        '<td><input class="lQty" type="number" step="0.01" value="'+(qty||1)+'" placeholder="'+qtyPH+'"/></td>' +
+        '<td><div class="desc-wrap"><textarea class="lDesc" placeholder="'+descPH+'">'+escapeHtml(desc||'')+'</textarea><textarea class="lNote" placeholder="Tech note for this line (prints)">'+escapeHtml(note||'')+'</textarea></div></td>' +
+        '<td><input class="lQty" type="number" step="0.01" value="'+(qty != null ? qty : 1)+'" placeholder="'+qtyPH+'"/></td>' +
         '<td><input class="lList" type="number" step="0.01" value="'+(((list!=null)?list:0))+'" placeholder="'+listPH+'"/></td>' +
         '<td><input class="lCost" type="number" step="0.01" value="'+(((cost!=null)?cost:0))+'" placeholder="'+costPH+'"/></td>' +
         '<td><input class="lMarkup" type="number" step="0.01" value="'+(markupVal||0)+'" placeholder="markup %"/></td>' +
@@ -7535,6 +7658,9 @@ window.addEventListener('load', function(){
       document.querySelector('#lines tbody').appendChild(tr);
       wireAutoGrowTextareas(tr);
       makeRowDraggable(tr);
+      ['.lType','.lDesc','.lNote','.lQty','.lList','.lCost','.lMarkup','.lUnit','.lDel'].forEach(function(sel, i){
+        tr.querySelector(sel).setAttribute('aria-label', ['Line type','Description','Line note','Quantity / hours','List price','Cost','Markup percent','Unit price','Delete line'][i]);
+      });
       tr.querySelector('.lDel').addEventListener('click', function(){
         tr.remove();
         persistLines();
@@ -8180,6 +8306,9 @@ window.addEventListener('load', function(){
       var c = j ? findCustomer(j.customerId) : null;
       var job = j ? JSON.parse(JSON.stringify(j)) : null;
       if(job){
+        // Customer PDFs must not carry shop-only notes in their recovery text.
+        // Full JSON backups continue to retain those notes.
+        delete job.internalNotes;
         job.photos = [];
         job.signatures = {customer:null, manager:null};
         job._calc = null;
@@ -8529,6 +8658,7 @@ window.addEventListener('load', function(){
 
     function applyImportedPdfData(data, sourceFile, sourceText){
       if(!data) throw new Error('No document data was parsed.');
+      persistLines();
       var payloadMode = data.kind === 'pdc-pdf-recovery' || data.source === 'recovery-payload';
       var customer = findCustomerForImport(data.customer || {});
       var jobData = data.job || {};
@@ -8570,6 +8700,8 @@ window.addEventListener('load', function(){
 
       saveDB();
       renderAll();
+      // Load the imported record before the tab click can save the previous form.
+      loadInvoice(j.id);
       document.querySelector('[data-tab="invoice"]').click();
       var invJob = document.getElementById('invJob');
       if(invJob) invJob.value = j.id;
@@ -8664,7 +8796,7 @@ window.addEventListener('load', function(){
             try{
               var data = JSON.parse(reader.result||'{}');
               var newDB = data.db || data || null;
-              if(!newDB || !newDB.customers || !newDB.jobs){
+              if(!newDB || !Array.isArray(newDB.customers) || !Array.isArray(newDB.jobs)){
                 alert('Invalid backup format.');
                 return;
               }
@@ -8676,6 +8808,8 @@ window.addEventListener('load', function(){
                 try{ localStorage.setItem(WMKEY, data.wm); }catch(_){}
               }
               DB = newDB;
+              storageLoadFailed = false;
+              loadedInvoiceId = null;
               UI = data.ui || UI;
               upgradeDB();
               renderAll();
@@ -9015,7 +9149,13 @@ window.addEventListener('load', function(){
           var ok = confirm('Cloud snapshot found. Apply it to this browser?\n\nJobs in snapshot: ' + totalJobs + '\nTotal lines in snapshot: ' + totalLines + '\n\nThis replaces the local in-browser app state.');
           if(!ok) return;
 
-          if (snap.db) DB = snap.db;
+          if(!snap.db || !Array.isArray(snap.db.customers) || !Array.isArray(snap.db.jobs)){
+            alert('Cloud snapshot has an invalid database structure. Local records were kept.');
+            return;
+          }
+          DB = snap.db;
+          storageLoadFailed = false;
+          loadedInvoiceId = null;
           if (snap.ui) UI = snap.ui;
           try {
             if (snap.wm) localStorage.setItem(WMKEY, snap.wm);
@@ -9829,6 +9969,10 @@ setupCostAutoCalc();
       pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedFullscreen') && document.getElementById('schedExportIcs') && document.getElementById('schedulePopoverBackdrop')), 'week/month boards, month-safe fullscreen, appointment popover usable in fullscreen, robust click wiring, current-time line support, and iPhone export present');
       pushCheck('document intake storage', !!(Array.isArray(DB.documents) && document.getElementById('documentIntakeList') && document.getElementById('pdfImportBtn')), 'documents array, recent document list, and import controls present');
       pushCheck('historical total adjustments', !!(document.getElementById('addAdjustment') && document.getElementById('importHistoryStatus')), 'manual adjustment line and imported-total status banner present');
+      pushCheck('last local save', localSaveHealthy && !storageLoadFailed, 'most recent read/write succeeded; this does not verify cloud backup');
+      pushCheck('invoice form owner', !loadedInvoiceId || (DB.jobs.some(function(j){ return j.id === loadedInvoiceId; }) && $('#invJob').value === loadedInvoiceId), 'open form matches the selected job');
+      pushCheck('cloud client loaded', !!supabaseClient, 'client library only; does not verify login, RLS, or connectivity');
+      pushCheck('PDF import library loaded', !!window.pdfjsLib, 'PDF text extraction dependency');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
       var total = checks.length;
@@ -9848,7 +9992,6 @@ setupCostAutoCalc();
       }
       return { ok: ok, passed: passed, total: total, checks: checks };
     };
-    window.runSelfTest(false);
 
     /* ------ Initial upgrade + render ------ */
     upgradeDB();
@@ -9859,6 +10002,7 @@ setupCostAutoCalc();
       $('#invJob').value = UI.lastJobId;
       loadInvoice(UI.lastJobId);
     }
+    window.runSelfTest(false);
 
     // v1.5.25: wire every textarea after the first render, then refresh after layout settles.
     try {
@@ -9873,4 +10017,3 @@ setupCostAutoCalc();
 
 </body>
 </html>
-
