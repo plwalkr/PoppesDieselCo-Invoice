@@ -3355,8 +3355,9 @@
     @media print { .app-sidebar, .workspace-heading, .skip-link { display: none !important; } }
 </style>
 <link rel="stylesheet" href="shop-theme.css" media="screen" />
+<script src="service-desk.js" defer></script>
 <link rel="icon" type="image/png" href="assets/poppes-diesel-logo.png" />
-<meta name="theme-color" content="#102022" />
+<meta name="theme-color" content="#1d222b" />
 </head>
 <body>
 
@@ -3874,22 +3875,80 @@
 
   <!-- Invoice -->
   <section id="invoice" class="tab">
+    <div class="card service-workspace">
+      <div class="service-context">
+        <div class="service-context-main">
+          <div class="service-eyebrow" id="serviceCustomer">Select a job to begin</div>
+          <h3 id="serviceVehicle">Vehicle not entered</h3>
+          <div id="serviceTicket" class="service-ticket"></div>
+          <div id="serviceIdentity" class="service-identity"></div>
+        </div>
+        <div class="service-context-actions">
+          <div class="service-job-picker"><label for="serviceJob">Current ticket</label><select id="serviceJob"><option value="">Select a service ticket…</option></select></div>
+          <div><label for="serviceStatus">Work status</label><select id="serviceStatus"><option>Open</option><option>In Progress</option><option>Done</option></select></div>
+          <button type="button" id="serviceEditVehicle" class="tab-btn">Edit vehicle</button>
+        </div>
+      </div>
+      <div class="service-view-tabs" role="tablist" aria-label="Repair workspace">
+        <button type="button" id="serviceEstimateTab" role="tab" data-service-view="invoiceBuilder" aria-controls="invoiceBuilder" aria-selected="true">Estimate builder</button>
+        <button type="button" id="serviceLibraryTab" role="tab" data-service-view="serviceLibrary" aria-controls="serviceLibrary" aria-selected="false" tabindex="-1">Service library</button>
+        <button type="button" id="serviceDiagnosticsTab" role="tab" data-service-view="diagnosticWorksheet" aria-controls="diagnosticWorksheet" aria-selected="false" tabindex="-1">Diagnostic worksheet</button>
+        <button type="button" id="serviceHistoryTab" role="tab" data-service-view="serviceHistory" aria-controls="serviceHistory" aria-selected="false" tabindex="-1">Service history</button>
+      </div>
+      <div id="serviceDeskMessage" class="service-desk-message" role="status" aria-live="polite"></div>
+    </div>
+
+    <div id="serviceLibrary" class="card service-panel" role="tabpanel" aria-labelledby="serviceLibraryTab" hidden>
+      <div class="service-panel-head"><div><h3>Shop service library</h3><p>Reusable work packages with labor and parts together. Labor uses this ticket’s rates; parts retain saved pricing.</p></div></div>
+      <div class="service-library-notice">Shop templates, not OEM labor-guide data. Verify hours, parts fitment and pricing. Diagnostic minimums, supplies, discounts and tax are calculated on the ticket.</div>
+      <label for="servicePackageSearch">Find a service or vehicle</label><input id="servicePackageSearch" type="search" placeholder="Search your shop packages…" />
+      <div id="servicePackages" class="service-packages"></div>
+      <details class="service-save-package"><summary>Save this ticket’s work as a reusable package</summary>
+        <p>Stores described labor, diagnostic, part and warranty lines. Ticket-specific adjustment lines and customer notes stay on the ticket.</p>
+        <div class="service-package-save-grid">
+          <div><label for="servicePackageName">Package name</label><input id="servicePackageName" type="text" placeholder="e.g., Fuel-system service" /></div>
+          <div><label for="servicePackageVehicle">Vehicle / engine applicability</label><input id="servicePackageVehicle" type="text" placeholder="e.g., Ram 6.7 Cummins — verify year" /></div>
+          <button id="serviceSavePackage" type="button" class="tab-btn">Save package</button>
+        </div>
+      </details>
+    </div>
+
+    <div id="diagnosticWorksheet" class="card service-panel" role="tabpanel" aria-labelledby="serviceDiagnosticsTab" hidden>
+      <div class="service-panel-head"><div><h3>Diagnostic worksheet</h3><p>Document the concern, checks, findings and verified repair. This worksheet is shop-only.</p></div></div>
+      <p id="serviceRecordHint" class="service-library-notice"></p>
+      <div class="diagnostic-grid">
+        <div><label for="diagConcern">Customer concern / symptoms</label><textarea id="diagConcern" placeholder="Record the reported concern and operating conditions."></textarea></div>
+        <div><label for="diagCodes">Trouble codes / scan notes</label><textarea id="diagCodes" placeholder="Record exact codes, status and scan-tool observations."></textarea></div>
+        <div><label for="diagTests">Tests performed / measurements</label><textarea id="diagTests" placeholder="Record checks, measurements and the source of any specifications used."></textarea></div>
+        <div><label for="diagFindings">Confirmed findings / cause</label><textarea id="diagFindings" placeholder="Separate confirmed findings from items still under investigation."></textarea></div>
+        <div><label for="diagCorrection">Correction / work performed</label><textarea id="diagCorrection" placeholder="Record the repair or correction performed."></textarea></div>
+        <div><label for="diagVerification">Repair verification</label><textarea id="diagVerification" placeholder="Record rechecks, road test and whether the concern was resolved."></textarea></div>
+      </div>
+      <div class="diagnostic-summary-action"><p>To include selected findings on the customer document, append a summary to Technician Overall Notes. Trouble-code and test notes stay shop-only.</p><button type="button" id="diagAppendSummary" class="tab-btn">Append customer summary</button></div>
+    </div>
+
+    <div id="serviceHistory" class="card service-panel" role="tabpanel" aria-labelledby="serviceHistoryTab" hidden>
+      <div class="service-panel-head"><div><h3>Service history</h3><p id="serviceHistoryScope">Select a job to see previous service.</p></div></div>
+      <div id="serviceHistoryList"></div>
+    </div>
+
+    <div id="invoiceBuilder" role="tabpanel" aria-labelledby="serviceEstimateTab">
     <div id="invoice-toolbar" class="card">
       <div class="invoice-cockpit-grid">
         <section class="toolbar-section invoice-main-panel">
           <div class="section-title">Job / Vehicle / Document</div>
           <div class="invoice-dense-grid">
-            <div class="field dense-field s3">
+            <div class="field dense-field s5">
               <label for="invCustFilter">Filter by Customer</label>
               <select id="invCustFilter">
                 <option value="">All customers</option>
               </select>
             </div>
-            <div class="field dense-field s4">
+            <div class="field dense-field s7">
               <label for="invJobSearch">Search Jobs</label>
               <input id="invJobSearch" type="text" placeholder="Filter by customer, VIN, notes…" />
             </div>
-            <div class="field dense-field s5">
+            <div class="field dense-field s5 legacy-job-picker">
               <label for="invJob">Job</label>
               <select id="invJob">
                 <option value="">Select job…</option>
@@ -4342,6 +4401,7 @@
         </div>
       </div>
     </div>
+    </div><!-- invoiceBuilder -->
   </section>
 
   <!-- Settings / Backup -->
@@ -4782,7 +4842,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.27';
+const APP_VERSION = 'v1.5.28';
 const APP_BUILD_DATE = '2026-10-05';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -4900,7 +4960,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
   function refreshMeta(){
     if (metaEl) metaEl.textContent = getMetaLine();
-    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Poppe’s Service Desk';
+    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Repair & Service Workspace';
     if (titleEl) titleEl.textContent = 'Poppe’s Diesel Co. — Shop Manager ' + APP_VERSION + ' (' + APP_BUILD_DATE + ')';
   }
 
@@ -5345,6 +5405,7 @@ window.addEventListener('load', function(){
       catch(_){}
     }
     var UI = loadUI();
+    var serviceDesk = null;
 
     function upgradeDB(){
       var i, j, l;
@@ -7058,6 +7119,7 @@ window.addEventListener('load', function(){
       renderSchedule();
       renderSettings();
       renderDocumentIntakeList();
+      if(serviceDesk) serviceDesk.load();
       saveDB();
     }
 
@@ -7491,6 +7553,7 @@ window.addEventListener('load', function(){
         $('#lines tbody').innerHTML='';
         updatePreview();
         recalcTotals();
+        if(serviceDesk) serviceDesk.load();
         return;
       }
       loadInvoice(id);
@@ -7622,6 +7685,7 @@ window.addEventListener('load', function(){
       updateInvoiceActionButtons();
       updateImportedTotalsStatus(j);
       wireAutoGrowTextareas(document.getElementById('invoice'));
+      if(serviceDesk) serviceDesk.load();
     }
 
     function makeRowDraggable(tr){
@@ -7841,6 +7905,7 @@ window.addEventListener('load', function(){
       updatePreview();
       renderJobs();
       renderDashboard();
+      if(serviceDesk) serviceDesk.refreshContext();
       saveDB();
     }
 
@@ -8359,6 +8424,7 @@ window.addEventListener('load', function(){
         // Customer PDFs must not carry shop-only notes in their recovery text.
         // Full JSON backups continue to retain those notes.
         delete job.internalNotes;
+        delete job.diagnosticRecord;
         job.photos = [];
         job.signatures = {customer:null, manager:null};
         job._calc = null;
@@ -10024,6 +10090,7 @@ setupCostAutoCalc();
       pushCheck('invoice form owner', !loadedInvoiceId || (DB.jobs.some(function(j){ return j.id === loadedInvoiceId; }) && $('#invJob').value === loadedInvoiceId), 'open form matches the selected job');
       pushCheck('cloud client loaded', !!supabaseClient, 'client library only; does not verify login, RLS, or connectivity');
       pushCheck('PDF import library loaded', !!window.pdfjsLib, 'PDF text extraction dependency');
+      pushCheck('repair workspace module loaded', !!window.PdcServiceDesk, 'vehicle context, shop packages, diagnostic worksheet and history tools');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
       var total = checks.length;
@@ -10054,6 +10121,29 @@ setupCostAutoCalc();
       loadInvoice(UI.lastJobId);
     }
     window.runSelfTest(false);
+
+    if(window.PdcServiceDesk){
+      serviceDesk = window.PdcServiceDesk.create({
+        job: currentJob, customer: findCustomer,
+        jobs: function(){ return DB.jobs; }, templates: function(){ return DB.templates; },
+        filteredJobs: function(){
+          var ids=Array.from($('#invJob').options).map(function(option){return option.value;});
+          return DB.jobs.filter(function(job){return ids.indexOf(job.id)!==-1;});
+        },
+        money: fmt, financials: calcJobFinancials, save: saveDB, persist: persistLines, rows: rowsToLines,
+        rates: function(){ return {labor:Number($('#laborRate').value || 100),diagnostic:Number($('#diagnosticRate').value || 125)}; },
+        partMarkup: partMarkupPercentForCost, partPrice: partUnitFromCostAndMarkup, grow: wireAutoGrowTextareas,
+        addLines: function(lines){
+          if(!currentJob()) return;
+          lines.forEach(function(l){ addLine(l.type,l.desc,l.qty,l.list,l.cost,Number(l.unit || 0).toFixed(2),l.note,{skipPersist:true,markupPct:l.markupPct}); });
+          persistLines();
+        },
+        focusLines: function(){ document.querySelector('#lines').closest('.table-wrap').focus(); },
+        openJob: function(id){
+          persistLines(); loadInvoice(id); UI.lastJobId=id; saveUI(UI);
+        }
+      });
+    }
 
     // v1.5.25: wire every textarea after the first render, then refresh after layout settles.
     try {

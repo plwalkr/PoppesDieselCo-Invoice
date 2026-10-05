@@ -2,7 +2,10 @@ const {test} = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const {JSDOM, VirtualConsole} = require('jsdom');
-const html = fs.readFileSync(process.env.APP_HTML || 'index.html', 'utf8');
+const html = fs.readFileSync(process.env.APP_HTML || 'index.html', 'utf8').replace(
+  '<script src="service-desk.js" defer></script>',
+  '<script>'+fs.readFileSync('service-desk.js','utf8')+'</script>'
+);
 const key = 'poppe_shop_db_v112';
 function seed() {
   return {customers:[{id:'customer-a',name:'Test customer <fleet>',email:''}],
@@ -203,4 +206,117 @@ test('workspace shortcuts use the existing ticket and schedule forms',async t=>{
   assert.equal($('#schedule').classList.contains('active'),true);
   await Promise.resolve();
   assert.equal($('#workspaceTitle').textContent,'Service schedule');
+});
+
+test('diagnostic worksheets remain attached to their ticket and private in customer PDFs',async t=>{
+  const {$,change,read}=await app(t);
+  change('#diagTests','Private measurement A');
+  change('#diagFindings','Confirmed finding A');
+  change('#serviceJob','b','change');
+  assert.equal($('#diagTests').value,'');
+  change('#diagTests','Private measurement B');
+  change('#serviceJob','a','change');
+  assert.equal($('#diagTests').value,'Private measurement A');
+  assert.equal(read().jobs[1].diagnosticRecord.tests,'Private measurement B');
+  $('#pdf').click();
+  const printed=$('iframe').contentDocument;
+  const encoded=printed.body.textContent.match(/PDC_RECOVERY_JSON_V1:([A-Za-z0-9+/=]+)/)[1];
+  assert.equal(JSON.parse(Buffer.from(encoded,'base64').toString('utf8')).job.diagnosticRecord,undefined);
+  assert.equal($('#preview').textContent.includes('Private measurement A'),false);
+  assert.equal(read().jobs[0].diagnosticRecord.findings,'Confirmed finding A');
+});
+
+test('customer summary appends selected findings without replacing notes or copying private tests',async t=>{
+  const {$,change,read}=await app(t);
+  change('#diagTests','Shop-only test details');
+  change('#diagCodes','Shop-only scan details');
+  change('#diagFindings','Leak verified');
+  change('#diagCorrection','Seal replaced');
+  $('#diagAppendSummary').click();
+  assert.match($('#overallNotes').value,/Notes a\n\nFindings: Leak verified\nWork performed: Seal replaced/);
+  assert.equal($('#overallNotes').value.includes('Shop-only'),false);
+  assert.match(read().jobs[0].overallNotes,/Seal replaced/);
+  assert.match($('#preview').textContent,/Seal replaced/);
+});
+
+test('saved shop packages keep parts quantities and markup while using the incoming ticket labor rate',async t=>{
+  const db=seed(); db.jobs[0].lines.push({type:'Part',desc:'Seal',qty:3,cost:20,markupPct:50,unit:30,note:'Verify fitment'});
+  db.jobs[1].laborRate=120;
+  const {$,change,read}=await app(t,{db});
+  change('#servicePackageName','Seal repair');
+  $('#serviceSavePackage').click();
+  const saved=read().templates[0];
+  assert.equal(saved.items[0].unit,null);
+  assert.equal(saved.items[1].qty,3);
+  assert.equal(saved.items[1].markupPct,50);
+  change('#invJob','b','change');
+  $('[data-service-view="serviceLibrary"]').click();
+  $('#servicePackages button').click();
+  const b=read().jobs[1];
+  assert.equal(b.lines.length,3);
+  assert.equal(b.lines[1].unit,120);
+  assert.equal(b.lines[2].qty,3);
+  assert.equal(b.lines[2].unit,30);
+  assert.equal(b.lines[2].note,'Verify fitment');
+  assert.equal($('#serviceLibrary').hidden,true);
+  assert.equal($('#invoiceBuilder').hidden,false);
+});
+
+test('history matches VIN regardless of case and opens the exact ticket',async t=>{
+  const db=seed(); db.jobs[0].vin='qa-vin'; db.jobs[1].vin='QA-VIN';
+  db.jobs.push({...db.jobs[1],id:'c',vin:'Different-VIN'});
+  const {$,read}=await app(t,{db});
+  $('[data-service-view="serviceHistory"]').click();
+  assert.equal($('#serviceHistoryList').children.length,1);
+  $('#serviceHistoryList button').click();
+  assert.equal($('#invJob').value,'b');
+  assert.equal($('#diagTests').value,'');
+  assert.equal(read().jobs[0].vin,'qa-vin');
+});
+
+test('work status changes independently of estimate approval and payment',async t=>{
+  const {$,change,read}=await app(t);
+  change('#serviceStatus','In Progress','change');
+  const j=read().jobs[0];
+  assert.equal(j.status,'In Progress');
+  assert.equal(j.paid,false);
+  assert.equal(j.docType,'Estimate');
+  assert.equal(j.approvedAt || null,null);
+  assert.equal($('#grand').textContent,'$105.35');
+});
+
+test('service library renders stored text literally without creating markup',async t=>{
+  const db=seed(); db.templates=[{name:'<img id="libraryInjection">',platform:'Shop',items:[{type:'Labor',desc:'<script>bad</script>',qty:0.5}]}];
+  const {$}=await app(t,{db});
+  assert.equal($('#libraryInjection'),null);
+  assert.equal($('#servicePackages h3').textContent,'<img id="libraryInjection">');
+});
+
+test('shop package unit prices use cents without floating-point text in money fields',async t=>{
+  const db=seed(); db.templates=[{platform:'Test service',items:[{type:'Part',desc:'Filter',cost:38,markup:40}]}];
+  const {$,read}=await app(t,{db});
+  $('#servicePackages button').click();
+  const unit=$('#lines tbody tr:last-child .lUnit');
+  assert.equal(Number(unit.value),53.2);
+  assert.match(unit.value,/^\d+(?:\.\d{1,2})?$/);
+  assert.equal(read().jobs[0].lines[1].unit,53.2);
+});
+
+test('visible repair ticket picker follows search and customer filters while retaining the open form',async t=>{
+  const db=seed();
+  db.customers.push({id:'customer-c',name:'Other fleet'});
+  db.jobs.push({...db.jobs[1],id:'c',customerId:'customer-c',title:'Cooling inspection'});
+  const {$,change,read}=await app(t,{db});
+  const ids=()=>Array.from($('#serviceJob').options).map(o=>o.value).filter(Boolean);
+  change('#invJobSearch','Cooling');
+  assert.deepEqual(ids().sort(),['a','c']);
+  assert.equal($('#serviceJob').value,'a');
+  change('#invCustFilter','customer-a','change');
+  assert.deepEqual(ids(),['a']);
+  change('#overallNotes','Open form survives filtering');
+  assert.equal(read().jobs[0].overallNotes,'Open form survives filtering');
+  change('#invJobSearch','');
+  assert.deepEqual(ids().sort(),['a','b']);
+  change('#serviceJob','b','change');
+  assert.equal($('#overallNotes').value,'Notes b');
 });

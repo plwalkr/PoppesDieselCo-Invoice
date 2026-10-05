@@ -1,6 +1,6 @@
 {
   "name": "poppesdieselco-invoice",
-  "version": "1.5.27",
+  "version": "1.5.28",
   "private": true,
   "description": "Development checks for the existing Poppe\u00e2\u20ac\u2122s Diesel Co. Shop Manager",
   "scripts": {

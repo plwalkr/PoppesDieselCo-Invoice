@@ -1,5 +1,34 @@
 # Changelog
 
+## v1.5.28 — 2026-10-05 — neutral palette and repair workspace, not deployed
+
+### Changed
+
+- Kept the established layout and original logo; replaced the ivory/green workspace with white panels, charcoal navigation, neutral gray backgrounds, and restrained logo-red actions. Darkened secondary text, labels, placeholders, estimate badges, and totals for readability.
+- Corrected low-contrast calendar export/email, PDF import, signature-save buttons, and diagnostics warning/error badges. Preserved status colors where they convey payment or save state.
+- Added persistent vehicle/customer/ticket context and a current-ticket selector shared across the four repair panels. It follows the existing search/customer filters while keeping the open form reachable. Work status remains separate from approval and payment.
+- Added a searchable service library using existing shop templates, plus packages saved from ticket labor, diagnostic, parts, and warranty lines. Labor uses the incoming ticket's rates; saved parts keep quantities, pricing, markup, and line notes. Ticket adjustments and overall notes are excluded. Package prices entered into money fields use whole cents.
+- Added ticket-specific diagnostic worksheets for concern, codes, checks, findings, correction, and verification. These stay out of customer PDF previews/recovery. An explicit action appends selected findings to customer notes, preserving existing notes and excluding private test/code fields.
+- Added service history matched by normalized VIN. Without a VIN, the panel clearly shows the customer's other tickets. History opens the exact record.
+- Added keyboard-operable repair tabs and responsive panels. The new module delegates to existing record ownership, pricing, tax, deposit, warranty, storage, and document logic.
+
+### Verification
+
+- All 26 regression tests pass, including worksheet ownership/privacy, customer-summary append, saved package quantities/markup/rate selection, VIN history, independent work status, literal stored-text rendering, cents formatting, and the visible ticket selector's filtering/ownership behavior.
+- The browser build reports 23/23 startup checks. No runtime errors were observed; the remaining warning correctly identifies an unpaid parts deposit on a synthetic ticket.
+- All six sections checked at 390×844, 1024×1000, and 1440×1000 without page-wide horizontal overflow. All four repair panels were also checked at phone/tablet sizes.
+- Sampled visible labels, secondary text, placeholders, controls, summaries, and badges meet the 4.5:1 contrast threshold against computed solid backgrounds after corrections. Expanded pricing, Quick Estimate, and signature dialogs were checked. This is a targeted audit, not a full accessibility certification or gradient/image sampling audit.
+- Browser: saved a synthetic Cummins package, reloaded, searched it, and applied it to a fresh ticket. Five lines loaded with unit prices 100.00, 53.20, 44.80, 15.20, and 105.30; the existing calculation produced a $218.50 parts deposit. Worksheet text stayed with its ticket during switching without changing existing service/diagnostic totals.
+- Desktop and phone screenshots are saved in ignored `test-results/`. Only synthetic localhost records were used.
+
+### Remaining before deployment
+
+- Review the neutral design in the local preview and draft PR #1. Production remains v1.5.25 on `main`.
+- This borrows vehicle-centered estimating/workflow ideas from ProDemand; it does not include licensed OEM labor times, repair procedures, wiring diagrams, or an external repair-information integration. Shop templates require fitment, hours, and price review.
+- Define a consistent financial rounding policy before changing the legacy calculator: the tested $323.50 subtotal plus tax displays $15.65 tax but $339.14 total because raw floating-point tax is added before display rounding. New package fields show cents, but tax/total rounding rules remain unchanged in this pass.
+- Saved packages currently support adding and searching; package editing, deletion, versioning, and pricing updates remain future work.
+- Previous PDF/iPhone, cloud security/conflict, cost-metadata recovery, and attachment-storage checks below remain open. Deploy `index.html`, `shop-theme.css`, `service-desk.js`, and the logo together.
+
 ## v1.5.27 — 2026-10-05 — branded service desk, not deployed
 
 ### Changed

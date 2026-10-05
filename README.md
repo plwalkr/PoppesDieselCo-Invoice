@@ -9,6 +9,8 @@ Continued from the existing GitHub Pages application, not a replacement app.
 - Latest successful Pages deployment inspected: run `27507910596` for that commit.
 - `index.html` contains the UI, styles, calculations, diagnostics, and persistence. There is no application build step, framework, or local server backend.
 - v1.5.27 adds `shop-theme.css` for the screen design and `assets/poppes-diesel-logo.png`, copied from the owner's supplied original. Deploy those files alongside `index.html`. A small presentation layer in the HTML updates page headings and shortcuts; the existing workflow owns all records and calculations.
+- v1.5.28 adds `service-desk.js` for the vehicle context, service library, private diagnostic worksheets, and service history. Deploy this script too. Its adapter delegates ticket ownership, rates, financial calculations, and persistence to the existing app. It requires no additional network service.
+- Saved service packages use the existing `templates` collection. Diagnostic worksheets use an optional `diagnosticRecord` field on each job. Full JSON backups retain both; customer PDF recovery excludes diagnostic worksheets and internal notes.
 - `index1.html` is the older v1.5.23 copy and remains untouched.
 - Local database: `poppe_shop_db_v112`; UI state: `pdc_ui_state`; watermark: `pdc_wm_dataurl`. Existing keys and database format are retained.
 - Optional cloud backup uses Supabase JS v2 from jsDelivr, Supabase authentication, shop organization lookup, and whole database snapshots. No backend credentials or policies were changed.
@@ -25,7 +27,7 @@ Localhost has separate browser storage from production. Use disposable records f
 
 Install test-only dependencies with `npm ci` and run `npm test` (or `node tests/workflow.test.cjs`). Node 20 or later is recommended. Deployment does not require Node or these dependencies.
 
-The tests load the actual HTML application in an isolated DOM with synthetic records. External CDN/network services and signature drawing are not exercised by those tests. Browser validation and deployment limits are recorded in [CHANGELOG.md](CHANGELOG.md).
+The 26 tests load the actual HTML application and service-desk module in an isolated DOM with synthetic records. External CDN/network services and signature drawing are not exercised by those tests. Browser validation and deployment limits are recorded in [CHANGELOG.md](CHANGELOG.md).
 
 ## Deployment
 
