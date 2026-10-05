@@ -1,5 +1,32 @@
 # Changelog
 
+## v1.5.27 — 2026-10-05 — branded service desk, not deployed
+
+### Changed
+
+- Added the owner's original eagle logo, unchanged, to the navigation, browser icon, and customer invoice/estimate header. Kept the established watermark controls.
+- Replaced the decorative dashboard shell with a dark ink navigation rail, ivory workspace, restrained red actions, consistent forms/tables, and clearer page headings. Phone navigation stays visible while scrolling and brings the active section into view.
+- Added New job and View schedule shortcuts that use the existing workflows. They do not create placeholder records.
+- Made margin/collection alerts, required deposits, follow-ups, and recent activity open the exact linked job. Recent activity sorts using record IDs/dates rather than ambiguous customer/title text.
+- Put editable line items before the totals. Kept total, balance, deposit, profit, and margin visible; moved supporting calculations into an expandable breakdown. Rates, taxes, and payments remain available in a clearly labeled expandable panel.
+- The theme is a separate screen-only stylesheet. Customer PDF generation keeps its established Letter layout, recovery data, privacy fix, and image-loading wait, with a compact logo added to the header.
+- Retained database keys, shop settings, pricing calculations, deposits, tax, warranty rules, and the v1.5.26 reliability fixes.
+
+### Verification
+
+- All 18 regression tests pass: the prior 15 plus exact dashboard job links (including duplicate labels), deposit/margin links, and workspace shortcuts/headings. The generated print-document check also verifies the absolute logo URL.
+- Browser: every section checked at 390×844, 1024×1000, and 1440×1000 with no page-wide horizontal overflow. Phone payment fields use 16px text; line-item pricing stays in a separate keyboard-scrollable region; navigation remains at the top during scrolling.
+- Browser: a $12.50 payment remained on the service ticket after opening a different ticket from Recent Activity and switching back. Service and diagnostic totals remained $210.70 and $158.03. The disposable payment was reset to $0 afterward.
+- Quick Estimate opens and closes in the new theme. Schedule Week/Month controls and document preview are checked separately in the browser. The real CDN build reports 22/22 startup checks.
+- Screenshots in ignored `test-results/` show desktop, phone, and invoice preview. Synthetic QA records were used; production records were not changed.
+
+### Remaining before deployment
+
+- Review the new design in the local preview and existing draft PR #1. Production remains v1.5.25 on `main`.
+- Verify actual Save as PDF and pagination with the new logo on desktop and iPhone. The print-document structure is tested, but the browser's native print/save handoff is not automated.
+- The original logo is about 1.7 MB. It is served locally with the app; all theme/asset files must be deployed together. Any future optimized derivative should preserve the owner's original artwork.
+- The prior risks below still apply: customer PDF recovery includes cost metadata, cloud access/security and snapshot conflicts need owner-account testing, and large attachments can exhaust browser storage. This visual release does not turn the current local-storage app into a multi-user commercial platform.
+
 ## v1.5.26 — 2026-10-05 — review branch, not deployed
 
 ### Changed

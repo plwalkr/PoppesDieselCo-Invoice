@@ -8,6 +8,7 @@ Continued from the existing GitHub Pages application, not a replacement app.
 - Baseline commit: `728fa3fef0e832cf5708b777fe1dc8df7ea155a2` on `main`.
 - Latest successful Pages deployment inspected: run `27507910596` for that commit.
 - `index.html` contains the UI, styles, calculations, diagnostics, and persistence. There is no application build step, framework, or local server backend.
+- v1.5.27 adds `shop-theme.css` for the screen design and `assets/poppes-diesel-logo.png`, copied from the owner's supplied original. Deploy those files alongside `index.html`. A small presentation layer in the HTML updates page headings and shortcuts; the existing workflow owns all records and calculations.
 - `index1.html` is the older v1.5.23 copy and remains untouched.
 - Local database: `poppe_shop_db_v112`; UI state: `pdc_ui_state`; watermark: `pdc_wm_dataurl`. Existing keys and database format are retained.
 - Optional cloud backup uses Supabase JS v2 from jsDelivr, Supabase authentication, shop organization lookup, and whole database snapshots. No backend credentials or policies were changed.

@@ -160,4 +160,47 @@ test('generated print document keeps recovery data but excludes private notes',a
   assert.equal(payload.job.lines[0].desc,'Labor a');
   assert.equal(read().jobs[0].internalNotes,'Internal a');
   assert.equal(printed.querySelector('#pGrand').textContent,'$105.35');
+  assert.equal(printed.querySelector('#documentLogo').getAttribute('src'),'https://local-test.invalid/assets/poppes-diesel-logo.png');
+});
+
+test('dashboard opens the exact job even with duplicate customer/job labels',async t=>{
+  const db=seed(); db.jobs.forEach(j=>j.title='Same title');
+  const {$,read}=await app(t,{db});
+  $('#overallNotes').value='Pending work on A';
+  $('[data-tab="dashboard"]').click();
+  $('#dashRecentActivity [data-job-id="b"]').click();
+  assert.equal($('#invoice').classList.contains('active'),true);
+  assert.equal($('#invJob').value,'b');
+  assert.equal($('#overallNotes').value,'Notes b');
+  assert.equal(read().jobs[0].overallNotes,'Pending work on A');
+  assert.equal(read().jobs[1].lines[0].qty,2);
+  await Promise.resolve();
+  assert.equal($('#workspaceTitle').textContent,'Estimates & invoices');
+});
+
+test('deposit and margin alerts open their linked ticket without changing money rules',async t=>{
+  const db=seed(); db.jobs[1].lines=[{type:'Part',desc:'Part',qty:1,cost:200,unit:210}];
+  const {$,read}=await app(t,{db});
+  $('[data-tab="dashboard"]').click();
+  $('#dashDepositTracker [data-job-id="b"]').click();
+  assert.equal($('#invJob').value,'b');
+  assert.equal(read().jobs[1].depositRequired,210);
+  $('[data-tab="dashboard"]').click();
+  $('#dashProfitLeaks [data-job-id="b"]').click();
+  assert.equal($('#invJob').value,'b');
+  assert.equal($('.lDesc').value,'Part');
+});
+
+test('workspace shortcuts use the existing ticket and schedule forms',async t=>{
+  const {$,dom,read}=await app(t);
+  $('#workspaceNewJob').click();
+  assert.equal($('#jobs').classList.contains('active'),true);
+  assert.equal(dom.window.document.activeElement,$('#jobCustomer'));
+  assert.equal(read().jobs.length,2,'shortcut does not create a placeholder ticket');
+  await Promise.resolve();
+  assert.equal($('#workspaceTitle').textContent,'Jobs & service tickets');
+  $('#workspaceSchedule').click();
+  assert.equal($('#schedule').classList.contains('active'),true);
+  await Promise.resolve();
+  assert.equal($('#workspaceTitle').textContent,'Service schedule');
 });

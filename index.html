@@ -3352,13 +3352,39 @@
       }
     }
     @media print { .save-status, .table-scroll-hint { display: none !important; } }
+    @media print { .app-sidebar, .workspace-heading, .skip-link { display: none !important; } }
 </style>
+<link rel="stylesheet" href="shop-theme.css" media="screen" />
+<link rel="icon" type="image/png" href="assets/poppes-diesel-logo.png" />
+<meta name="theme-color" content="#102022" />
 </head>
 <body>
 
+<a class="skip-link" href="#workspaceTitle">Skip to workspace</a>
+<aside class="app-sidebar" aria-label="Poppe’s Diesel Co. workspace">
+  <div class="brand-lockup">
+    <img class="shop-logo" src="assets/poppes-diesel-logo.png" width="168" height="168" alt="Poppe’s Diesel Co. eagle logo — Built in the Garage, Backed by Freedom" />
+    <div class="brand-product">Shop management<br/>Service • Repair • Diesel</div>
+  </div>
+  <div class="nav-caption">Workspace</div>
+  <!-- Tab buttons -->
+  <nav class="tab-bar" aria-label="Shop sections">
+    <button class="tab-btn active-tab" data-tab="dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></button>
+    <button class="tab-btn" data-tab="customers"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5v2"/></svg><span>Customers</span></button>
+    <button class="tab-btn" data-tab="jobs"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V3h8v4M3 12h18M10 12v3h4v-3"/></svg><span>Jobs</span></button>
+    <button class="tab-btn" data-tab="schedule"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 11h18M7 15h2M12 15h2M17 15h1"/></svg><span>Schedule</span></button>
+    <button class="tab-btn" data-tab="invoice"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h7"/></svg><span>Invoice / Estimate</span></button>
+    <button class="tab-btn" data-tab="settings"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2 2M16.4 16.4l2 2M5.6 18.4l2-2M16.4 7.6l2-2"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg><span>Settings & Backup</span></button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="freedom">Built in the garage<br/>Backed by freedom <b>★</b></div>
+    <p>Your shop. Your standards.</p>
+  </div>
+</aside>
+
 <header>
   <div class="title-block">
-    <h1>Poppe’s Diesel Co. — Shop Manager</h1>
+    <h1>Poppe’s Diesel Co. <span style="font-weight:400; color:#778477">/ Service desk</span></h1>
     <div class="subtitle" id="appSubtitle">Version loading…</div>
   </div>
   <div class="right-block">
@@ -3368,17 +3394,21 @@
   </div>
 </header>
 
-<main>
+<main id="shopWorkspace">
+  <div class="workspace-heading">
+    <div>
+      <div class="workspace-eyebrow" id="workspaceDate">Service desk</div>
+      <h2 id="workspaceTitle" tabindex="-1">Shop overview</h2>
+      <p id="workspaceDescription">Your work, margins and collections — in one place.</p>
+    </div>
+    <div class="workspace-actions">
+      <button type="button" id="workspaceSchedule">View schedule</button>
+      <button type="button" id="workspaceNewJob" class="primary-action">+ New job</button>
+    </div>
+  </div>
+
   <div id="saveStatus" class="save-status" role="status" aria-live="polite">Records are saved on this browser. Use Settings &amp; Backup to keep a separate copy.</div>
-  <!-- Tab buttons -->
-  <nav class="tab-bar" aria-label="Shop sections">
-    <button class="tab-btn active-tab" data-tab="dashboard">Dashboard</button>
-    <button class="tab-btn" data-tab="customers">Customers</button>
-    <button class="tab-btn" data-tab="jobs">Jobs</button>
-    <button class="tab-btn" data-tab="schedule">Schedule</button>
-    <button class="tab-btn" data-tab="invoice">Invoice / Estimate</button>
-    <button class="tab-btn" data-tab="settings">Settings & Backup</button>
-  </nav>
+
 
   <!-- Dashboard -->
   <section id="dashboard" class="tab active">
@@ -3394,8 +3424,8 @@
             </div>
           </div>
           <div class="battle-eyebrow">Built in the Garage • Backed by Freedom</div>
-          <div class="battle-title">Today’s Battle Plan</div>
-          <div id="battlePlanSummary" class="battle-copy">No shop data yet. Add customers, jobs, and invoices to light up the command center.</div>
+          <div class="battle-title">Keep the shop moving.</div>
+          <div id="battlePlanSummary" class="battle-copy">Start with a customer and a job. Your shop activity will appear here.</div>
         </div>
         <div class="health-card">
           <div class="section-title">Shop Health</div>
@@ -3451,7 +3481,7 @@
       <div class="dashboard-grid">
         <div class="dashboard-card">
           <div class="card-head">
-            <div class="card-title">Job Flow Board</div>
+            <div class="card-title">Work in progress</div>
             <span class="dash-pill">Count + value</span>
           </div>
           <div id="dashPipeline" class="pipeline-list"></div>
@@ -3459,8 +3489,8 @@
 
         <div class="dashboard-card">
           <div class="card-head">
-            <div class="card-title">Profit Leaks</div>
-            <span class="dash-pill bad">Money radar</span>
+            <div class="card-title">Margin & collections</div>
+            <span class="dash-pill">Needs attention</span>
           </div>
           <div id="dashProfitLeaks" class="dashboard-list"></div>
         </div>
@@ -3468,14 +3498,14 @@
         <div class="dashboard-card">
           <div class="card-head">
             <div class="card-title">Parts Deposit Tracker</div>
-            <span class="dash-pill warn">Do not finance parts</span>
+            <span class="dash-pill">Before ordering</span>
           </div>
           <div id="dashDepositTracker" class="dashboard-list"></div>
         </div>
 
         <div class="dashboard-card">
           <div class="card-head">
-            <div class="card-title">Follow-Up Opportunities</div>
+            <div class="card-title">Customer follow-ups</div>
             <span class="dash-pill">Future repairs</span>
           </div>
           <div id="dashFollowUps" class="dashboard-list"></div>
@@ -3484,7 +3514,7 @@
         <div class="dashboard-card">
           <div class="card-head">
             <div class="card-title">Job Type Mix</div>
-            <span class="dash-pill">What sells</span>
+            <span class="dash-pill">Service mix</span>
           </div>
           <div id="dashTopJobTypes" class="dashboard-list"></div>
         </div>
@@ -3656,9 +3686,9 @@
     <div class="schedule-shell">
       <div class="schedule-hero">
         <div class="schedule-banner">
-          <div class="schedule-eyebrow">Scheduling Command Center</div>
-          <div class="schedule-title">Shop Calendar Board</div>
-          <div class="schedule-copy">Run the week like a real shop board: day columns, time blocks, color-coded jobs, overlap warnings, appointment messages, and iPhone calendar export.</div>
+          <div class="schedule-eyebrow">Service planning</div>
+          <div class="schedule-title">A clear view of the week.</div>
+          <div class="schedule-copy">Plan service bays, coordinate drop-offs and keep customers informed. Appointments stay connected to their jobs.</div>
         </div>
         <div class="schedule-count-card">
           <div class="section-title">Today</div>
@@ -3738,7 +3768,7 @@
           </div>
           <div class="schedule-field s3">
             <label for="schedLocation">Location</label>
-            <input id="schedLocation" type="text" placeholder="Garage / driveway / customer drop-off" />
+            <input id="schedLocation" type="text" placeholder="Service bay / customer drop-off" />
           </div>
           <div class="schedule-field s3">
             <label for="schedAssigned">Assigned To</label>
@@ -3958,8 +3988,8 @@
           </div>
         </section>
 
-        <section class="toolbar-section invoice-money-panel">
-          <div class="section-title">Money Rules</div>
+        <details class="toolbar-section invoice-money-panel pricing-settings">
+          <summary>Rates, tax &amp; payments <span>Expand to edit this job’s pricing and payment details</span></summary>
           <div class="money-dense-grid">
             <div class="money-subhead">Rates & Supplies</div>
             <div class="field money-field m3">
@@ -4053,7 +4083,7 @@
               <label><input type="checkbox" id="customerSuppliedParts" /> Customer Supplied Parts <span class="hover-help" tabindex="0" data-help="Use this when the customer provides their own parts. The invoice will include warranty language saying customer-supplied parts are not covered under parts warranty and labor warranty may be limited if the part causes the failure.">?</span></label>
             </div>
           </div>
-        </section>
+        </details>
       </div>
 
       <div class="document-actions-bar">
@@ -4092,30 +4122,53 @@
 
         <div id="importHistoryStatus" class="import-history-status"></div>
 
+        <div class="table-wrap">
+          <table id="lines">
+            <thead>
+              <tr>
+                <th class="drag-col">⇅</th>
+                <th>Type</th>
+                <th>Description / Note</th>
+                <th>Qty/Hrs</th>
+                <th>List $</th>
+                <th>Cost $</th>
+                <th>Markup %</th>
+                <th>Unit $</th>
+                <th>Line $</th>
+                <th>Line Profit $</th>
+                <th>×</th>
+              </tr>
+            </thead>
+            <tbody><!-- JS fills --></tbody>
+          </table>
+        </div>
+
         <div style="display:flex; flex-direction:column; align-items:stretch; gap:8px; margin-bottom:10px;">
           <div class="totals-shell">
             <div class="totals-panel">
-              <div class="totals-line"><span>Labor Subtotal:</span> <span id="laborSub">$0.00</span></div>
-              <div class="totals-line"><span>Parts Subtotal:</span> <span id="partsSub">$0.00</span></div>
-              <div class="totals-line"><span>Shop Supplies:</span> <span id="shopSup">$0.00</span></div>
-              <div class="totals-line"><span>Gross Subtotal:</span> <span id="grossSub">$0.00</span></div>
-              <div class="totals-line"><span>Discount:</span> <span id="disc">$0.00</span></div>
-              <div class="totals-line"><span>Net Subtotal before tax:</span> <span id="sub">$0.00</span></div>
-              <div class="totals-line"><span>Taxable Subtotal:</span> <span id="taxableSub">$0.00</span></div>
-              <div class="totals-line"><span>Sales Tax:</span> <span id="tax">$0.00</span></div>
-              <div class="totals-line"><span>Deposit Required:</span> <span id="depositDue">$0.00</span></div>
-              <div class="totals-line grand"><span>Total:</span> <span id="grand">$0.00</span></div>
-              <div class="totals-line"><span>Balance Due:</span> <span id="balanceDueTotal">$0.00</span></div>
-              <div class="totals-line"><span>Overpayment / Credit:</span> <span id="overpayTotal">$0.00</span></div>
-              <div class="totals-line"><span>Total Profit:</span> <span id="profit">$0.00</span></div>
-              <div class="totals-line"><span>Total Savings vs List:</span> <span id="save">$0.00</span></div>
-              <div class="totals-line"><span>Warranty hours (not billed):</span> <span id="wHours">0.00</span></div>
-              <div class="totals-line">
+<div class="totals-line grand"><span>Total:</span> <span id="grand">$0.00</span></div>
+<div class="totals-line"><span>Balance Due:</span> <span id="balanceDueTotal">$0.00</span></div>
+<div class="totals-line"><span>Deposit Required:</span> <span id="depositDue">$0.00</span></div>
+<div class="totals-line"><span>Total Profit:</span> <span id="profit">$0.00</span></div>
+<div class="totals-line">
                 <span>Margin:</span>
                 <span id="margin" class="badge estimate">0%</span>
               </div>
-            </div>
-            <div class="totals-analytics" id="jobAnalytics">
+<details class="totals-breakdown"><summary>Full calculation breakdown</summary>
+<div class="totals-line"><span>Labor Subtotal:</span> <span id="laborSub">$0.00</span></div>
+<div class="totals-line"><span>Parts Subtotal:</span> <span id="partsSub">$0.00</span></div>
+<div class="totals-line"><span>Shop Supplies:</span> <span id="shopSup">$0.00</span></div>
+<div class="totals-line"><span>Gross Subtotal:</span> <span id="grossSub">$0.00</span></div>
+<div class="totals-line"><span>Discount:</span> <span id="disc">$0.00</span></div>
+<div class="totals-line"><span>Net Subtotal before tax:</span> <span id="sub">$0.00</span></div>
+<div class="totals-line"><span>Taxable Subtotal:</span> <span id="taxableSub">$0.00</span></div>
+<div class="totals-line"><span>Sales Tax:</span> <span id="tax">$0.00</span></div>
+<div class="totals-line"><span>Overpayment / Credit:</span> <span id="overpayTotal">$0.00</span></div>
+<div class="totals-line"><span>Total Savings vs List:</span> <span id="save">$0.00</span></div>
+<div class="totals-line"><span>Warranty hours (not billed):</span> <span id="wHours">0.00</span></div>
+</details>
+</div>
+<div class="totals-analytics" id="jobAnalytics">
               <div class="mini-title">Job Analytics</div>
               <div class="metric-bar" id="metricProfitWrap">
                 <div class="metric-head"><span>Profit</span><span id="metricProfitVal">$0.00</span></div>
@@ -4145,26 +4198,7 @@
           </div>
         </div>
 
-        <div class="table-wrap">
-          <table id="lines">
-            <thead>
-              <tr>
-                <th class="drag-col">⇅</th>
-                <th>Type</th>
-                <th>Description / Note</th>
-                <th>Qty/Hrs</th>
-                <th>List $</th>
-                <th>Cost $</th>
-                <th>Markup %</th>
-                <th>Unit $</th>
-                <th>Line $</th>
-                <th>Line Profit $</th>
-                <th>×</th>
-              </tr>
-            </thead>
-            <tbody><!-- JS fills --></tbody>
-          </table>
-        </div>
+
 
         <div style="margin-top:8px;">
           <div class="section-title">Technician Overall Notes</div>
@@ -4211,10 +4245,13 @@
           </div>
           <div id="preview-content">
             <div style="display:flex; justify-content:space-between; gap:12px; margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:8px;">
-              <div>
+              <div class="invoice-brand">
+                <img id="documentLogo" src="assets/poppes-diesel-logo.png" width="76" height="76" alt="Poppe’s Diesel Co." />
+                <div>
                 <div style="font-size:18px; font-weight:800;" id="pShopName">Poppe’s Diesel Co.</div>
                 <div style="font-size:11px; line-height:1.35;" id="pShopAddress"></div>
                 <div style="font-size:11px; line-height:1.35;" id="pShopContact"></div>
+                </div>
               </div>
               <div style="text-align:right; font-size:11px;">
                 <div><strong id="pTypeTitle">Estimate</strong></div>
@@ -4745,7 +4782,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.26';
+const APP_VERSION = 'v1.5.27';
 const APP_BUILD_DATE = '2026-10-05';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -4863,7 +4900,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
   function refreshMeta(){
     if (metaEl) metaEl.textContent = getMetaLine();
-    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Invoice Workflow & Input Reliability';
+    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Poppe’s Service Desk';
     if (titleEl) titleEl.textContent = 'Poppe’s Diesel Co. — Shop Manager ' + APP_VERSION + ' (' + APP_BUILD_DATE + ')';
   }
 
@@ -5997,11 +6034,22 @@ window.addEventListener('load', function(){
         return;
       }
       el.innerHTML = items.map(function(item){
-        return '<div class="dash-list-item">' +
-          '<div><strong>'+escapeHtml(item.title || '')+'</strong><div class="soft">'+escapeHtml(item.sub || '')+'</div></div>' +
+        var tag = item.jobId ? 'button' : 'div';
+        return '<'+tag+' class="dash-list-item"'+(item.jobId ? ' type="button" data-job-id="'+escapeHtml(item.jobId)+'" title="Open this job"' : '')+'>' +
+          '<span><strong>'+escapeHtml(item.title || '')+'</strong><span class="soft">'+escapeHtml(item.sub || '')+'</span></span>' +
           '<span class="dash-pill '+escapeHtml(item.level || '')+'">'+escapeHtml(item.value || '')+'</span>' +
-        '</div>';
+        '</'+tag+'>';
       }).join('');
+      el.querySelectorAll('[data-job-id]').forEach(function(button){
+        button.addEventListener('click', function(){
+          var id = button.getAttribute('data-job-id');
+          // Delegate to the existing job opener, which saves the outgoing invoice.
+          var opener = Array.from(document.querySelectorAll('#jobsTable button[data-open]')).find(function(node){
+            return node.getAttribute('data-open') === id;
+          });
+          if(opener) opener.click();
+        });
+      });
     }
 
     function renderDashboard(){
@@ -6043,6 +6091,7 @@ window.addEventListener('load', function(){
           depositNeeded += need;
           if((j.depositMode || 'parts') === 'parts') partsRisk += Math.min(need, f.partsSubtotal || need);
           depositItems.push({
+            jobId: j.id,
             title: customerName,
             sub: title + ' • required ' + fmt(f.depositRequired) + ' • paid ' + fmt(f.amountPaid),
             value: fmt(need),
@@ -6067,17 +6116,18 @@ window.addEventListener('load', function(){
         if(!c || !c.email || !j.vin) missingInfo++;
         if(f.grand > 0 && f.margin < 15) lowMarginJobCount++;
 
-        if(f.margin < 15 && f.grand > 0) leaks.push({title: customerName, sub: title + ' • low margin job', value: f.margin + '%', level:'bad'});
-        if(f.partsBelowCost > 0) leaks.push({title: customerName, sub: title + ' • part line at/below cost', value:String(f.partsBelowCost), level:'bad'});
-        if(f.partsNoMarkup > 0) leaks.push({title: customerName, sub: title + ' • low parts markup', value:String(f.partsNoMarkup), level:'warn'});
-        if(f.laborBelowDefault > 0) leaks.push({title: customerName, sub: title + ' • labor below $100/hr', value:String(f.laborBelowDefault), level:'warn'});
-        if(f.diagnosticBelowDefault > 0) leaks.push({title: customerName, sub: title + ' • diagnostic below $125/hr', value:String(f.diagnosticBelowDefault), level:'warn'});
-        if(f.discountAmt > 0 && f.subtotal > 0 && (f.discountAmt / (f.subtotal + f.discountAmt)) > .20) leaks.push({title: customerName, sub: title + ' • discount over 20%', value:fmt(f.discountAmt), level:'warn'});
-        if(f.depositRequired > 0 && f.amountPaid < f.depositRequired) leaks.push({title: customerName, sub: title + ' • deposit not fully collected', value:fmt(f.depositRequired - f.amountPaid), level:'bad'});
-        if(j.customerSuppliedParts && !String(j.overallNotes || '').toLowerCase().includes('customer-supplied')) leaks.push({title: customerName, sub: title + ' • customer-supplied parts flag is on', value:'Warranty', level:'warn'});
+        if(f.margin < 15 && f.grand > 0) leaks.push({jobId: j.id, title: customerName, sub: title + ' • low margin job', value: f.margin + '%', level:'bad'});
+        if(f.partsBelowCost > 0) leaks.push({jobId: j.id, title: customerName, sub: title + ' • part line at/below cost', value:String(f.partsBelowCost), level:'bad'});
+        if(f.partsNoMarkup > 0) leaks.push({jobId: j.id, title: customerName, sub: title + ' • low parts markup', value:String(f.partsNoMarkup), level:'warn'});
+        if(f.laborBelowDefault > 0) leaks.push({jobId: j.id, title: customerName, sub: title + ' • labor below $100/hr', value:String(f.laborBelowDefault), level:'warn'});
+        if(f.diagnosticBelowDefault > 0) leaks.push({jobId: j.id, title: customerName, sub: title + ' • diagnostic below $125/hr', value:String(f.diagnosticBelowDefault), level:'warn'});
+        if(f.discountAmt > 0 && f.subtotal > 0 && (f.discountAmt / (f.subtotal + f.discountAmt)) > .20) leaks.push({jobId: j.id, title: customerName, sub: title + ' • discount over 20%', value:fmt(f.discountAmt), level:'warn'});
+        if(f.depositRequired > 0 && f.amountPaid < f.depositRequired) leaks.push({jobId: j.id, title: customerName, sub: title + ' • deposit not fully collected', value:fmt(f.depositRequired - f.amountPaid), level:'bad'});
+        if(j.customerSuppliedParts && !String(j.overallNotes || '').toLowerCase().includes('customer-supplied')) leaks.push({jobId: j.id, title: customerName, sub: title + ' • customer-supplied parts flag is on', value:'Warranty', level:'warn'});
 
         if(j.recommendedFutureRepairs && j.recommendedFutureRepairs.trim()){
           followUps.push({
+            jobId: j.id,
             title: customerName,
             sub: title + ' • ' + j.recommendedFutureRepairs.trim().slice(0,120),
             value: age ? (age + 'd') : 'New',
@@ -6085,6 +6135,8 @@ window.addEventListener('load', function(){
           });
         }
         activity.push({
+          jobId: j.id,
+          createdAt: j.createdAt,
           title: customerName,
           sub: title + ' • ' + stage,
           value: fmt(f.grand),
@@ -6148,7 +6200,7 @@ window.addEventListener('load', function(){
         var bv = Number(String(b.value||'').replace(/[^0-9.-]/g,'')) || 0;
         return bv - av;
       });
-      renderDashList('dashProfitLeaks', leaks.slice(0,8), 'No obvious profit leaks found. Mighty fine.');
+      renderDashList('dashProfitLeaks', leaks.slice(0,8), 'No margin or collection alerts in the current jobs.');
       depositItems.sort(function(a,b){ return Number(String(b.value).replace(/[^0-9.-]/g,'')) - Number(String(a.value).replace(/[^0-9.-]/g,'')); });
       renderDashList('dashDepositTracker', depositItems.slice(0,8), 'No unpaid deposits required right now.');
       followUps.sort(function(a,b){ return Number(String(b.value).replace(/[^0-9.-]/g,'')) - Number(String(a.value).replace(/[^0-9.-]/g,'')); });
@@ -6159,9 +6211,7 @@ window.addEventListener('load', function(){
       renderDashList('dashTopJobTypes', typeItems.slice(0,6), 'No job type data yet.');
 
       activity.sort(function(a,b){
-        var aj = jobs.find(function(j){ var c=findCustomer(j.customerId); return (c?c.name:'No customer') === a.title && (j.title||'Untitled job') === (a.sub||'').split(' • ')[0]; });
-        var bj = jobs.find(function(j){ var c=findCustomer(j.customerId); return (c?c.name:'No customer') === b.title && (j.title||'Untitled job') === (b.sub||'').split(' • ')[0]; });
-        return new Date((bj&&bj.createdAt)||0) - new Date((aj&&aj.createdAt)||0);
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
       });
       renderDashList('dashRecentActivity', activity.slice(0,7), 'No recent jobs yet.');
     }
@@ -9366,6 +9416,7 @@ window.addEventListener('load', function(){
         '.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:0;opacity:1;background:transparent!important;pointer-events:none}'+
         '#wmImg{max-width:88%;max-height:88%;opacity:.13;display:block!important;background:transparent!important;mix-blend-mode:normal}'+
         '#wmFallback{opacity:.18;font-size:34pt;font-weight:800;letter-spacing:.10em;text-align:center;color:#000}'+
+        '.invoice-brand{display:flex;align-items:center;gap:12px;break-inside:avoid}.invoice-brand img{width:64px;height:64px;object-fit:contain}'+
         '.invoice-header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #000;padding-bottom:5px;margin-bottom:7px;break-inside:avoid;page-break-inside:avoid}'+
         '.invoice-header h3{margin:0;font-size:13.5pt}'+
         '.invoice-header .meta{font-size:9.2pt;text-align:right;line-height:1.3}'+
@@ -10012,6 +10063,45 @@ setupCostAutoCalc();
     } catch(_) {}
 
   }); // end guard init
+});
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var pages = {
+    dashboard: ['Shop overview', 'Your work, margins and collections — in one place.'],
+    customers: ['Customers', 'Keep customer details and vehicle information ready for the next visit.'],
+    jobs: ['Jobs & service tickets', 'Open a ticket, record the concern and get the work moving.'],
+    schedule: ['Service schedule', 'Plan the week and keep each appointment connected to its job.'],
+    invoice: ['Estimates & invoices', 'Build the work, protect your margin and send a professional document.'],
+    settings: ['Shop settings & backup', 'Set your standards, manage shop information and protect your records.']
+  };
+  var title = document.getElementById('workspaceTitle');
+  var description = document.getElementById('workspaceDescription');
+  function syncWorkspace(){
+    var active = document.querySelector('main > .tab.active');
+    var page = active && pages[active.id];
+    if(page){ title.textContent = page[0]; description.textContent = page[1]; }
+    var nav = document.querySelector('.app-sidebar .tab-bar');
+    var selected = nav.querySelector('.active-tab');
+    if(selected && nav.scrollWidth > nav.clientWidth){
+      nav.scrollLeft = selected.offsetLeft - (nav.clientWidth - selected.offsetWidth) / 2;
+    }
+  }
+  document.getElementById('workspaceDate').textContent = new Intl.DateTimeFormat(undefined, {weekday:'long', month:'long', day:'numeric'}).format(new Date());
+  function openPage(id, focusId){
+    document.querySelector('.tab-btn[data-tab="'+id+'"]').click();
+    if(focusId) document.getElementById(focusId).focus();
+  }
+  document.getElementById('workspaceNewJob').addEventListener('click', function(){ openPage('jobs','jobCustomer'); });
+  document.getElementById('workspaceSchedule').addEventListener('click', function(){ openPage('schedule'); });
+  var observer = new MutationObserver(syncWorkspace);
+  document.querySelectorAll('main > .tab').forEach(function(section){ observer.observe(section, {attributes:true, attributeFilter:['class']}); });
+  window.addEventListener('resize', syncWorkspace);
+  // Absolute URL survives the existing print iframe / fallback document.
+  document.getElementById('documentLogo').src = new URL('assets/poppes-diesel-logo.png', document.baseURI).href;
+  syncWorkspace();
 });
 </script>
 
