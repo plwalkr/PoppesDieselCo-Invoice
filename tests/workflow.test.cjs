@@ -2,11 +2,11 @@ const {test} = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const {JSDOM, VirtualConsole} = require('jsdom');
-const html = fs.readFileSync(process.env.APP_HTML || 'index.html', 'utf8').replace(
-  '<script src="service-desk.js" defer></script>',
-  '<script>'+fs.readFileSync('service-desk.js','utf8')+'</script>'
-);
+const html = ['service-desk.js','vehicle-records.js','vehicle-center.js'].reduce((source,file)=>
+  source.replace('<script src="'+file+'" defer></script>','<script>'+fs.readFileSync(file,'utf8')+'</script>'),
+  fs.readFileSync(process.env.APP_HTML || 'index.html', 'utf8'));
 const key = 'poppe_shop_db_v112';
+const qaVin = '1FT7W2BT1BEA12345';
 function seed() {
   return {customers:[{id:'customer-a',name:'Test customer <fleet>',email:''}],
     jobs:['a','b'].map((id,i)=>({id,customerId:'customer-a',title:'Job '+id,status:'Open',
@@ -263,7 +263,7 @@ test('saved shop packages keep parts quantities and markup while using the incom
 });
 
 test('history matches VIN regardless of case and opens the exact ticket',async t=>{
-  const db=seed(); db.jobs[0].vin='qa-vin'; db.jobs[1].vin='QA-VIN';
+  const db=seed(); db.jobs[0].vin=qaVin.toLowerCase(); db.jobs[1].vin=qaVin;
   db.jobs.push({...db.jobs[1],id:'c',vin:'Different-VIN'});
   const {$,read}=await app(t,{db});
   $('[data-service-view="serviceHistory"]').click();
@@ -271,7 +271,7 @@ test('history matches VIN regardless of case and opens the exact ticket',async t
   $('#serviceHistoryList button').click();
   assert.equal($('#invJob').value,'b');
   assert.equal($('#diagTests').value,'');
-  assert.equal(read().jobs[0].vin,'qa-vin');
+  assert.equal(read().jobs[0].vin,qaVin.toLowerCase());
 });
 
 test('work status changes independently of estimate approval and payment',async t=>{
@@ -319,4 +319,108 @@ test('visible repair ticket picker follows search and customer filters while ret
   assert.deepEqual(ids().sort(),['a','b']);
   change('#serviceJob','b','change');
   assert.equal($('#overallNotes').value,'Notes b');
+});
+
+test('vehicle migration links normalized VINs across customers without rewriting financial snapshots',()=>{
+  const R=require('../vehicle-records.js'),db=seed();
+  db.customers.push({id:'new-owner',name:'New owner'});
+  Object.assign(db.jobs[0],{vin:' '+qaVin.toLowerCase()+' ',vehicleYear:'2011',vehicleMake:'Ford',vehicleModel:'F-250',odometer:120000});
+  Object.assign(db.jobs[1],{vin:qaVin,customerId:'new-owner',createdAt:'2026-09-01T12:00:00Z',odometer:140000});
+  const snapshots=db.jobs.map(j=>JSON.stringify({lines:j.lines,invNo:j.invNo,customerId:j.customerId,vin:j.vin}));
+  R.upgrade(db);
+  assert.equal(db.vehicles.length,1);assert.equal(db.jobs[0].vehicleId,db.jobs[1].vehicleId);
+  assert.deepEqual(new Set(db.vehicles[0].customerIds),new Set(['customer-a','new-owner']));
+  assert.deepEqual(db.jobs.map(j=>JSON.stringify({lines:j.lines,invNo:j.invNo,customerId:j.customerId,vin:j.vin})),snapshots);
+  assert.deepEqual(R.mileage(db,db.vehicles[0].id).map(x=>x.value),[140000,120000]);
+  const once=JSON.stringify(db);R.upgrade(db);assert.equal(JSON.stringify(db),once);
+});
+
+test('same-model vehicles without VIN stay separate and identity-less jobs remain usable',()=>{
+  const R=require('../vehicle-records.js'),db=seed();
+  db.jobs.forEach(j=>Object.assign(j,{vehicleYear:'2016',vehicleMake:'Ram',vehicleModel:'2500'}));
+  db.jobs.push({id:'unidentified',customerId:'customer-a',title:'Unidentified ticket',lines:[]});
+  R.upgrade(db);assert.equal(db.vehicles.length,2);assert.notEqual(db.jobs[0].vehicleId,db.jobs[1].vehicleId);
+  assert.equal(db.jobs[2].vehicleId,undefined);assert.equal(db.jobs[2].title,'Unidentified ticket');
+});
+
+test('a ticket VIN correction preserves the old vehicle memory and rejects conflicting links',()=>{
+  const R=require('../vehicle-records.js'),db=seed();db.jobs.forEach(j=>j.vin=qaVin);R.upgrade(db);
+  const old=db.vehicles[0];old.technicalNotes='Prior verified repair';old.recommendations.push({id:'r',text:'Inspect brakes',status:'Open'});
+  db.jobs[0].vin='DIFFERENT-VIN';R.upgrade(db);
+  assert.notEqual(db.jobs[0].vehicleId,old.id);assert.equal(db.jobs[1].vehicleId,old.id);assert.equal(old.technicalNotes,'Prior verified repair');
+  const before=JSON.stringify(db);assert.equal(R.link(db,db.jobs[0],old.id).ok,false);assert.equal(JSON.stringify(db),before);
+});
+
+test('invalid vehicle collection is protected from automatic overwrite',async t=>{
+  const db=seed();db.vehicles={bad:'shape'};const raw=JSON.stringify(db);
+  const {dom,$}=await app(t,{raw});assert.equal(dom.window.localStorage.getItem(key),raw);assert.match($('#saveStatus').textContent,/protected from overwrite/);
+  const R=require('../vehicle-records.js');assert.equal(R.validCollection([null]),false);assert.equal(R.validCollection([{recommendations:['malformed']}]),false);
+});
+
+test('vehicle command center shows sourced diagnostics and opens the exact job without changing invoices',async t=>{
+  const db=seed();db.jobs.forEach(j=>Object.assign(j,{vin:qaVin,vehicleYear:'2011',vehicleMake:'Ford',vehicleModel:'F-250'}));
+  db.jobs[0].odometer=120000;db.jobs[1].odometer=125000;db.jobs[1].createdAt='2026-09-01T12:00:00Z';
+  db.jobs[1].diagnosticRecord={concern:'No cold air',tests:'Vacuum 20 inHg',findings:'Verified vacuum leak'};
+  const snapshot=jobs=>jobs.map(j=>({id:j.id,lines:j.lines.map(l=>({...l,markupPct:Number(l.markupPct || 0)})),amountPaid:j.amountPaid}));
+  const {$,read}=await app(t,{db});const before=snapshot(read().jobs);
+  $('#serviceVehicleRecord').click();assert.equal($('#vehicles').classList.contains('active'),true);
+  assert.equal($('#vehicleMileage').textContent,'125,000 mi');assert.match($('#vehicleTimeline').textContent,/Vacuum 20 inHg/);
+  $('#vehicleTimeline .vehicle-timeline-item:first-child .vehicle-primary').click();assert.equal($('#invJob').value,'b');assert.equal($('#overallNotes').value,'Notes b');
+  assert.deepEqual(snapshot(read().jobs),before);
+});
+
+test('vehicle notes and recommendation statuses persist across JSON reload and stay out of invoice preview',async t=>{
+  const db=seed();db.jobs[0].vin='VEHICLE-A';const {$,change,read,dom}=await app(t,{db});
+  $('#serviceVehicleRecord').click();change('#vehicleTechnicalNotes','PRIVATE VEHICLE MEMORY');
+  change('#vehicleRecText','Inspect HVAC supply');change('#vehicleRecSystem','HVAC','change');
+  $('#vehicleRecForm').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));
+  const status=$('#vehicleRecommendations select');status.value='Resolved';status.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
+  const stored=read();assert.equal(stored.vehicles[0].recommendations[0].status,'Resolved');assert.equal($('#vehicleOpenCount').textContent,'0 open / deferred');
+  assert.doesNotMatch($('#preview').textContent,/PRIVATE VEHICLE MEMORY|Inspect HVAC supply/);
+  $('#pdf').click();
+  const encoded=$('iframe').contentDocument.body.textContent.match(/PDC_RECOVERY_JSON_V1:([A-Za-z0-9+/=]+)/)[1];
+  assert.doesNotMatch(Buffer.from(encoded,'base64').toString('utf8'),/PRIVATE VEHICLE MEMORY|Inspect HVAC supply/);
+  const again=await app(t,{db:stored});again.$('#serviceVehicleRecord').click();assert.equal(again.$('#vehicleTechnicalNotes').value,'PRIVATE VEHICLE MEMORY');
+  assert.equal(again.$('#vehicleRecommendations select').value,'Resolved');assert.equal(again.read().vehicles[0].id,stored.vehicles[0].id);
+});
+
+test('new job from a vehicle record retains its link and prefilled identity',async t=>{
+  const db=seed();Object.assign(db.jobs[0],{vin:'VEHICLE-A',vehicleYear:'2011',vehicleMake:'Ford',vehicleModel:'F-250',vehicleEngine:'6.7 Power Stroke'});
+  const {$,change,read,dom}=await app(t,{db});$('#serviceVehicleRecord').click();const id=read().jobs[0].vehicleId;$('#vehicleNewJob').click();
+  assert.equal($('#jobCustomer').value,'customer-a');assert.equal($('#jobVIN').value,'VEHICLE-A');assert.equal($('#jobVehicleRecord').value,id);
+  change('#jobTitle','Return visit');$('#jobForm').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));
+  const j=read().jobs.find(j=>j.title==='Return visit');assert.equal(j.vehicleId,id);assert.equal(j.vehicleYear,'2011');assert.equal(j.vehicleEngine,'6.7 Power Stroke');assert.equal($('#invJob').value,j.id);
+});
+
+test('unidentified VIN-free tickets can be explicitly linked without mixing other vehicle histories',async t=>{
+  const db=seed();db.jobs.forEach(j=>Object.assign(j,{vehicleYear:'2016',vehicleMake:'Ram',vehicleModel:'2500'}));
+  const {$,read}=await app(t,{db});$('#serviceHistoryTab').click();assert.equal($('#serviceHistoryList').children.length,1);assert.match($('#serviceHistoryList').textContent,/No earlier/);
+  const idB=read().jobs[1].vehicleId; $('[data-tab="vehicles"]').click(); $('[data-vehicle-id="'+idB+'"]').click();$('#vehicleLinkCurrent').click();
+  assert.equal(read().jobs[0].vehicleId,idB);assert.equal(read().jobs[0].customerId,'customer-a');
+  $('[data-tab="invoice"]').click();$('#serviceHistoryTab').click();assert.match($('#serviceHistoryList').textContent,/Job b/);
+});
+
+test('vehicle registration deduplicates VINs and renders stored markup as literal text',async t=>{
+  const {$,change,read,dom}=await app(t);$('[data-tab="vehicles"]').click();
+  function register(vin){change('#vehicleNewCustomer','customer-a','change');change('#vehicleNewVin',vin);change('#vehicleNewLabel','<img id="vehicleInjection">');$('#vehicleNewForm').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));}
+  register('qa-registration');register('QA-REGISTRATION');assert.equal(read().vehicles.length,1);assert.equal($('#vehicleInjection'),null);
+  assert.equal($('#vehicleRecordTitle').textContent,'<img id="vehicleInjection">');assert.match($('#vehicleMessage').textContent,/already registered/);
+});
+
+test('incomplete VINs never auto-combine records and customer-only vehicle descriptions remain available',()=>{
+  const R=require('../vehicle-records.js'),db=seed();db.jobs.forEach(j=>j.vin='UNKNOWN');
+  db.customers.push({id:'customer-only',name:'Legacy owner',vehicle:'1998 Dodge service truck'});
+  R.upgrade(db);assert.notEqual(db.jobs[0].vehicleId,db.jobs[1].vehicleId);
+  assert.equal(db.vehicles.find(v=>v.identitySourceCustomerId==='customer-only').label,'1998 Dodge service truck');
+  const once=JSON.stringify(db);R.upgrade(db);assert.equal(JSON.stringify(db),once);
+});
+
+test('customer archiving is reversible and retains vehicles, tickets and invoice ownership',async t=>{
+  const db=seed();db.jobs[0].vin=qaVin;const {$,read}=await app(t,{db});
+  const vehicleId=read().jobs[0].vehicleId;$('[data-archivec="customer-a"]').click();
+  assert.ok(read().customers[0].archivedAt);assert.equal(read().jobs.length,2);assert.equal(read().jobs[0].vehicleId,vehicleId);
+  assert.equal($('#invJob').value,'a');assert.equal($('#overallNotes').value,'Notes a');
+  assert.equal(Array.from($('#jobCustomer').options).some(o=>o.value==='customer-a'),false);
+  $('[data-archivec="customer-a"]').click();assert.equal(read().customers[0].archivedAt,null);
+  assert.equal(Array.from($('#jobCustomer').options).some(o=>o.value==='customer-a'),true);
 });

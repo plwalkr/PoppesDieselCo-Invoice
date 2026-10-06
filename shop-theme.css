@@ -330,6 +330,48 @@ main .service-workspace { padding: 20px 20px 0; border-top: 3px solid #a51f2b; }
 .service-history-row:hover { background: #edf0f4; }
 .service-empty { background: #edf0f4; padding: 16px; border-radius: 5px; }
 main button:disabled { background: #edf0f4; border-color: #c7ced8; color: #596473; cursor: not-allowed; opacity: 1; }
+.vehicle-center-grid { display: grid; grid-template-columns: minmax(220px,290px) minmax(0,1fr); gap: 20px; align-items: start; }
+.customer-archive-label { display: inline-block; font-size: 12px; color: #414b5a; background: #edf0f4; padding: 3px 7px; border-radius: 4px; margin-left: 7px; }
+main .vehicle-directory { padding: 18px; }
+.vehicle-directory > p, .vehicle-panel p, .vehicle-command-header p { color: #414b5a; line-height: 1.6; font-size: 13px; }
+#vehicles input, #vehicles textarea, #vehicles select { width: 100%; max-width: none; }
+#vehicles .vehicle-recommendation select { width: auto; }
+.vehicle-list-row { display: flex; flex-direction: column; gap: 6px; width: 100%; text-align: left; padding: 14px 12px; margin-top: 10px; color: #171b22; background: #ffffff; border: 1px solid #c7ced8; border-radius: 4px; }
+.vehicle-list-row strong { font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.vehicle-list-row span { color: #414b5a; font-size: 12px; overflow-wrap: anywhere; }
+.vehicle-list-row:hover, .vehicle-list-row[aria-pressed=true] { background: #edf0f4; border-color: #66778d; }
+.vehicle-list-row[aria-pressed=true] { box-shadow: inset 3px 0 #a51f2b; }
+.vehicle-command-header { background: #242b35; color: #ffffff; padding: 24px; border-top: 3px solid #a51f2b; border-radius: 5px 5px 0 0; }
+.vehicle-command-header p { color: #e1e7ef; font-family: ui-monospace,Consolas,monospace; overflow-wrap: anywhere; }
+.vehicle-command-header h2 { font-size: 25px; line-height: 1.35; letter-spacing: -.02em; overflow-wrap: anywhere; }
+.vehicle-command-label { font-size: 10px; color: #d4dce7; letter-spacing: .15em; font-weight: 700; margin-bottom: 8px; }
+.vehicle-command-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.vehicle-primary, .vehicle-secondary { min-height: 44px; padding: 10px 15px; border-radius: 4px; font-size: 13px; font-weight: 650; }
+.vehicle-primary { background: #a51f2b; color: #ffffff; border: 1px solid #a51f2b; }
+.vehicle-secondary { background: #edf0f4; color: #263445; border: 1px solid #c7ced8; }
+.vehicle-primary:hover { background: #811824; }.vehicle-secondary:hover { background: #e1e7ef; }
+.vehicle-telemetry { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); border: 1px solid #c7ced8; background: #ffffff; }
+.vehicle-telemetry > div { padding: 18px; border-right: 1px solid #c7ced8; min-width: 0; }.vehicle-telemetry > div:last-child { border-right: 0; }
+.vehicle-telemetry span { display: block; color: #414b5a; font-size: 10px; letter-spacing: .08em; font-weight: 700; }
+.vehicle-telemetry strong { display: block; margin: 8px 0 5px; color: #171b22; font-size: 18px; overflow-wrap: anywhere; }
+.vehicle-telemetry small { display: block; color: #414b5a; font-size: 12px; }
+.vehicle-panel { border: 1px solid #c7ced8; background: #ffffff; border-radius: 5px; padding: 20px; margin-top: 18px; }
+.vehicle-panel h3 { font-size: 18px; color: #171b22; }.vehicle-panel h4 { color: #171b22; margin: 14px 0 6px; }
+.vehicle-section-title { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }.vehicle-section-title > span { font-size: 12px; color: #414b5a; }
+.vehicle-recommendation { padding: 15px 0; border-bottom: 1px solid #c7ced8; }.vehicle-recommendation strong { display: block; white-space: pre-wrap; overflow-wrap: anywhere; }
+.vehicle-recommendation select { width: auto; max-width: 100%; margin-right: 8px; }.vehicle-recommendation button { margin-top: 8px; }
+.vehicle-rec-form { display: grid; grid-template-columns: minmax(0,1fr) minmax(120px,170px); gap: 15px; align-items: end; padding-top: 18px; }.vehicle-rec-form button { justify-self: start; }
+.vehicle-rec-form textarea, #vehicleTechnicalNotes { min-height: 110px; }
+.vehicle-register > summary, .vehicle-panel summary { color: #263445; font-size: 14px; font-weight: 650; cursor: pointer; }
+.vehicle-register-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; align-items: end; margin-top: 18px; }
+.vehicle-timeline-item { border-left: 3px solid #8795a7; padding: 16px; margin-top: 14px; background: #f5f7fa; }
+.vehicle-timeline-item summary strong, .vehicle-timeline-item summary span { display: block; }.vehicle-timeline-item summary span { font-size: 12px; color: #414b5a; font-weight: 400; line-height: 1.6; margin-top: 6px; }
+.vehicle-timeline-body { border-top: 1px solid #c7ced8; margin-top: 14px; padding-top: 14px; }
+.vehicle-fact { margin-bottom: 15px; }.vehicle-fact strong { font-size: 12px; color: #263445; }.vehicle-fact p { margin: 5px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.vehicle-recorded-work { color: #414b5a; font-size: 13px; padding-left: 20px; line-height: 1.7; }
+.vehicle-timeline-body button { margin: 8px 8px 0 0; }.vehicle-panel > details > summary { min-height: 30px; }
+@media (max-width: 1200px) { .vehicle-center-grid { grid-template-columns: minmax(190px,240px) minmax(0,1fr); }.vehicle-register-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }.vehicle-telemetry { grid-template-columns: minmax(0,1fr); }.vehicle-telemetry > div { border-right: 0; border-bottom: 1px solid #c7ced8; }.vehicle-telemetry > div:last-child { border-bottom: 0; } }
+@media (max-width: 760px) { .vehicle-center-grid, .vehicle-register-grid, .vehicle-rec-form { grid-template-columns: minmax(0,1fr); }.vehicle-command-header { padding: 18px; }.vehicle-command-header h2 { font-size: 22px; }.vehicle-panel { padding: 16px; }.vehicle-command-actions { flex-direction: column; }.vehicle-directory #vehicleList { max-height: 300px; overflow-y: auto; }.vehicle-recommendation select { font-size: 16px; }.vehicle-recorded-work { overflow-wrap: anywhere; } }
 @media (max-width: 1000px) { .service-context { align-items: start; flex-wrap: wrap; } .service-package-save-grid { grid-template-columns: minmax(0,1fr); } }
 @media (max-width: 1200px) { .service-context { flex-wrap: wrap; } .service-context-main { width: 100%; } .service-context-actions { width: 100%; flex-wrap: wrap; } .service-context-actions .service-job-picker { flex: 1; max-width: none; } }
 @media (max-width: 760px) {

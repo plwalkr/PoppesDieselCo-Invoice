@@ -3356,6 +3356,8 @@
 </style>
 <link rel="stylesheet" href="shop-theme.css" media="screen" />
 <script src="service-desk.js" defer></script>
+<script src="vehicle-records.js" defer></script>
+<script src="vehicle-center.js" defer></script>
 <link rel="icon" type="image/png" href="assets/poppes-diesel-logo.png" />
 <meta name="theme-color" content="#1d222b" />
 </head>
@@ -3365,11 +3367,12 @@
 <aside class="app-sidebar" aria-label="Poppe’s Diesel Co. workspace">
   <div class="brand-lockup">
     <img class="shop-logo" src="assets/poppes-diesel-logo.png" width="168" height="168" alt="Poppe’s Diesel Co. eagle logo — Built in the Garage, Backed by Freedom" />
-    <div class="brand-product">Shop management<br/>Service • Repair • Diesel</div>
+    <div class="brand-product">POPPE // SHOP OS<br/>Service • Repair • Diesel</div>
   </div>
   <div class="nav-caption">Workspace</div>
   <!-- Tab buttons -->
   <nav class="tab-bar" aria-label="Shop sections">
+    <button class="tab-btn" data-tab="vehicles"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 15V9l3-4h12l3 4v6M3 10h18M6 15h12M5 15v4M19 15v4"/><circle cx="6" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></svg><span>Vehicles</span></button>
     <button class="tab-btn active-tab" data-tab="dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></button>
     <button class="tab-btn" data-tab="customers"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5v2"/></svg><span>Customers</span></button>
     <button class="tab-btn" data-tab="jobs"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V3h8v4M3 12h18M10 12v3h4v-3"/></svg><span>Jobs</span></button>
@@ -3584,11 +3587,57 @@
     </div>
   </section>
 
+  <!-- Vehicle intelligence records: additive links to existing tickets -->
+  <section id="vehicles" class="tab">
+    <div id="vehicleMessage" class="service-desk-message" role="status" aria-live="polite"></div>
+    <details id="vehicleRegister" class="card vehicle-register">
+      <summary>Register a vehicle</summary>
+      <form id="vehicleNewForm" class="vehicle-register-grid">
+        <div><label for="vehicleNewCustomer">Customer</label><select id="vehicleNewCustomer" required></select></div>
+        <div><label for="vehicleNewVin">VIN</label><input id="vehicleNewVin" placeholder="VIN if available" /></div>
+        <div><label for="vehicleNewYear">Year</label><input id="vehicleNewYear" inputmode="numeric" placeholder="2011" /></div>
+        <div><label for="vehicleNewMake">Make</label><input id="vehicleNewMake" placeholder="Ford" /></div>
+        <div><label for="vehicleNewModel">Model</label><input id="vehicleNewModel" placeholder="F-250 Super Duty" /></div>
+        <div><label for="vehicleNewEngine">Engine</label><input id="vehicleNewEngine" placeholder="6.7L Power Stroke" /></div>
+        <div><label for="vehicleNewPlate">License plate</label><input id="vehicleNewPlate" /></div>
+        <div><label for="vehicleNewLabel">Vehicle description / unit name</label><input id="vehicleNewLabel" placeholder="Fleet unit or description if identity is incomplete" /></div>
+        <button type="submit" class="vehicle-primary">Save vehicle</button>
+      </form>
+    </details>
+    <div class="vehicle-center-grid">
+      <aside class="card vehicle-directory" aria-label="Vehicle records">
+        <label for="vehicleSearch">Find a vehicle or repair</label><input id="vehicleSearch" type="search" placeholder="VIN, customer, plate, DTC, repair…" />
+        <p id="vehicleCount"></p><div id="vehicleList"></div>
+      </aside>
+      <div id="vehicleEmpty" class="card"><h3>Select a vehicle record</h3><p>Open a vehicle to see its service and diagnostic history. Records without a VIN remain separate until explicitly linked.</p></div>
+      <article id="vehicleRecord" hidden>
+        <header class="vehicle-command-header">
+          <div class="vehicle-command-label">VEHICLE COMMAND CENTER</div>
+          <h2 id="vehicleRecordTitle" tabindex="-1"></h2><p id="vehicleRecordIdentity"></p>
+          <div class="vehicle-command-actions"><button id="vehicleNewJob" type="button" class="vehicle-primary">New job for this vehicle</button><button id="vehicleLinkCurrent" type="button" class="vehicle-secondary"></button></div>
+        </header>
+        <div class="vehicle-telemetry">
+          <div><span>CUSTOMER</span><strong id="vehicleCurrentCustomer"></strong><small id="vehicleCurrentCustomerHint"></small></div>
+          <div><span>RECORDED MILEAGE</span><strong id="vehicleMileage"></strong><small id="vehicleMileageHint"></small></div>
+          <div><span>WORK STATUS</span><strong id="vehicleStatus"></strong><small id="vehicleStatusHint"></small></div>
+        </div>
+        <section class="vehicle-panel"><h3>Active work</h3><div id="vehicleActiveJobs"></div></section>
+        <section class="vehicle-panel"><div class="vehicle-section-title"><h3>Recommendations</h3><span id="vehicleOpenCount"></span></div><div id="vehicleRecommendations"></div>
+          <form id="vehicleRecForm" class="vehicle-rec-form"><div><label for="vehicleRecText">Recommended work / follow-up</label><textarea id="vehicleRecText" required placeholder="Record the finding and recommended next step."></textarea></div><div><label for="vehicleRecSystem">Vehicle system</label><select id="vehicleRecSystem"></select></div><button type="submit" class="vehicle-secondary">Add recommendation</button></form>
+        </section>
+        <section class="vehicle-panel"><h3>Technical memory</h3><p>Persistent shop-only notes for this vehicle. Keep confirmed facts distinct from items still under investigation.</p><label for="vehicleTechnicalNotes">Known facts / technical notes</label><textarea id="vehicleTechnicalNotes" placeholder="Record verified facts, important repair details and supporting references."></textarea></section>
+        <section class="vehicle-panel"><h3>Service &amp; diagnostic timeline</h3><p>Ticket dates, recorded findings and estimate/work lines. A line item alone does not establish that a repair was completed.</p><div id="vehicleTimeline"></div></section>
+        <section class="vehicle-panel"><details><summary>Mileage &amp; customer history</summary><h4>Mileage observations</h4><div id="vehicleMileageHistory"></div><h4>Customers on linked records</h4><p id="vehicleCustomerHistory"></p></details></section>
+      </article>
+    </div>
+  </section>
+
   <!-- Jobs -->
   <section id="jobs" class="tab">
     <div class="card" style="margin-bottom:8px;">
       <div class="section-title">New Job / Ticket</div>
       <form id="jobForm">
+        <div class="field"><label for="jobVehicleRecord">Registered vehicle</label><select id="jobVehicleRecord"><option value="">Enter vehicle below, or choose a record…</option></select></div>
         <div class="row">
           <div class="field">
             <label for="jobCustomer">Customer</label>
@@ -3887,6 +3936,7 @@
           <div class="service-job-picker"><label for="serviceJob">Current ticket</label><select id="serviceJob"><option value="">Select a service ticket…</option></select></div>
           <div><label for="serviceStatus">Work status</label><select id="serviceStatus"><option>Open</option><option>In Progress</option><option>Done</option></select></div>
           <button type="button" id="serviceEditVehicle" class="tab-btn">Edit vehicle</button>
+          <button type="button" id="serviceVehicleRecord" class="tab-btn">Vehicle record</button>
         </div>
       </div>
       <div class="service-view-tabs" role="tablist" aria-label="Repair workspace">
@@ -4842,7 +4892,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.28';
+const APP_VERSION = 'v1.5.29';
 const APP_BUILD_DATE = '2026-10-05';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -4960,7 +5010,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
   function refreshMeta(){
     if (metaEl) metaEl.textContent = getMetaLine();
-    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Repair & Service Workspace';
+    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · POPPE // SHOP OS';
     if (titleEl) titleEl.textContent = 'Poppe’s Diesel Co. — Shop Manager ' + APP_VERSION + ' (' + APP_BUILD_DATE + ')';
   }
 
@@ -5289,7 +5339,7 @@ window.addEventListener('load', function(){
         var s = localStorage.getItem(STORAGE_KEY);
         if(!s) return null;
         var data = JSON.parse(s);
-        if(!data || !Array.isArray(data.customers) || !Array.isArray(data.jobs) || (data.settings != null && (typeof data.settings !== 'object' || Array.isArray(data.settings)))) {
+        if(!data || !Array.isArray(data.customers) || !Array.isArray(data.jobs) || !validVehicleData(data) || (data.settings != null && (typeof data.settings !== 'object' || Array.isArray(data.settings)))) {
           throw new Error('Stored database has an invalid structure');
         }
         return data;
@@ -5315,6 +5365,10 @@ window.addEventListener('load', function(){
         AppLog.error('localStorage save failed', e);
         return false;
       }
+    }
+
+    function validVehicleData(data){
+      return !window.PdcVehicleRecords || window.PdcVehicleRecords.validCollection(data.vehicles);
     }
 
     function defaultDB(){
@@ -5406,8 +5460,10 @@ window.addEventListener('load', function(){
     }
     var UI = loadUI();
     var serviceDesk = null;
+    var vehicleCenter = null;
 
     function upgradeDB(){
+      if(window.PdcVehicleRecords) window.PdcVehicleRecords.upgrade(DB);
       var i, j, l;
       for(i=0;i<(DB.jobs||[]).length;i++){
         j = DB.jobs[i];
@@ -7112,6 +7168,7 @@ window.addEventListener('load', function(){
     }
 
     function renderAll(){
+      if(window.PdcVehicleRecords) window.PdcVehicleRecords.upgrade(DB);
       renderCustomers();
       renderJobs();
       renderJobCustomer();
@@ -7120,6 +7177,7 @@ window.addEventListener('load', function(){
       renderSettings();
       renderDocumentIntakeList();
       if(serviceDesk) serviceDesk.load();
+      if(vehicleCenter) vehicleCenter.render();
       saveDB();
     }
 
@@ -7170,20 +7228,18 @@ window.addEventListener('load', function(){
       DB.customers.forEach(function(c){
         var tr = document.createElement('tr');
         tr.innerHTML =
-          '<td>'+escapeHtml(c.name)+'</td>'+
+          '<td>'+escapeHtml(c.name)+(c.archivedAt?' <span class="customer-archive-label">Archived</span>':'')+'</td>'+
           '<td>'+escapeHtml(c.phone||'')+'</td>'+
           '<td>'+escapeHtml(c.email||'')+'</td>'+
           '<td>'+escapeHtml(c.vehicle||'')+'</td>'+
-          '<td><button class="tab-btn" data-delc="'+c.id+'">Delete</button></td>';
+          '<td><button class="tab-btn" data-archivec="'+escapeHtml(c.id)+'">'+(c.archivedAt?'Restore':'Archive')+'</button></td>';
         tb.appendChild(tr);
       });
-      $all('button[data-delc]').forEach(function(btn){
+      $all('button[data-archivec]').forEach(function(btn){
         btn.addEventListener('click', function(){
-          var id = btn.getAttribute('data-delc');
-          if(!confirm('Delete this customer and all their jobs?')) return;
-          DB.jobs = DB.jobs.filter(function(j){ return j.customerId !== id; });
-          DB.customers = DB.customers.filter(function(c){ return c.id !== id; });
-          renderCustomers(); renderJobs(); renderJobCustomer(); saveDB();
+          var c=findCustomer(btn.getAttribute('data-archivec'));if(!c)return;
+          c.archivedAt=c.archivedAt?null:new Date().toISOString();
+          renderCustomers();renderJobCustomer();if(vehicleCenter)vehicleCenter.render();saveDB();
         });
       });
     }
@@ -7200,7 +7256,7 @@ window.addEventListener('load', function(){
     function renderJobCustomer(){
       var sel = $('#jobCustomer');
       var opts = ['<option value="">Select...</option>'];
-      DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+escapeHtml(c.name)+'</option>'); });
+      DB.customers.filter(function(c){return !c.archivedAt;}).forEach(function(c){ opts.push('<option value="'+c.id+'">'+escapeHtml(c.name)+'</option>'); });
       sel.innerHTML = opts.join('');
       renderInvFilters();
       renderInvJobOptions();
@@ -7213,6 +7269,7 @@ window.addEventListener('load', function(){
       var j = {
         id: crypto.randomUUID(),
         customerId: $('#jobCustomer').value,
+        vehicleId: $('#jobVehicleRecord').value,
         title: $('#jobTitle').value.trim(),
         vin: $('#jobVIN').value.trim(),
         vehicleYear: getVehicleFieldValue('jobVehicleYear'),
@@ -7236,6 +7293,7 @@ window.addEventListener('load', function(){
       };
       if(!j.customerId || !j.title) return;
       DB.jobs.push(j);
+      if(window.PdcVehicleRecords) window.PdcVehicleRecords.upgrade(DB);
       renderJobs();
       renderJobCustomer();
       document.getElementById('jobForm').reset();
@@ -7618,6 +7676,7 @@ window.addEventListener('load', function(){
     }
 
     function loadInvoice(id){
+      if(window.PdcVehicleRecords) window.PdcVehicleRecords.upgrade(DB);
       var j = DB.jobs.find(function(x){ return x.id===id; });
       if(!j) return;
       loadedInvoiceId = id;
@@ -7686,6 +7745,7 @@ window.addEventListener('load', function(){
       updateImportedTotalsStatus(j);
       wireAutoGrowTextareas(document.getElementById('invoice'));
       if(serviceDesk) serviceDesk.load();
+      if(vehicleCenter) vehicleCenter.refreshContext();
     }
 
     function makeRowDraggable(tr){
@@ -8912,7 +8972,7 @@ window.addEventListener('load', function(){
             try{
               var data = JSON.parse(reader.result||'{}');
               var newDB = data.db || data || null;
-              if(!newDB || !Array.isArray(newDB.customers) || !Array.isArray(newDB.jobs)){
+              if(!newDB || !Array.isArray(newDB.customers) || !Array.isArray(newDB.jobs) || !validVehicleData(newDB)){
                 alert('Invalid backup format.');
                 return;
               }
@@ -9265,7 +9325,7 @@ window.addEventListener('load', function(){
           var ok = confirm('Cloud snapshot found. Apply it to this browser?\n\nJobs in snapshot: ' + totalJobs + '\nTotal lines in snapshot: ' + totalLines + '\n\nThis replaces the local in-browser app state.');
           if(!ok) return;
 
-          if(!snap.db || !Array.isArray(snap.db.customers) || !Array.isArray(snap.db.jobs)){
+          if(!snap.db || !Array.isArray(snap.db.customers) || !Array.isArray(snap.db.jobs) || !validVehicleData(snap.db)){
             alert('Cloud snapshot has an invalid database structure. Local records were kept.');
             return;
           }
@@ -10091,6 +10151,7 @@ setupCostAutoCalc();
       pushCheck('cloud client loaded', !!supabaseClient, 'client library only; does not verify login, RLS, or connectivity');
       pushCheck('PDF import library loaded', !!window.pdfjsLib, 'PDF text extraction dependency');
       pushCheck('repair workspace module loaded', !!window.PdcServiceDesk, 'vehicle context, shop packages, diagnostic worksheet and history tools');
+      pushCheck('vehicle record foundation loaded', !!window.PdcVehicleRecords && !!window.PdcVehicleCenter, 'additive vehicle relationships and command center');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
       var total = checks.length;
@@ -10145,6 +10206,33 @@ setupCostAutoCalc();
       });
     }
 
+    if(window.PdcVehicleCenter && window.PdcVehicleRecords){
+      function fillJobVehicle(v){
+        $('#jobVehicleRecord').value=v.id;
+        $('#jobVIN').value=v.vin || '';
+        setVehicleControlValue('jobVehicleYear',v.year);
+        setVehicleControlValue('jobVehicleMake',v.make);
+        setVehicleControlValue('jobVehicleModel',v.model);
+        $('#jobVehicleEngine').value=v.engine || '';
+      }
+      vehicleCenter=window.PdcVehicleCenter.create({
+        db:function(){return DB;},customer:findCustomer,currentJob:currentJob,
+        selected:function(){return UI.vehicleId;},select:function(id){UI.vehicleId=id;saveUI(UI);},
+        save:saveDB,persist:persistLines,money:fmt,financials:calcJobFinancials,grow:wireAutoGrowTextareas,
+        navigate:function(){document.querySelector('[data-tab="vehicles"]').click();},
+        openJob:function(id){persistLines();document.querySelector('[data-tab="invoice"]').click();loadInvoice(id);UI.lastJobId=id;saveUI(UI);},
+        fillJobVehicle:fillJobVehicle,
+        prepareJob:function(v){
+          persistLines();renderJobCustomer();$('#jobForm').reset();
+          var latest=window.PdcVehicleRecords.ordered(window.PdcVehicleRecords.jobs(DB,v.id))[0];
+          $('#jobCustomer').value=latest?latest.customerId:(v.customerIds[0] || '');
+          fillJobVehicle(v);document.querySelector('[data-tab="jobs"]').click();$('#jobTitle').focus();
+        },
+        reloadCurrent:function(){var j=currentJob();if(j)loadInvoice(j.id);}
+      });
+      vehicleCenter.refreshContext();
+    }
+
     // v1.5.25: wire every textarea after the first render, then refresh after layout settles.
     try {
       wireAutoGrowTextareas(document);
@@ -10163,6 +10251,7 @@ document.addEventListener('DOMContentLoaded', function(){
     dashboard: ['Shop overview', 'Your work, margins and collections — in one place.'],
     customers: ['Customers', 'Keep customer details and vehicle information ready for the next visit.'],
     jobs: ['Jobs & service tickets', 'Open a ticket, record the concern and get the work moving.'],
+    vehicles: ['Vehicle Command Center', 'The technical history your shop remembers — customers, work, findings and follow-up.'],
     schedule: ['Service schedule', 'Plan the week and keep each appointment connected to its job.'],
     invoice: ['Estimates & invoices', 'Build the work, protect your margin and send a professional document.'],
     settings: ['Shop settings & backup', 'Set your standards, manage shop information and protect your records.']

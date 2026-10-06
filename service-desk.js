@@ -121,8 +121,8 @@
         var j=api.job(), container=$('serviceHistoryList'); container.replaceChildren();
         if(!j){ $('serviceHistoryScope').textContent='Select a job to see previous service.'; return; }
         var vin=String(j.vin || '').trim().toUpperCase();
-        $('serviceHistoryScope').textContent=vin ? 'Other tickets with this VIN: '+vin : 'Customer’s other tickets. Add a VIN to match one vehicle exactly.';
-        var list=api.jobs().filter(function(x){return x.id!==j.id && (vin ? String(x.vin || '').trim().toUpperCase()===vin : x.customerId===j.customerId);});
+        $('serviceHistoryScope').textContent=j.vehicleId ? 'Other tickets linked to this vehicle record'+(vin ? ': '+vin : '. VIN not recorded.') : (vin ? 'Other tickets with this VIN: '+vin : 'Customer’s other tickets. Add vehicle identity to establish a persistent record.');
+        var list=api.jobs().filter(function(x){return x.id!==j.id && (j.vehicleId ? x.vehicleId===j.vehicleId : (vin ? String(x.vin || '').trim().toUpperCase()===vin : x.customerId===j.customerId));});
         list.sort(function(a,b){return new Date(b.createdAt || 0)-new Date(a.createdAt || 0);});
         if(!list.length){ var empty=document.createElement('p'); empty.className='service-empty'; empty.textContent='No earlier matching service tickets.'; container.appendChild(empty); }
         list.forEach(function(x){

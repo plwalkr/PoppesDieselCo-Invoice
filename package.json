@@ -1,8 +1,8 @@
 {
   "name": "poppesdieselco-invoice",
-  "version": "1.5.28",
+  "version": "1.5.29",
   "private": true,
-  "description": "Development checks for the existing Poppe\u00e2\u20ac\u2122s Diesel Co. Shop Manager",
+  "description": "Development checks for Poppe's Diesel Co. Shop OS",
   "scripts": {
     "test": "node tests/workflow.test.cjs"
   },

@@ -1,5 +1,32 @@
 # Changelog
 
+## v1.5.29 — 2026-10-05 — first Shop OS vehicle foundation, not deployed
+
+### Changed
+
+- Added persistent vehicle IDs and additive customer → vehicle → job relationships. Matching complete VINs share a record; incomplete/missing VINs and same-model vehicles remain separate. Retained customer-only vehicle descriptions, all existing customer/job IDs, ticket snapshots, invoice fields and configured pricing rules.
+- Added the Vehicle Command Center: identity/customer/mileage/work context, active tickets, sourced mileage/customer history, chronological diagnostic/work timeline, and exact links back to existing job/estimate forms.
+- Added persistent shop-only vehicle technical notes and recommendations with system, status, source ticket and timestamps. Legacy ticket advisories remain intact and have no invented status; an explicit action starts tracking them.
+- Added vehicle registration, explicit current-ticket linking with conflicting-VIN protection, vehicle selection when creating jobs, and a Vehicle record shortcut from the repair workspace. Vehicle search includes customer details, VIN/plate, notes, DTCs and recorded work.
+- Replaced destructive customer/job deletion with reversible customer archiving and restoration. Archived customers remain available in historical invoices/vehicle records and are omitted from new-work customer selectors.
+- Kept the readable neutral layout and original logo, adding a charcoal technical header and POPPE // SHOP OS identity. No new framework, dependencies, backend, health scores or AI features.
+
+### Verification
+
+- 37 tests cover previous invoice/workflow behavior plus idempotent VIN migration, customer associations, unchanged financial snapshots, separate VIN-free/incomplete records, VIN correction/link protection, malformed vehicle collection safety, sourced timeline/mileage, private memory/recommendation persistence and PDF scope, vehicle-to-job creation, registration text safety, and reversible customer archiving.
+- Browser: the synthetic ticket retains $339.14 total and $218.50 parts deposit after adding mileage, diagnostic findings, vehicle memory and recommendations. Notes/recommendations/mileage survive reload and point to their source ticket. Creating a return visit from the vehicle prefills identity/customer and adds a second timeline entry; recorded mileage advances from 187,421 to 188,050 without losing earlier history. The real CDN build reports 24/24 startup checks.
+- Command Center checked at 390×844, 1024×1000 and 1440×1000 without page-wide horizontal overflow. A targeted solid-background contrast check of new text/forms/controls found no text below 4.5:1. Subsequently widened the phone search field and added focus to bring a selected record into view; those last visual adjustments await browser verification.
+- New schema/migration/privacy/rollback contract is in `VEHICLE_DATA.md`. Only synthetic localhost records were changed.
+
+### Remaining / deployment review
+
+- First cycle implements the data foundation and useful command center. Multiple structured diagnostic sessions, measurement rows, verified system assessments, recommendation evidence attachments and cross-vehicle knowledge querying remain later phases. No fake certainty is shown.
+- Records created without a VIN require identity review/manual linking. Conflicting/duplicate identity cleanup, merge/unlink/archive tools, and operator-confirmed ownership transitions remain open; unused old vehicle records are preserved instead of deleted.
+- Mileage dates currently use source ticket dates. Timeline media is referenced through source tickets; a dedicated attachment viewer remains future work.
+- Export a production JSON backup before upgrade. Deploy all three feature scripts, `shop-theme.css`, `index.html` and the original logo together. Old backup/cloud snapshot replacement can replace newer vehicle memory; the established snapshot workflow has not become a relational multi-user backend.
+- Final browser refresh/screenshots and expanded registration checks were blocked because automatic approval review could not complete: its review model was at capacity. Earlier browser results above stand; the final visual checks must be resumed before deployment.
+- Existing tax rounding, native PDF/iPhone checks, cloud access/security/conflicts, cost recovery metadata, and photo-storage limits below still apply. Production remains v1.5.25 on `main` pending review/deployment.
+
 ## v1.5.28 — 2026-10-05 — neutral palette and repair workspace, not deployed
 
 ### Changed
