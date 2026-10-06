@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>Poppe’s Diesel Co. — Shop Manager</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
   <!-- Supabase client (v2 UMD) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -3299,13 +3299,96 @@
       * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
 
+    /* v1.5.26: scoped interaction/layout fixes; preserve invoice print styling. */
+    @media screen {
+      html, body { overflow-x: clip; }
+      main { padding: 16px 16px 64px; }
+      .tab-bar { flex-wrap: nowrap; overflow-x: auto; padding: 2px 0 10px; }
+      .tab-bar .tab-btn { flex: 0 0 auto; min-height: 44px; border-radius: 10px; }
+      .tab-bar .active-tab { box-shadow: inset 0 -3px 0 #d9b575; }
+      .tab-btn, .mini-btn { min-height: 40px; }
+      input:not([type="checkbox"]):not([type="file"]), select { min-height: 44px; }
+      input[type="date"], input[type="time"], input[type="tel"], input[type="password"] {
+        width: 100%; padding: 8px 10px; border: 1px solid #b5a185;
+        border-radius: 6px; background: #fdf8ef; color: var(--text-main);
+      }
+      button:focus-visible, a:focus-visible { outline: 3px solid #0b3b2e; outline-offset: 3px; }
+      #invoice .table-wrap { overflow-x: auto !important; max-width: 100% !important; }
+      #lines { min-width: 1220px !important; }
+      #lines input, #lines select { min-width: 74px; }
+      #lines .lType { min-width: 112px; }
+      #preview .p-totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 8px; }
+      #preview .p-totals div { min-width: 0; padding: 6px; border-bottom: 1px solid #ddd; text-align: left; }
+      #lines textarea, #settings textarea, #overallNotes, #internalNotes,
+      #recommendedFutureRepairs, #jobNotes, #schedNotes, #spNotes {
+        overflow-y: auto !important; resize: vertical !important;
+        scrollbar-width: auto; max-height: 420px;
+      }
+      #lines .desc-wrap .lDesc, #lines .desc-wrap .lNote { overflow-y: auto !important; }
+      textarea::-webkit-scrollbar { display: block !important; }
+      .save-status { margin: 0 0 12px; padding: 10px 14px; border: 1px solid #c3b59f;
+        border-radius: 8px; background: #f7f0e4; font-size: 13px; color: #0b3b2e; }
+      .save-status.error { color: #7d1c1c; border: 2px solid #7d1c1c; font-weight: 600; }
+      .table-scroll-hint { font-size: 12px; color: #5d4632; margin: 8px 0; }
+      @media (max-width: 760px) {
+        header { position: static; padding: 12px; }
+        header .title-block h1 { font-size: 18px; }
+        main { padding: 10px 8px 48px; }
+        .tab-bar { position: sticky; top: 0; z-index: 19; background: var(--bg); }
+        .tab { padding: 8px; }
+        #invoice-toolbar { padding: 8px; }
+        .toolbar-section { padding: 10px; }
+        input, select, textarea { font-size: 16px !important; }
+        .invoice-dense-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+        #invoice-toolbar .dense-field { min-width: 0 !important; }
+        #invoice-toolbar .dense-field.s2 { grid-column: span 1 !important; }
+        .money-dense-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+        .money-field.m2, .money-field.m3 { grid-column: span 1 !important; min-width: 0 !important; }
+        .money-field.m6, .money-subhead { grid-column: 1 / -1 !important; }
+        .document-actions-bar { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+        .document-actions-bar .tab-btn { white-space: normal; min-height: 44px; }
+        #lines { min-width: 1160px !important; }
+        .grid-2 > *, .card { min-width: 0; }
+      }
+    }
+    @media print { .save-status, .table-scroll-hint { display: none !important; } }
+    @media print { .app-sidebar, .workspace-heading, .skip-link { display: none !important; } }
 </style>
+<link rel="stylesheet" href="shop-theme.css" media="screen" />
+<script src="service-desk.js" defer></script>
+<script src="vehicle-records.js" defer></script>
+<script src="vehicle-center.js" defer></script>
+<link rel="icon" type="image/png" href="assets/poppes-diesel-logo.png" />
+<meta name="theme-color" content="#1d222b" />
 </head>
 <body>
 
+<a class="skip-link" href="#workspaceTitle">Skip to workspace</a>
+<aside class="app-sidebar" aria-label="Poppe’s Diesel Co. workspace">
+  <div class="brand-lockup">
+    <img class="shop-logo" src="assets/poppes-diesel-logo.png" width="168" height="168" alt="Poppe’s Diesel Co. eagle logo — Built in the Garage, Backed by Freedom" />
+    <div class="brand-product">POPPE // SHOP OS<br/>Service • Repair • Diesel</div>
+  </div>
+  <div class="nav-caption">Workspace</div>
+  <!-- Tab buttons -->
+  <nav class="tab-bar" aria-label="Shop sections">
+    <button class="tab-btn" data-tab="vehicles"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 15V9l3-4h12l3 4v6M3 10h18M6 15h12M5 15v4M19 15v4"/><circle cx="6" cy="12" r="1"/><circle cx="18" cy="12" r="1"/></svg><span>Vehicles</span></button>
+    <button class="tab-btn active-tab" data-tab="dashboard"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></button>
+    <button class="tab-btn" data-tab="customers"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5v2"/></svg><span>Customers</span></button>
+    <button class="tab-btn" data-tab="jobs"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V3h8v4M3 12h18M10 12v3h4v-3"/></svg><span>Jobs</span></button>
+    <button class="tab-btn" data-tab="schedule"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 11h18M7 15h2M12 15h2M17 15h1"/></svg><span>Schedule</span></button>
+    <button class="tab-btn" data-tab="invoice"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h7"/></svg><span>Invoice / Estimate</span></button>
+    <button class="tab-btn" data-tab="settings"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2 2M16.4 16.4l2 2M5.6 18.4l2-2M16.4 7.6l2-2"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg><span>Settings & Backup</span></button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="freedom">Built in the garage<br/>Backed by freedom <b>★</b></div>
+    <p>Your shop. Your standards.</p>
+  </div>
+</aside>
+
 <header>
   <div class="title-block">
-    <h1>Poppe’s Diesel Co. — Shop Manager</h1>
+    <h1>Poppe’s Diesel Co. <span style="font-weight:400; color:#778477">/ Service desk</span></h1>
     <div class="subtitle" id="appSubtitle">Version loading…</div>
   </div>
   <div class="right-block">
@@ -3315,16 +3398,21 @@
   </div>
 </header>
 
-<main>
-  <!-- Tab buttons -->
-  <div class="tab-bar">
-    <button class="tab-btn active-tab" data-tab="dashboard">Dashboard</button>
-    <button class="tab-btn" data-tab="customers">Customers</button>
-    <button class="tab-btn" data-tab="jobs">Jobs</button>
-    <button class="tab-btn" data-tab="schedule">Schedule</button>
-    <button class="tab-btn" data-tab="invoice">Invoice / Estimate</button>
-    <button class="tab-btn" data-tab="settings">Settings & Backup</button>
+<main id="shopWorkspace">
+  <div class="workspace-heading">
+    <div>
+      <div class="workspace-eyebrow" id="workspaceDate">Service desk</div>
+      <h2 id="workspaceTitle" tabindex="-1">Shop overview</h2>
+      <p id="workspaceDescription">Your work, margins and collections — in one place.</p>
+    </div>
+    <div class="workspace-actions">
+      <button type="button" id="workspaceSchedule">View schedule</button>
+      <button type="button" id="workspaceNewJob" class="primary-action">+ New job</button>
+    </div>
   </div>
+
+  <div id="saveStatus" class="save-status" role="status" aria-live="polite">Records are saved on this browser. Use Settings &amp; Backup to keep a separate copy.</div>
+
 
   <!-- Dashboard -->
   <section id="dashboard" class="tab active">
@@ -3340,8 +3428,8 @@
             </div>
           </div>
           <div class="battle-eyebrow">Built in the Garage • Backed by Freedom</div>
-          <div class="battle-title">Today’s Battle Plan</div>
-          <div id="battlePlanSummary" class="battle-copy">No shop data yet. Add customers, jobs, and invoices to light up the command center.</div>
+          <div class="battle-title">Keep the shop moving.</div>
+          <div id="battlePlanSummary" class="battle-copy">Start with a customer and a job. Your shop activity will appear here.</div>
         </div>
         <div class="health-card">
           <div class="section-title">Shop Health</div>
@@ -3397,7 +3485,7 @@
       <div class="dashboard-grid">
         <div class="dashboard-card">
           <div class="card-head">
-            <div class="card-title">Job Flow Board</div>
+            <div class="card-title">Work in progress</div>
             <span class="dash-pill">Count + value</span>
           </div>
           <div id="dashPipeline" class="pipeline-list"></div>
@@ -3405,8 +3493,8 @@
 
         <div class="dashboard-card">
           <div class="card-head">
-            <div class="card-title">Profit Leaks</div>
-            <span class="dash-pill bad">Money radar</span>
+            <div class="card-title">Margin & collections</div>
+            <span class="dash-pill">Needs attention</span>
           </div>
           <div id="dashProfitLeaks" class="dashboard-list"></div>
         </div>
@@ -3414,14 +3502,14 @@
         <div class="dashboard-card">
           <div class="card-head">
             <div class="card-title">Parts Deposit Tracker</div>
-            <span class="dash-pill warn">Do not finance parts</span>
+            <span class="dash-pill">Before ordering</span>
           </div>
           <div id="dashDepositTracker" class="dashboard-list"></div>
         </div>
 
         <div class="dashboard-card">
           <div class="card-head">
-            <div class="card-title">Follow-Up Opportunities</div>
+            <div class="card-title">Customer follow-ups</div>
             <span class="dash-pill">Future repairs</span>
           </div>
           <div id="dashFollowUps" class="dashboard-list"></div>
@@ -3430,7 +3518,7 @@
         <div class="dashboard-card">
           <div class="card-head">
             <div class="card-title">Job Type Mix</div>
-            <span class="dash-pill">What sells</span>
+            <span class="dash-pill">Service mix</span>
           </div>
           <div id="dashTopJobTypes" class="dashboard-list"></div>
         </div>
@@ -3499,11 +3587,57 @@
     </div>
   </section>
 
+  <!-- Vehicle intelligence records: additive links to existing tickets -->
+  <section id="vehicles" class="tab">
+    <div id="vehicleMessage" class="service-desk-message" role="status" aria-live="polite"></div>
+    <details id="vehicleRegister" class="card vehicle-register">
+      <summary>Register a vehicle</summary>
+      <form id="vehicleNewForm" class="vehicle-register-grid">
+        <div><label for="vehicleNewCustomer">Customer</label><select id="vehicleNewCustomer" required></select></div>
+        <div><label for="vehicleNewVin">VIN</label><input id="vehicleNewVin" placeholder="VIN if available" /></div>
+        <div><label for="vehicleNewYear">Year</label><input id="vehicleNewYear" inputmode="numeric" placeholder="2011" /></div>
+        <div><label for="vehicleNewMake">Make</label><input id="vehicleNewMake" placeholder="Ford" /></div>
+        <div><label for="vehicleNewModel">Model</label><input id="vehicleNewModel" placeholder="F-250 Super Duty" /></div>
+        <div><label for="vehicleNewEngine">Engine</label><input id="vehicleNewEngine" placeholder="6.7L Power Stroke" /></div>
+        <div><label for="vehicleNewPlate">License plate</label><input id="vehicleNewPlate" /></div>
+        <div><label for="vehicleNewLabel">Vehicle description / unit name</label><input id="vehicleNewLabel" placeholder="Fleet unit or description if identity is incomplete" /></div>
+        <button type="submit" class="vehicle-primary">Save vehicle</button>
+      </form>
+    </details>
+    <div class="vehicle-center-grid">
+      <aside class="card vehicle-directory" aria-label="Vehicle records">
+        <label for="vehicleSearch">Find a vehicle or repair</label><input id="vehicleSearch" type="search" placeholder="VIN, customer, plate, DTC, repair…" />
+        <p id="vehicleCount"></p><div id="vehicleList"></div>
+      </aside>
+      <div id="vehicleEmpty" class="card"><h3>Select a vehicle record</h3><p>Open a vehicle to see its service and diagnostic history. Records without a VIN remain separate until explicitly linked.</p></div>
+      <article id="vehicleRecord" hidden>
+        <header class="vehicle-command-header">
+          <div class="vehicle-command-label">VEHICLE COMMAND CENTER</div>
+          <h2 id="vehicleRecordTitle" tabindex="-1"></h2><p id="vehicleRecordIdentity"></p>
+          <div class="vehicle-command-actions"><button id="vehicleNewJob" type="button" class="vehicle-primary">New job for this vehicle</button><button id="vehicleLinkCurrent" type="button" class="vehicle-secondary"></button></div>
+        </header>
+        <div class="vehicle-telemetry">
+          <div><span>CUSTOMER</span><strong id="vehicleCurrentCustomer"></strong><small id="vehicleCurrentCustomerHint"></small></div>
+          <div><span>RECORDED MILEAGE</span><strong id="vehicleMileage"></strong><small id="vehicleMileageHint"></small></div>
+          <div><span>WORK STATUS</span><strong id="vehicleStatus"></strong><small id="vehicleStatusHint"></small></div>
+        </div>
+        <section class="vehicle-panel"><h3>Active work</h3><div id="vehicleActiveJobs"></div></section>
+        <section class="vehicle-panel"><div class="vehicle-section-title"><h3>Recommendations</h3><span id="vehicleOpenCount"></span></div><div id="vehicleRecommendations"></div>
+          <form id="vehicleRecForm" class="vehicle-rec-form"><div><label for="vehicleRecText">Recommended work / follow-up</label><textarea id="vehicleRecText" required placeholder="Record the finding and recommended next step."></textarea></div><div><label for="vehicleRecSystem">Vehicle system</label><select id="vehicleRecSystem"></select></div><button type="submit" class="vehicle-secondary">Add recommendation</button></form>
+        </section>
+        <section class="vehicle-panel"><h3>Technical memory</h3><p>Persistent shop-only notes for this vehicle. Keep confirmed facts distinct from items still under investigation.</p><label for="vehicleTechnicalNotes">Known facts / technical notes</label><textarea id="vehicleTechnicalNotes" placeholder="Record verified facts, important repair details and supporting references."></textarea></section>
+        <section class="vehicle-panel"><h3>Service &amp; diagnostic timeline</h3><p>Ticket dates, recorded findings and estimate/work lines. A line item alone does not establish that a repair was completed.</p><div id="vehicleTimeline"></div></section>
+        <section class="vehicle-panel"><details><summary>Mileage &amp; customer history</summary><h4>Mileage observations</h4><div id="vehicleMileageHistory"></div><h4>Customers on linked records</h4><p id="vehicleCustomerHistory"></p></details></section>
+      </article>
+    </div>
+  </section>
+
   <!-- Jobs -->
   <section id="jobs" class="tab">
     <div class="card" style="margin-bottom:8px;">
       <div class="section-title">New Job / Ticket</div>
       <form id="jobForm">
+        <div class="field"><label for="jobVehicleRecord">Registered vehicle</label><select id="jobVehicleRecord"><option value="">Enter vehicle below, or choose a record…</option></select></div>
         <div class="row">
           <div class="field">
             <label for="jobCustomer">Customer</label>
@@ -3585,7 +3719,7 @@
               <th>Customer</th>
               <th>Title</th>
               <th>Status</th>
-              <th>Subtotal</th>
+              <th>Total</th>
               <th>Profit</th>
               <th>Open</th>
             </tr>
@@ -3602,9 +3736,9 @@
     <div class="schedule-shell">
       <div class="schedule-hero">
         <div class="schedule-banner">
-          <div class="schedule-eyebrow">Scheduling Command Center</div>
-          <div class="schedule-title">Shop Calendar Board</div>
-          <div class="schedule-copy">Run the week like a real shop board: day columns, time blocks, color-coded jobs, overlap warnings, appointment messages, and iPhone calendar export.</div>
+          <div class="schedule-eyebrow">Service planning</div>
+          <div class="schedule-title">A clear view of the week.</div>
+          <div class="schedule-copy">Plan service bays, coordinate drop-offs and keep customers informed. Appointments stay connected to their jobs.</div>
         </div>
         <div class="schedule-count-card">
           <div class="section-title">Today</div>
@@ -3684,7 +3818,7 @@
           </div>
           <div class="schedule-field s3">
             <label for="schedLocation">Location</label>
-            <input id="schedLocation" type="text" placeholder="Garage / driveway / customer drop-off" />
+            <input id="schedLocation" type="text" placeholder="Service bay / customer drop-off" />
           </div>
           <div class="schedule-field s3">
             <label for="schedAssigned">Assigned To</label>
@@ -3790,22 +3924,81 @@
 
   <!-- Invoice -->
   <section id="invoice" class="tab">
+    <div class="card service-workspace">
+      <div class="service-context">
+        <div class="service-context-main">
+          <div class="service-eyebrow" id="serviceCustomer">Select a job to begin</div>
+          <h3 id="serviceVehicle">Vehicle not entered</h3>
+          <div id="serviceTicket" class="service-ticket"></div>
+          <div id="serviceIdentity" class="service-identity"></div>
+        </div>
+        <div class="service-context-actions">
+          <div class="service-job-picker"><label for="serviceJob">Current ticket</label><select id="serviceJob"><option value="">Select a service ticket…</option></select></div>
+          <div><label for="serviceStatus">Work status</label><select id="serviceStatus"><option>Open</option><option>In Progress</option><option>Done</option></select></div>
+          <button type="button" id="serviceEditVehicle" class="tab-btn">Edit vehicle</button>
+          <button type="button" id="serviceVehicleRecord" class="tab-btn">Vehicle record</button>
+        </div>
+      </div>
+      <div class="service-view-tabs" role="tablist" aria-label="Repair workspace">
+        <button type="button" id="serviceEstimateTab" role="tab" data-service-view="invoiceBuilder" aria-controls="invoiceBuilder" aria-selected="true">Estimate builder</button>
+        <button type="button" id="serviceLibraryTab" role="tab" data-service-view="serviceLibrary" aria-controls="serviceLibrary" aria-selected="false" tabindex="-1">Service library</button>
+        <button type="button" id="serviceDiagnosticsTab" role="tab" data-service-view="diagnosticWorksheet" aria-controls="diagnosticWorksheet" aria-selected="false" tabindex="-1">Diagnostic worksheet</button>
+        <button type="button" id="serviceHistoryTab" role="tab" data-service-view="serviceHistory" aria-controls="serviceHistory" aria-selected="false" tabindex="-1">Service history</button>
+      </div>
+      <div id="serviceDeskMessage" class="service-desk-message" role="status" aria-live="polite"></div>
+    </div>
+
+    <div id="serviceLibrary" class="card service-panel" role="tabpanel" aria-labelledby="serviceLibraryTab" hidden>
+      <div class="service-panel-head"><div><h3>Shop service library</h3><p>Reusable work packages with labor and parts together. Labor uses this ticket’s rates; parts retain saved pricing.</p></div></div>
+      <div class="service-library-notice">Shop templates, not OEM labor-guide data. Verify hours, parts fitment and pricing. Diagnostic minimums, supplies, discounts and tax are calculated on the ticket.</div>
+      <label for="servicePackageSearch">Find a service or vehicle</label><input id="servicePackageSearch" type="search" placeholder="Search your shop packages…" />
+      <div id="servicePackages" class="service-packages"></div>
+      <details class="service-save-package"><summary>Save this ticket’s work as a reusable package</summary>
+        <p>Stores described labor, diagnostic, part and warranty lines. Ticket-specific adjustment lines and customer notes stay on the ticket.</p>
+        <div class="service-package-save-grid">
+          <div><label for="servicePackageName">Package name</label><input id="servicePackageName" type="text" placeholder="e.g., Fuel-system service" /></div>
+          <div><label for="servicePackageVehicle">Vehicle / engine applicability</label><input id="servicePackageVehicle" type="text" placeholder="e.g., Ram 6.7 Cummins — verify year" /></div>
+          <button id="serviceSavePackage" type="button" class="tab-btn">Save package</button>
+        </div>
+      </details>
+    </div>
+
+    <div id="diagnosticWorksheet" class="card service-panel" role="tabpanel" aria-labelledby="serviceDiagnosticsTab" hidden>
+      <div class="service-panel-head"><div><h3>Diagnostic worksheet</h3><p>Document the concern, checks, findings and verified repair. This worksheet is shop-only.</p></div></div>
+      <p id="serviceRecordHint" class="service-library-notice"></p>
+      <div class="diagnostic-grid">
+        <div><label for="diagConcern">Customer concern / symptoms</label><textarea id="diagConcern" placeholder="Record the reported concern and operating conditions."></textarea></div>
+        <div><label for="diagCodes">Trouble codes / scan notes</label><textarea id="diagCodes" placeholder="Record exact codes, status and scan-tool observations."></textarea></div>
+        <div><label for="diagTests">Tests performed / measurements</label><textarea id="diagTests" placeholder="Record checks, measurements and the source of any specifications used."></textarea></div>
+        <div><label for="diagFindings">Confirmed findings / cause</label><textarea id="diagFindings" placeholder="Separate confirmed findings from items still under investigation."></textarea></div>
+        <div><label for="diagCorrection">Correction / work performed</label><textarea id="diagCorrection" placeholder="Record the repair or correction performed."></textarea></div>
+        <div><label for="diagVerification">Repair verification</label><textarea id="diagVerification" placeholder="Record rechecks, road test and whether the concern was resolved."></textarea></div>
+      </div>
+      <div class="diagnostic-summary-action"><p>To include selected findings on the customer document, append a summary to Technician Overall Notes. Trouble-code and test notes stay shop-only.</p><button type="button" id="diagAppendSummary" class="tab-btn">Append customer summary</button></div>
+    </div>
+
+    <div id="serviceHistory" class="card service-panel" role="tabpanel" aria-labelledby="serviceHistoryTab" hidden>
+      <div class="service-panel-head"><div><h3>Service history</h3><p id="serviceHistoryScope">Select a job to see previous service.</p></div></div>
+      <div id="serviceHistoryList"></div>
+    </div>
+
+    <div id="invoiceBuilder" role="tabpanel" aria-labelledby="serviceEstimateTab">
     <div id="invoice-toolbar" class="card">
       <div class="invoice-cockpit-grid">
         <section class="toolbar-section invoice-main-panel">
           <div class="section-title">Job / Vehicle / Document</div>
           <div class="invoice-dense-grid">
-            <div class="field dense-field s3">
+            <div class="field dense-field s5">
               <label for="invCustFilter">Filter by Customer</label>
               <select id="invCustFilter">
                 <option value="">All customers</option>
               </select>
             </div>
-            <div class="field dense-field s4">
+            <div class="field dense-field s7">
               <label for="invJobSearch">Search Jobs</label>
               <input id="invJobSearch" type="text" placeholder="Filter by customer, VIN, notes…" />
             </div>
-            <div class="field dense-field s5">
+            <div class="field dense-field s5 legacy-job-picker">
               <label for="invJob">Job</label>
               <select id="invJob">
                 <option value="">Select job…</option>
@@ -3904,8 +4097,8 @@
           </div>
         </section>
 
-        <section class="toolbar-section invoice-money-panel">
-          <div class="section-title">Money Rules</div>
+        <details class="toolbar-section invoice-money-panel pricing-settings">
+          <summary>Rates, tax &amp; payments <span>Expand to edit this job’s pricing and payment details</span></summary>
           <div class="money-dense-grid">
             <div class="money-subhead">Rates & Supplies</div>
             <div class="field money-field m3">
@@ -3999,7 +4192,7 @@
               <label><input type="checkbox" id="customerSuppliedParts" /> Customer Supplied Parts <span class="hover-help" tabindex="0" data-help="Use this when the customer provides their own parts. The invoice will include warranty language saying customer-supplied parts are not covered under parts warranty and labor warranty may be limited if the part causes the failure.">?</span></label>
             </div>
           </div>
-        </section>
+        </details>
       </div>
 
       <div class="document-actions-bar">
@@ -4038,30 +4231,53 @@
 
         <div id="importHistoryStatus" class="import-history-status"></div>
 
+        <div class="table-wrap">
+          <table id="lines">
+            <thead>
+              <tr>
+                <th class="drag-col">⇅</th>
+                <th>Type</th>
+                <th>Description / Note</th>
+                <th>Qty/Hrs</th>
+                <th>List $</th>
+                <th>Cost $</th>
+                <th>Markup %</th>
+                <th>Unit $</th>
+                <th>Line $</th>
+                <th>Line Profit $</th>
+                <th>×</th>
+              </tr>
+            </thead>
+            <tbody><!-- JS fills --></tbody>
+          </table>
+        </div>
+
         <div style="display:flex; flex-direction:column; align-items:stretch; gap:8px; margin-bottom:10px;">
           <div class="totals-shell">
             <div class="totals-panel">
-              <div class="totals-line"><span>Labor Subtotal:</span> <span id="laborSub">$0.00</span></div>
-              <div class="totals-line"><span>Parts Subtotal:</span> <span id="partsSub">$0.00</span></div>
-              <div class="totals-line"><span>Shop Supplies:</span> <span id="shopSup">$0.00</span></div>
-              <div class="totals-line"><span>Gross Subtotal:</span> <span id="grossSub">$0.00</span></div>
-              <div class="totals-line"><span>Discount:</span> <span id="disc">$0.00</span></div>
-              <div class="totals-line"><span>Net Subtotal before tax:</span> <span id="sub">$0.00</span></div>
-              <div class="totals-line"><span>Taxable Subtotal:</span> <span id="taxableSub">$0.00</span></div>
-              <div class="totals-line"><span>Sales Tax:</span> <span id="tax">$0.00</span></div>
-              <div class="totals-line"><span>Deposit Required:</span> <span id="depositDue">$0.00</span></div>
-              <div class="totals-line grand"><span>Total:</span> <span id="grand">$0.00</span></div>
-              <div class="totals-line"><span>Balance Due:</span> <span id="balanceDueTotal">$0.00</span></div>
-              <div class="totals-line"><span>Overpayment / Credit:</span> <span id="overpayTotal">$0.00</span></div>
-              <div class="totals-line"><span>Total Profit:</span> <span id="profit">$0.00</span></div>
-              <div class="totals-line"><span>Total Savings vs List:</span> <span id="save">$0.00</span></div>
-              <div class="totals-line"><span>Warranty hours (not billed):</span> <span id="wHours">0.00</span></div>
-              <div class="totals-line">
+<div class="totals-line grand"><span>Total:</span> <span id="grand">$0.00</span></div>
+<div class="totals-line"><span>Balance Due:</span> <span id="balanceDueTotal">$0.00</span></div>
+<div class="totals-line"><span>Deposit Required:</span> <span id="depositDue">$0.00</span></div>
+<div class="totals-line"><span>Total Profit:</span> <span id="profit">$0.00</span></div>
+<div class="totals-line">
                 <span>Margin:</span>
                 <span id="margin" class="badge estimate">0%</span>
               </div>
-            </div>
-            <div class="totals-analytics" id="jobAnalytics">
+<details class="totals-breakdown"><summary>Full calculation breakdown</summary>
+<div class="totals-line"><span>Labor Subtotal:</span> <span id="laborSub">$0.00</span></div>
+<div class="totals-line"><span>Parts Subtotal:</span> <span id="partsSub">$0.00</span></div>
+<div class="totals-line"><span>Shop Supplies:</span> <span id="shopSup">$0.00</span></div>
+<div class="totals-line"><span>Gross Subtotal:</span> <span id="grossSub">$0.00</span></div>
+<div class="totals-line"><span>Discount:</span> <span id="disc">$0.00</span></div>
+<div class="totals-line"><span>Net Subtotal before tax:</span> <span id="sub">$0.00</span></div>
+<div class="totals-line"><span>Taxable Subtotal:</span> <span id="taxableSub">$0.00</span></div>
+<div class="totals-line"><span>Sales Tax:</span> <span id="tax">$0.00</span></div>
+<div class="totals-line"><span>Overpayment / Credit:</span> <span id="overpayTotal">$0.00</span></div>
+<div class="totals-line"><span>Total Savings vs List:</span> <span id="save">$0.00</span></div>
+<div class="totals-line"><span>Warranty hours (not billed):</span> <span id="wHours">0.00</span></div>
+</details>
+</div>
+<div class="totals-analytics" id="jobAnalytics">
               <div class="mini-title">Job Analytics</div>
               <div class="metric-bar" id="metricProfitWrap">
                 <div class="metric-head"><span>Profit</span><span id="metricProfitVal">$0.00</span></div>
@@ -4091,26 +4307,7 @@
           </div>
         </div>
 
-        <div class="table-wrap">
-          <table id="lines">
-            <thead>
-              <tr>
-                <th class="drag-col">⇅</th>
-                <th>Type</th>
-                <th>Description / Note</th>
-                <th>Qty/Hrs</th>
-                <th>List $</th>
-                <th>Cost $</th>
-                <th>Markup %</th>
-                <th>Unit $</th>
-                <th>Line $</th>
-                <th>Line Profit $</th>
-                <th>×</th>
-              </tr>
-            </thead>
-            <tbody><!-- JS fills --></tbody>
-          </table>
-        </div>
+
 
         <div style="margin-top:8px;">
           <div class="section-title">Technician Overall Notes</div>
@@ -4157,10 +4354,13 @@
           </div>
           <div id="preview-content">
             <div style="display:flex; justify-content:space-between; gap:12px; margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:8px;">
-              <div>
+              <div class="invoice-brand">
+                <img id="documentLogo" src="assets/poppes-diesel-logo.png" width="76" height="76" alt="Poppe’s Diesel Co." />
+                <div>
                 <div style="font-size:18px; font-weight:800;" id="pShopName">Poppe’s Diesel Co.</div>
                 <div style="font-size:11px; line-height:1.35;" id="pShopAddress"></div>
                 <div style="font-size:11px; line-height:1.35;" id="pShopContact"></div>
+                </div>
               </div>
               <div style="text-align:right; font-size:11px;">
                 <div><strong id="pTypeTitle">Estimate</strong></div>
@@ -4251,6 +4451,7 @@
         </div>
       </div>
     </div>
+    </div><!-- invoiceBuilder -->
   </section>
 
   <!-- Settings / Backup -->
@@ -4691,8 +4892,8 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.25';
-const APP_BUILD_DATE = '2026-06-14';
+const APP_VERSION = 'v1.5.29';
+const APP_BUILD_DATE = '2026-10-05';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
 /* ---------------- Supabase Cloud Config ---------------- */
@@ -4809,7 +5010,7 @@ if (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY) {
 
   function refreshMeta(){
     if (metaEl) metaEl.textContent = getMetaLine();
-    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · Document Intake Foundation · Historical PDF Totals · Smart PDF Line Import';
+    if (subtitleEl) subtitleEl.textContent = APP_VERSION + ' · ' + APP_BUILD_DATE + ' · POPPE // SHOP OS';
     if (titleEl) titleEl.textContent = 'Poppe’s Diesel Co. — Shop Manager ' + APP_VERSION + ' (' + APP_BUILD_DATE + ')';
   }
 
@@ -5121,23 +5322,53 @@ window.addEventListener('load', function(){
   guard('init', function(){
 
     var STORAGE_KEY = 'poppe_shop_db_v112';
+    // Save the job owning the form, not the selector value changed by a browser event.
+    var loadedInvoiceId = null;
+    var storageLoadFailed = false;
+    var localSaveHealthy = true;
+
+    function showSaveStatus(ok, message){
+      var status = document.getElementById('saveStatus');
+      if(!status) return;
+      status.classList.toggle('error', !ok);
+      if(status.textContent !== message) status.textContent = message;
+    }
 
     function loadDB(){
       try {
         var s = localStorage.getItem(STORAGE_KEY);
-        return s ? JSON.parse(s) : null;
+        if(!s) return null;
+        var data = JSON.parse(s);
+        if(!data || !Array.isArray(data.customers) || !Array.isArray(data.jobs) || !validVehicleData(data) || (data.settings != null && (typeof data.settings !== 'object' || Array.isArray(data.settings)))) {
+          throw new Error('Stored database has an invalid structure');
+        }
+        return data;
       } catch(e){
         AppLog.error('localStorage load failed', e);
+        storageLoadFailed = true;
+        localSaveHealthy = false;
+        showSaveStatus(false, 'Stored records could not be read. Existing storage is protected from overwrite. Restore a known backup in Settings & Backup; export any new work before reloading.');
         return null;
       }
     }
 
     function saveDB(){
+      if(storageLoadFailed) return false;
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(DB));
+        localSaveHealthy = true;
+        showSaveStatus(true, 'Saved on this browser. Use Settings & Backup to keep a separate copy.');
+        return true;
       } catch(e){
+        localSaveHealthy = false;
+        showSaveStatus(false, 'Changes are not saved to this browser. Export a backup in Settings & Backup before closing or reloading. Storage may be full or unavailable.');
         AppLog.error('localStorage save failed', e);
+        return false;
       }
+    }
+
+    function validVehicleData(data){
+      return !window.PdcVehicleRecords || window.PdcVehicleRecords.validCollection(data.vehicles);
     }
 
     function defaultDB(){
@@ -5228,8 +5459,11 @@ window.addEventListener('load', function(){
       catch(_){}
     }
     var UI = loadUI();
+    var serviceDesk = null;
+    var vehicleCenter = null;
 
     function upgradeDB(){
+      if(window.PdcVehicleRecords) window.PdcVehicleRecords.upgrade(DB);
       var i, j, l;
       for(i=0;i<(DB.jobs||[]).length;i++){
         j = DB.jobs[i];
@@ -5350,6 +5584,7 @@ window.addEventListener('load', function(){
     function $all(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
     function autoGrowTextarea(el){
       if(!el || el.tagName !== 'TEXTAREA') return;
+      if(!el.getClientRects().length) return;
       try {
         el.style.overflowY = 'hidden';
         el.style.resize = 'none';
@@ -5368,6 +5603,32 @@ window.addEventListener('load', function(){
       });
     }
     function fmt(n){ return "$"+Number(n||0).toFixed(2); }
+    // Let the page scroll instead of changing focused money/quantity controls.
+    document.addEventListener('wheel', function(ev){
+      var el = ev.target;
+      if(el && el.matches && el.matches('input[type="number"]') && document.activeElement === el) el.blur();
+    }, {capture:true, passive:true});
+    document.querySelectorAll('.tab-btn[data-tab]').forEach(function(button){
+      button.setAttribute('aria-current', button.classList.contains('active-tab') ? 'page' : 'false');
+      button.addEventListener('click', function(){
+        document.querySelectorAll('.tab-btn[data-tab]').forEach(function(other){
+          other.setAttribute('aria-current', other === button ? 'page' : 'false');
+        });
+      });
+    });
+    var lineScroller = document.querySelector('#lines').closest('.table-wrap');
+    lineScroller.tabIndex = 0;
+    lineScroller.setAttribute('role', 'region');
+    lineScroller.setAttribute('aria-label', 'Invoice line items, scroll horizontally for pricing columns');
+    var scrollHint = document.createElement('p');
+    scrollHint.className = 'table-scroll-hint';
+    scrollHint.textContent = 'Scroll across line items for cost, markup, and pricing. Keyboard: focus the table area and use left/right arrows.';
+    lineScroller.before(scrollHint);
+    ['overallNotes','internalNotes','recommendedFutureRepairs'].forEach(function(id, i){
+      document.getElementById(id).setAttribute('aria-label', ['Technician overall notes','Internal notes (shop only)','Recommended future repairs'][i]);
+    });
+    document.getElementById('discountType').setAttribute('aria-label', 'Discount type');
+    document.getElementById('discountValue').setAttribute('aria-label', 'Discount value');
     function todayLocalInputValue(){
       var d = new Date();
       var m = String(d.getMonth()+1).padStart(2,'0');
@@ -5416,7 +5677,7 @@ window.addEventListener('load', function(){
       var methodEl = document.getElementById('paymentMethod');
       var amount = Number(amountEl && amountEl.value || 0);
       if(!isFinite(amount) || amount < 0) amount = 0;
-      if(amountEl) amountEl.value = String(amount % 1 === 0 ? amount : amount.toFixed(2));
+      // Preserve intermediate decimal input while the user is typing.
       if(options.markPaid){
         amount = grand;
         if(amountEl) amountEl.value = grand.toFixed(2);
@@ -5434,7 +5695,7 @@ window.addEventListener('load', function(){
       if(amount >= grand && grand > 0){
         j.paid = true;
         if(paidDateEl && !paidDateEl.value) paidDateEl.value = todayLocalInputValue();
-      } else if(amount <= 0 && !(paidDateEl && paidDateEl.value)){
+      } else {
         j.paid = false;
       }
       j.amountPaid = amount;
@@ -5890,11 +6151,22 @@ window.addEventListener('load', function(){
         return;
       }
       el.innerHTML = items.map(function(item){
-        return '<div class="dash-list-item">' +
-          '<div><strong>'+escapeHtml(item.title || '')+'</strong><div class="soft">'+escapeHtml(item.sub || '')+'</div></div>' +
+        var tag = item.jobId ? 'button' : 'div';
+        return '<'+tag+' class="dash-list-item"'+(item.jobId ? ' type="button" data-job-id="'+escapeHtml(item.jobId)+'" title="Open this job"' : '')+'>' +
+          '<span><strong>'+escapeHtml(item.title || '')+'</strong><span class="soft">'+escapeHtml(item.sub || '')+'</span></span>' +
           '<span class="dash-pill '+escapeHtml(item.level || '')+'">'+escapeHtml(item.value || '')+'</span>' +
-        '</div>';
+        '</'+tag+'>';
       }).join('');
+      el.querySelectorAll('[data-job-id]').forEach(function(button){
+        button.addEventListener('click', function(){
+          var id = button.getAttribute('data-job-id');
+          // Delegate to the existing job opener, which saves the outgoing invoice.
+          var opener = Array.from(document.querySelectorAll('#jobsTable button[data-open]')).find(function(node){
+            return node.getAttribute('data-open') === id;
+          });
+          if(opener) opener.click();
+        });
+      });
     }
 
     function renderDashboard(){
@@ -5936,6 +6208,7 @@ window.addEventListener('load', function(){
           depositNeeded += need;
           if((j.depositMode || 'parts') === 'parts') partsRisk += Math.min(need, f.partsSubtotal || need);
           depositItems.push({
+            jobId: j.id,
             title: customerName,
             sub: title + ' • required ' + fmt(f.depositRequired) + ' • paid ' + fmt(f.amountPaid),
             value: fmt(need),
@@ -5960,17 +6233,18 @@ window.addEventListener('load', function(){
         if(!c || !c.email || !j.vin) missingInfo++;
         if(f.grand > 0 && f.margin < 15) lowMarginJobCount++;
 
-        if(f.margin < 15 && f.grand > 0) leaks.push({title: customerName, sub: title + ' • low margin job', value: f.margin + '%', level:'bad'});
-        if(f.partsBelowCost > 0) leaks.push({title: customerName, sub: title + ' • part line at/below cost', value:String(f.partsBelowCost), level:'bad'});
-        if(f.partsNoMarkup > 0) leaks.push({title: customerName, sub: title + ' • low parts markup', value:String(f.partsNoMarkup), level:'warn'});
-        if(f.laborBelowDefault > 0) leaks.push({title: customerName, sub: title + ' • labor below $100/hr', value:String(f.laborBelowDefault), level:'warn'});
-        if(f.diagnosticBelowDefault > 0) leaks.push({title: customerName, sub: title + ' • diagnostic below $125/hr', value:String(f.diagnosticBelowDefault), level:'warn'});
-        if(f.discountAmt > 0 && f.subtotal > 0 && (f.discountAmt / (f.subtotal + f.discountAmt)) > .20) leaks.push({title: customerName, sub: title + ' • discount over 20%', value:fmt(f.discountAmt), level:'warn'});
-        if(f.depositRequired > 0 && f.amountPaid < f.depositRequired) leaks.push({title: customerName, sub: title + ' • deposit not fully collected', value:fmt(f.depositRequired - f.amountPaid), level:'bad'});
-        if(j.customerSuppliedParts && !String(j.overallNotes || '').toLowerCase().includes('customer-supplied')) leaks.push({title: customerName, sub: title + ' • customer-supplied parts flag is on', value:'Warranty', level:'warn'});
+        if(f.margin < 15 && f.grand > 0) leaks.push({jobId: j.id, title: customerName, sub: title + ' • low margin job', value: f.margin + '%', level:'bad'});
+        if(f.partsBelowCost > 0) leaks.push({jobId: j.id, title: customerName, sub: title + ' • part line at/below cost', value:String(f.partsBelowCost), level:'bad'});
+        if(f.partsNoMarkup > 0) leaks.push({jobId: j.id, title: customerName, sub: title + ' • low parts markup', value:String(f.partsNoMarkup), level:'warn'});
+        if(f.laborBelowDefault > 0) leaks.push({jobId: j.id, title: customerName, sub: title + ' • labor below $100/hr', value:String(f.laborBelowDefault), level:'warn'});
+        if(f.diagnosticBelowDefault > 0) leaks.push({jobId: j.id, title: customerName, sub: title + ' • diagnostic below $125/hr', value:String(f.diagnosticBelowDefault), level:'warn'});
+        if(f.discountAmt > 0 && f.subtotal > 0 && (f.discountAmt / (f.subtotal + f.discountAmt)) > .20) leaks.push({jobId: j.id, title: customerName, sub: title + ' • discount over 20%', value:fmt(f.discountAmt), level:'warn'});
+        if(f.depositRequired > 0 && f.amountPaid < f.depositRequired) leaks.push({jobId: j.id, title: customerName, sub: title + ' • deposit not fully collected', value:fmt(f.depositRequired - f.amountPaid), level:'bad'});
+        if(j.customerSuppliedParts && !String(j.overallNotes || '').toLowerCase().includes('customer-supplied')) leaks.push({jobId: j.id, title: customerName, sub: title + ' • customer-supplied parts flag is on', value:'Warranty', level:'warn'});
 
         if(j.recommendedFutureRepairs && j.recommendedFutureRepairs.trim()){
           followUps.push({
+            jobId: j.id,
             title: customerName,
             sub: title + ' • ' + j.recommendedFutureRepairs.trim().slice(0,120),
             value: age ? (age + 'd') : 'New',
@@ -5978,6 +6252,8 @@ window.addEventListener('load', function(){
           });
         }
         activity.push({
+          jobId: j.id,
+          createdAt: j.createdAt,
           title: customerName,
           sub: title + ' • ' + stage,
           value: fmt(f.grand),
@@ -6041,7 +6317,7 @@ window.addEventListener('load', function(){
         var bv = Number(String(b.value||'').replace(/[^0-9.-]/g,'')) || 0;
         return bv - av;
       });
-      renderDashList('dashProfitLeaks', leaks.slice(0,8), 'No obvious profit leaks found. Mighty fine.');
+      renderDashList('dashProfitLeaks', leaks.slice(0,8), 'No margin or collection alerts in the current jobs.');
       depositItems.sort(function(a,b){ return Number(String(b.value).replace(/[^0-9.-]/g,'')) - Number(String(a.value).replace(/[^0-9.-]/g,'')); });
       renderDashList('dashDepositTracker', depositItems.slice(0,8), 'No unpaid deposits required right now.');
       followUps.sort(function(a,b){ return Number(String(b.value).replace(/[^0-9.-]/g,'')) - Number(String(a.value).replace(/[^0-9.-]/g,'')); });
@@ -6052,9 +6328,7 @@ window.addEventListener('load', function(){
       renderDashList('dashTopJobTypes', typeItems.slice(0,6), 'No job type data yet.');
 
       activity.sort(function(a,b){
-        var aj = jobs.find(function(j){ var c=findCustomer(j.customerId); return (c?c.name:'No customer') === a.title && (j.title||'Untitled job') === (a.sub||'').split(' • ')[0]; });
-        var bj = jobs.find(function(j){ var c=findCustomer(j.customerId); return (c?c.name:'No customer') === b.title && (j.title||'Untitled job') === (b.sub||'').split(' • ')[0]; });
-        return new Date((bj&&bj.createdAt)||0) - new Date((aj&&aj.createdAt)||0);
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
       });
       renderDashList('dashRecentActivity', activity.slice(0,7), 'No recent jobs yet.');
     }
@@ -6894,6 +7168,7 @@ window.addEventListener('load', function(){
     }
 
     function renderAll(){
+      if(window.PdcVehicleRecords) window.PdcVehicleRecords.upgrade(DB);
       renderCustomers();
       renderJobs();
       renderJobCustomer();
@@ -6901,6 +7176,8 @@ window.addEventListener('load', function(){
       renderSchedule();
       renderSettings();
       renderDocumentIntakeList();
+      if(serviceDesk) serviceDesk.load();
+      if(vehicleCenter) vehicleCenter.render();
       saveDB();
     }
 
@@ -6915,6 +7192,7 @@ window.addEventListener('load', function(){
         b.classList.add('active-tab');
         UI.activeTab = id;
         saveUI(UI);
+        wireAutoGrowTextareas(document.getElementById(id));
         try{ window.scrollTo(0,0); }catch(_){}
       });
     });
@@ -6923,6 +7201,7 @@ window.addEventListener('load', function(){
       document.getElementById(UI.activeTab).classList.add('active');
       $all('.tab-btn[data-tab]').forEach(function(x){
         x.classList.toggle('active-tab', x.getAttribute('data-tab')===UI.activeTab);
+        x.setAttribute('aria-current', x.getAttribute('data-tab')===UI.activeTab ? 'page' : 'false');
       });
     }
 
@@ -6949,20 +7228,18 @@ window.addEventListener('load', function(){
       DB.customers.forEach(function(c){
         var tr = document.createElement('tr');
         tr.innerHTML =
-          '<td>'+c.name+'</td>'+
-          '<td>'+(c.phone||'')+'</td>'+
-          '<td>'+(c.email||'')+'</td>'+
-          '<td>'+(c.vehicle||'')+'</td>'+
-          '<td><button class="tab-btn" data-delc="'+c.id+'">Delete</button></td>';
+          '<td>'+escapeHtml(c.name)+(c.archivedAt?' <span class="customer-archive-label">Archived</span>':'')+'</td>'+
+          '<td>'+escapeHtml(c.phone||'')+'</td>'+
+          '<td>'+escapeHtml(c.email||'')+'</td>'+
+          '<td>'+escapeHtml(c.vehicle||'')+'</td>'+
+          '<td><button class="tab-btn" data-archivec="'+escapeHtml(c.id)+'">'+(c.archivedAt?'Restore':'Archive')+'</button></td>';
         tb.appendChild(tr);
       });
-      $all('button[data-delc]').forEach(function(btn){
+      $all('button[data-archivec]').forEach(function(btn){
         btn.addEventListener('click', function(){
-          var id = btn.getAttribute('data-delc');
-          if(!confirm('Delete this customer and all their jobs?')) return;
-          DB.jobs = DB.jobs.filter(function(j){ return j.customerId !== id; });
-          DB.customers = DB.customers.filter(function(c){ return c.id !== id; });
-          renderCustomers(); renderJobs(); renderJobCustomer(); saveDB();
+          var c=findCustomer(btn.getAttribute('data-archivec'));if(!c)return;
+          c.archivedAt=c.archivedAt?null:new Date().toISOString();
+          renderCustomers();renderJobCustomer();if(vehicleCenter)vehicleCenter.render();saveDB();
         });
       });
     }
@@ -6979,7 +7256,7 @@ window.addEventListener('load', function(){
     function renderJobCustomer(){
       var sel = $('#jobCustomer');
       var opts = ['<option value="">Select...</option>'];
-      DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+c.name+'</option>'); });
+      DB.customers.filter(function(c){return !c.archivedAt;}).forEach(function(c){ opts.push('<option value="'+c.id+'">'+escapeHtml(c.name)+'</option>'); });
       sel.innerHTML = opts.join('');
       renderInvFilters();
       renderInvJobOptions();
@@ -6992,6 +7269,7 @@ window.addEventListener('load', function(){
       var j = {
         id: crypto.randomUUID(),
         customerId: $('#jobCustomer').value,
+        vehicleId: $('#jobVehicleRecord').value,
         title: $('#jobTitle').value.trim(),
         vin: $('#jobVIN').value.trim(),
         vehicleYear: getVehicleFieldValue('jobVehicleYear'),
@@ -7015,18 +7293,18 @@ window.addEventListener('load', function(){
       };
       if(!j.customerId || !j.title) return;
       DB.jobs.push(j);
+      if(window.PdcVehicleRecords) window.PdcVehicleRecords.upgrade(DB);
       renderJobs();
       renderJobCustomer();
       document.getElementById('jobForm').reset();
       $('#vinResult').style.display='none';
       $('#vinSuggest').style.display='none';
       saveDB();
-      if(DB.jobs.length===1){
-        $('#invJob').value = j.id;
-        loadInvoice(j.id);
-        UI.lastJobId = j.id;
-        saveUI(UI);
-      }
+      persistLines();
+      loadInvoice(j.id);
+      UI.lastJobId = j.id;
+      saveUI(UI);
+      document.querySelector('[data-tab="invoice"]').click();
     });
 
     // VIN decode
@@ -7212,15 +7490,16 @@ window.addEventListener('load', function(){
       var tb = $('#jobsTable tbody'); tb.innerHTML='';
       DB.jobs.forEach(function(j){
         var c = findCustomer(j.customerId);
-        var subtotal = sumLines(j.lines, 'subtotal');
-        var profit   = sumLines(j.lines, 'profit');
+        var financials = calcJobFinancials(j);
+        var subtotal = financials.grand;
+        var profit   = financials.profitNet;
         var badge = j.status==='Open' ? 'badge-open' : (j.status==='In Progress'?'badge-ip':'badge-done');
         var tr = document.createElement('tr');
         tr.innerHTML =
           '<td>'+j.id.slice(0,8)+'</td>'+
-          '<td>'+(c?c.name:'—')+'</td>'+
-          '<td>'+j.title+'</td>'+
-          '<td><span class="badge '+badge+'">'+j.status+'</span></td>'+
+          '<td>'+escapeHtml(c?c.name:'—')+'</td>'+
+          '<td>'+escapeHtml(j.title)+'</td>'+
+          '<td><span class="badge '+badge+'">'+escapeHtml(j.status)+'</span></td>'+
           '<td>'+fmt(subtotal)+'</td>'+
           '<td>'+fmt(profit)+'</td>'+
           '<td><button class="tab-btn" data-open="'+j.id+'">Open</button></td>';
@@ -7248,13 +7527,16 @@ window.addEventListener('load', function(){
     /* ------ Invoice filters & selectors ------ */
     function renderInvFilters(){
       var sel = $('#invCustFilter');
+      var previous = sel.value;
       var opts = ['<option value="">All customers</option>'];
-      DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+c.name+'</option>'); });
+      DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+escapeHtml(c.name)+'</option>'); });
       sel.innerHTML = opts.join('');
+      sel.value = previous;
     }
 
     function renderInvJobOptions(){
       var invSel = $('#invJob');
+      var previous = loadedInvoiceId || invSel.value;
       var cid = $('#invCustFilter').value || '';
       var q = ($('#invJobSearch').value || '').trim().toLowerCase();
       var jobs = DB.jobs.filter(function(j){
@@ -7264,12 +7546,16 @@ window.addEventListener('load', function(){
         var fields = [(cust?cust.name:''), (j.title||''), (j.vin||''), (j.notes||''), (j.overallNotes||'')].join(' | ');
         return matchesAllTokens(fields, q);
       });
+      // Keep the open document reachable when a filter hides it.
+      var openJob = DB.jobs.find(function(j){ return j.id === previous; });
+      if(openJob && !jobs.some(function(j){ return j.id === previous; })) jobs.unshift(openJob);
       var opts = ['<option value="">Select job…</option>'];
       jobs.forEach(function(j){
         var c = findCustomer(j.customerId);
-        opts.push('<option value="'+j.id+'">'+(c?c.name:'—')+' — '+j.title+'</option>');
+        opts.push('<option value="'+j.id+'">'+escapeHtml(c?c.name:'—')+' — '+escapeHtml(j.title)+'</option>');
       });
       invSel.innerHTML = opts.join('');
+      invSel.value = previous;
     }
 
     function renderRecentJobs(){
@@ -7285,10 +7571,10 @@ window.addEventListener('load', function(){
         var custName = c?c.name:'—';
         var created = j.createdAt ? new Date(j.createdAt).toLocaleDateString() : '';
         var status = j.status || 'Open';
-        var total = fmt(sumLines(j.lines,'subtotal'));
+        var total = fmt(calcJobFinancials(j).grand);
         card.innerHTML =
-          '<div class="recent-job-title">'+custName+'</div>'+
-          '<div class="recent-job-meta">'+j.title+'</div>'+
+          '<div class="recent-job-title">'+escapeHtml(custName)+'</div>'+
+          '<div class="recent-job-meta">'+escapeHtml(j.title)+'</div>'+
           '<div class="recent-job-meta">'+created+' • '+status+' • '+total+'</div>';
         card.addEventListener('click', function(){
           try{ persistLines(); }catch(_){}
@@ -7319,9 +7605,13 @@ window.addEventListener('load', function(){
       try{ persistLines(); }catch(_){}
       var id = this.value;
       if(!id){
+        loadedInvoiceId = null;
+        UI.lastJobId = null;
+        saveUI(UI);
         $('#lines tbody').innerHTML='';
         updatePreview();
         recalcTotals();
+        if(serviceDesk) serviceDesk.load();
         return;
       }
       loadInvoice(id);
@@ -7370,13 +7660,14 @@ window.addEventListener('load', function(){
         $('#invJob').value=j.id;
         UI.lastJobId=j.id;
         saveUI(UI);
+        loadInvoice(j.id);
       }
       if(!j) alert('Pick a job in the "Select job…" dropdown first.');
       return j;
     }
 
     function currentJob(){
-      var id = $('#invJob').value;
+      var id = loadedInvoiceId;
       var i;
       for(i=0;i<DB.jobs.length;i++){
         if(DB.jobs[i].id===id) return DB.jobs[i];
@@ -7385,9 +7676,12 @@ window.addEventListener('load', function(){
     }
 
     function loadInvoice(id){
-      var j = currentJob();
-      if(!j) j = DB.jobs.filter(function(x){ return x.id===id; })[0];
+      if(window.PdcVehicleRecords) window.PdcVehicleRecords.upgrade(DB);
+      var j = DB.jobs.find(function(x){ return x.id===id; });
       if(!j) return;
+      loadedInvoiceId = id;
+      renderInvJobOptions();
+      $('#invJob').value = id;
 
       j.lines = cleanLines(j.lines || []);
 
@@ -7449,6 +7743,9 @@ window.addEventListener('load', function(){
       syncPaymentState();
       updateInvoiceActionButtons();
       updateImportedTotalsStatus(j);
+      wireAutoGrowTextareas(document.getElementById('invoice'));
+      if(serviceDesk) serviceDesk.load();
+      if(vehicleCenter) vehicleCenter.refreshContext();
     }
 
     function makeRowDraggable(tr){
@@ -7523,8 +7820,8 @@ window.addEventListener('load', function(){
       tr.innerHTML =
         '<td class="drag-col"><button class="tab-btn handle" title="Drag to reorder">↕</button></td>' +
         '<td><select class="lType"><option '+(type==='Labor'?'selected':'')+'>Labor</option><option '+(type==='Diagnostic'?'selected':'')+'>Diagnostic</option><option '+(type==='Part'?'selected':'')+'>Part</option><option '+(type==='Adjustment'?'selected':'')+'>Adjustment</option><option '+(type==='Warranty'?'selected':'')+'>Warranty</option></select></td>' +
-        '<td><div class="desc-wrap"><textarea class="lDesc" placeholder="'+descPH+'">'+(desc||'')+'</textarea><textarea class="lNote" placeholder="Tech note for this line (prints)">'+(note||'')+'</textarea></div></td>' +
-        '<td><input class="lQty" type="number" step="0.01" value="'+(qty||1)+'" placeholder="'+qtyPH+'"/></td>' +
+        '<td><div class="desc-wrap"><textarea class="lDesc" placeholder="'+descPH+'">'+escapeHtml(desc||'')+'</textarea><textarea class="lNote" placeholder="Tech note for this line (prints)">'+escapeHtml(note||'')+'</textarea></div></td>' +
+        '<td><input class="lQty" type="number" step="0.01" value="'+(qty != null ? qty : 1)+'" placeholder="'+qtyPH+'"/></td>' +
         '<td><input class="lList" type="number" step="0.01" value="'+(((list!=null)?list:0))+'" placeholder="'+listPH+'"/></td>' +
         '<td><input class="lCost" type="number" step="0.01" value="'+(((cost!=null)?cost:0))+'" placeholder="'+costPH+'"/></td>' +
         '<td><input class="lMarkup" type="number" step="0.01" value="'+(markupVal||0)+'" placeholder="markup %"/></td>' +
@@ -7535,6 +7832,9 @@ window.addEventListener('load', function(){
       document.querySelector('#lines tbody').appendChild(tr);
       wireAutoGrowTextareas(tr);
       makeRowDraggable(tr);
+      ['.lType','.lDesc','.lNote','.lQty','.lList','.lCost','.lMarkup','.lUnit','.lDel'].forEach(function(sel, i){
+        tr.querySelector(sel).setAttribute('aria-label', ['Line type','Description','Line note','Quantity / hours','List price','Cost','Markup percent','Unit price','Delete line'][i]);
+      });
       tr.querySelector('.lDel').addEventListener('click', function(){
         tr.remove();
         persistLines();
@@ -7665,6 +7965,7 @@ window.addEventListener('load', function(){
       updatePreview();
       renderJobs();
       renderDashboard();
+      if(serviceDesk) serviceDesk.refreshContext();
       saveDB();
     }
 
@@ -8180,6 +8481,10 @@ window.addEventListener('load', function(){
       var c = j ? findCustomer(j.customerId) : null;
       var job = j ? JSON.parse(JSON.stringify(j)) : null;
       if(job){
+        // Customer PDFs must not carry shop-only notes in their recovery text.
+        // Full JSON backups continue to retain those notes.
+        delete job.internalNotes;
+        delete job.diagnosticRecord;
         job.photos = [];
         job.signatures = {customer:null, manager:null};
         job._calc = null;
@@ -8529,6 +8834,7 @@ window.addEventListener('load', function(){
 
     function applyImportedPdfData(data, sourceFile, sourceText){
       if(!data) throw new Error('No document data was parsed.');
+      persistLines();
       var payloadMode = data.kind === 'pdc-pdf-recovery' || data.source === 'recovery-payload';
       var customer = findCustomerForImport(data.customer || {});
       var jobData = data.job || {};
@@ -8570,6 +8876,8 @@ window.addEventListener('load', function(){
 
       saveDB();
       renderAll();
+      // Load the imported record before the tab click can save the previous form.
+      loadInvoice(j.id);
       document.querySelector('[data-tab="invoice"]').click();
       var invJob = document.getElementById('invJob');
       if(invJob) invJob.value = j.id;
@@ -8664,7 +8972,7 @@ window.addEventListener('load', function(){
             try{
               var data = JSON.parse(reader.result||'{}');
               var newDB = data.db || data || null;
-              if(!newDB || !newDB.customers || !newDB.jobs){
+              if(!newDB || !Array.isArray(newDB.customers) || !Array.isArray(newDB.jobs) || !validVehicleData(newDB)){
                 alert('Invalid backup format.');
                 return;
               }
@@ -8676,6 +8984,8 @@ window.addEventListener('load', function(){
                 try{ localStorage.setItem(WMKEY, data.wm); }catch(_){}
               }
               DB = newDB;
+              storageLoadFailed = false;
+              loadedInvoiceId = null;
               UI = data.ui || UI;
               upgradeDB();
               renderAll();
@@ -9015,7 +9325,13 @@ window.addEventListener('load', function(){
           var ok = confirm('Cloud snapshot found. Apply it to this browser?\n\nJobs in snapshot: ' + totalJobs + '\nTotal lines in snapshot: ' + totalLines + '\n\nThis replaces the local in-browser app state.');
           if(!ok) return;
 
-          if (snap.db) DB = snap.db;
+          if(!snap.db || !Array.isArray(snap.db.customers) || !Array.isArray(snap.db.jobs) || !validVehicleData(snap.db)){
+            alert('Cloud snapshot has an invalid database structure. Local records were kept.');
+            return;
+          }
+          DB = snap.db;
+          storageLoadFailed = false;
+          loadedInvoiceId = null;
           if (snap.ui) UI = snap.ui;
           try {
             if (snap.wm) localStorage.setItem(WMKEY, snap.wm);
@@ -9226,6 +9542,7 @@ window.addEventListener('load', function(){
         '.watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:0;opacity:1;background:transparent!important;pointer-events:none}'+
         '#wmImg{max-width:88%;max-height:88%;opacity:.13;display:block!important;background:transparent!important;mix-blend-mode:normal}'+
         '#wmFallback{opacity:.18;font-size:34pt;font-weight:800;letter-spacing:.10em;text-align:center;color:#000}'+
+        '.invoice-brand{display:flex;align-items:center;gap:12px;break-inside:avoid}.invoice-brand img{width:64px;height:64px;object-fit:contain}'+
         '.invoice-header{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #000;padding-bottom:5px;margin-bottom:7px;break-inside:avoid;page-break-inside:avoid}'+
         '.invoice-header h3{margin:0;font-size:13.5pt}'+
         '.invoice-header .meta{font-size:9.2pt;text-align:right;line-height:1.3}'+
@@ -9829,6 +10146,12 @@ setupCostAutoCalc();
       pushCheck('schedule calendar board', !!(document.getElementById('schedule') && document.getElementById('schedCalendarGrid') && document.getElementById('schedMonthGrid') && document.getElementById('schedWeekView') && document.getElementById('schedFullscreen') && document.getElementById('schedExportIcs') && document.getElementById('schedulePopoverBackdrop')), 'week/month boards, month-safe fullscreen, appointment popover usable in fullscreen, robust click wiring, current-time line support, and iPhone export present');
       pushCheck('document intake storage', !!(Array.isArray(DB.documents) && document.getElementById('documentIntakeList') && document.getElementById('pdfImportBtn')), 'documents array, recent document list, and import controls present');
       pushCheck('historical total adjustments', !!(document.getElementById('addAdjustment') && document.getElementById('importHistoryStatus')), 'manual adjustment line and imported-total status banner present');
+      pushCheck('last local save', localSaveHealthy && !storageLoadFailed, 'most recent read/write succeeded; this does not verify cloud backup');
+      pushCheck('invoice form owner', !loadedInvoiceId || (DB.jobs.some(function(j){ return j.id === loadedInvoiceId; }) && $('#invJob').value === loadedInvoiceId), 'open form matches the selected job');
+      pushCheck('cloud client loaded', !!supabaseClient, 'client library only; does not verify login, RLS, or connectivity');
+      pushCheck('PDF import library loaded', !!window.pdfjsLib, 'PDF text extraction dependency');
+      pushCheck('repair workspace module loaded', !!window.PdcServiceDesk, 'vehicle context, shop packages, diagnostic worksheet and history tools');
+      pushCheck('vehicle record foundation loaded', !!window.PdcVehicleRecords && !!window.PdcVehicleCenter, 'additive vehicle relationships and command center');
 
       var passed = checks.filter(function(x){ return x.pass; }).length;
       var total = checks.length;
@@ -9848,7 +10171,6 @@ setupCostAutoCalc();
       }
       return { ok: ok, passed: passed, total: total, checks: checks };
     };
-    window.runSelfTest(false);
 
     /* ------ Initial upgrade + render ------ */
     upgradeDB();
@@ -9858,6 +10180,57 @@ setupCostAutoCalc();
     if (UI.lastJobId && DB.jobs.some(function(x){return x.id===UI.lastJobId;})) {
       $('#invJob').value = UI.lastJobId;
       loadInvoice(UI.lastJobId);
+    }
+    window.runSelfTest(false);
+
+    if(window.PdcServiceDesk){
+      serviceDesk = window.PdcServiceDesk.create({
+        job: currentJob, customer: findCustomer,
+        jobs: function(){ return DB.jobs; }, templates: function(){ return DB.templates; },
+        filteredJobs: function(){
+          var ids=Array.from($('#invJob').options).map(function(option){return option.value;});
+          return DB.jobs.filter(function(job){return ids.indexOf(job.id)!==-1;});
+        },
+        money: fmt, financials: calcJobFinancials, save: saveDB, persist: persistLines, rows: rowsToLines,
+        rates: function(){ return {labor:Number($('#laborRate').value || 100),diagnostic:Number($('#diagnosticRate').value || 125)}; },
+        partMarkup: partMarkupPercentForCost, partPrice: partUnitFromCostAndMarkup, grow: wireAutoGrowTextareas,
+        addLines: function(lines){
+          if(!currentJob()) return;
+          lines.forEach(function(l){ addLine(l.type,l.desc,l.qty,l.list,l.cost,Number(l.unit || 0).toFixed(2),l.note,{skipPersist:true,markupPct:l.markupPct}); });
+          persistLines();
+        },
+        focusLines: function(){ document.querySelector('#lines').closest('.table-wrap').focus(); },
+        openJob: function(id){
+          persistLines(); loadInvoice(id); UI.lastJobId=id; saveUI(UI);
+        }
+      });
+    }
+
+    if(window.PdcVehicleCenter && window.PdcVehicleRecords){
+      function fillJobVehicle(v){
+        $('#jobVehicleRecord').value=v.id;
+        $('#jobVIN').value=v.vin || '';
+        setVehicleControlValue('jobVehicleYear',v.year);
+        setVehicleControlValue('jobVehicleMake',v.make);
+        setVehicleControlValue('jobVehicleModel',v.model);
+        $('#jobVehicleEngine').value=v.engine || '';
+      }
+      vehicleCenter=window.PdcVehicleCenter.create({
+        db:function(){return DB;},customer:findCustomer,currentJob:currentJob,
+        selected:function(){return UI.vehicleId;},select:function(id){UI.vehicleId=id;saveUI(UI);},
+        save:saveDB,persist:persistLines,money:fmt,financials:calcJobFinancials,grow:wireAutoGrowTextareas,
+        navigate:function(){document.querySelector('[data-tab="vehicles"]').click();},
+        openJob:function(id){persistLines();document.querySelector('[data-tab="invoice"]').click();loadInvoice(id);UI.lastJobId=id;saveUI(UI);},
+        fillJobVehicle:fillJobVehicle,
+        prepareJob:function(v){
+          persistLines();renderJobCustomer();$('#jobForm').reset();
+          var latest=window.PdcVehicleRecords.ordered(window.PdcVehicleRecords.jobs(DB,v.id))[0];
+          $('#jobCustomer').value=latest?latest.customerId:(v.customerIds[0] || '');
+          fillJobVehicle(v);document.querySelector('[data-tab="jobs"]').click();$('#jobTitle').focus();
+        },
+        reloadCurrent:function(){var j=currentJob();if(j)loadInvoice(j.id);}
+      });
+      vehicleCenter.refreshContext();
     }
 
     // v1.5.25: wire every textarea after the first render, then refresh after layout settles.
@@ -9871,6 +10244,45 @@ setupCostAutoCalc();
 });
 </script>
 
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var pages = {
+    dashboard: ['Shop overview', 'Your work, margins and collections — in one place.'],
+    customers: ['Customers', 'Keep customer details and vehicle information ready for the next visit.'],
+    jobs: ['Jobs & service tickets', 'Open a ticket, record the concern and get the work moving.'],
+    vehicles: ['Vehicle Command Center', 'The technical history your shop remembers — customers, work, findings and follow-up.'],
+    schedule: ['Service schedule', 'Plan the week and keep each appointment connected to its job.'],
+    invoice: ['Estimates & invoices', 'Build the work, protect your margin and send a professional document.'],
+    settings: ['Shop settings & backup', 'Set your standards, manage shop information and protect your records.']
+  };
+  var title = document.getElementById('workspaceTitle');
+  var description = document.getElementById('workspaceDescription');
+  function syncWorkspace(){
+    var active = document.querySelector('main > .tab.active');
+    var page = active && pages[active.id];
+    if(page){ title.textContent = page[0]; description.textContent = page[1]; }
+    var nav = document.querySelector('.app-sidebar .tab-bar');
+    var selected = nav.querySelector('.active-tab');
+    if(selected && nav.scrollWidth > nav.clientWidth){
+      nav.scrollLeft = selected.offsetLeft - (nav.clientWidth - selected.offsetWidth) / 2;
+    }
+  }
+  document.getElementById('workspaceDate').textContent = new Intl.DateTimeFormat(undefined, {weekday:'long', month:'long', day:'numeric'}).format(new Date());
+  function openPage(id, focusId){
+    document.querySelector('.tab-btn[data-tab="'+id+'"]').click();
+    if(focusId) document.getElementById(focusId).focus();
+  }
+  document.getElementById('workspaceNewJob').addEventListener('click', function(){ openPage('jobs','jobCustomer'); });
+  document.getElementById('workspaceSchedule').addEventListener('click', function(){ openPage('schedule'); });
+  var observer = new MutationObserver(syncWorkspace);
+  document.querySelectorAll('main > .tab').forEach(function(section){ observer.observe(section, {attributes:true, attributeFilter:['class']}); });
+  window.addEventListener('resize', syncWorkspace);
+  // Absolute URL survives the existing print iframe / fallback document.
+  document.getElementById('documentLogo').src = new URL('assets/poppes-diesel-logo.png', document.baseURI).href;
+  syncWorkspace();
+});
+</script>
+
 </body>
 </html>
-
