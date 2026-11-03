@@ -28,7 +28,7 @@ Localhost has separate browser storage from production. Use disposable records f
 
 Install test-only dependencies with `npm ci` and run `npm test` (or `node tests/workflow.test.cjs`). Node 20 or later is recommended. Deployment does not require Node or these dependencies.
 
-The 43 tests load the actual HTML application and its modules in an isolated DOM with synthetic records. External CDN/network services and signature drawing are not exercised by those tests. Browser validation and deployment limits are recorded in [CHANGELOG.md](CHANGELOG.md).
+The 50 tests load the actual HTML application and its modules in an isolated DOM with synthetic records. External CDN/network services and signature drawing are not exercised by those tests. Browser validation and deployment limits are recorded in [CHANGELOG.md](CHANGELOG.md).
 
 ## Deployment
 

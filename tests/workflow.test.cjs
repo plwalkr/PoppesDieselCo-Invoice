@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const {JSDOM, VirtualConsole} = require('jsdom');
 const html = ['service-desk.js','vehicle-records.js','vehicle-center.js'].reduce((source,file)=>
-  source.replace('<script src="'+file+'" defer></script>','<script>'+fs.readFileSync(file,'utf8')+'</script>'),
+  source.replace(new RegExp('<script src="'+file.replace('.', '\\.')+'(?:\\?[^\"]*)?" defer></script>'),'<script>'+fs.readFileSync(file,'utf8')+'</script>'),
   fs.readFileSync(process.env.APP_HTML || 'index.html', 'utf8'));
 const key = 'poppe_shop_db_v112';
 const qaVin = '1FT7W2BT1BEA12345';
@@ -53,6 +53,63 @@ function mockVinRequests(dom){
   };
   return requests;
 }
+
+test('customer vehicle description fills an existing empty job without changing its financials',async t=>{
+  const db=seed();db.customers[0].vehicle='2013 VW Touareg 3.0 TDI — 210k mi';
+  const {$,read}=await app(t,{db});
+  assert.equal($('#vehicleYear').value,'2013');assert.equal($('#vehicleMake').value,'Volkswagen');assert.equal($('#vehicleModel').value,'Touareg');assert.equal($('#vehicleEngine').value,'3.0 TDI');
+  assert.equal($('#vehicleDescription').value,db.customers[0].vehicle);assert.equal($('#odometer').value,'');
+  assert.equal($('#grand').textContent,'$105.35');assert.equal(read().jobs[0].vehicleDataSource.customerId,'customer-a');
+  assert.match($('#pVeh').textContent,/Volkswagen.*Touareg/);
+  const example=seed();example.customers[0].vehicle='2013 VW Touareg TDI — 210k mi';
+  const literal=await app(t,{db:example});assert.equal(literal.$('#vehicleEngine').value,'TDI');assert.equal(literal.$('#odometer').value,'');
+});
+
+test('new job copies the selected customer vehicle and preserves manual intake edits',async t=>{
+  const db=seed();db.customers[0].vehicle='2016 Ram 2500 6.7 Cummins';db.customers.push({id:'other',name:'Other owner',vehicle:'2011 Ford F-250 Super Duty 6.7 Powerstroke'});
+  const {$,change,read,dom}=await app(t,{db});
+  change('#jobCustomer','customer-a','change');assert.equal($('#jobVehicleYear').value,'2016');assert.equal($('#jobVehicleMake').value,'Ram');assert.equal($('#jobVehicleModel').value,'2500');
+  change('#jobCustomer','other','change');assert.equal($('#jobVehicleMake').value,'Ford');assert.equal($('#jobVehicleModel').value,'F-250 Super Duty');
+  change('#jobVehicleEngine','Verified custom engine');change('#jobCustomer','customer-a','change');assert.equal($('#jobVehicleEngine').value,'Verified custom engine');
+  change('#jobTitle','Manual vehicle override');$('#jobForm').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));
+  const j=read().jobs.find(j=>j.title==='Manual vehicle override');assert.equal(j.vehicleEngine,'Verified custom engine');assert.equal(j.vehicleMake,'Ford');
+});
+
+test('saved job identity wins over a different customer vehicle and inherited snapshots survive reload',async t=>{
+  const db=seed();db.customers[0].vehicle='2013 VW Touareg 3.0 TDI';Object.assign(db.jobs[1],{vehicleYear:'2016',vehicleMake:'Ram',vehicleModel:'2500',vehicleEngine:'6.7 Cummins',vin:qaVin});
+  const {$,change,read}=await app(t,{db});assert.equal($('#vehicleMake').value,'Volkswagen');
+  change('#invJob','b','change');assert.equal($('#vehicleMake').value,'Ram');assert.equal($('#vehicleEngine').value,'6.7 Cummins');assert.equal($('#vehicleDescription').value,'');
+  const stored=read();stored.customers[0].vehicle='2020 Ford Explorer';const again=await app(t,{db:stored});
+  assert.equal(again.$('#vehicleMake').value,'Volkswagen');assert.equal(again.$('#vehicleDescription').value,'2013 VW Touareg 3.0 TDI');
+});
+
+test('unrecognized customer vehicle text stays literal and does not fabricate identity or mileage',async t=>{
+  const db=seed();db.customers[0].vehicle='<img id="vehicle-description-injection"> fleet unit — call before repair';
+  const {$}=await app(t,{db});assert.equal($('#vehicleYear').value,'');assert.equal($('#vehicleMake').value,'');assert.equal($('#odometer').value,'');
+  assert.equal($('#vehicleDescription').value,db.customers[0].vehicle);assert.equal($('#vehicle-description-injection'),null);
+});
+
+test('linked vehicle identity fills missing job fields without using another customer description',async t=>{
+  const db=seed();db.customers[0].vehicle='2013 VW Touareg 3.0 TDI';
+  db.vehicles=[{id:'registered',vin:qaVin,year:'2016',make:'Ram',model:'2500',engine:'6.7 Cummins',customerIds:['customer-a']}];
+  Object.assign(db.jobs[0],{vehicleId:'registered',vin:qaVin});
+  const {$,change,read}=await app(t,{db});assert.equal($('#vehicleMake').value,'Ram');assert.equal($('#vehicleModel').value,'2500');assert.equal($('#vehicleEngine').value,'6.7 Cummins');
+  change('#vehicleDescription','Verified shop vehicle description');assert.equal(read().jobs[0].vehicleDescription,'Verified shop vehicle description');
+});
+
+test('a saved VIN does not block missing customer vehicle details and conflicting VINs are rejected',async t=>{
+  const db=seed();db.customers[0].vehicle='2011 Ford F-250 Super Duty 6.7 Powerstroke';db.jobs[0].vin=qaVin;
+  const {$}=await app(t,{db});assert.equal($('#invoiceVIN').value,qaVin);assert.equal($('#vehicleMake').value,'Ford');assert.equal($('#vehicleEngine').value,'6.7 Powerstroke');
+  const conflict=seed();conflict.jobs[0].vin=qaVin;conflict.customers[0].vehicle='2013 VW Touareg TDI VIN: 1HGCM82633A004352';
+  const other=await app(t,{db:conflict});assert.equal(other.$('#invoiceVIN').value,qaVin);assert.equal(other.$('#vehicleMake').value,'');
+});
+
+test('a VIN decode for a different vehicle clears only the automatic customer description',async t=>{
+  const db=seed();db.customers[0].vehicle='2016 Ram 2500 6.7 Cummins';
+  const {$,change,dom}=await app(t,{db}),requests=mockVinRequests(dom);
+  change('#jobCustomer','customer-a','change');change('#jobVIN','5UXWX7C5*BA');$('#decodeVIN').click();requests[0].respond(decodedVin);
+  assert.equal($('#jobVehicleMake').value,'BMW');assert.equal($('#jobVehicleDescription').value,'');
+});
 const decodedVin=[{Variable:'Model Year',Value:'2011'},{Variable:'Make',Value:'BMW'},{Variable:'Model',Value:'X3'},{Variable:'Displacement (L)',Value:'3.0'},{Variable:'Error Code',Value:'6'},{Variable:'Error Text',Value:'6 - Incomplete VIN'}];
 
 test('Jobs VIN lookup normalizes pasted VINs and tolerates templates without a platform',async t=>{

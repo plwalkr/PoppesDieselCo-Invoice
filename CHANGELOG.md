@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.5.31 — 2026-11-02 — customer vehicle carryover
+
+- Connected the customer's existing Vehicle / Notes text to job intake and the estimate vehicle fields. Recognizes explicitly written years, known makes/models, VW/Chevy aliases, common truck model notation and literal engine descriptions. Keeps the complete original text in an editable saved vehicle description; unfamiliar text is retained without inventing missing details.
+- Existing jobs with empty descriptive vehicle fields inherit customer details when opened, including jobs that already contain a VIN. An explicitly conflicting VIN blocks inheritance. Existing year/make/model/engine/plate and manual intake edits are retained. Linked vehicle records fill missing fields through their existing relationship.
+- Saved inherited details and their customer/text source on the job, so later customer-description changes do not silently replace that job's vehicle. A VIN decode for another vehicle clears an automatic incompatible description. Selecting a different customer refreshes untouched automatic intake values.
+- Validation: full regression suite extended to 50 tests, including customer-to-job-to-estimate carryover, old blank jobs, saved VINs/conflicts, job switching, manual overrides, source snapshots, linked vehicles and literal unknown text. Browser: a synthetic `2013 VW Touareg TDI — 210k mi` customer populates year/make/model/engine on both job and estimate, survives switching/reload, and fits at 390×844 without horizontal page overflow. The old mileage note is retained as text; current odometer stays empty.
+- Limits: freeform customer descriptions are not a VIN verification service. Only recognized literal details are extracted; confirm the vehicle fields before sending a document. Arbitrary layouts/unknown models remain visible as original text and can be entered manually. Existing pricing, PDF, cloud and storage review areas below still apply.
+
 ## v1.5.30 — 2026-11-02 — VIN lookup and repair job types
 
 - Moved Jobs VIN feedback directly below the VIN controls, with a readable live status. Cleaned pasted VIN spacing/case and added validation, a 15-second timeout, retry guidance, NHTSA warnings, and protection against empty results or late responses overwriting a different VIN/ticket. Jobs and invoices share the bounded lookup. Missing template labels no longer break successful decoding.

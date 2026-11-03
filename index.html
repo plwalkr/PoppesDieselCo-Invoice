@@ -3354,8 +3354,8 @@
     @media print { .save-status, .table-scroll-hint { display: none !important; } }
     @media print { .app-sidebar, .workspace-heading, .skip-link { display: none !important; } }
 </style>
-<link rel="stylesheet" href="shop-theme.css?v=1.5.30" media="screen" />
-<script src="service-desk.js" defer></script>
+<link rel="stylesheet" href="shop-theme.css?v=1.5.31" media="screen" />
+<script src="service-desk.js?v=1.5.31" defer></script>
 <script src="vehicle-records.js" defer></script>
 <script src="vehicle-center.js" defer></script>
 <link rel="icon" type="image/png" href="assets/poppes-diesel-logo.png" />
@@ -3667,6 +3667,7 @@
           </div>
         </div>
         <div id="vinResult" class="vin-feedback" role="status" aria-live="polite" style="display:none;"></div>
+        <div class="field"><label for="jobVehicleDescription">Vehicle description from customer</label><input id="jobVehicleDescription" type="text" placeholder="Saved customer vehicle details appear here" /><p id="jobVehicleHint" class="muted" role="status"></p></div>
 
         <div class="vehicle-grid">
           <div class="vehicle-field span-2">
@@ -4053,6 +4054,7 @@
               </select>
               <div id="jobTypeRateHint">General repair $100/hr · Diagnostics $125/hr</div>
             </div>
+            <div class="field dense-field s12"><label for="vehicleDescription">Saved vehicle description</label><input id="vehicleDescription" type="text" placeholder="Original customer vehicle details" /><div id="vehicleSourceHint" class="toolbar-compact-note"></div></div>
             <div class="field dense-field s2">
               <label for="vehicleYear">Year</label>
               <select id="vehicleYear"></select>
@@ -4903,7 +4905,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.30';
+const APP_VERSION = 'v1.5.31';
 const APP_BUILD_DATE = '2026-11-02';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -7274,6 +7276,72 @@ window.addEventListener('load', function(){
     }
 
     /* ------ Jobs ------ */
+    var vehicleJobFields={year:'vehicleYear',make:'vehicleMake',model:'vehicleModel',engine:'vehicleEngine',vin:'vin',plate:'licensePlate'};
+    var autoIntakeVehicle=null;
+    function vehiclePrefix(text,name){
+      var pattern=name.split(/[\s-]+/).map(function(part){return part.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}).join('[\\s-]*');
+      return new RegExp('^'+pattern+'(?=$|[^a-z0-9])','i').exec(text);
+    }
+    function customerVehicleFacts(c){
+      var text=String(c && c.vehicle || '').trim(),rest=text,result={},match;
+      match=/^((?:19|20)\d{2})\s+/.exec(rest);
+      if(match){result.year=match[1];rest=rest.slice(match[0].length);}
+      var makes=vehicleMakes().map(function(make){return {name:make,value:make};}).concat([{name:'VW',value:'Volkswagen'},{name:'Chevy',value:'Chevrolet'}]);
+      makes.sort(function(a,b){return b.name.length-a.name.length;});
+      var make=makes.find(function(entry){return vehiclePrefix(rest,entry.name);});
+      if(make){
+        match=vehiclePrefix(rest,make.name);result.make=make.value;rest=rest.slice(match[0].length).replace(/^[\s,;:/—–-]+/,'');
+        var models=(VEHICLE_MODELS[make.value] || []).slice();
+        if(make.value==='Ford')models=models.concat(['F-150','F-250','F-350','F-450','F-550']);
+        if(make.value==='Dodge')models=models.concat(['1500','2500','3500']);
+        models.sort(function(a,b){return b.length-a.length;});
+        var model=models.find(function(name){return vehiclePrefix(rest,name);});
+        if(model){
+          match=vehiclePrefix(rest,model);result.model=model;rest=rest.slice(match[0].length).replace(/^[\s,;:/—–-]+/,'');
+          match=/^(\d(?:\.\d{1,2})?\s*(?:L\b(?:\s+(?:Cummins|Power\s*Stroke|Duramax|TDI)\b)?|(?:Cummins|Power\s*Stroke|Duramax|TDI)\b)|(?:Cummins|Power\s*Stroke|Duramax|TDI)\b)/i.exec(rest);
+          if(match)result.engine=match[1];
+        }
+      }
+      match=/(?:^VIN\s*[:#]?|\bVIN\s*[:#])\s*([A-HJ-NPR-Z0-9]{17})\b/i.exec(text);
+      if(match)result.vin=match[1].toUpperCase();
+      return result;
+    }
+    function inheritVehicleDetails(job){
+      if(!job)return;
+      var R=window.PdcVehicleRecords,v=R && R.find(DB,job.vehicleId);
+      if(v && !(job.vin && v.vin && R.vin(job.vin)!==R.vin(v.vin))){
+        Object.keys(vehicleJobFields).forEach(function(key){var field=vehicleJobFields[key];if(!job[field] && v[key])job[field]=v[key];});
+        if(!job.vehicleDescription && v.label)job.vehicleDescription=v.label;
+      }
+      // Existing ticket identity wins. Capture customer text once, never reinterpret it on every load.
+      if(job.vehicleDataSource || Object.keys(vehicleJobFields).some(function(key){return key!=='vin' && String(job[vehicleJobFields[key]] || '').trim();}))return;
+      var c=findCustomer(job.customerId),description=String(c && c.vehicle || '').trim();
+      if(!description || job.vehicleDescription)return;
+      var facts=customerVehicleFacts(c);
+      if(job.vin && facts.vin && normalizedDecodeVin(job.vin)!==facts.vin)return;
+      Object.keys(facts).forEach(function(key){var field=vehicleJobFields[key];if(!job[field])job[field]=facts[key];});
+      job.vehicleDescription=description;
+      job.vehicleDataSource={kind:'customer-description',customerId:c.id,description:description};
+    }
+    function intakeVehicleState(){
+      return JSON.stringify(['jobVIN','jobVehicleYear','jobVehicleMake','jobVehicleModel','jobVehicleEngine','jobVehicleDescription','jobVehicleRecord'].map(function(id){return id==='jobVehicleYear'||id==='jobVehicleMake'||id==='jobVehicleModel'?getVehicleFieldValue(id):$('#'+id).value;}));
+    }
+    function prefillCustomerVehicle(){
+      if(autoIntakeVehicle && intakeVehicleState()===autoIntakeVehicle.state){
+        ['Year','Make','Model'].forEach(function(key){setVehicleControlValue('jobVehicle'+key,'');});
+        ['jobVIN','jobVehicleEngine','jobVehicleDescription','jobVehicleRecord'].forEach(function(id){$('#'+id).value='';});
+      }
+      autoIntakeVehicle=null;
+      var entered=$('#jobVIN').value || getVehicleFieldValue('jobVehicleYear') || getVehicleFieldValue('jobVehicleMake') || getVehicleFieldValue('jobVehicleModel') || $('#jobVehicleEngine').value || $('#jobVehicleDescription').value || $('#jobVehicleRecord').value;
+      if(entered){$('#jobVehicleHint').textContent='Vehicle details already entered for this job. They have been kept.';return;}
+      var draft={customerId:$('#jobCustomer').value};inheritVehicleDetails(draft);
+      ['Year','Make','Model'].forEach(function(key){setVehicleControlValue('jobVehicle'+key,draft['vehicle'+key] || '');});
+      $('#jobVIN').value=draft.vin || '';$('#jobVehicleEngine').value=draft.vehicleEngine || '';$('#jobVehicleDescription').value=draft.vehicleDescription || '';
+      $('#jobVehicleHint').textContent=draft.vehicleDescription?'Copied from the customer vehicle description. Review details; enter current mileage on the job.':'';
+      autoIntakeVehicle={state:intakeVehicleState(),customerId:draft.customerId,source:draft.vehicleDataSource};
+    }
+    $('#jobCustomer').addEventListener('change',prefillCustomerVehicle);
+
     function findCustomer(id){
       var i;
       for(i=0;i<DB.customers.length;i++){
@@ -7305,6 +7373,7 @@ window.addEventListener('load', function(){
         vehicleMake: getVehicleFieldValue('jobVehicleMake'),
         vehicleModel: getVehicleFieldValue('jobVehicleModel'),
         vehicleEngine: $('#jobVehicleEngine').value.trim(),
+        vehicleDescription: $('#jobVehicleDescription').value.trim(),
         notes: $('#jobNotes').value.trim(),
         status: $('#jobStatus').value,
         jobType:$('#newJobType').value,
@@ -7322,11 +7391,14 @@ window.addEventListener('load', function(){
         createdAt:new Date().toISOString()
       };
       if(!j.customerId || !j.title || !isFinite(j.laborRate) || j.laborRate<0) return;
+      if(autoIntakeVehicle && j.customerId===autoIntakeVehicle.customerId && intakeVehicleState()===autoIntakeVehicle.state)j.vehicleDataSource=autoIntakeVehicle.source;
+      inheritVehicleDetails(j);
       DB.jobs.push(j);
       if(window.PdcVehicleRecords) window.PdcVehicleRecords.upgrade(DB);
       renderJobs();
       renderJobCustomer();
       document.getElementById('jobForm').reset();
+      autoIntakeVehicle=null;$('#jobVehicleHint').textContent='';
       updateNewJobRate(true);
       $('#vinResult').style.display='none';
       $('#vinSuggest').style.display='none';
@@ -7393,6 +7465,13 @@ window.addEventListener('load', function(){
       tags.innerHTML='';
       requestVinDecode($('#jobVIN'),this,box,function(map){
               var summary = (map['Model Year']||'-')+' '+(map['Make']||'-')+' '+(map['Model']||'-');
+              var source=autoIntakeVehicle && autoIntakeVehicle.source;
+              if(source && $('#jobVehicleDescription').value===source.description){
+                var old=customerVehicleFacts({vehicle:source.description});
+                if(['year','make','model'].some(function(key){var found=map[key==='year'?'Model Year':key==='make'?'Make':'Model'];return old[key] && found && old[key].toLowerCase()!==found.toLowerCase();})){
+                  $('#jobVehicleDescription').value='';autoIntakeVehicle=null;$('#jobVehicleHint').textContent='Vehicle details filled from VIN lookup.';
+                }
+              }
               applyDecodedVehicle('jobVehicle',map);
               var platformText = (summary+' '+(map['Engine Model']||'')+' '+(map['Engine Manufacturer']||'')).toLowerCase();
               var matched = DB.templates.filter(function(t){
@@ -7681,9 +7760,10 @@ window.addEventListener('load', function(){
     }
 
     function loadInvoice(id){
-      if(window.PdcVehicleRecords) window.PdcVehicleRecords.upgrade(DB);
       var j = DB.jobs.find(function(x){ return x.id===id; });
       if(!j) return;
+      inheritVehicleDetails(j);
+      if(window.PdcVehicleRecords) window.PdcVehicleRecords.upgrade(DB);
       loadedInvoiceId = id;
       renderInvJobOptions();
       $('#invJob').value = id;
@@ -7724,6 +7804,8 @@ window.addEventListener('load', function(){
       setVehicleControlValue('vehicleMake', j.vehicleMake || '');
       setVehicleControlValue('vehicleModel', j.vehicleModel || '');
       $('#vehicleEngine').value = j.vehicleEngine || '';
+      $('#vehicleDescription').value=j.vehicleDescription || '';
+      $('#vehicleSourceHint').textContent=j.vehicleDataSource?'Originally copied from the customer vehicle description. Review vehicle details; mileage is recorded separately.':'';
       $('#invoiceVIN').value = j.vin || '';
       $('#dueDate').value = j.dueDate||'';
       $('#paymentTerms').value = j.paymentTerms||'Due on receipt';
@@ -7931,6 +8013,7 @@ window.addEventListener('load', function(){
       j.vehicleMake = getVehicleFieldValue('vehicleMake');
       j.vehicleModel = getVehicleFieldValue('vehicleModel');
       j.vehicleEngine = $('#vehicleEngine').value.trim();
+      j.vehicleDescription = $('#vehicleDescription').value.trim();
       j.vin = $('#invoiceVIN').value.trim();
       j.dueDate = $('#dueDate').value;
       j.paymentTerms = $('#paymentTerms').value;
@@ -8005,6 +8088,7 @@ window.addEventListener('load', function(){
       if(j && j.vehicleMake) vehBits.push(j.vehicleMake);
       if(j && j.vehicleModel) vehBits.push(j.vehicleModel);
       if(j && j.vehicleEngine) vehBits.push('Engine: ' + j.vehicleEngine);
+      if(!vehBits.length && j && j.vehicleDescription) vehBits.push(j.vehicleDescription);
       if(!vehBits.length && c && c.vehicle) vehBits.push(c.vehicle);
       if(j && j.vin) vehBits.push('VIN: ' + j.vin);
       if(j && j.jobType) vehBits.push('Job Type: ' + j.jobType);
@@ -9407,7 +9491,7 @@ window.addEventListener('load', function(){
     }
     document.getElementById('applyMarkup').addEventListener('click', applyDefaultMarkup);
     document.getElementById('recalc').addEventListener('click', recalcTotals);
-    ['invNo','roNo','docType','vehicleYear','vehicleMake','vehicleMakeCustom','vehicleModel','vehicleModelCustom','vehicleEngine','invoiceVIN','dueDate','paymentTerms','odometer','licensePlate','payLink','emailTo','paymentMethod','paidDate','amountPaid','diagnosticRate','minDiagnosticCharge','shopSuppliesPercent','shopSuppliesCap','salesTax','taxParts','taxLabor','taxShopSupplies','depositMode','customDeposit','customerSuppliedParts'].forEach(function(id){
+    ['invNo','roNo','docType','vehicleYear','vehicleMake','vehicleMakeCustom','vehicleModel','vehicleModelCustom','vehicleEngine','vehicleDescription','invoiceVIN','dueDate','paymentTerms','odometer','licensePlate','payLink','emailTo','paymentMethod','paidDate','amountPaid','diagnosticRate','minDiagnosticCharge','shopSuppliesPercent','shopSuppliesCap','salesTax','taxParts','taxLabor','taxShopSupplies','depositMode','customDeposit','customerSuppliedParts'].forEach(function(id){
       var el = document.getElementById(id);
       if(el){
         el.addEventListener('input', function(){ if(id==='docType') ensureDocumentNumber(); if(id==='paymentMethod' || id==='paidDate' || id==='amountPaid') syncPaymentState(); persistLines(); });
@@ -10215,12 +10299,14 @@ setupCostAutoCalc();
 
     if(window.PdcVehicleCenter && window.PdcVehicleRecords){
       function fillJobVehicle(v){
+        autoIntakeVehicle=null;$('#jobVehicleHint').textContent='Vehicle details filled from the selected vehicle record.';
         $('#jobVehicleRecord').value=v.id;
         $('#jobVIN').value=v.vin || '';
         setVehicleControlValue('jobVehicleYear',v.year);
         setVehicleControlValue('jobVehicleMake',v.make);
         setVehicleControlValue('jobVehicleModel',v.model);
         $('#jobVehicleEngine').value=v.engine || '';
+        $('#jobVehicleDescription').value=v.label || '';
       }
       vehicleCenter=window.PdcVehicleCenter.create({
         db:function(){return DB;},customer:findCustomer,currentJob:currentJob,

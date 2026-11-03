@@ -7,6 +7,7 @@ The existing browser database and storage key remain in use. This is an additive
 | Customer | Existing `customers[].id`; optional `archivedAt` hides the customer from new-work selectors without deleting history. |
 | Vehicle | New `vehicles[].id`; normalized VIN, identity fields, customer references, private technical notes and structured recommendations. |
 | Job / repair order | Existing `jobs[].id` and `customerId`, with optional `vehicleId`. Original vehicle fields remain historical ticket snapshots. |
+| Customer vehicle carryover | Optional job `vehicleDescription` preserves the original wording; `vehicleDataSource` records its customer and description when inherited. Recognizable literal details fill an empty job once; existing descriptive identity and conflicting VINs are protected. Mileage in customer text is not a current odometer reading. |
 | Estimate / invoice | Existing job `docType`, document number, approval, lines and payment fields. No duplicate estimate/invoice calculation or record is introduced. |
 | Diagnostic record | Existing per-job `diagnosticRecord`; the vehicle timeline reads it through the job relationship. Future sessions/measurements can extend this model. |
 | Attachments | Existing job photos and `sourceDocumentIds`; the timeline references the source ticket rather than duplicating media. |
