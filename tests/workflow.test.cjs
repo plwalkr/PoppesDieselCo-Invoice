@@ -54,6 +54,53 @@ function mockVinRequests(dom){
   return requests;
 }
 
+test('Create Job button creates and opens a vehicle estimate without an optional title',async t=>{
+  const db=seed();db.customers[0].vehicle='2016 Ram 2500 6.7 Cummins';
+  const {$,change,read}=await app(t,{db});
+  change('#jobCustomer','customer-a','change');change('#newJobType','Diesel Repair','change');
+  $('#jobForm button[type="submit"]').click();
+  const created=read().jobs.find(j=>!['a','b'].includes(j.id));assert.ok(created,'The actual submit button must create the ticket');
+  assert.match(created.title,/Diesel Repair.*2016 Ram 2500/);assert.equal($('#invJob').value,created.id);assert.equal($('#vehicleEngine').value,'6.7 Cummins');
+  assert.equal($('#invoice').classList.contains('active'),true);assert.equal($('#invoiceEmptyState').hidden,true);
+});
+
+test('Create Job explains missing customer and invalid rate while preserving entered work',async t=>{
+  const {$,change,read}=await app(t);const count=read().jobs.length;
+  change('#jobTitle','Keep this intake');change('#jobNotes','Customer concern remains entered');$('#jobForm button[type="submit"]').click();
+  assert.equal(read().jobs.length,count);assert.match($('#jobFormStatus').textContent,/choose a customer/i);assert.equal($('#jobNotes').value,'Customer concern remains entered');
+  change('#jobCustomer','customer-a','change');change('#newJobLaborRate','');$('#jobForm button[type="submit"]').click();
+  assert.match($('#jobFormStatus').textContent,/labor rate/i);assert.equal(read().jobs.length,count);assert.equal($('#jobTitle').value,'Keep this intake');
+});
+
+test('customer refresh preserves the selected intake customer',async t=>{
+  const {$,change,dom}=await app(t);change('#jobCustomer','customer-a','change');
+  change('#custName','Another customer');$('#custForm').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));
+  assert.equal($('#jobCustomer').value,'customer-a');
+});
+
+test('empty invoice state guides job creation and filtered ticket recovery',async t=>{
+  const db=seed();db.jobs=[];const empty=await app(t,{db});assert.equal(empty.$('#invoiceEmptyState').hidden,false);assert.equal(empty.$('#invoiceBuilder').hidden,true);
+  empty.$('#invoiceStartJob').click();assert.equal(empty.$('#jobs').classList.contains('active'),true);
+  const {$,change}=await app(t);change('#invJob','','change');change('#invJobSearch','no matches');
+  assert.equal($('#invoiceEmptyState').hidden,false);assert.match($('#invoiceEmptyText').textContent,/filter/i);
+  $('#invoiceShowAllJobs').click();assert.equal($('#invJobSearch').value,'');assert.equal($('#serviceJob').options.length,3);
+  change('#serviceJob','b','change');assert.equal($('#invJob').value,'b');assert.equal($('#invoiceBuilder').hidden,false);
+});
+
+test('opening Invoice with a single available job selects and populates it',async t=>{
+  const db=seed();db.jobs=[db.jobs[1]];Object.assign(db.jobs[0],{vehicleYear:'2016',vehicleMake:'Ram',vehicleModel:'2500'});
+  const {$}=await app(t,{db});assert.equal($('#invJob').value,'b');$('[data-tab="invoice"]').click();assert.equal($('#invJob').value,'b');assert.equal($('#vehicleMake').value,'Ram');
+});
+
+test('a failed estimate open retains intake and retries the same created job without duplicating it',async t=>{
+  const {$,change,read,dom}=await app(t);const original=dom.window.PdcVehicleRecords.upgrade,count=read().jobs.length;
+  change('#jobCustomer','customer-a','change');change('#jobTitle','Recover this ticket');change('#jobNotes','Retain these details');
+  dom.window.PdcVehicleRecords.upgrade=function(){throw new Error('Simulated open failure');};$('#jobForm button[type="submit"]').click();
+  assert.match($('#jobFormStatus').textContent,/retry opening the same ticket/);assert.equal($('#jobNotes').value,'Retain these details');
+  dom.window.PdcVehicleRecords.upgrade=original;$('#jobForm button[type="submit"]').click();
+  assert.equal(read().jobs.length,count+1);assert.equal($('#serviceTicket').textContent,'Recover this ticket');assert.equal($('#invoice').classList.contains('active'),true);
+});
+
 test('customer vehicle description fills an existing empty job without changing its financials',async t=>{
   const db=seed();db.customers[0].vehicle='2013 VW Touareg 3.0 TDI — 210k mi';
   const {$,read}=await app(t,{db});

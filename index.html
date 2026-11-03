@@ -3354,8 +3354,8 @@
     @media print { .save-status, .table-scroll-hint { display: none !important; } }
     @media print { .app-sidebar, .workspace-heading, .skip-link { display: none !important; } }
 </style>
-<link rel="stylesheet" href="shop-theme.css?v=1.5.31" media="screen" />
-<script src="service-desk.js?v=1.5.31" defer></script>
+<link rel="stylesheet" href="shop-theme.css?v=1.5.32" media="screen" />
+<script src="service-desk.js?v=1.5.32" defer></script>
 <script src="vehicle-records.js" defer></script>
 <script src="vehicle-center.js" defer></script>
 <link rel="icon" type="image/png" href="assets/poppes-diesel-logo.png" />
@@ -3636,23 +3636,24 @@
   <section id="jobs" class="tab">
     <div class="card" style="margin-bottom:8px;">
       <div class="section-title">New Job / Ticket</div>
-      <form id="jobForm">
+      <form id="jobForm" novalidate>
         <div class="field"><label for="jobVehicleRecord">Registered vehicle</label><select id="jobVehicleRecord"><option value="">Enter vehicle below, or choose a record…</option></select></div>
         <div class="row">
           <div class="field"><label for="newJobType">Job type</label><select id="newJobType"><option>General Repair</option><option>Diesel Repair</option><option>Custom</option></select></div>
-          <div class="field"><label for="newJobLaborRate">Labor rate ($/hr)</label><input id="newJobLaborRate" type="number" min="0" step="0.01" value="100" required /></div>
+          <div class="field"><label for="newJobLaborRate">Labor rate ($/hr)</label><input id="newJobLaborRate" type="number" min="0" step="0.01" value="100" required /><div id="newJobLaborRateError" class="form-field-error"></div></div>
         </div>
         <p id="newJobRateHint" class="muted"></p>
         <div class="row">
           <div class="field">
             <label for="jobCustomer">Customer</label>
-            <select id="jobCustomer">
+            <select id="jobCustomer" required aria-describedby="jobFormStatus">
               <option value="">Select…</option>
             </select>
+            <div id="jobCustomerError" class="form-field-error"></div>
           </div>
           <div class="field">
-            <label for="jobTitle">Job title</label>
-            <input id="jobTitle" type="text" placeholder="Oil change &amp; tune-up" />
+            <label for="jobTitle">Job title (optional)</label>
+            <input id="jobTitle" type="text" placeholder="Leave blank to name this ticket from its job type and vehicle" />
           </div>
         </div>
 
@@ -3711,7 +3712,9 @@
           </div>
         </div>
 
+        <div id="jobFormStatus" class="form-feedback" role="alert"></div>
         <button type="submit" class="tab-btn">Create Job</button>
+        <p class="muted">Creates the ticket and opens its estimate with your customer and vehicle details.</p>
       </form>
     </div>
 
@@ -3988,6 +3991,11 @@
       <div id="serviceHistoryList"></div>
     </div>
 
+    <div id="invoiceEmptyState" class="card invoice-empty-state" role="status" hidden>
+      <h3>Open a service ticket</h3><p id="invoiceEmptyText"></p>
+      <button id="invoiceStartJob" type="button" class="tab-btn">New job</button>
+      <button id="invoiceShowAllJobs" type="button" class="tab-btn">Show all jobs</button>
+    </div>
     <div id="invoiceBuilder" role="tabpanel" aria-labelledby="serviceEstimateTab">
     <div id="invoice-toolbar" class="card">
       <div class="invoice-cockpit-grid">
@@ -4905,7 +4913,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.31';
+const APP_VERSION = 'v1.5.32';
 const APP_BUILD_DATE = '2026-11-02';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -7223,6 +7231,7 @@ window.addEventListener('load', function(){
         b.classList.add('active-tab');
         UI.activeTab = id;
         saveUI(UI);
+        if(id==='invoice' && !currentJob() && DB.jobs.length===1){loadInvoice(DB.jobs[0].id);UI.lastJobId=DB.jobs[0].id;saveUI(UI);}
         wireAutoGrowTextareas(document.getElementById(id));
         try{ window.scrollTo(0,0); }catch(_){}
       });
@@ -7352,18 +7361,37 @@ window.addEventListener('load', function(){
 
     function renderJobCustomer(){
       var sel = $('#jobCustomer');
+      var previous=sel.value;
       var opts = ['<option value="">Select...</option>'];
       DB.customers.filter(function(c){return !c.archivedAt;}).forEach(function(c){ opts.push('<option value="'+c.id+'">'+escapeHtml(c.name)+'</option>'); });
       sel.innerHTML = opts.join('');
+      sel.value=previous;
       renderInvFilters();
       renderInvJobOptions();
       renderRecentJobs();
       if(typeof renderScheduleJobOptions === "function") renderScheduleJobOptions();
     }
 
+    var pendingJobCreation=null;
+    function showJobFormStatus(text,error,field){
+      $('#jobFormStatus').textContent=text;$('#jobFormStatus').classList.toggle('error',!!error);
+      if(field){field.setAttribute('aria-invalid','true');var issue=document.getElementById(field.id+'Error');if(issue){issue.textContent=text;field.setAttribute('aria-describedby',issue.id+' jobFormStatus');}field.focus();}
+    }
+    function clearJobFieldError(field){field.removeAttribute('aria-invalid');var issue=document.getElementById(field.id+'Error');if(issue)issue.textContent='';}
+    $('#jobForm').addEventListener('input',function(e){clearJobFieldError(e.target);});
+    $('#jobForm').addEventListener('change',function(e){clearJobFieldError(e.target);});
     $('#jobForm').addEventListener('submit', function(e){
       e.preventDefault();
-      var j = {
+      clearJobFieldError($('#jobCustomer'));clearJobFieldError($('#newJobLaborRate'));
+      var customer=findCustomer($('#jobCustomer').value),rate=$('#newJobLaborRate');
+      if(!customer || customer.archivedAt){showJobFormStatus('Choose a customer before creating the job.',true,$('#jobCustomer'));return;}
+      if(!rate.value.trim() || !rate.validity.valid || !isFinite(Number(rate.value)) || Number(rate.value)<0){showJobFormStatus('Enter a valid labor rate, such as 100.00 or 125.00.',true,rate);return;}
+      var signature=JSON.stringify(Array.from(this.querySelectorAll('input,select,textarea')).map(function(el){return [el.id,el.value];}));
+      var j=pendingJobCreation && pendingJobCreation.signature===signature?DB.jobs.find(function(job){return job.id===pendingJobCreation.id;}):null;
+      try{
+      if(!j){
+      persistLines();
+      j = {
         id: crypto.randomUUID(),
         customerId: $('#jobCustomer').value,
         vehicleId: $('#jobVehicleRecord').value,
@@ -7390,24 +7418,31 @@ window.addEventListener('load', function(){
         signatures:{customer:null, manager:null},
         createdAt:new Date().toISOString()
       };
-      if(!j.customerId || !j.title || !isFinite(j.laborRate) || j.laborRate<0) return;
       if(autoIntakeVehicle && j.customerId===autoIntakeVehicle.customerId && intakeVehicleState()===autoIntakeVehicle.state)j.vehicleDataSource=autoIntakeVehicle.source;
       inheritVehicleDetails(j);
+      if(!j.title)j.title=[j.jobType,[j.vehicleYear,j.vehicleMake,j.vehicleModel].filter(Boolean).join(' ') || j.vehicleDescription].filter(Boolean).join(' — ').slice(0,120) || 'Service ticket';
       DB.jobs.push(j);
+      pendingJobCreation={id:j.id,signature:signature};
+      }
       if(window.PdcVehicleRecords) window.PdcVehicleRecords.upgrade(DB);
+      saveDB();
       renderJobs();
       renderJobCustomer();
+      loadInvoice(j.id);
+      UI.lastJobId = j.id;
+      saveUI(UI);
+      document.querySelector('[data-tab="invoice"]').click();
       document.getElementById('jobForm').reset();
       autoIntakeVehicle=null;$('#jobVehicleHint').textContent='';
       updateNewJobRate(true);
       $('#vinResult').style.display='none';
       $('#vinSuggest').style.display='none';
-      saveDB();
-      persistLines();
-      loadInvoice(j.id);
-      UI.lastJobId = j.id;
-      saveUI(UI);
-      document.querySelector('[data-tab="invoice"]').click();
+      pendingJobCreation=null;
+      showJobFormStatus(localSaveHealthy?'Created '+j.title+'. Its estimate is open.':'The job is open in memory but could not be saved. Export a backup before closing.',!localSaveHealthy);
+      }catch(error){
+        showJobFormStatus(j && DB.jobs.indexOf(j)!==-1?'The ticket was created but could not open. Your entries are retained; click Create Job to retry opening the same ticket.':'Could not create the job. Your entries are retained. Open Diagnostics for details.',true);
+        if(window.AppLog)AppLog.error('Create Job failed',error);
+      }
     });
 
     // Shared bounded lookup; results may only update the form that requested them.
@@ -10271,6 +10306,8 @@ setupCostAutoCalc();
     if (UI.lastJobId && DB.jobs.some(function(x){return x.id===UI.lastJobId;})) {
       $('#invJob').value = UI.lastJobId;
       loadInvoice(UI.lastJobId);
+    }else if(UI.activeTab==='invoice' && DB.jobs.length===1){
+      UI.lastJobId=DB.jobs[0].id;saveUI(UI);loadInvoice(UI.lastJobId);
     }
     window.runSelfTest(false);
 
@@ -10278,6 +10315,11 @@ setupCostAutoCalc();
       serviceDesk = window.PdcServiceDesk.create({
         job: currentJob, customer: findCustomer,
         jobs: function(){ return DB.jobs; }, templates: function(){ return DB.templates; },
+        newJob:function(){document.querySelector('[data-tab="jobs"]').click();$('#jobCustomer').focus();},
+        showAllJobs:function(){
+          $('#invCustFilter').value='';$('#invJobSearch').value='';renderInvJobOptions();
+          if(!currentJob() && DB.jobs.length===1){loadInvoice(DB.jobs[0].id);UI.lastJobId=DB.jobs[0].id;saveUI(UI);}
+        },
         filteredJobs: function(){
           var ids=Array.from($('#invJob').options).map(function(option){return option.value;});
           return DB.jobs.filter(function(job){return ids.indexOf(job.id)!==-1;});

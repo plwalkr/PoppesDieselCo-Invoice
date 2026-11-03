@@ -17,7 +17,7 @@
           b.setAttribute('aria-selected', String(selected));
           b.tabIndex = selected ? 0 : -1;
         });
-        ['invoiceBuilder','serviceLibrary','diagnosticWorksheet','serviceHistory'].forEach(function(id){ $(id).hidden = id !== view; });
+        ['invoiceBuilder','serviceLibrary','diagnosticWorksheet','serviceHistory'].forEach(function(id){ $(id).hidden = id !== view || (id==='invoiceBuilder' && !api.job()); });
         if(view === 'serviceLibrary') renderLibrary();
         if(view === 'serviceHistory') renderHistory();
         if(view === 'diagnosticWorksheet') api.grow($('diagnosticWorksheet'));
@@ -32,6 +32,10 @@
         $('serviceIdentity').textContent = j ? [j.roNo ? 'RO '+j.roNo : '',j.invNo || '',j.vin ? 'VIN '+j.vin : '',j.odometer ? j.odometer+' mi' : '',j.licensePlate ? 'Plate '+j.licensePlate : ''].filter(Boolean).join(' · ') : '';
         $('serviceStatus').value = j ? (j.status || 'Open') : 'Open';
         var visibleJobs=api.filteredJobs();
+        $('invoiceEmptyState').hidden=!!j;
+        $('invoiceShowAllJobs').hidden=!api.jobs().length;
+        $('invoiceEmptyText').textContent=!api.jobs().length?'No ticket has been created yet. Start a new job, choose its customer, then click Create Job.':(!visibleJobs.length?'No tickets match the current customer or search filters. Show all jobs to choose a ticket.':'Choose a ticket from Current ticket above. Its customer, vehicle and estimate will load here.');
+        if(!j)$('invoiceBuilder').hidden=true;
         var signature=visibleJobs.map(function(x){var c=api.customer(x.customerId);return [x.id,x.title,c&&c.name].join('|');}).join('\n');
         if(ticketSignature !== signature || !$('serviceJob').options.length){
           ticketSignature=signature; $('serviceJob').replaceChildren(new Option('Select a service ticket…',''));
@@ -143,6 +147,8 @@
         });
       });
       $('serviceEditVehicle').addEventListener('click',function(){setView('invoiceBuilder','vehicleYear');});
+      $('invoiceStartJob').addEventListener('click',api.newJob);
+      $('invoiceShowAllJobs').addEventListener('click',function(){api.showAllJobs();refreshContext();$('serviceJob').focus();});
       $('invJobSearch').addEventListener('input',refreshContext);
       $('invCustFilter').addEventListener('change',refreshContext);
       $('serviceJob').addEventListener('change',function(){
