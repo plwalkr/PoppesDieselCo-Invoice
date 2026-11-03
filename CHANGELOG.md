@@ -1,5 +1,11 @@
 # Changelog
 
+## Release preparation — 2026-11-02
+
+- Owner requested that the updated application be made available. Publishing the existing review branch to the established GitHub Pages address; no hosting provider, storage key or backend configuration changes.
+- Completed the previously blocked browser checks: expanded vehicle registration and save, full-width phone search, selected-record focus/visibility, persistence after refresh, and all seven sections at 390×844 without page-wide horizontal overflow. Startup checks report 24/24; no browser console errors were observed.
+- The exact application source passed all 37 regression tests and GitHub checks. This follow-up changes release documentation only. The earlier native PDF/iPhone, financial rounding, cloud and storage limitations remain documented below.
+
 ## v1.5.29 — 2026-10-05 — first Shop OS vehicle foundation, not deployed
 
 ### Changed
@@ -15,7 +21,7 @@
 
 - 37 tests cover previous invoice/workflow behavior plus idempotent VIN migration, customer associations, unchanged financial snapshots, separate VIN-free/incomplete records, VIN correction/link protection, malformed vehicle collection safety, sourced timeline/mileage, private memory/recommendation persistence and PDF scope, vehicle-to-job creation, registration text safety, and reversible customer archiving.
 - Browser: the synthetic ticket retains $339.14 total and $218.50 parts deposit after adding mileage, diagnostic findings, vehicle memory and recommendations. Notes/recommendations/mileage survive reload and point to their source ticket. Creating a return visit from the vehicle prefills identity/customer and adds a second timeline entry; recorded mileage advances from 187,421 to 188,050 without losing earlier history. The real CDN build reports 24/24 startup checks.
-- Command Center checked at 390×844, 1024×1000 and 1440×1000 without page-wide horizontal overflow. A targeted solid-background contrast check of new text/forms/controls found no text below 4.5:1. Subsequently widened the phone search field and added focus to bring a selected record into view; those last visual adjustments await browser verification.
+- Command Center checked at 390×844, 1024×1000 and 1440×1000 without page-wide horizontal overflow. A targeted solid-background contrast check of new text/forms/controls found no text below 4.5:1. Subsequently widened the phone search field and added focus to bring a selected record into view; the last visual adjustments were verified on November 2.
 - New schema/migration/privacy/rollback contract is in `VEHICLE_DATA.md`. Only synthetic localhost records were changed.
 
 ### Remaining / deployment review
@@ -24,7 +30,7 @@
 - Records created without a VIN require identity review/manual linking. Conflicting/duplicate identity cleanup, merge/unlink/archive tools, and operator-confirmed ownership transitions remain open; unused old vehicle records are preserved instead of deleted.
 - Mileage dates currently use source ticket dates. Timeline media is referenced through source tickets; a dedicated attachment viewer remains future work.
 - Export a production JSON backup before upgrade. Deploy all three feature scripts, `shop-theme.css`, `index.html` and the original logo together. Old backup/cloud snapshot replacement can replace newer vehicle memory; the established snapshot workflow has not become a relational multi-user backend.
-- Final browser refresh/screenshots and expanded registration checks were blocked because automatic approval review could not complete: its review model was at capacity. Earlier browser results above stand; the final visual checks must be resumed before deployment.
+- The October 5 browser approval outage was cleared for the November 2 release check. Final refresh, phone screenshot and expanded registration checks are complete.
 - Existing tax rounding, native PDF/iPhone checks, cloud access/security/conflicts, cost recovery metadata, and photo-storage limits below still apply. Production remains v1.5.25 on `main` pending review/deployment.
 
 ## v1.5.28 — 2026-10-05 — neutral palette and repair workspace, not deployed
