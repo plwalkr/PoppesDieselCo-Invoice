@@ -3354,7 +3354,7 @@
     @media print { .save-status, .table-scroll-hint { display: none !important; } }
     @media print { .app-sidebar, .workspace-heading, .skip-link { display: none !important; } }
 </style>
-<link rel="stylesheet" href="shop-theme.css" media="screen" />
+<link rel="stylesheet" href="shop-theme.css?v=1.5.30" media="screen" />
 <script src="service-desk.js" defer></script>
 <script src="vehicle-records.js" defer></script>
 <script src="vehicle-center.js" defer></script>
@@ -3639,6 +3639,11 @@
       <form id="jobForm">
         <div class="field"><label for="jobVehicleRecord">Registered vehicle</label><select id="jobVehicleRecord"><option value="">Enter vehicle below, or choose a record…</option></select></div>
         <div class="row">
+          <div class="field"><label for="newJobType">Job type</label><select id="newJobType"><option>General Repair</option><option>Diesel Repair</option><option>Custom</option></select></div>
+          <div class="field"><label for="newJobLaborRate">Labor rate ($/hr)</label><input id="newJobLaborRate" type="number" min="0" step="0.01" value="100" required /></div>
+        </div>
+        <p id="newJobRateHint" class="muted"></p>
+        <div class="row">
           <div class="field">
             <label for="jobCustomer">Customer</label>
             <select id="jobCustomer">
@@ -3654,13 +3659,14 @@
         <div class="row">
           <div class="field">
             <label for="jobVIN">VIN</label>
-            <input id="jobVIN" type="text" placeholder="17-digit VIN" />
+            <input id="jobVIN" type="text" placeholder="17-character VIN" autocapitalize="characters" spellcheck="false" />
           </div>
           <div class="field xsmall">
             <label>&nbsp;</label>
             <button type="button" id="decodeVIN" class="tab-btn">Decode VIN &amp; Suggest Template</button>
           </div>
         </div>
+        <div id="vinResult" class="vin-feedback" role="status" aria-live="polite" style="display:none;"></div>
 
         <div class="vehicle-grid">
           <div class="vehicle-field span-2">
@@ -3683,7 +3689,6 @@
           </div>
         </div>
 
-        <div id="vinResult" class="muted" style="display:none;"></div>
         <div id="vinSuggest" style="display:none; margin-top:4px;">
           <div class="muted">Suggested service templates:</div>
           <div id="vinTags" style="margin-top:4px; display:flex; flex-wrap:wrap; gap:4px;"></div>
@@ -4036,9 +4041,10 @@
             </div>
 
             <div class="field dense-field s3">
-              <label for="jobType">Job Type <span class="hover-help" tabindex="0" data-help="General Repair and Maintenance use the general rate. Diesel Diagnostic and Electrical / Drivability use the diagnostic rate and the diagnostic minimum when diagnostic hours are entered. Custom and Fabrication leave rates editable.">?</span></label>
+              <label for="jobType">Job Type <span class="hover-help" tabindex="0" data-help="General Repair and Maintenance use general labor. Diesel Repair uses diesel labor. Diesel Diagnostic and Electrical / Drivability use diagnostic labor and its minimum. Custom and Fabrication keep editable rates. Existing line prices are preserved when changing job type.">?</span></label>
               <select id="jobType">
                 <option>General Repair</option>
+                <option>Diesel Repair</option>
                 <option>Diesel Diagnostic</option>
                 <option>Electrical / Drivability</option>
                 <option>Maintenance</option>
@@ -4467,6 +4473,10 @@
             <input id="settingGeneralLaborRate" type="number" step="0.01" value="100" />
           </div>
           <div class="settings-field s3">
+            <label for="settingDieselLaborRate">Diesel Repair Labor Rate ($/hr)</label>
+            <input id="settingDieselLaborRate" type="number" min="0" step="0.01" value="125" />
+          </div>
+          <div class="settings-field s3">
             <label for="settingDiagnosticRate">Diesel / Electrical Diagnostic Rate ($/hr)</label>
             <input id="settingDiagnosticRate" type="number" step="0.01" value="125" />
           </div>
@@ -4709,6 +4719,7 @@
           <label for="spType">Category</label>
           <select id="spType">
             <option>General Repair</option>
+            <option>Diesel Repair</option>
             <option>Diesel Diagnostic</option>
             <option>Electrical / Drivability</option>
             <option>Maintenance</option>
@@ -4892,8 +4903,8 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.29';
-const APP_BUILD_DATE = '2026-10-05';
+const APP_VERSION = 'v1.5.30';
+const APP_BUILD_DATE = '2026-11-02';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
 /* ---------------- Supabase Cloud Config ---------------- */
@@ -5381,6 +5392,7 @@ window.addEventListener('load', function(){
         settings: {
           defaultMarkup: 40,
           generalLaborRate: 100,
+          dieselLaborRate: 125,
           diagnosticRate: 125,
           minimumDiagnosticCharge: 150,
           shopSuppliesPercent: 5,
@@ -5558,6 +5570,7 @@ window.addEventListener('load', function(){
       if(typeof DB.settings.shopWebsite==='undefined') DB.settings.shopWebsite='';
       if(typeof DB.settings.shopAddress==='undefined') DB.settings.shopAddress='Columbus, Indiana';
       if(typeof DB.settings.generalLaborRate==='undefined') DB.settings.generalLaborRate=100;
+      if(typeof DB.settings.dieselLaborRate==='undefined') DB.settings.dieselLaborRate=125;
       if(typeof DB.settings.diagnosticRate==='undefined') DB.settings.diagnosticRate=125;
       if(typeof DB.settings.minimumDiagnosticCharge==='undefined') DB.settings.minimumDiagnosticCharge=150;
       if(typeof DB.settings.shopSuppliesPercent==='undefined') DB.settings.shopSuppliesPercent=5;
@@ -5919,6 +5932,19 @@ window.addEventListener('load', function(){
       return type.indexOf('diagnostic') >= 0 || type.indexOf('electrical') >= 0 || type.indexOf('drivability') >= 0;
     }
 
+    function repairLaborRate(type){
+      var diesel=type==='Diesel Repair',value=DB.settings && DB.settings[diesel?'dieselLaborRate':'generalLaborRate'];
+      return value!=null && isFinite(Number(value)) && Number(value)>=0?Number(value):(diesel?125:100);
+    }
+    function updateNewJobRate(reset){
+      var type=$('#newJobType').value,rate=$('#newJobLaborRate');
+      if(reset && type!=='Custom')rate.value=repairLaborRate(type).toFixed(2);
+      $('#newJobRateHint').textContent=type+' · $'+Number(rate.value || 0).toFixed(2)+'/hr. Editable for this ticket. Shop defaults are in Settings; diagnostic charges are separate.';
+    }
+    $('#newJobType').addEventListener('change',function(){updateNewJobRate(true);});
+    $('#newJobLaborRate').addEventListener('input',function(){updateNewJobRate(false);});
+    updateNewJobRate(true);
+
     function applyJobTypeRateDefaults(options){
       options = options || {};
       var jobTypeEl = document.getElementById('jobType');
@@ -5933,7 +5959,7 @@ window.addEventListener('load', function(){
       var custom = type === 'Custom' || type === 'Fabrication';
 
       // Do not fight the user. Only fill empty/invalid rate boxes from Settings.
-      if(laborEl && (!laborEl.value || !isFinite(Number(laborEl.value)))) laborEl.value = generalRate.toFixed(2);
+      if(laborEl && (!laborEl.value || !isFinite(Number(laborEl.value)))) laborEl.value = repairLaborRate(type).toFixed(2);
       if(diagEl && (!diagEl.value || !isFinite(Number(diagEl.value)))) diagEl.value = diagnosticRate.toFixed(2);
       if(minDiagEl && (!minDiagEl.value || !isFinite(Number(minDiagEl.value)))) minDiagEl.value = minDiag.toFixed(2);
 
@@ -5943,7 +5969,7 @@ window.addEventListener('load', function(){
         var minNow = Number(minDiagEl && minDiagEl.value || minDiag);
         if(custom) hint.textContent = 'Custom/fabrication job: rates stay editable. Current labor $' + laborNow.toFixed(2) + '/hr · diagnostic $' + diagNow.toFixed(2) + '/hr.';
         else if(isDiagnosticJobType(type)) hint.textContent = 'Diagnostic/electrical work uses the editable diagnostic rate: $' + diagNow.toFixed(2) + '/hr with $' + minNow.toFixed(2) + ' minimum.';
-        else hint.textContent = 'General repair uses the editable labor rate: $' + laborNow.toFixed(2) + '/hr. Diagnostic lines use $' + diagNow.toFixed(2) + '/hr.';
+        else hint.textContent = type+' uses the editable labor rate: $' + laborNow.toFixed(2) + '/hr. Diagnostic lines use $' + diagNow.toFixed(2) + '/hr. Existing line prices stay unchanged.';
       }
 
       // Kept for legacy callers, but only fills truly blank/zero rows.
@@ -5963,6 +5989,8 @@ window.addEventListener('load', function(){
       var jobTypeEl = document.getElementById('jobType');
       if(!jobTypeEl) return;
       jobTypeEl.addEventListener('change', function(){
+        var job=currentJob(),previous=job?job.jobType:'General Repair',rate=$('#laborRate');
+        if(this.value!=='Custom' && this.value!=='Fabrication' && previous!=='Custom' && previous!=='Fabrication' && Number(rate.value)===repairLaborRate(previous))rate.value=repairLaborRate(this.value).toFixed(2);
         applyJobTypeRateDefaults({force:false, updateRows:false});
         persistLines();
       });
@@ -6003,7 +6031,7 @@ window.addEventListener('load', function(){
     function calcJobFinancials(j){
       j = j || {};
       var lines = Array.isArray(j.lines) ? j.lines : [];
-      var laborRate = Number(j.laborRate || (DB.settings && DB.settings.generalLaborRate) || 100);
+      var laborRate = Number(j.laborRate!=null?j.laborRate:repairLaborRate(j.jobType));
       var diagnosticRate = Number(j.diagnosticRate || (DB.settings && DB.settings.diagnosticRate) || 125);
       var minimumDiagnosticCharge = Number(j.minimumDiagnosticCharge || (DB.settings && DB.settings.minimumDiagnosticCharge) || 150);
       var shopSuppliesPercent = Number(j.shopSuppliesPercent != null ? j.shopSuppliesPercent : ((DB.settings && DB.settings.shopSuppliesPercent) || 5)) / 100;
@@ -7113,6 +7141,7 @@ window.addEventListener('load', function(){
     function renderSettings(){
       $('#defaultMarkup').value = DB.settings.defaultMarkup != null ? DB.settings.defaultMarkup : 40;
       var sgr = document.getElementById('settingGeneralLaborRate'); if(sgr) sgr.value = DB.settings.generalLaborRate != null ? DB.settings.generalLaborRate : 100;
+      var sdl = document.getElementById('settingDieselLaborRate'); if(sdl) sdl.value = DB.settings.dieselLaborRate != null ? DB.settings.dieselLaborRate : 125;
       var sdr = document.getElementById('settingDiagnosticRate'); if(sdr) sdr.value = DB.settings.diagnosticRate != null ? DB.settings.diagnosticRate : 125;
       var smd = document.getElementById('settingMinDiagnosticCharge'); if(smd) smd.value = DB.settings.minimumDiagnosticCharge != null ? DB.settings.minimumDiagnosticCharge : 150;
       var ssp = document.getElementById('settingShopSuppliesPercent'); if(ssp) ssp.value = DB.settings.shopSuppliesPercent != null ? DB.settings.shopSuppliesPercent : 5;
@@ -7158,7 +7187,7 @@ window.addEventListener('load', function(){
         custom: 'custom deposit',
         none: 'no required deposit'
       }[DB.settings.depositMode || 'parts'] || (DB.settings.depositMode || 'parts');
-      el.innerHTML = '<strong>Current shop defaults:</strong> General labor $' + Number(DB.settings.generalLaborRate || 0).toFixed(2) + '/hr · Diesel/electrical diagnostic $' + Number(DB.settings.diagnosticRate || 0).toFixed(2) + '/hr · Diagnostic minimum $' + Number(DB.settings.minimumDiagnosticCharge || 0).toFixed(2) + ' · Parts markup ' + Number(DB.settings.defaultMarkup || 0).toFixed(2).replace(/\.00$/,'') + '% · Shop supplies ' + Number(DB.settings.shopSuppliesPercent || 0).toFixed(2).replace(/\.00$/,'') + '% capped at $' + Number(DB.settings.shopSuppliesCap || 0).toFixed(2) + ' · Sales tax ' + Number(DB.settings.salesTaxPct || 0).toFixed(2).replace(/\.00$/,'') + '% on ' + taxBits.join(', ') + ' · Deposit policy: ' + depositLabel + ' · Labor warranty ' + Number(DB.settings.warrantyLaborDays || 0).toFixed(0) + ' days.';
+      el.innerHTML = '<strong>Current shop defaults:</strong> General labor $' + Number(DB.settings.generalLaborRate || 0).toFixed(2) + '/hr · Diesel repair $' + Number(DB.settings.dieselLaborRate || 0).toFixed(2) + '/hr · Diesel/electrical diagnostic $' + Number(DB.settings.diagnosticRate || 0).toFixed(2) + '/hr · Diagnostic minimum $' + Number(DB.settings.minimumDiagnosticCharge || 0).toFixed(2) + ' · Parts markup ' + Number(DB.settings.defaultMarkup || 0).toFixed(2).replace(/\.00$/,'') + '% · Shop supplies ' + Number(DB.settings.shopSuppliesPercent || 0).toFixed(2).replace(/\.00$/,'') + '% capped at $' + Number(DB.settings.shopSuppliesCap || 0).toFixed(2) + ' · Sales tax ' + Number(DB.settings.salesTaxPct || 0).toFixed(2).replace(/\.00$/,'') + '% on ' + taxBits.join(', ') + ' · Deposit policy: ' + depositLabel + ' · Labor warranty ' + Number(DB.settings.warrantyLaborDays || 0).toFixed(0) + ' days.';
     }
 
     // Stubbed photo grid renderer to avoid init crashes when legacy photo features are not present
@@ -7278,7 +7307,8 @@ window.addEventListener('load', function(){
         vehicleEngine: $('#jobVehicleEngine').value.trim(),
         notes: $('#jobNotes').value.trim(),
         status: $('#jobStatus').value,
-        jobType:'General Repair',
+        jobType:$('#newJobType').value,
+        laborRate:Number($('#newJobLaborRate').value),
         lines: [],
         paid:false, paidAt:null,
         docType:'Estimate',
@@ -7291,12 +7321,13 @@ window.addEventListener('load', function(){
         signatures:{customer:null, manager:null},
         createdAt:new Date().toISOString()
       };
-      if(!j.customerId || !j.title) return;
+      if(!j.customerId || !j.title || !isFinite(j.laborRate) || j.laborRate<0) return;
       DB.jobs.push(j);
       if(window.PdcVehicleRecords) window.PdcVehicleRecords.upgrade(DB);
       renderJobs();
       renderJobCustomer();
       document.getElementById('jobForm').reset();
+      updateNewJobRate(true);
       $('#vinResult').style.display='none';
       $('#vinSuggest').style.display='none';
       saveDB();
@@ -7307,55 +7338,76 @@ window.addEventListener('load', function(){
       document.querySelector('[data-tab="invoice"]').click();
     });
 
+    // Shared bounded lookup; results may only update the form that requested them.
+    function normalizedDecodeVin(value){return String(value || '').replace(/[\s-]+/g,'').toUpperCase();}
+    function requestVinDecode(input,button,box,apply,isCurrent){
+      var vin=normalizedDecodeVin(input.value),finished=false;
+      box.style.display='block';
+      if(!/^[A-HJ-NPR-Z0-9*]{11,17}$/.test(vin)){
+        box.textContent='Enter a VIN with 11–17 characters. Full VINs have 17 characters and do not contain I, O or Q.';
+        return;
+      }
+      input.value=vin;button.disabled=true;button.setAttribute('aria-busy','true');
+      box.textContent='Decoding VIN with NHTSA…';
+      function finish(message,map){
+        if(finished)return;finished=true;button.disabled=false;button.removeAttribute('aria-busy');
+        if(normalizedDecodeVin(input.value)!==vin || (isCurrent && !isCurrent())){
+          box.textContent='VIN or ticket changed. Click Decode again for the current vehicle.';return;
+        }
+        box.textContent=message;
+        if(map)apply(map,vin);
+      }
+      var xhr=new XMLHttpRequest();
+      xhr.open('GET','https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/'+encodeURIComponent(vin)+'?format=json',true);
+      xhr.timeout=15000;
+      xhr.onload=function(){
+        if(xhr.status<200 || xhr.status>=300){
+          finish(xhr.status===429?'NHTSA is busy. Wait a moment and try Decode again.':'NHTSA lookup failed (HTTP '+xhr.status+'). Try again or enter vehicle details manually.');return;
+        }
+        var data,map={};
+        try{
+          data=JSON.parse(xhr.responseText || '{}');
+          if(!Array.isArray(data.Results))throw new Error('Missing VIN results');
+          data.Results.forEach(function(r){if(r && r.Variable && r.Value!=null && String(r.Value).trim())map[r.Variable]=String(r.Value).trim();});
+        }catch(_){finish('NHTSA returned an unreadable response. Try again or enter vehicle details manually.');return;}
+        if(!map.Make && !map.Model){finish('No vehicle details returned. Check the VIN or enter details manually.'+(map['Error Text']?' NHTSA: '+map['Error Text']:''));return;}
+        var warning=map['Error Code'] && map['Error Code'].split(',').some(function(code){return code.trim() && code.trim()!=='0';});
+        finish('Decoded: '+[map['Model Year'],map.Make,map.Model].filter(Boolean).join(' ')+(warning?' — Verify vehicle details. NHTSA: '+(map['Error Text'] || map['Error Code']):'') ,map);
+      };
+      xhr.onerror=function(){finish('Cannot connect to NHTSA. Check your internet connection, try again, or enter vehicle details manually.');};
+      xhr.ontimeout=function(){finish('NHTSA lookup timed out. Try Decode again or enter vehicle details manually.');};
+      try{xhr.send(null);}catch(_){finish('Cannot connect to NHTSA. Try again or enter vehicle details manually.');}
+    }
+    function applyDecodedVehicle(prefix,map){
+      ['Year','Make','Model'].forEach(function(field){var value=map[field==='Year'?'Model Year':field];if(value)setVehicleControlValue(prefix+field,value);});
+      var engine=[map['Engine Model'],map['Engine Configuration'],map['Displacement (L)']?map['Displacement (L)']+'L':''].filter(Boolean).join(' ');
+      if(engine)document.getElementById(prefix+'Engine').value=engine;
+    }
+
     // VIN decode
     $('#decodeVIN').addEventListener('click', function(){
-      var vin = $('#jobVIN').value.trim();
       var box = $('#vinResult');
       var sug = $('#vinSuggest');
       var tags = $('#vinTags');
-      box.style.display='block';
-      box.textContent = 'Decoding…';
       sug.style.display='none';
       tags.innerHTML='';
-      if(!vin || vin.length<11){
-        box.textContent='Enter a valid VIN (17 preferred).';
-        return;
-      }
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', 'https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/'+encodeURIComponent(vin)+'?format=json', true);
-      xhr.onreadystatechange = function(){
-        if(xhr.readyState===4){
-          if(xhr.status>=200 && xhr.status<300){
-            try{
-              var data = JSON.parse(xhr.responseText||'{}');
-              var map={}, i, r;
-              for(i=0;i<(data.Results||[]).length;i++){
-                r=data.Results[i];
-                if(r.Variable && r.Value) map[r.Variable]=r.Value;
-              }
+      requestVinDecode($('#jobVIN'),this,box,function(map){
               var summary = (map['Model Year']||'-')+' '+(map['Make']||'-')+' '+(map['Model']||'-');
-              box.innerHTML = '<strong>'+summary+'</strong>';
-              setVehicleControlValue('jobVehicleYear', map['Model Year'] || '');
-              setVehicleControlValue('jobVehicleMake', map['Make'] || '');
-              setVehicleControlValue('jobVehicleModel', map['Model'] || '');
-              if(map['Engine Model'] || map['Engine Configuration'] || map['Displacement (L)']){
-                var engBits = [map['Engine Model'], map['Engine Configuration'], map['Displacement (L)'] ? (map['Displacement (L)'] + 'L') : ''].filter(Boolean);
-                document.getElementById('jobVehicleEngine').value = engBits.join(' ');
-              }
+              applyDecodedVehicle('jobVehicle',map);
               var platformText = (summary+' '+(map['Engine Model']||'')+' '+(map['Engine Manufacturer']||'')).toLowerCase();
               var matched = DB.templates.filter(function(t){
-                var p = t.platform.toLowerCase();
+                var p = String(t && (t.platform || t.name) || '').toLowerCase();
                 return (p.indexOf('cummins')>-1 && platformText.indexOf('ram')>-1) ||
                        (p.indexOf('powerstroke')>-1 && platformText.indexOf('ford')>-1) ||
                        (p.indexOf('duramax')>-1 && (platformText.indexOf('chevrolet')>-1||platformText.indexOf('gmc')>-1||platformText.indexOf('gm')>-1));
               });
-              if(!matched.length) matched = DB.templates.slice(0);
+              if(!matched.length) matched = DB.templates.filter(function(t){return t && Array.isArray(t.items);});
               tags.innerHTML='';
               matched.forEach(function(tpl){
                 var b=document.createElement('button');
                 b.className='tab-btn';
                 b.type='button';
-                b.textContent=tpl.platform;
+                b.textContent=tpl.name || tpl.platform || 'Shop template';
                 b.addEventListener('click', function(){ applyTemplate(tpl); });
                 tags.appendChild(b);
               });
@@ -7363,52 +7415,16 @@ window.addEventListener('load', function(){
                 for(var k=0;k<matched.length;k++){ applyTemplate(matched[k]); }
               };
               sug.style.display='block';
-              saveDB();
-            }catch(e){
-              box.textContent='VIN parse failed.';
-            }
-          } else {
-            box.textContent='VIN decode failed.';
-          }
-        }
-      };
-      xhr.send(null);
+      });
     });
 
     function decodeInvoiceVinIntoVehicle(){
       var vinEl = document.getElementById('invoiceVIN');
       var box = document.getElementById('invoiceVinResult');
       if(!vinEl || !box) return;
-      var vin = vinEl.value.trim();
-      box.textContent = 'Decoding…';
-      if(!vin || vin.length < 11){
-        box.textContent = 'Enter a valid VIN first. 17 digits is best.';
-        return;
-      }
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', 'https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/'+encodeURIComponent(vin)+'?format=json', true);
-      xhr.onreadystatechange = function(){
-        if(xhr.readyState === 4){
-          if(xhr.status >= 200 && xhr.status < 300){
-            try{
-              var data = JSON.parse(xhr.responseText || '{}');
-              var map = {}, i, r;
-              for(i=0;i<(data.Results || []).length;i++){
-                r = data.Results[i];
-                if(r.Variable && r.Value) map[r.Variable] = r.Value;
-              }
-              var year = map['Model Year'] || '';
-              var make = map['Make'] || '';
-              var model = map['Model'] || '';
-              var engBits = [
-                map['Engine Model'],
-                map['Engine Configuration'],
-                map['Displacement (L)'] ? (map['Displacement (L)'] + 'L') : ''
-              ].filter(Boolean);
-              setVehicleControlValue('vehicleYear', year);
-              setVehicleControlValue('vehicleMake', make);
-              setVehicleControlValue('vehicleModel', model);
-              if(engBits.length) document.getElementById('vehicleEngine').value = engBits.join(' ');
+      var owner=loadedInvoiceId;
+      requestVinDecode(vinEl,$('#decodeInvoiceVIN'),box,function(map,vin){
+              applyDecodedVehicle('vehicle',map);
               var j = ensureJobSelected(true);
               if(j){
                 j.vin = vin;
@@ -7417,18 +7433,8 @@ window.addEventListener('load', function(){
                 j.vehicleModel = getVehicleFieldValue('vehicleModel');
                 j.vehicleEngine = document.getElementById('vehicleEngine').value.trim();
               }
-              box.innerHTML = '<strong>VIN decoded:</strong> ' + escapeHtml([year, make, model].filter(Boolean).join(' ') || 'vehicle found');
               persistLines();
-            }catch(e){
-              box.textContent = 'VIN parse failed.';
-              if(window.AppLog) AppLog.error('invoice VIN parse failed', e);
-            }
-          } else {
-            box.textContent = 'VIN decode failed.';
-          }
-        }
-      };
-      xhr.send(null);
+      },function(){return loadedInvoiceId===owner;});
     }
 
     (function(){
@@ -7685,7 +7691,7 @@ window.addEventListener('load', function(){
 
       j.lines = cleanLines(j.lines || []);
 
-      $('#laborRate').value = (j.laborRate != null) ? j.laborRate : (DB.settings.generalLaborRate || 100);
+      $('#laborRate').value = (j.laborRate != null) ? j.laborRate : repairLaborRate(j.jobType);
       $('#diagnosticRate').value = (j.diagnosticRate != null) ? j.diagnosticRate : (DB.settings.diagnosticRate || 125);
       $('#minDiagnosticCharge').value = (j.minimumDiagnosticCharge != null) ? j.minimumDiagnosticCharge : (DB.settings.minimumDiagnosticCharge || 150);
       $('#shopSuppliesPercent').value = (j.shopSuppliesPercent != null) ? j.shopSuppliesPercent : (DB.settings.shopSuppliesPercent || 5);
@@ -8269,7 +8275,7 @@ window.addEventListener('load', function(){
     function syncCurrentInvoiceDefaultsFromSettings(options){
       options = options || {};
       var map = [
-        ['laborRate','generalLaborRate',100],
+        ['laborRate',$('#jobType').value==='Diesel Repair'?'dieselLaborRate':'generalLaborRate',$('#jobType').value==='Diesel Repair'?125:100],
         ['diagnosticRate','diagnosticRate',125],
         ['minDiagnosticCharge','minimumDiagnosticCharge',150],
         ['shopSuppliesPercent','shopSuppliesPercent',5],
@@ -8322,6 +8328,7 @@ window.addEventListener('load', function(){
 
     bindSettingInput('defaultMarkup', 'defaultMarkup', 40, function(){ recalcTotals(); });
     bindSettingInput('settingGeneralLaborRate', 'generalLaborRate', 100, function(){ syncCurrentInvoiceDefaultsFromSettings({force:false}); });
+    bindSettingInput('settingDieselLaborRate', 'dieselLaborRate', 125, function(){ syncCurrentInvoiceDefaultsFromSettings({force:false}); });
     bindSettingInput('settingDiagnosticRate', 'diagnosticRate', 125, function(){ syncCurrentInvoiceDefaultsFromSettings({force:false}); });
     bindSettingInput('settingMinDiagnosticCharge', 'minimumDiagnosticCharge', 150, function(){ syncCurrentInvoiceDefaultsFromSettings({force:false}); });
     bindSettingInput('settingShopSuppliesPercent', 'shopSuppliesPercent', 5, function(){ syncCurrentInvoiceDefaultsFromSettings({force:false}); });
@@ -8498,6 +8505,7 @@ window.addEventListener('load', function(){
         job: job,
         settings: {
           generalLaborRate: DB.settings.generalLaborRate,
+          dieselLaborRate: DB.settings.dieselLaborRate,
           diagnosticRate: DB.settings.diagnosticRate,
           minimumDiagnosticCharge: DB.settings.minimumDiagnosticCharge,
           shopSuppliesPercent: DB.settings.shopSuppliesPercent,
@@ -10224,6 +10232,7 @@ setupCostAutoCalc();
         fillJobVehicle:fillJobVehicle,
         prepareJob:function(v){
           persistLines();renderJobCustomer();$('#jobForm').reset();
+          updateNewJobRate(true);
           var latest=window.PdcVehicleRecords.ordered(window.PdcVehicleRecords.jobs(DB,v.id))[0];
           $('#jobCustomer').value=latest?latest.customerId:(v.customerIds[0] || '');
           fillJobVehicle(v);document.querySelector('[data-tab="jobs"]').click();$('#jobTitle').focus();
