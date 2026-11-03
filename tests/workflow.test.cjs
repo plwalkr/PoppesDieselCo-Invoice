@@ -54,6 +54,37 @@ function mockVinRequests(dom){
   return requests;
 }
 
+test('Delete permanently removes an unlinked customer while retaining vehicle records',async t=>{
+  const db=seed();db.customers.push({id:'unused',name:'Unused customer',phone:'555-0100',email:'unused@example.test',vehicle:'Fleet unit'});
+  const {$,change,read}=await app(t,{db});change('#jobCustomer','unused','change');
+  const vehicleId=read().vehicles.find(v=>v.customerIds.includes('unused')).id;
+  $('[data-deletec="unused"]').click();
+  assert.equal(read().customers.some(c=>c.id==='unused'),false);assert.equal(read().jobs.length,2);
+  assert.ok(read().vehicles.find(v=>v.id===vehicleId));assert.equal(read().vehicles.find(v=>v.id===vehicleId).customerIds.includes('unused'),false);
+  assert.equal($('#jobCustomer').value,'');assert.equal(Array.from($('#jobCustomer').options).some(o=>o.value==='unused'),false);
+});
+
+test('Delete cancellation preserves the customer and all linked records',async t=>{
+  const {$,read,dom}=await app(t);const before=JSON.stringify(read());let prompt='';dom.window.confirm=text=>{prompt=text;return false;};
+  $('[data-deletec="customer-a"]').click();assert.match(prompt,/2.*ticket/i);assert.match(prompt,/billing details.*kept/i);assert.equal(JSON.stringify(read()),before);
+});
+
+test('deleting a linked customer retains invoice ownership, billing identity and financial history after reload',async t=>{
+  const db=seed();Object.assign(db.customers[0],{phone:'555-0102',email:'fleet@example.test'});db.jobs[0].vin=qaVin;
+  const {$,change,read}=await app(t,{db});const before=read().jobs.map(j=>({id:j.id,lines:j.lines,invNo:j.invNo,customerId:j.customerId}));const total=$('#grand').textContent;
+  $('[data-deletec="customer-a"]').click();const stored=read();assert.equal(stored.customers.length,0);
+  assert.deepEqual(stored.jobs.map(j=>({id:j.id,lines:j.lines,invNo:j.invNo,customerId:j.customerId})),before);
+  assert.equal(stored.jobs[0].customerSnapshot.name,'Test customer <fleet>');assert.equal($('#pCust').textContent,'Test customer <fleet>');assert.equal($('#grand').textContent,total);
+  change('#invJob','b','change');assert.equal($('#serviceCustomer').textContent,'Test customer <fleet>');
+  const again=await app(t,{db:stored});assert.equal(again.$('#pCust').textContent,'Test customer <fleet>');assert.equal(again.$('#grand').textContent,total);
+  assert.equal(Array.from(again.$('#jobCustomer').options).some(o=>o.value==='customer-a'),false);
+});
+
+test('Delete rolls back if customer removal cannot be saved',async t=>{
+  const {$,read,dom}=await app(t);const before=read();dom.window.Storage.prototype.setItem=function(){throw new Error('Quota exceeded');};
+  $('[data-deletec="customer-a"]').click();assert.deepEqual(read(),before);assert.ok($('[data-deletec="customer-a"]'));assert.match($('#customerActionStatus').textContent,/could not be saved.*kept/i);
+});
+
 test('Create Job button creates and opens a vehicle estimate without an optional title',async t=>{
   const db=seed();db.customers[0].vehicle='2016 Ram 2500 6.7 Cummins';
   const {$,change,read}=await app(t,{db});

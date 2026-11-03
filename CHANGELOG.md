@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.5.33 — 2026-11-02 — customer deletion
+
+- Added a permanent Delete action beside Archive/Restore. Confirmation identifies the customer and the number of existing tickets, and explains that invoice billing details and vehicle records are retained. No customer is deleted automatically during upgrade.
+- Removed customers disappear from the actual customer collection and new-job selectors. Existing tickets keep a billing snapshot with the original customer ID/name/contact/vehicle description, so job ownership, invoice totals, print identity, vehicle history and search remain usable. Historical snapshots cannot be selected to create new jobs.
+- Unlinked vehicle records remain available; their removed customer association is cleared when there are no tickets requiring historical resolution. A failed storage write rolls back the contact deletion and associated snapshot/link changes and reports that the customer was kept.
+- Verification: 60 tests pass, including permanent removal, cancellation, invoice identity/financial preservation after reload, and failed-save rollback. Browser confirms the Delete action is present. Native confirmation dismissal could not be automated in the preview; cancellation and confirmation text are covered in the isolated tests. No real customer records were deleted during development.
+- This removes a customer entry, not financial history or all copies of personal information. Existing tickets, scheduling/document records and older JSON/cloud backups can retain their existing information. The established browser/cloud snapshot workflow is unchanged.
+
 ## v1.5.32 — 2026-11-02 — restore Create Job and invoice entry
 
 - Reproduced the silent Create Job failure with the actual submit button: customer/vehicle selected and job title empty. The handler previously returned without feedback. Job title is now explicitly optional and a ticket name is generated from its type and vehicle.

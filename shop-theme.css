@@ -332,6 +332,8 @@ main .service-workspace { padding: 20px 20px 0; border-top: 3px solid #a51f2b; }
 main button:disabled { background: #edf0f4; border-color: #c7ced8; color: #596473; cursor: not-allowed; opacity: 1; }
 .vehicle-center-grid { display: grid; grid-template-columns: minmax(220px,290px) minmax(0,1fr); gap: 20px; align-items: start; }
 .customer-archive-label { display: inline-block; font-size: 12px; color: #414b5a; background: #edf0f4; padding: 3px 7px; border-radius: 4px; margin-left: 7px; }
+main .customer-delete { color: #85202d; background: #fff; border: 1px solid #a51f2b; }main .customer-delete:hover { background: #faeef0; }
+.customer-actions button { margin: 3px 4px 3px 0; }
 .form-feedback:not(:empty) { padding: 12px; margin: 12px 0; color: #245541; background: #edf3f0; border-left: 3px solid #47765f; line-height: 1.6; }
 .form-feedback.error { color: #85202d; background: #faeef0; border-color: #a51f2b; }
 .form-field-error:not(:empty) { color: #85202d; font-size: 13px; line-height: 1.5; margin-top: 8px; }

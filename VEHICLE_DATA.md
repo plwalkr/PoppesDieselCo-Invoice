@@ -4,7 +4,8 @@ The existing browser database and storage key remain in use. This is an additive
 
 | Record | Relationship and source of truth |
 | --- | --- |
-| Customer | Existing `customers[].id`; optional `archivedAt` hides the customer from new-work selectors without deleting history. |
+| Customer | Existing `customers[].id`; optional `archivedAt` hides the customer from new-work selectors. Explicit confirmed Delete removes the live customer entry; no automatic cascade deletes jobs or vehicles. |
+| Historical billing identity | Deleting a customer with tickets stores their existing billing fields in each job's `customerSnapshot`. The original `customerId` still resolves that historical identity for invoices/history, but cannot be used to create new tickets. This is retained financial history, not a live customer entry or complete privacy erasure. |
 | Vehicle | New `vehicles[].id`; normalized VIN, identity fields, customer references, private technical notes and structured recommendations. |
 | Job / repair order | Existing `jobs[].id` and `customerId`, with optional `vehicleId`. Original vehicle fields remain historical ticket snapshots. |
 | Customer vehicle carryover | Optional job `vehicleDescription` preserves the original wording; `vehicleDataSource` records its customer and description when inherited. Recognizable literal details fill an empty job once; existing descriptive identity and conflicting VINs are protected. Mileage in customer text is not a current odometer reading. |
@@ -32,5 +33,7 @@ Technical notes, recommendations, diagnostics and historical work are private sh
 No health scores or repair outcomes are inferred from invoices. A quoted part is labeled as a recorded line, rather than proof of installation. Further structured diagnostics, verified system assessments and cross-vehicle knowledge search are later phases.
 
 ## Rollback
+
+Historical customer resolution after an explicit deletion requires v1.5.33 or later. Older UI code can still read job totals but does not resolve `customerSnapshot` for deleted contacts; use a pre-deletion backup when restoring that older interface.
 
 Export a full JSON backup before production upgrade. Reverting the UI code does not roll back browser/cloud data. The earlier application may ignore additive fields and cannot manage their relationships; use a known pre-upgrade backup if a full data rollback is required. Whole-database import/cloud load still replaces the local snapshot, including vehicle memory.
