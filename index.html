@@ -7401,7 +7401,6 @@ window.addEventListener('load', function(){
                        (p.indexOf('powerstroke')>-1 && platformText.indexOf('ford')>-1) ||
                        (p.indexOf('duramax')>-1 && (platformText.indexOf('chevrolet')>-1||platformText.indexOf('gmc')>-1||platformText.indexOf('gm')>-1));
               });
-              if(!matched.length) matched = DB.templates.filter(function(t){return t && Array.isArray(t.items);});
               tags.innerHTML='';
               matched.forEach(function(tpl){
                 var b=document.createElement('button');
@@ -7414,7 +7413,7 @@ window.addEventListener('load', function(){
               document.getElementById('addAllSuggest').onclick = function(){
                 for(var k=0;k<matched.length;k++){ applyTemplate(matched[k]); }
               };
-              sug.style.display='block';
+              sug.style.display=matched.length?'block':'none';
       });
     });
 

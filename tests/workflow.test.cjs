@@ -56,7 +56,7 @@ function mockVinRequests(dom){
 const decodedVin=[{Variable:'Model Year',Value:'2011'},{Variable:'Make',Value:'BMW'},{Variable:'Model',Value:'X3'},{Variable:'Displacement (L)',Value:'3.0'},{Variable:'Error Code',Value:'6'},{Variable:'Error Text',Value:'6 - Incomplete VIN'}];
 
 test('Jobs VIN lookup normalizes pasted VINs and tolerates templates without a platform',async t=>{
-  const db=seed();db.templates=[{name:'Legacy package',items:[]}];
+  const db=seed();db.templates=[{name:'Legacy package',items:[]},{platform:'Cummins 6.7L (Ram)',items:[]}];
   const {dom,$,change,read}=await app(t,{db}),requests=mockVinRequests(dom);const before=JSON.stringify(read().jobs);
   change('#jobVIN',' 5ux wx7c5*ba ');$('#decodeVIN').click();
   assert.match(requests[0].url,/DecodeVin\/5UXWX7C5(?:%2A|\*)BA\?/);
@@ -64,6 +64,7 @@ test('Jobs VIN lookup normalizes pasted VINs and tolerates templates without a p
   assert.equal($('#jobVehicleYear').value,'2011');assert.equal($('#jobVehicleMake').value,'BMW');assert.equal($('#jobVehicleModel').value,'X3');
   assert.match($('#vinResult').textContent,/2011 BMW X3/);assert.doesNotMatch($('#vinResult').textContent,/parse failed/i);
   assert.match($('#vinResult').textContent,/Incomplete VIN/i);assert.equal(JSON.stringify(read().jobs),before);
+  assert.equal($('#vinTags').children.length,0);assert.equal($('#vinSuggest').style.display,'none');
 });
 
 test('VIN lookup times out, permits retry and preserves manual fields for empty results',async t=>{
