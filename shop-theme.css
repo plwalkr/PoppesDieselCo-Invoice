@@ -332,6 +332,7 @@ main .service-workspace { padding: 20px 20px 0; border-top: 3px solid #a51f2b; }
 main button:disabled { background: #edf0f4; border-color: #c7ced8; color: #596473; cursor: not-allowed; opacity: 1; }
 .vehicle-center-grid { display: grid; grid-template-columns: minmax(220px,290px) minmax(0,1fr); gap: 20px; align-items: start; }
 .customer-archive-label { display: inline-block; font-size: 12px; color: #414b5a; background: #edf0f4; padding: 3px 7px; border-radius: 4px; margin-left: 7px; }
+.vin-feedback { margin-top: 10px; padding: 12px; border-left: 3px solid #66778d; background: #edf0f4; color: #263445; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
 main .vehicle-directory { padding: 18px; }
 .vehicle-directory > p, .vehicle-panel p, .vehicle-command-header p { color: #414b5a; line-height: 1.6; font-size: 13px; }
 #vehicles input, #vehicles textarea, #vehicles select { width: 100%; max-width: none; }

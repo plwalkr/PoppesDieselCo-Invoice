@@ -42,6 +42,79 @@ async function app(t,{db=seed(),raw,failWrites=false}={}) {
   const read=()=>JSON.parse(dom.window.localStorage.getItem(key));
   return {dom,$,change,read};
 }
+
+function mockVinRequests(dom){
+  const requests=[];
+  dom.window.XMLHttpRequest=class {
+    constructor(){this.timeout=0;requests.push(this);}
+    open(method,url){this.url=url;}
+    send(){}
+    respond(results,status=200){this.status=status;this.responseText=JSON.stringify({Results:results});this.readyState=4;if(this.onreadystatechange)this.onreadystatechange();if(this.onload)this.onload();}
+  };
+  return requests;
+}
+const decodedVin=[{Variable:'Model Year',Value:'2011'},{Variable:'Make',Value:'BMW'},{Variable:'Model',Value:'X3'},{Variable:'Displacement (L)',Value:'3.0'},{Variable:'Error Code',Value:'6'},{Variable:'Error Text',Value:'6 - Incomplete VIN'}];
+
+test('Jobs VIN lookup normalizes pasted VINs and tolerates templates without a platform',async t=>{
+  const db=seed();db.templates=[{name:'Legacy package',items:[]}];
+  const {dom,$,change,read}=await app(t,{db}),requests=mockVinRequests(dom);const before=JSON.stringify(read().jobs);
+  change('#jobVIN',' 5ux wx7c5*ba ');$('#decodeVIN').click();
+  assert.match(requests[0].url,/DecodeVin\/5UXWX7C5(?:%2A|\*)BA\?/);
+  requests[0].respond(decodedVin);
+  assert.equal($('#jobVehicleYear').value,'2011');assert.equal($('#jobVehicleMake').value,'BMW');assert.equal($('#jobVehicleModel').value,'X3');
+  assert.match($('#vinResult').textContent,/2011 BMW X3/);assert.doesNotMatch($('#vinResult').textContent,/parse failed/i);
+  assert.match($('#vinResult').textContent,/Incomplete VIN/i);assert.equal(JSON.stringify(read().jobs),before);
+});
+
+test('VIN lookup times out, permits retry and preserves manual fields for empty results',async t=>{
+  const {dom,$,change}=await app(t),requests=mockVinRequests(dom);
+  change('#jobVehicleEngine','Manual engine');change('#jobVIN','5UXWX7C5*BA');$('#decodeVIN').click();
+  assert.ok(requests[0].timeout>0 && requests[0].timeout<=20000);assert.equal($('#decodeVIN').disabled,true);
+  requests[0].ontimeout();assert.match($('#vinResult').textContent,/timed out/i);assert.equal($('#decodeVIN').disabled,false);
+  $('#decodeVIN').click();requests[1].respond([]);
+  assert.match($('#vinResult').textContent,/no vehicle/i);assert.equal($('#jobVehicleEngine').value,'Manual engine');
+  $('#decodeVIN').click();requests[2].onerror();assert.match($('#vinResult').textContent,/connect/i);assert.equal($('#decodeVIN').disabled,false);
+});
+
+test('VIN responses cannot overwrite an edited VIN or a different invoice',async t=>{
+  const {dom,$,change,read}=await app(t),requests=mockVinRequests(dom);
+  change('#jobVIN','5UXWX7C5*BA');$('#decodeVIN').click();change('#jobVIN','1FT7W2BT1BEA12345');requests[0].respond(decodedVin);
+  assert.equal($('#jobVehicleMake').value,'');assert.equal($('#decodeVIN').disabled,false);
+  change('#invoiceVIN','5UXWX7C5*BA');$('#decodeInvoiceVIN').click();change('#invJob','b','change');requests[1].respond(decodedVin);
+  assert.equal($('#invoiceVIN').value,'');assert.equal(read().jobs[1].vehicleMake,'');
+});
+
+test('VIN validation, rate limiting and unreadable responses show retry guidance without clearing fields',async t=>{
+  const {dom,$,change}=await app(t),requests=mockVinRequests(dom);
+  change('#jobVehicleEngine','Keep engine');change('#jobVIN','NOT A VIN');$('#decodeVIN').click();assert.equal(requests.length,0);assert.match($('#vinResult').textContent,/11–17/);
+  change('#jobVIN','5UXWX7C5*BA');$('#decodeVIN').click();requests[0].respond([],429);assert.match($('#vinResult').textContent,/busy/i);
+  $('#decodeVIN').click();requests[1].status=200;requests[1].responseText='<html>Unavailable</html>';requests[1].onload();assert.match($('#vinResult').textContent,/unreadable/i);
+  assert.equal($('#jobVehicleEngine').value,'Keep engine');assert.equal($('#decodeVIN').disabled,false);
+});
+
+test('Jobs creation saves general, diesel and custom labor rates without diagnostic minimums on repairs',async t=>{
+  const {$,change,read,dom}=await app(t);
+  for(const [type,rate] of [['General Repair',100],['Diesel Repair',125],['Custom',147.5]]){
+    change('#jobCustomer','customer-a','change');change('#jobTitle',type+' visit');change('#newJobType',type,'change');
+    if(type==='Custom')change('#newJobLaborRate',String(rate));
+    assert.equal(Number($('#newJobLaborRate').value),rate);
+    $('#jobForm').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));
+    const job=read().jobs.find(j=>j.title===type+' visit');assert.equal(job.jobType,type);assert.equal(job.laborRate,rate);assert.equal($('#jobType').value,type);
+    $('#addLabor').click();assert.equal($('.lType').value,'Labor');assert.equal(Number($('.lUnit').value),rate);
+    change('.lQty','0.5');assert.equal($('#laborSub').textContent,'$'+(rate/2).toFixed(2));
+  }
+});
+
+test('diesel repair defaults are configurable and invoice type changes preserve existing line prices and custom rates',async t=>{
+  const {$,change,read,dom}=await app(t);
+  change('#settingDieselLaborRate','135');assert.equal(read().settings.dieselLaborRate,135);
+  change('#jobType','Diesel Repair','change');assert.equal(Number($('#laborRate').value),135);assert.equal(Number($('.lUnit').value),100);
+  $('#addLabor').click();assert.equal(Number($('#lines tbody tr:last-child .lUnit').value),135);
+  change('#laborRate','172.50');change('#jobType','General Repair','change');assert.equal(Number($('#laborRate').value),172.5);
+  change('#newJobType','Diesel Repair','change');assert.equal(Number($('#newJobLaborRate').value),135);
+  change('#jobCustomer','customer-a','change');change('#jobTitle','Configured diesel');$('#jobForm').dispatchEvent(new dom.window.Event('submit',{bubbles:true,cancelable:true}));
+  const again=await app(t,{db:read()});again.change('#invJob',read().jobs.find(j=>j.title==='Configured diesel').id,'change');assert.equal(Number(again.$('#laborRate').value),135);
+});
 test('switching invoices saves the outgoing form and preserves incoming fields',async t=>{
   const {$,change,read}=await app(t);
   change('#overallNotes','Edited A');

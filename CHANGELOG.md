@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.5.30 — 2026-11-02 — VIN lookup and repair job types
+
+- Moved Jobs VIN feedback directly below the VIN controls, with a readable live status. Cleaned pasted VIN spacing/case and added validation, a 15-second timeout, retry guidance, NHTSA warnings, and protection against empty results or late responses overwriting a different VIN/ticket. Jobs and invoices share the bounded lookup. Missing template labels no longer break successful decoding.
+- Added General Repair, Diesel Repair and Custom to job intake with an editable per-ticket labor rate. General defaults to $100/hr; diesel repair defaults to $125/hr through a separate configurable Settings value. Type/rate persist into the existing estimate and labor workflow. Diesel repair is regular labor; the diagnostic minimum still applies only to diagnostic lines.
+- Kept existing ticket rates and line prices. Changing an invoice type follows its default only when the current labor rate still matches the previous default; custom rates and existing line prices remain intact. Updated the theme URL so existing browsers fetch the feedback styling.
+- Verification: 43 tests pass, including six new VIN/rate regressions. Browser lookup using NHTSA's published partial VIN fills 2011 BMW X3 / 3.0L and explicitly displays the incomplete-VIN warning. Phone feedback fits at 390×844; a synthetic diesel ticket adds regular labor at $125 and retains its type/rate after reload. Startup checks report 24/24 with no observed console errors.
+- Remaining: a user's exact VIN-specific failure was not reproduced; lookup depends on NHTSA connectivity and manufacturer data. Manual vehicle entry remains available. Existing pricing/PDF/cloud/storage limitations below remain unchanged.
+
 ## Release preparation — 2026-11-02
 
 - Owner requested that the updated application be made available. Publishing the existing review branch to the established GitHub Pages address; no hosting provider, storage key or backend configuration changes.
