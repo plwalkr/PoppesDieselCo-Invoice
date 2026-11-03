@@ -3354,7 +3354,7 @@
     @media print { .save-status, .table-scroll-hint { display: none !important; } }
     @media print { .app-sidebar, .workspace-heading, .skip-link { display: none !important; } }
 </style>
-<link rel="stylesheet" href="shop-theme.css?v=1.5.32" media="screen" />
+<link rel="stylesheet" href="shop-theme.css?v=1.5.33" media="screen" />
 <script src="service-desk.js?v=1.5.32" defer></script>
 <script src="vehicle-records.js" defer></script>
 <script src="vehicle-center.js" defer></script>
@@ -3541,6 +3541,7 @@
 
   <!-- Customers -->
   <section id="customers" class="tab">
+    <div id="customerActionStatus" class="form-feedback" role="status" aria-live="polite"></div>
     <div class="card" style="margin-bottom:8px;">
       <div class="section-title">Add Customer</div>
       <form id="custForm">
@@ -4913,7 +4914,7 @@
 </div>
 
 <script>
-const APP_VERSION = 'v1.5.32';
+const APP_VERSION = 'v1.5.33';
 const APP_BUILD_DATE = '2026-11-02';
 const APP_BUILD_LABEL = APP_VERSION + ' — ' + APP_BUILD_DATE;
 
@@ -7272,7 +7273,7 @@ window.addEventListener('load', function(){
           '<td>'+escapeHtml(c.phone||'')+'</td>'+
           '<td>'+escapeHtml(c.email||'')+'</td>'+
           '<td>'+escapeHtml(c.vehicle||'')+'</td>'+
-          '<td><button class="tab-btn" data-archivec="'+escapeHtml(c.id)+'">'+(c.archivedAt?'Restore':'Archive')+'</button></td>';
+          '<td class="customer-actions"><button class="tab-btn" data-archivec="'+escapeHtml(c.id)+'">'+(c.archivedAt?'Restore':'Archive')+'</button> <button class="tab-btn customer-delete" data-deletec="'+escapeHtml(c.id)+'">Delete</button></td>';
         tb.appendChild(tr);
       });
       $all('button[data-archivec]').forEach(function(btn){
@@ -7282,6 +7283,36 @@ window.addEventListener('load', function(){
           renderCustomers();renderJobCustomer();if(vehicleCenter)vehicleCenter.render();saveDB();
         });
       });
+      $all('button[data-deletec]').forEach(function(btn){
+        btn.addEventListener('click',function(){deleteCustomer(btn.getAttribute('data-deletec'));});
+      });
+    }
+
+    function deleteCustomer(id){
+      var c=DB.customers.find(function(customer){return customer.id===id;});if(!c)return;
+      var jobs=DB.jobs.filter(function(job){return job.customerId===id;});
+      var history=jobs.length?jobs.length+' existing service ticket(s), including estimates/invoices, and their billing details will be kept.':'There are no linked service tickets.';
+      if(!confirm('Permanently delete "'+c.name+'" from Customers?\n\n'+history+'\nVehicle records will be kept. This customer entry cannot be restored here.\n\nDelete customer?'))return;
+      persistLines();
+      var previousCustomers=DB.customers,selectedIntake=$('#jobCustomer').value===id;
+      var snapshots=jobs.map(function(job){return {job:job,had:Object.prototype.hasOwnProperty.call(job,'customerSnapshot'),value:job.customerSnapshot};});
+      var vehicleLinks=[];
+      jobs.forEach(function(job){job.customerSnapshot={id:c.id,name:c.name || '',phone:c.phone || '',email:c.email || '',vehicle:c.vehicle || ''};});
+      if(!jobs.length)(DB.vehicles || []).forEach(function(vehicle){
+        if(vehicle.customerIds.indexOf(id)!==-1){vehicleLinks.push({vehicle:vehicle,ids:vehicle.customerIds});vehicle.customerIds=vehicle.customerIds.filter(function(cid){return cid!==id;});}
+      });
+      DB.customers=DB.customers.filter(function(customer){return customer.id!==id;});
+      if(!saveDB()){
+        DB.customers=previousCustomers;
+        snapshots.forEach(function(row){if(row.had)row.job.customerSnapshot=row.value;else delete row.job.customerSnapshot;});
+        vehicleLinks.forEach(function(row){row.vehicle.customerIds=row.ids;});
+        $('#customerActionStatus').textContent='Deletion could not be saved. The customer and linked records were kept.';
+        $('#customerActionStatus').classList.add('error');return;
+      }
+      renderAll();
+      if(selectedIntake)prefillCustomerVehicle();
+      $('#customerActionStatus').textContent=c.name+' was deleted from Customers.'+(jobs.length?' Existing tickets and their billing details were kept.':' Vehicle records were kept.');
+      $('#customerActionStatus').classList.remove('error');
     }
 
     /* ------ Jobs ------ */
@@ -7352,11 +7383,13 @@ window.addEventListener('load', function(){
     $('#jobCustomer').addEventListener('change',prefillCustomerVehicle);
 
     function findCustomer(id){
+      if(!id)return null;
       var i;
       for(i=0;i<DB.customers.length;i++){
         if(DB.customers[i].id===id) return DB.customers[i];
       }
-      return null;
+      var historical=DB.jobs.find(function(job){return job && job.customerId===id && job.customerSnapshot && typeof job.customerSnapshot==='object' && job.customerSnapshot.id===id;});
+      return historical?Object.assign({},historical.customerSnapshot,{isHistoricalCustomer:true}):null;
     }
 
     function renderJobCustomer(){
@@ -7365,7 +7398,7 @@ window.addEventListener('load', function(){
       var opts = ['<option value="">Select...</option>'];
       DB.customers.filter(function(c){return !c.archivedAt;}).forEach(function(c){ opts.push('<option value="'+c.id+'">'+escapeHtml(c.name)+'</option>'); });
       sel.innerHTML = opts.join('');
-      sel.value=previous;
+      sel.value=Array.from(sel.options).some(function(option){return option.value===previous;})?previous:'';
       renderInvFilters();
       renderInvJobOptions();
       renderRecentJobs();
@@ -7384,7 +7417,7 @@ window.addEventListener('load', function(){
       e.preventDefault();
       clearJobFieldError($('#jobCustomer'));clearJobFieldError($('#newJobLaborRate'));
       var customer=findCustomer($('#jobCustomer').value),rate=$('#newJobLaborRate');
-      if(!customer || customer.archivedAt){showJobFormStatus('Choose a customer before creating the job.',true,$('#jobCustomer'));return;}
+      if(!customer || customer.archivedAt || customer.isHistoricalCustomer){showJobFormStatus('Choose a customer before creating the job.',true,$('#jobCustomer'));return;}
       if(!rate.value.trim() || !rate.validity.valid || !isFinite(Number(rate.value)) || Number(rate.value)<0){showJobFormStatus('Enter a valid labor rate, such as 100.00 or 125.00.',true,rate);return;}
       var signature=JSON.stringify(Array.from(this.querySelectorAll('input,select,textarea')).map(function(el){return [el.id,el.value];}));
       var j=pendingJobCreation && pendingJobCreation.signature===signature?DB.jobs.find(function(job){return job.id===pendingJobCreation.id;}):null;
@@ -7650,7 +7683,7 @@ window.addEventListener('load', function(){
       var opts = ['<option value="">All customers</option>'];
       DB.customers.forEach(function(c){ opts.push('<option value="'+c.id+'">'+escapeHtml(c.name)+'</option>'); });
       sel.innerHTML = opts.join('');
-      sel.value = previous;
+      sel.value = Array.from(sel.options).some(function(option){return option.value===previous;})?previous:'';
     }
 
     function renderInvJobOptions(){
