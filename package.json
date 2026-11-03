@@ -1,0 +1,23 @@
+{
+  "name": "poppesdieselco-invoice",
+  "version": "1.5.29",
+  "private": true,
+  "description": "Development checks for Poppe's Diesel Co. Shop OS",
+  "scripts": {
+    "test": "node tests/workflow.test.cjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/plwalkr/PoppesDieselCo-Invoice.git"
+  },
+  "keywords": [],
+  "author": "",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/plwalkr/PoppesDieselCo-Invoice/issues"
+  },
+  "homepage": "https://github.com/plwalkr/PoppesDieselCo-Invoice#readme",
+  "devDependencies": {
+    "jsdom": "^26.1.0"
+  }
+}
