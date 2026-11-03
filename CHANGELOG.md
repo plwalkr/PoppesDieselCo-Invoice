@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.5.32 — 2026-11-02 — restore Create Job and invoice entry
+
+- Reproduced the silent Create Job failure with the actual submit button: customer/vehicle selected and job title empty. The handler previously returned without feedback. Job title is now explicitly optional and a ticket name is generated from its type and vehicle.
+- Added inline and form-level messages for a missing customer or invalid labor rate, with focus on the affected field. Failed validation retains entered work. Customer-list refreshes preserve the selected intake customer.
+- Create Job saves and opens the new estimate before clearing intake. Unexpected failures retain the entries and show diagnostic guidance; retrying an interrupted open targets the same created ticket instead of adding a duplicate. Storage failures remain visible and are not reported as successful saves.
+- Invoice entry now shows a useful empty state with New job and Show all jobs actions. Blank editing controls are hidden until a ticket is selected. The sole available ticket opens automatically on invoice navigation/restoration; multiple tickets still require an explicit selection. Filters can be cleared without inventing a selected job.
+- Verification: all 56 tests pass, including six new button/validation/selection/retry cases. Browser: selected a synthetic customer and vehicle, left the title blank, clicked Create Job, and verified a populated Diesel Repair estimate at $125/hr. Missing customer and empty rate produce visible field errors. The created ticket survives reopening/reload; phone layout fits at 390×844; startup checks report 24/24 with no observed console errors.
+- Scope/limits: the owner's browser was confirmed on v1.5.31 with no selected ticket. The blank-title failure is reproduced; the owner's exact filled intake was not available for inspection. Runtime errors now produce visible feedback rather than another silent failure. Existing data, pricing, PDF, cloud and storage limits remain as documented below.
+
 ## v1.5.31 — 2026-11-02 — customer vehicle carryover
 
 - Connected the customer's existing Vehicle / Notes text to job intake and the estimate vehicle fields. Recognizes explicitly written years, known makes/models, VW/Chevy aliases, common truck model notation and literal engine descriptions. Keeps the complete original text in an editable saved vehicle description; unfamiliar text is retained without inventing missing details.
