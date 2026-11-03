@@ -26,7 +26,7 @@
       function refreshContext(){
         var j = api.job(), c = j && api.customer(j.customerId);
         var vehicle = j ? [j.vehicleYear,j.vehicleMake,j.vehicleModel,j.vehicleEngine].filter(Boolean).join(' ') : '';
-        $('serviceVehicle').textContent = vehicle || (c && c.vehicle) || 'Vehicle not entered';
+        $('serviceVehicle').textContent = vehicle || (j && j.vehicleDescription) || (c && c.vehicle) || 'Vehicle not entered';
         $('serviceCustomer').textContent = c ? c.name : 'Select a job to begin';
         $('serviceTicket').textContent = j ? (j.title || 'Untitled job') : 'Use the Job selector below or create a service ticket.';
         $('serviceIdentity').textContent = j ? [j.roNo ? 'RO '+j.roNo : '',j.invNo || '',j.vin ? 'VIN '+j.vin : '',j.odometer ? j.odometer+' mi' : '',j.licensePlate ? 'Plate '+j.licensePlate : ''].filter(Boolean).join(' · ') : '';
